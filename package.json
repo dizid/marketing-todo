@@ -1,0 +1,35 @@
+{
+  "name": "marketing-todo",
+  "version": "1.0.0",
+  "description": "Marketing To-Do List Webapp - Comprehensive checklist for product launches",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "marketing",
+    "todo",
+    "checklist",
+    "product-launch",
+    "vue3",
+    "vite",
+    "supabase"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
+    "@tailwindcss/vite": "^4.1.15",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "axios": "^1.12.2",
+    "pinia": "^3.0.3",
+    "tailwindcss": "^4.1.15",
+    "vite": "^7.1.11",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  }
+}

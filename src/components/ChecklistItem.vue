@@ -1,0 +1,291 @@
+<template>
+  <!-- Checklist Item Component
+       Individual task item with checkbox, description, notes, and AI generation button
+       Features: Toggle state, edit notes, AI content generation
+  -->
+  <div class="px-6 py-4 hover:bg-gray-50 transition">
+    <!-- Task Header Row -->
+    <div class="flex items-start gap-3">
+      <!-- Checkbox -->
+      <input
+        type="checkbox"
+        :id="`task-${item.id}`"
+        :checked="taskData.checked"
+        @change="handleCheckChange"
+        class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+      />
+
+      <!-- Task Content -->
+      <div class="flex-1 min-w-0">
+        <!-- Task Name and Description -->
+        <label :for="`task-${item.id}`" class="cursor-pointer block">
+          <h4
+            class="font-semibold text-gray-900 transition"
+            :class="{ 'line-through text-gray-400': taskData.checked }"
+          >
+            {{ item.name }}
+          </h4>
+          <p class="text-sm text-gray-600 mt-1">{{ item.description }}</p>
+        </label>
+
+        <!-- Notes Section -->
+        <div class="mt-3">
+          <label class="text-xs font-medium text-gray-700 block mb-1">
+            Notes (optional)
+          </label>
+          <textarea
+            :value="taskData.notes || ''"
+            @input="handleNotesChange"
+            placeholder="Add notes for this task..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"
+            rows="2"
+          ></textarea>
+        </div>
+
+        <!-- AI Generation Button (if applicable) -->
+        <div v-if="item.hasAI" class="mt-3 flex gap-2">
+          <button
+            @click="handleGenerateAI"
+            :disabled="isGenerating"
+            class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded transition"
+          >
+            <svg v-if="!isGenerating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <svg v-else class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isGenerating ? 'Generating...' : 'Generate with AI' }}
+          </button>
+          <p class="text-xs text-gray-500 self-center">
+            Uses your app description in the prompt
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Output Modal -->
+    <div v-if="showAIModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-900">
+            AI-Generated Content: {{ item.name }}
+          </h3>
+          <button
+            @click="showAIModal = false"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="px-6 py-4">
+          <div v-if="aiError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p class="text-sm text-red-800">{{ aiError }}</p>
+          </div>
+
+          <textarea
+            :value="aiOutput"
+            @input="handleAIOutputChange"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition min-h-[200px] resize-vertical font-mono text-sm"
+          ></textarea>
+
+          <p class="text-xs text-gray-500 mt-2">
+            Edit the generated content as needed, then copy to use elsewhere
+          </p>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+          <button
+            @click="copyAIOutput"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
+          >
+            📋 Copy to Clipboard
+          </button>
+          <button
+            @click="showAIModal = false"
+            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition font-medium text-sm"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+/**
+ * ChecklistItem Component
+ *
+ * Renders an individual task item with:
+ * - Checkbox for completion state
+ * - Task description
+ * - Notes field for custom annotations
+ * - AI content generation (if applicable)
+ * - Modal for viewing/editing AI output
+ */
+
+import { ref } from 'vue'
+
+// Props
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true
+  },
+  taskData: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+// Emits
+const emit = defineEmits(['task-checked', 'notes-updated'])
+
+// State
+const isGenerating = ref(false)
+const showAIModal = ref(false)
+const aiOutput = ref('')
+const aiError = ref('')
+const appDescription = ref('')
+
+/**
+ * Load app description from local storage
+ */
+const loadAppDescription = () => {
+  const stored = localStorage.getItem('marketing-app-data')
+  if (stored) {
+    const data = JSON.parse(stored)
+    appDescription.value = data.appDescription || ''
+  }
+}
+
+/**
+ * Handle checkbox change
+ */
+const handleCheckChange = (event) => {
+  emit('task-checked', { checked: event.target.checked })
+}
+
+/**
+ * Handle notes textarea change
+ */
+const handleNotesChange = (event) => {
+  emit('notes-updated', { notes: event.target.value })
+}
+
+/**
+ * Handle AI generation button click
+ * Constructs prompt and calls proxy/API
+ */
+const handleGenerateAI = async () => {
+  if (!appDescription.value || appDescription.value.trim().length < 10) {
+    aiError.value = 'Please fill in your app description first (minimum 10 characters)'
+    return
+  }
+
+  isGenerating.value = true
+  aiError.value = ''
+  aiOutput.value = ''
+
+  try {
+    // Construct the prompt by replacing placeholder
+    const prompt = props.item.aiPrompt.replace('[app desc]', appDescription.value)
+
+    // For MVP: Show placeholder message since Grok API proxy isn't set up yet
+    // In production, uncomment the API call below
+    showAIModal.value = true
+    aiOutput.value = `[Placeholder] AI-generated content for:\n\n"${prompt}"\n\nTo integrate actual AI generation:\n1. Set up Netlify Functions with GROK_API_KEY\n2. Create /netlify/functions/ai-proxy.js\n3. Call the proxy endpoint with your content request`
+
+    // Actual API call (uncomment when proxy is ready):
+    /*
+    const response = await fetch('/.netlify/functions/ai-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'grok-4',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('AI generation failed')
+    }
+
+    const data = await response.json()
+    aiOutput.value = data.choices[0].message.content
+    showAIModal.value = true
+    */
+  } catch (error) {
+    console.error('AI generation error:', error)
+    aiError.value = error.message || 'Failed to generate content. Please try again.'
+    showAIModal.value = true
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+/**
+ * Handle AI output textarea change
+ */
+const handleAIOutputChange = (event) => {
+  aiOutput.value = event.target.value
+}
+
+/**
+ * Copy AI output to clipboard
+ */
+const copyAIOutput = (e) => {
+  navigator.clipboard.writeText(aiOutput.value).then(() => {
+    // Show temporary success message
+    const button = e.target
+    const originalText = button.textContent
+    button.textContent = '✓ Copied!'
+    setTimeout(() => {
+      button.textContent = originalText
+    }, 2000)
+  }).catch(err => {
+    console.error('Failed to copy:', err)
+    aiError.value = 'Failed to copy to clipboard'
+  })
+}
+
+// Initialize on mount
+loadAppDescription()
+</script>
+
+<style scoped>
+/* Smooth transitions and hover effects */
+input[type="checkbox"] {
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="checkbox"]:hover {
+  transform: scale(1.1);
+}
+
+textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+textarea:hover {
+  border-color: #c7d2fe;
+}
+
+/* Prevent text selection on repeated double-clicks */
+button {
+  user-select: none;
+}
+</style>

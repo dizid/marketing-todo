@@ -42,13 +42,12 @@ export async function getAppDescription() {
     .select('value')
     .eq('user_id', user.id)
     .eq('key', 'app_description')
-    .single()
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('Database error:', error)
     throw error
   }
-  return data?.value || ''
+  return data?.[0]?.value || ''
 }
 
 /**
@@ -90,12 +89,12 @@ export async function getChecklist() {
     .select('value')
     .eq('user_id', user.id)
     .eq('key', 'checklist_data')
-    .single()
 
-  if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
+  if (error) throw error
 
   try {
-    return data?.value ? JSON.parse(data.value) : null
+    const value = data?.[0]?.value
+    return value ? JSON.parse(value) : null
   } catch (e) {
     console.error('Failed to parse checklist data:', e)
     return null
@@ -142,10 +141,9 @@ export async function getCategoryNotes(categoryId) {
     .select('notes')
     .eq('user_id', user.id)
     .eq('category_id', categoryId)
-    .single()
 
-  if (error && error.code !== 'PGRST116') throw error
-  return data?.notes || ''
+  if (error) throw error
+  return data?.[0]?.notes || ''
 }
 
 /**

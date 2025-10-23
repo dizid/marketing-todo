@@ -345,7 +345,7 @@ Please provide a comprehensive campaign plan including:
 
 Format the response clearly with all sections above.`
 
-    const response = await fetch('/.netlify/functions/grok-proxy', {
+    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`; const response = await fetch(grokUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

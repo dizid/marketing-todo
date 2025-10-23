@@ -340,7 +340,7 @@ Format:
 ---NOTES---
 [Brief explanation of changes]`
 
-    const response = await fetch('/.netlify/functions/grok-proxy', {
+    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`; const response = await fetch(grokUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

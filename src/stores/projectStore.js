@@ -29,6 +29,7 @@ export const useProjectStore = defineStore('project', () => {
   const currentProjectSettings = computed(() => projectData.value?.settings || {})
   const currentProjectTasks = computed(() => projectData.value?.tasks || {})
   const currentProjectContent = computed(() => projectData.value?.content || [])
+  const currentProjectTaskData = computed(() => projectData.value?.taskData || {})
 
   /**
    * Fetch all projects for current user
@@ -229,6 +230,59 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * Update task-specific data (for mini-apps)
+   */
+  const updateTaskData = async (taskId, taskData) => {
+    if (!currentProjectId.value) throw new Error('No project selected')
+
+    try {
+      if (!projectData.value.taskData) {
+        projectData.value.taskData = {}
+      }
+
+      projectData.value.taskData[taskId] = {
+        ...projectData.value.taskData[taskId],
+        ...taskData
+      }
+
+      // Save to database
+      await saveProjectTaskData(currentProjectId.value, projectData.value.taskData)
+    } catch (err) {
+      error.value = err.message
+      console.error('Error updating task data:', err)
+      throw err
+    }
+  }
+
+  /**
+   * Get task-specific data
+   */
+  const getTaskData = (taskId) => {
+    return projectData.value.taskData?.[taskId] || {}
+  }
+
+  /**
+   * Save all task data to database
+   * Helper function
+   */
+  const saveProjectTaskData = async (projectId, taskData) => {
+    // Use Supabase to save
+    const { data, error: err } = await import('@/utils/supabase').then(mod =>
+      mod.supabase
+        .from('project_data')
+        .upsert({
+          project_id: projectId,
+          key: 'taskData',
+          value: taskData
+        }, { onConflict: 'project_id,key' })
+        .select()
+    )
+
+    if (err) throw err
+    return data
+  }
+
   return {
     // State
     projects,
@@ -242,6 +296,7 @@ export const useProjectStore = defineStore('project', () => {
     currentProjectSettings,
     currentProjectTasks,
     currentProjectContent,
+    currentProjectTaskData,
 
     // Actions
     fetchProjects,
@@ -254,6 +309,8 @@ export const useProjectStore = defineStore('project', () => {
     updateTask,
     removeTask,
     addTask,
+    updateTaskData,
+    getTaskData,
     addContent
   }
 })

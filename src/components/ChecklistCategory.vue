@@ -46,6 +46,7 @@
         @task-checked="(updates) => updateTask(item.id, updates)"
         @notes-updated="(updates) => updateTask(item.id, updates)"
         @task-removed="(data) => removeTask(item.id)"
+        @task-opened="(data) => emit('task-opened', data)"
       />
     </div>
 
@@ -83,7 +84,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
 
 // State
 const isExpanded = ref(false)

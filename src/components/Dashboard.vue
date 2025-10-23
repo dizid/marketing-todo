@@ -86,6 +86,7 @@
             @task-checked="handleTaskUpdate"
             @notes-updated="handleTaskUpdate"
             @task-removed="handleTaskRemoved"
+            @task-opened="handleTaskOpened"
           />
         </div>
 
@@ -144,6 +145,13 @@
         </div>
       </template>
     </div>
+
+    <!-- Task Modal -->
+    <TaskModal
+      :is-open="showTaskModal"
+      :task-id="selectedTaskId"
+      @close="handleTaskModalClosed"
+    />
   </div>
 </template>
 
@@ -163,6 +171,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
 import ChecklistCategory from './ChecklistCategory.vue'
 import ProjectHeader from './Project/ProjectHeader.vue'
+import TaskModal from './Task/TaskModal.vue'
 import { getGrokAdvice } from '@/services/grok.js'
 
 const projectStore = useProjectStore()
@@ -174,6 +183,8 @@ const selectedStatus = ref('')
 const grokAdvice = ref('')
 const isGenerating = ref(false)
 const aiError = ref('')
+const showTaskModal = ref(false)
+const selectedTaskId = ref(null)
 
 // Task categories data (global template - applies to all projects)
 const taskCategories = ref([
@@ -427,6 +438,22 @@ const handleTaskRemoved = async (data) => {
     console.error('Error removing task:', error)
     aiError.value = 'Failed to remove task'
   }
+}
+
+/**
+ * Handle task opened (open TaskModal)
+ */
+const handleTaskOpened = (data) => {
+  selectedTaskId.value = data.taskId
+  showTaskModal.value = true
+}
+
+/**
+ * Handle task modal closed
+ */
+const handleTaskModalClosed = () => {
+  showTaskModal.value = false
+  selectedTaskId.value = null
 }
 
 /**

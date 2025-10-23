@@ -45,6 +45,17 @@
         <!-- Action Buttons -->
         <div class="mt-3 flex gap-2 flex-wrap">
           <button
+            @click="handleOpenTask"
+            class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded transition"
+            title="Open task details"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+            Details
+          </button>
+
+          <button
             v-if="item.hasAI"
             @click="handleGenerateAI"
             :disabled="isGenerating"
@@ -158,7 +169,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
 
 // State
 const isGenerating = ref(false)
@@ -166,6 +177,13 @@ const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
 const appDescription = ref('')
+
+/**
+ * Handle opening task details modal
+ */
+const handleOpenTask = () => {
+  emit('task-opened', { taskId: props.item.id })
+}
 
 /**
  * Handle task removal

@@ -200,6 +200,20 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
+   * Remove task from project (doesn't count toward progress)
+   */
+  const removeTask = async (taskId) => {
+    await updateTask(taskId, { removed: true })
+  }
+
+  /**
+   * Add task back to project (makes it count toward progress again)
+   */
+  const addTask = async (taskId) => {
+    await updateTask(taskId, { removed: false })
+  }
+
+  /**
    * Add generated content
    */
   const addContent = async (contentType, content) => {
@@ -238,6 +252,8 @@ export const useProjectStore = defineStore('project', () => {
     updateProjectSettings,
     updateProjectTasks,
     updateTask,
+    removeTask,
+    addTask,
     addContent
   }
 })

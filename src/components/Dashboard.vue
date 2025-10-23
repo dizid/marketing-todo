@@ -85,6 +85,7 @@
             :tasks="projectStore.currentProjectTasks"
             @task-checked="handleTaskUpdate"
             @notes-updated="handleTaskUpdate"
+            @task-removed="handleTaskRemoved"
           />
         </div>
 
@@ -385,11 +386,18 @@ const filteredCategories = computed(() => {
 })
 
 const totalTasks = computed(() => {
-  return taskCategories.value.reduce((sum, cat) => sum + cat.items.length, 0)
+  // Count only active (non-removed) tasks
+  return taskCategories.value.reduce((sum, cat) => {
+    const activeItems = cat.items.filter(item => !projectStore.currentProjectTasks[item.id]?.removed)
+    return sum + activeItems.length
+  }, 0)
 })
 
 const completedTasks = computed(() => {
-  return Object.values(projectStore.currentProjectTasks).filter(t => t.checked).length
+  // Count only completed, non-removed tasks
+  return Object.entries(projectStore.currentProjectTasks)
+    .filter(([taskId, taskData]) => taskData.checked && !taskData.removed)
+    .length
 })
 
 const progressPercentage = computed(() => {
@@ -406,6 +414,18 @@ const handleTaskUpdate = async (updatedTasks) => {
   } catch (error) {
     console.error('Error updating tasks:', error)
     aiError.value = 'Failed to save task changes'
+  }
+}
+
+/**
+ * Handle task removal
+ */
+const handleTaskRemoved = async (data) => {
+  try {
+    await projectStore.removeTask(data.taskId)
+  } catch (error) {
+    console.error('Error removing task:', error)
+    aiError.value = 'Failed to remove task'
   }
 }
 

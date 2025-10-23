@@ -30,6 +30,15 @@
         <div class="flex items-center gap-4">
           <button
             v-if="projectStore.currentProject"
+            @click="showAddTasksModal = true"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition font-medium text-sm"
+            title="Add previously removed tasks back to the project"
+          >
+            + Add Tasks
+          </button>
+
+          <button
+            v-if="projectStore.currentProject"
             @click="showProjectForm = true"
             class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition font-medium text-sm"
             title="Edit project details"
@@ -61,6 +70,12 @@
       @updated="handleProjectUpdated"
       @close="showProjectForm = false"
     />
+
+    <!-- Add Tasks Modal -->
+    <AddTasksModal
+      :is-open="showAddTasksModal"
+      @close="showAddTasksModal = false"
+    />
   </header>
 </template>
 
@@ -72,6 +87,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { signOut } from '@/utils/supabase'
 import ProjectSetup from './ProjectSetup.vue'
 import ProjectForm from './ProjectForm.vue'
+import AddTasksModal from './AddTasksModal.vue'
 
 const router = useRouter()
 const projectStore = useProjectStore()
@@ -80,6 +96,7 @@ const authStore = useAuthStore()
 const selectedProjectId = ref('')
 const showNewProjectForm = ref(false)
 const showProjectForm = ref(false)
+const showAddTasksModal = ref(false)
 const isLoading = ref(false)
 
 // Watch current project and update selector

@@ -25,7 +25,7 @@
       </div>
       <div class="text-right">
         <span class="text-sm font-medium">
-          {{ categoryCompletedCount }}/{{ category.items.length }}
+          {{ categoryCompletedCount }}/{{ activeCategoryCount }}
         </span>
         <div class="w-24 h-2 bg-indigo-400 rounded-full mt-2 overflow-hidden">
           <div
@@ -39,12 +39,13 @@
     <!-- Category Items (Expanded) -->
     <div v-if="isExpanded" class="divide-y divide-gray-200">
       <ChecklistItem
-        v-for="item in category.items"
+        v-for="item in category.items.filter(i => !tasks[i.id]?.removed)"
         :key="item.id"
         :item="item"
         :task-data="tasks[item.id] || {}"
         @task-checked="(updates) => updateTask(item.id, updates)"
         @notes-updated="(updates) => updateTask(item.id, updates)"
+        @task-removed="(data) => removeTask(item.id)"
       />
     </div>
 
@@ -82,7 +83,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
 
 // State
 const isExpanded = ref(false)
@@ -107,18 +108,36 @@ const updateTask = (taskId, updates) => {
 }
 
 /**
- * Computed: Count of completed tasks in this category
+ * Remove task from project
+ */
+const removeTask = (taskId) => {
+  emit('task-removed', { taskId })
+}
+
+/**
+ * Computed: Count of completed tasks in this category (excluding removed)
  */
 const categoryCompletedCount = computed(() => {
-  return props.category.items.filter(item => props.tasks[item.id]?.checked).length
+  return props.category.items.filter(
+    item => !props.tasks[item.id]?.removed && props.tasks[item.id]?.checked
+  ).length
 })
 
 /**
- * Computed: Progress percentage for this category
+ * Computed: Count of active (non-removed) tasks in this category
+ */
+const activeCategoryCount = computed(() => {
+  return props.category.items.filter(
+    item => !props.tasks[item.id]?.removed
+  ).length
+})
+
+/**
+ * Computed: Progress percentage for this category (only for active tasks)
  */
 const categoryProgressPercentage = computed(() => {
-  if (props.category.items.length === 0) return 0
-  return (categoryCompletedCount.value / props.category.items.length) * 100
+  if (activeCategoryCount.value === 0) return 0
+  return (categoryCompletedCount.value / activeCategoryCount.value) * 100
 })
 </script>
 

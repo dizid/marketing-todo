@@ -42,9 +42,10 @@
           ></textarea>
         </div>
 
-        <!-- AI Generation Button (if applicable) -->
-        <div v-if="item.hasAI" class="mt-3 flex gap-2">
+        <!-- Action Buttons -->
+        <div class="mt-3 flex gap-2 flex-wrap">
           <button
+            v-if="item.hasAI"
             @click="handleGenerateAI"
             :disabled="isGenerating"
             class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded transition"
@@ -58,7 +59,19 @@
             </svg>
             {{ isGenerating ? 'Generating...' : 'Generate with AI' }}
           </button>
-          <p class="text-xs text-gray-500 self-center">
+
+          <button
+            @click="handleRemoveTask"
+            class="inline-flex items-center gap-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded transition"
+            title="Remove this task from the project (won't count toward progress)"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Remove
+          </button>
+
+          <p v-if="item.hasAI" class="text-xs text-gray-500 self-center">
             Uses your app description in the prompt
           </p>
         </div>
@@ -145,7 +158,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
 
 // State
 const isGenerating = ref(false)
@@ -153,6 +166,13 @@ const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
 const appDescription = ref('')
+
+/**
+ * Handle task removal
+ */
+const handleRemoveTask = () => {
+  emit('task-removed', { id: props.item.id })
+}
 
 /**
  * Load app description from local storage

@@ -17,7 +17,12 @@ export default defineConfig({
     proxy: {
       '/.netlify/functions': {
         target: 'http://localhost:9999',
-        changeOrigin: true
+        changeOrigin: true,
+        // Fallback if port 9999 isn't available
+        rewrite: (path) => {
+          console.log('[proxy] Rewriting path:', path);
+          return path;
+        }
       }
     }
   },

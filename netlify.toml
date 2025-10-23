@@ -7,6 +7,7 @@
   functions = "netlify/functions"
   command = "npm run dev"
   targetPort = 3000
+  functionsPort = 9999
 
 [[redirects]]
   from = "/*"

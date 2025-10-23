@@ -14,15 +14,15 @@
 
 // Map task IDs to components
 const taskComponentMap = {
-  // Setup Basics
-  'setup-1': () => import('@/components/Task/Forms/DefineAudienceTask.vue'),
+  // Setup Basics - NOW using new Mini-Apps (v2 - configuration-driven framework)
+  'setup-1': () => import('@/components/TaskMiniApps/DefineAudienceMiniApp.vue'),  // NEW: Mini-App version
   'setup-2': () => import('@/components/Task/Forms/DefineGoalsTask.vue'),
   'setup-3': () => import('@/components/Task/Forms/SetupIntegrationsTask.vue'),
   'setup-4': () => import('@/components/Task/Forms/PrepareAssetsTask.vue'),
   'setup-5': () => import('@/components/Task/Forms/SetupTrackingTask.vue'),
 
-  // Social Media Marketing
-  'social-1': () => import('@/components/Task/Generate/GeneratePostsTask.vue'),
+  // Social Media - NOW using new Mini-Apps
+  'social-1': () => import('@/components/TaskMiniApps/GeneratePostsMiniApp.vue'),  // NEW: Mini-App version
   'social-2': () => import('@/components/Task/Forms/EngageFollowersTask.vue'),
   'social-3': () => import('@/components/Task/Generate/GenerateGiveawayTask.vue'),
 
@@ -52,16 +52,29 @@ const taskComponentMap = {
  * Organized by category and task ID
  */
 const taskMetadata = {
+  // NEW Mini-Apps (v2) - these now use the main task IDs
   'setup-1': {
     name: 'Define Audience & Goals',
-    type: 'form',
+    type: 'miniapp',
     category: 'setup',
     icon: '🎯',
-    description: 'Profile ideal users and set acquisition targets.',
+    description: 'Create detailed buyer personas and market analysis with AI assistance.',
     hasAI: true,
-    aiPrompt: 'Suggest 3 personas and a 30-day plan for [app desc] to get 150 users.',
-    fields: ['audience', 'personas', 'targetUsers', 'timeline', 'notes']
+    miniAppId: 'define-audience',
+    fields: ['audience_overview', 'industry', 'company_size', 'job_titles', 'pain_points', 'budget_range', 'target_users_30d', 'market_size', 'notes']
   },
+  'social-1': {
+    name: 'Schedule Posts',
+    type: 'miniapp',
+    category: 'social',
+    icon: '📱',
+    description: 'Create platform-optimized social media posts with AI assistance. Generate multiple variants and pick your favorites.',
+    hasAI: true,
+    miniAppId: 'generate-posts',
+    fields: ['platforms', 'tone', 'cta', 'post_count', 'content_focus', 'keywords', 'audience_context', 'notes']
+  },
+
+  // NOTE: Old setup-1 and social-1 metadata removed - replaced with mini-app versions above
   'setup-2': {
     name: 'Set Up Landing Page',
     type: 'form',
@@ -100,16 +113,6 @@ const taskMetadata = {
     hasAI: true,
     aiPrompt: 'Create a spreadsheet template outline for tracking marketing metrics.',
     fields: ['metrics', 'sources', 'notes']
-  },
-  'social-1': {
-    name: 'Schedule Posts',
-    type: 'generate',
-    category: 'social',
-    icon: '📱',
-    description: 'Plan and queue 4-6 updates on X/LinkedIn/Instagram.',
-    hasAI: true,
-    aiPrompt: 'Generate 10 posts for [app desc] with hashtags, emojis, and sign-up links.',
-    fields: ['generatedPosts', 'selectedPosts', 'notes']
   },
   'social-2': {
     name: 'Engage Followers',

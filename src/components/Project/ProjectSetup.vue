@@ -38,6 +38,21 @@
           ></textarea>
         </div>
 
+        <!-- App Description for AI -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            App Description (for AI) <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            v-model="form.appDescription"
+            required
+            placeholder="Describe your app in detail (e.g., 'A SaaS task management app for distributed teams with real-time collaboration')"
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">Required for AI content generation (minimum 10 characters)</p>
+        </div>
+
         <!-- Target Audience -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -129,6 +144,7 @@ const projectStore = useProjectStore()
 const form = ref({
   name: '',
   description: '',
+  appDescription: '',
   targetAudience: '',
   goals: '',
   techStack: '',
@@ -141,6 +157,16 @@ const error = ref('')
 const handleSubmit = async () => {
   if (!form.value.name.trim()) {
     error.value = 'Project name is required'
+    return
+  }
+
+  if (!form.value.appDescription.trim()) {
+    error.value = 'App Description is required'
+    return
+  }
+
+  if (form.value.appDescription.trim().length < 10) {
+    error.value = 'App Description must be at least 10 characters'
     return
   }
 
@@ -160,13 +186,19 @@ const handleSubmit = async () => {
   try {
     const project = await projectStore.createProject(form.value.name, form.value.description)
 
+    // Save app description to localStorage for AI features
+    localStorage.setItem('marketing-app-data', JSON.stringify({
+      appDescription: form.value.appDescription.trim()
+    }))
+
     // Save settings
     const settings = {
       targetAudience: form.value.targetAudience,
       goals: form.value.goals,
       techStack: form.value.techStack,
       timeline: form.value.timeline,
-      description: form.value.description
+      description: form.value.description,
+      appDescription: form.value.appDescription
     }
 
     await projectStore.updateProjectSettings(settings)

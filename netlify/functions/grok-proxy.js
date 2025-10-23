@@ -2,7 +2,7 @@
 // Netlify serverless function to proxy requests to Grok AI API
 // Handles authentication and API communication securely
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   console.log('Function invoked at:', new Date().toISOString())
   console.log('Raw event:', JSON.stringify(event, null, 2))
 

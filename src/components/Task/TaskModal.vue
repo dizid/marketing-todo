@@ -100,8 +100,8 @@ const props = defineProps({
     default: false
   },
   taskId: {
-    type: String,
-    required: true
+    type: [String, null],
+    default: null
   }
 })
 
@@ -130,12 +130,17 @@ const currentTaskData = computed(() => {
 watch(
   () => props.taskId,
   async (newTaskId) => {
-    if (!newTaskId) return
+    if (!newTaskId) {
+      taskComponent.value = null
+      return
+    }
 
     try {
       const componentFn = getTaskComponent(newTaskId)
       if (componentFn) {
-        taskComponent.value = await componentFn()
+        const module = await componentFn()
+        // Extract the default export if it exists
+        taskComponent.value = module.default || module
       } else {
         taskComponent.value = null
       }

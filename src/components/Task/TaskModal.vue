@@ -178,9 +178,12 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleBackdropClick = () => {
-  // Close modal only when clicking on the backdrop (not the modal content)
-  handleClose()
+const handleBackdropClick = (event) => {
+  // Only close if clicking directly on the backdrop, not the modal content
+  if (event.target === event.currentTarget) {
+    console.log('[TaskModal] Backdrop clicked, closing modal')
+    handleClose()
+  }
 }
 </script>
 

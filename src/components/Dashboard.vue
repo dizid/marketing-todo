@@ -1,216 +1,180 @@
 <template>
-  <!-- Dashboard Component
-       Main application page showing checklist and management features
-       Features: Categorized tasks, progress tracking, notes, AI generation, export
-  -->
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- Navigation Header -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Marketing To-Do</h1>
-          </div>
-          <div class="flex items-center gap-4">
-            <span class="text-sm text-gray-600">{{ userEmail }}</span>
-            <button
-              @click="handleSignOut"
-              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-sm font-medium"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <!-- Header with Project Navigation -->
+    <ProjectHeader />
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- App Description Section -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-2">App Description</h2>
-        <p class="text-gray-600 text-sm mb-3">
-          Describe your app briefly. This will be used in AI-generated content prompts.
-        </p>
-        <textarea
-          v-model="appDescription"
-          @blur="saveAppDescription"
-          placeholder="E.g., 'A project management tool for remote teams...'"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition min-h-[100px] resize-none"
-        ></textarea>
-        <p class="text-xs text-gray-500 mt-2">Auto-saves to local storage</p>
+      <!-- No Project State -->
+      <div v-if="!projectStore.currentProject" class="bg-white rounded-lg shadow-md p-12 text-center">
+        <p class="text-gray-600 mb-4">No project selected. Create a new project to get started.</p>
       </div>
 
-      <!-- Progress Section -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Overall Progress</h3>
-          <span class="text-2xl font-bold text-indigo-600">{{ progressPercentage }}%</span>
-        </div>
-        <!-- Progress Bar -->
-        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div
-            class="bg-indigo-600 h-full transition-all duration-300 rounded-full"
-            :style="{ width: progressPercentage + '%' }"
-          ></div>
-        </div>
-        <p class="text-sm text-gray-600 mt-3">
-          {{ completedTasks }} of {{ totalTasks }} tasks completed
-        </p>
-      </div>
-
-      <!-- Search and Filter Section -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Search Input -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Search Tasks</label>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search by task name..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-            />
+      <!-- Project Content -->
+      <template v-else>
+        <!-- Project Progress Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Overall Progress</h3>
+            <span class="text-2xl font-bold text-indigo-600">{{ progressPercentage }}%</span>
           </div>
+          <!-- Progress Bar -->
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              class="bg-indigo-600 h-full transition-all duration-300 rounded-full"
+              :style="{ width: progressPercentage + '%' }"
+            ></div>
+          </div>
+          <p class="text-sm text-gray-600 mt-3">
+            {{ completedTasks }} of {{ totalTasks }} tasks completed
+          </p>
+        </div>
 
-          <!-- Category Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Category</label>
-            <select
-              v-model="selectedCategory"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search Input -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Search Tasks</label>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search by task name..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              />
+            </div>
+
+            <!-- Category Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Category</label>
+              <select
+                v-model="selectedCategory"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              >
+                <option value="">All Categories</option>
+                <option value="setup">Setup Basics</option>
+                <option value="social">Social Media Marketing</option>
+                <option value="content">Content Creation</option>
+                <option value="acquisition">User Acquisition & Engagement</option>
+                <option value="feedback">Feedback & Iteration</option>
+                <option value="analytics">Analytics & Optimization</option>
+              </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+              <select
+                v-model="selectedStatus"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              >
+                <option value="">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist Categories -->
+        <div class="space-y-4">
+          <ChecklistCategory
+            v-for="category in filteredCategories"
+            :key="category.name"
+            :category="category"
+            :tasks="projectStore.currentProjectTasks"
+            @task-checked="handleTaskUpdate"
+            @notes-updated="handleTaskUpdate"
+          />
+        </div>
+
+        <!-- AI Advice Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">🤖 Grok AI Advice</h2>
+            <button
+              @click="generateGrokAdvice"
+              :disabled="isGenerating"
+              class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg transition font-medium text-sm"
             >
-              <option value="">All Categories</option>
-              <option value="setup">Setup Basics</option>
-              <option value="social">Social Media Marketing</option>
-              <option value="content">Content Creation</option>
-              <option value="acquisition">User Acquisition & Engagement</option>
-              <option value="feedback">Feedback & Iteration</option>
-              <option value="analytics">Analytics & Optimization</option>
-            </select>
+              {{ isGenerating ? '⏳ Generating...' : '✨ Generate Advice' }}
+            </button>
           </div>
 
-          <!-- Status Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
-            <select
-              v-model="selectedStatus"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-            >
-              <option value="">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-            </select>
+          <p class="text-gray-600 text-sm mb-4">
+            Get AI-powered suggestions tailored to your project.
+          </p>
+
+          <div v-if="aiError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-800">{{ aiError }}</p>
+          </div>
+
+          <div v-if="grokAdvice" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+              {{ grokAdvice }}
+            </div>
+          </div>
+
+          <div v-if="!grokAdvice && !isGenerating" class="text-gray-500 text-sm italic">
+            Click "Generate Advice" to get personalized recommendations from Grok AI
           </div>
         </div>
-      </div>
 
-      <!-- Checklist Categories -->
-      <div class="space-y-4">
-        <ChecklistCategory
-          v-for="category in filteredCategories"
-          :key="category.name"
-          :category="category"
-          :tasks="tasks"
-          @task-checked="handleTaskUpdate"
-          @notes-updated="handleTaskUpdate"
-        />
-      </div>
-
-      <!-- AI Advice Section -->
-      <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">🤖 Grok AI Advice</h2>
+        <!-- Action Buttons -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8 flex flex-wrap gap-3">
           <button
-            @click="generateGrokAdvice"
-            :disabled="isGenerating"
-            class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg transition font-medium text-sm"
+            @click="exportAsMarkdown"
+            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm"
           >
-            {{ isGenerating ? '⏳ Generating...' : '✨ Generate Advice' }}
+            📄 Export as Markdown
+          </button>
+          <button
+            @click="exportAsJSON"
+            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium text-sm"
+          >
+            💾 Export as JSON
+          </button>
+          <button
+            @click="resetProjectTasks"
+            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm ml-auto"
+          >
+            🔄 Reset All Tasks
           </button>
         </div>
-
-        <p class="text-gray-600 text-sm mb-4">
-          Get AI-powered suggestions tailored to your app description and current progress.
-        </p>
-
-        <div v-if="aiError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-sm text-red-800">{{ aiError }}</p>
-        </div>
-
-        <div v-if="grokAdvice" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
-            {{ grokAdvice }}
-          </div>
-        </div>
-
-        <div v-if="!grokAdvice && !isGenerating" class="text-gray-500 text-sm italic">
-          Click "Generate Advice" to get personalized recommendations from Grok AI
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="bg-white rounded-lg shadow-md p-6 mt-8 flex flex-wrap gap-3">
-        <button
-          @click="exportAsMarkdown"
-          class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm"
-        >
-          📄 Export as Markdown
-        </button>
-        <button
-          @click="exportAsJSON"
-          class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium text-sm"
-        >
-          💾 Export as JSON
-        </button>
-        <button
-          @click="resetAll"
-          class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm ml-auto"
-        >
-          🔄 Reset All Data
-        </button>
-      </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 /**
- * Dashboard Component
+ * Dashboard Component - Project-aware main interface
  *
- * Main application interface with:
- * - Task checklist management by category
- * - Progress tracking and visualization
- * - Local storage persistence
+ * Features:
+ * - Project-based task management
+ * - Progress tracking
  * - Search and filtering
- * - Export functionality
- * - User authentication
+ * - AI advice generation
+ * - Data export
  */
 
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/authStore'
-import { useRouter } from 'vue-router'
+import { useProjectStore } from '@/stores/projectStore'
 import ChecklistCategory from './ChecklistCategory.vue'
-import { saveAppDescription as dbSaveAppDescription, getAppDescription as dbGetAppDescription, getChecklist, saveChecklist } from '@/services/db.js'
+import ProjectHeader from './Project/ProjectHeader.vue'
 import { getGrokAdvice } from '@/services/grok.js'
 
-// Auth setup
-const authStore = useAuthStore()
-const router = useRouter()
-const userEmail = computed(() => authStore.user?.email || 'User')
+const projectStore = useProjectStore()
 
 // State
-const appDescription = ref('')
 const searchQuery = ref('')
 const selectedCategory = ref('')
 const selectedStatus = ref('')
-const tasks = ref({})
 const grokAdvice = ref('')
 const isGenerating = ref(false)
 const aiError = ref('')
-const isSavingDescription = ref(false)
 
-// Task categories data
+// Task categories data (global template - applies to all projects)
 const taskCategories = ref([
   {
     name: 'setup',
@@ -409,7 +373,7 @@ const filteredCategories = computed(() => {
 
           // Status filter
           if (selectedStatus.value) {
-            const isCompleted = tasks.value[item.id]?.checked || false
+            const isCompleted = projectStore.currentProjectTasks[item.id]?.checked || false
             if (selectedStatus.value === 'completed' && !isCompleted) return false
             if (selectedStatus.value === 'pending' && isCompleted) return false
           }
@@ -425,7 +389,7 @@ const totalTasks = computed(() => {
 })
 
 const completedTasks = computed(() => {
-  return Object.values(tasks.value).filter(t => t.checked).length
+  return Object.values(projectStore.currentProjectTasks).filter(t => t.checked).length
 })
 
 const progressPercentage = computed(() => {
@@ -434,115 +398,70 @@ const progressPercentage = computed(() => {
 })
 
 /**
- * Load persisted data from local storage
- */
-/**
- * Load data from database
- */
-const loadFromDatabase = async () => {
-  try {
-    // Load app description from database
-    const description = await dbGetAppDescription()
-    appDescription.value = description
-
-    // Load checklist from database
-    const checklistData = await getChecklist()
-    if (checklistData) {
-      tasks.value = checklistData
-    } else {
-      // Fallback to local storage if database is empty
-      loadFromStorage()
-    }
-  } catch (error) {
-    console.error('Error loading from database:', error)
-    // Fallback to local storage
-    loadFromStorage()
-  }
-}
-
-/**
- * Load from local storage (fallback)
- */
-const loadFromStorage = () => {
-  const stored = localStorage.getItem('marketing-app-data')
-  if (stored) {
-    const data = JSON.parse(stored)
-    appDescription.value = data.appDescription || ''
-    tasks.value = data.tasks || {}
-  }
-}
-
-/**
- * Save app description to database and local storage
- */
-const saveAppDescription = async () => {
-  if (isSavingDescription.value) return
-  isSavingDescription.value = true
-
-  try {
-    // Save to database
-    await dbSaveAppDescription(appDescription.value)
-    // Also save to local storage as backup
-    saveToStorage()
-  } catch (error) {
-    console.error('Error saving app description:', error)
-    // Still save to local storage if database fails
-    saveToStorage()
-  } finally {
-    isSavingDescription.value = false
-  }
-}
-
-/**
  * Handle task updates from child components
  */
 const handleTaskUpdate = async (updatedTasks) => {
-  tasks.value = updatedTasks
-  await saveTaskState()
-}
-
-/**
- * Save task state to database and local storage
- */
-const saveTaskState = async () => {
   try {
-    // Save to database
-    await saveChecklist(tasks.value)
-    // Also save to local storage as backup
-    saveToStorage()
+    await projectStore.updateProjectTasks(updatedTasks)
   } catch (error) {
-    console.error('Error saving tasks:', error)
-    // Still save to local storage if database fails
-    saveToStorage()
+    console.error('Error updating tasks:', error)
+    aiError.value = 'Failed to save task changes'
   }
 }
 
 /**
- * Generic save to local storage
+ * Generate Grok AI advice
  */
-const saveToStorage = () => {
-  const data = {
-    appDescription: appDescription.value,
-    tasks: tasks.value
+const generateGrokAdvice = async () => {
+  if (isGenerating.value) return
+  isGenerating.value = true
+  aiError.value = ''
+
+  try {
+    const userData = {
+      appDescription: projectStore.currentProjectSettings.targetAudience || '',
+      projectGoals: projectStore.currentProjectSettings.goals || '',
+      techStack: projectStore.currentProjectSettings.techStack || '',
+      completedTasks: completedTasks.value,
+      totalTasks: totalTasks.value,
+      progress: progressPercentage.value,
+      checklist: taskCategories.value.map(cat => ({
+        category: cat.label,
+        completedCount: cat.items.filter(item => projectStore.currentProjectTasks[item.id]?.checked).length,
+        totalCount: cat.items.length
+      }))
+    }
+
+    const advice = await getGrokAdvice(userData)
+    grokAdvice.value = advice
+  } catch (error) {
+    console.error('Error generating Grok advice:', error)
+    aiError.value = error.message || 'Failed to generate AI advice. Please try again.'
+  } finally {
+    isGenerating.value = false
   }
-  localStorage.setItem('marketing-app-data', JSON.stringify(data))
 }
 
 /**
  * Export data as Markdown format
  */
 const exportAsMarkdown = () => {
-  let markdown = '# Marketing To-Do Progress\n\n'
-  markdown += `**Progress: ${progressPercentage.value}% (${completedTasks.value}/${totalTasks.value} tasks)**\n\n`
+  let markdown = '# Project Progress\n\n'
+  markdown += `**Project:** ${projectStore.currentProject.name}\n`
+  markdown += `**Progress:** ${progressPercentage.value}% (${completedTasks.value}/${totalTasks.value} tasks)\n\n`
 
-  if (appDescription.value) {
-    markdown += `## App Description\n${appDescription.value}\n\n`
+  if (projectStore.currentProjectSettings.targetAudience) {
+    markdown += `**Target Audience:** ${projectStore.currentProjectSettings.targetAudience}\n`
+  }
+
+  if (projectStore.currentProjectSettings.goals) {
+    markdown += `**Goals:** ${projectStore.currentProjectSettings.goals}\n\n`
   }
 
   filteredCategories.value.forEach(category => {
     markdown += `## ${category.label}\n`
     category.items.forEach(item => {
-      const taskData = tasks.value[item.id] || {}
+      const taskData = projectStore.currentProjectTasks[item.id] || {}
       const checked = taskData.checked ? '✅' : '☐'
       markdown += `- ${checked} ${item.name}\n`
       if (taskData.notes) {
@@ -562,13 +481,16 @@ const exportAsMarkdown = () => {
 const exportAsJSON = () => {
   const exportData = {
     exportedAt: new Date().toISOString(),
+    project: {
+      name: projectStore.currentProject.name,
+      settings: projectStore.currentProjectSettings
+    },
     progress: {
       completed: completedTasks.value,
       total: totalTasks.value,
       percentage: progressPercentage.value
     },
-    appDescription: appDescription.value,
-    tasks: tasks.value
+    tasks: projectStore.currentProjectTasks
   }
 
   const jsonString = JSON.stringify(exportData, null, 2)
@@ -586,68 +508,22 @@ const copyToClipboard = (text) => {
 }
 
 /**
- * Reset all data after confirmation
+ * Reset all tasks in project
  */
-const resetAll = () => {
-  if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-    appDescription.value = ''
-    tasks.value = {}
-    localStorage.removeItem('marketing-app-data')
-    alert('All data has been reset!')
+const resetProjectTasks = () => {
+  if (confirm('Are you sure you want to reset all tasks for this project? This cannot be undone.')) {
+    projectStore.updateProjectTasks({})
+    alert('All tasks have been reset!')
   }
 }
 
 /**
- * Generate Grok AI advice based on app description and progress
- */
-const generateGrokAdvice = async () => {
-  if (isGenerating.value) return
-  isGenerating.value = true
-  aiError.value = ''
-
-  try {
-    // Prepare user data for Grok
-    const userData = {
-      appDescription: appDescription.value,
-      completedTasks: completedTasks.value,
-      totalTasks: totalTasks.value,
-      progress: progressPercentage.value,
-      checklist: taskCategories.value.map(cat => ({
-        category: cat.label,
-        completedCount: cat.items.filter(item => tasks.value[item.id]?.checked).length,
-        totalCount: cat.items.length
-      }))
-    }
-
-    // Call Grok API
-    const advice = await getGrokAdvice(userData)
-    grokAdvice.value = advice
-  } catch (error) {
-    console.error('Error generating Grok advice:', error)
-    aiError.value = error.message || 'Failed to generate AI advice. Please try again.'
-  } finally {
-    isGenerating.value = false
-  }
-}
-
-/**
- * Handle user sign out
- */
-const handleSignOut = async () => {
-  if (confirm('Are you sure you want to sign out?')) {
-    const result = await authStore.handleSignOut()
-    if (result.success) {
-      router.push('/auth')
-    }
-  }
-}
-
-/**
- * Initialize component
+ * Initialize on mount
  */
 onMounted(async () => {
-  // Load data from database, with fallback to local storage
-  await loadFromDatabase()
+  if (projectStore.projects.length === 0) {
+    await projectStore.fetchProjects()
+  }
 })
 </script>
 

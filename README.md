@@ -1,141 +1,132 @@
-# Sales Marketing Dashboard
+# Marketing To-Do App - Multi-Project System
 
-A modern, full-stack sales dashboard with AI-powered marketing advice using Grok AI.
+A modern Vue 3 marketing task manager with per-project organization, Supabase authentication, and Grok AI integration.
 
-## ✨ Features
+## Features
 
-- 📝 **Smart Checklist** - 6 categories with 30+ pre-built marketing tasks
-- 🎯 **Progress Tracking** - Visual progress bars and completion stats
-- 💾 **Database Persistence** - All data saved to Supabase
-- 🔐 **Authentication** - Secure signup/login with email
-- 🤖 **Grok AI Integration** - AI-powered marketing advice generation
-- 🎨 **Beautiful UI** - Tailwind CSS v4 responsive design
-- 📤 **Export** - Export data as Markdown or JSON
+- **Multi-Project System** - Create unlimited marketing projects with isolated task tracking
+- **Smart Checklist** - 20 pre-built marketing tasks across 6 categories
+- **Project Settings** - Define target audience, goals, tech stack, and timeline per project
+- **Progress Tracking** - Visual progress bars for overall and per-category completion
+- **Database Persistence** - All data saved to Supabase with Row Level Security
+- **Authentication** - Secure signup/login with email verification
+- **Grok AI Integration** - AI-powered marketing advice generation
+- **Export** - Export project data as Markdown or JSON
+- **Mobile-First** - Responsive design optimized for all devices
 
-## 🚀 Quick Start
+## Quick Start
+
+### Prerequisites
+- Node.js v18+
+- Supabase account with project created
+- Grok API key from xAI console
+
+### Installation & Setup
+
+**For a complete rebuild from scratch, see [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md)**
+
+Quick setup for existing developers:
 
 ```bash
 # 1. Install dependencies
 npm install
 
-# 2. Run the app
-netlify dev  # (with Grok AI)
-# or
-npm run dev  # (basic, no Grok)
+# 2. Configure environment (.env file)
+VITE_SUPABASE_URL=https://[project-id].supabase.co
+VITE_SUPABASE_ANON_KEY=[anon-key]
+VITE_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
+GROK_API_KEY=xai-[your-key]
+
+# 3. Run development server (Terminal 1)
+npm run dev
+
+# 4. Run Netlify functions (Terminal 2)
+netlify functions:serve
+
+# 5. Visit http://localhost:3000
 ```
 
-Visit http://localhost:3000 and sign up!
-
-## 📖 Setup Instructions
-
-**See COMPLETE_SETUP.md for full instructions:**
-- Installing Netlify CLI
-- Testing all features
-- Troubleshooting
-- Deployment
-
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | Vue 3 + Vite |
-| Styling | Tailwind CSS v4 |
-| State | Pinia (auth) |
+| Styling | Tailwind CSS |
+| State Management | Pinia |
 | Routing | Vue Router |
-| Backend | Supabase + Netlify Functions |
+| Database | Supabase (PostgreSQL) |
+| Serverless | Netlify Functions |
 | AI | Grok API |
-| Database | PostgreSQL (Supabase) |
 
-## 🤖 How Grok AI Works
+## Database Tables
 
-1. Click **"✨ Generate Advice"** on Dashboard
-2. Your app description + progress sent to Grok
-3. Get personalized marketing recommendations
-4. Advice saved to database
+- **user_profiles** - User account data (synced with auth.users)
+- **projects** - User's marketing projects with metadata
+- **project_data** - Key-value store for project settings, tasks, and generated content
 
-**Requires:** `netlify dev` + `GROK_API_KEY` in `.env`
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── AuthForm.vue      # Login/signup
-│   ├── Dashboard.vue     # Main app + Grok button
-│   ├── ChecklistCategory.vue
-│   └── ChecklistItem.vue
+│   ├── Project/
+│   │   ├── ProjectHeader.vue    # Navigation & project selector
+│   │   ├── ProjectSetup.vue     # Create project modal
+│   │   ├── ProjectForm.vue      # Edit project modal
+│   ├── AuthForm.vue             # Login/signup
+│   ├── Dashboard.vue            # Main app interface
+│   ├── ChecklistCategory.vue    # Task category accordion
+│   └── ChecklistItem.vue        # Individual task
 ├── services/
-│   ├── db.js            # Database queries
-│   └── grok.js          # Grok API integration
+│   ├── projectService.js        # Project CRUD operations
+│   └── grok.js                  # Grok AI integration
 ├── stores/
-│   └── authStore.js     # Auth state management
+│   ├── projectStore.js          # Project state management
+│   └── authStore.js             # Auth state management
 ├── utils/
-│   └── supabase.js      # Supabase client
+│   └── supabase.js              # Supabase client
 └── router/
-    └── index.js         # Route config
+    └── index.js                 # Route configuration
 
 netlify/functions/
-└── grok-proxy.js        # Serverless Grok proxy
-
-.env                     # API keys
+└── grok-proxy.js                # Serverless Grok API proxy
 ```
 
-## 📊 Database Tables
+## Testing
 
-All use Row Level Security (RLS) - users only access their own data.
+See [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md) Step 9 for comprehensive testing checklist.
 
-| Table | Purpose |
-|-------|---------|
-| `user_settings` | App description & checklist data |
-| `category_notes` | Notes per task category |
-| `generated_content` | AI-generated content history |
-
-## 🧪 Testing Checklist
-
-- [ ] Sign up → auto-login to dashboard
-- [ ] Fill app description → refresh → still there
-- [ ] Check tasks → refresh → still checked
-- [ ] Sign out → login → data persists
-- [ ] Click "✨ Generate Advice" → see AI recommendations
-
-## 📋 Commands
-
-```bash
-npm run dev       # Start dev server (no Grok)
-netlify dev      # Start with Netlify functions (with Grok)
-npm run build    # Build for production
-```
-
-## 🚀 Deployment
+## Deployment
 
 ```bash
 npm run build
 netlify deploy --prod
 ```
 
-Set `GROK_API_KEY` in Netlify environment variables.
+Set `GROK_API_KEY` in Netlify Site Settings → Environment variables.
 
-## 🔧 Troubleshooting
+## Documentation
 
-**Grok not working?**
-- Use `netlify dev` (not `npm run dev`)
-- Check `GROK_API_KEY` in `.env`
+- **[REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md)** - Complete rebuild guide with step-by-step instructions, SQL schema, troubleshooting, and architecture decisions
+- **[claude.md](claude.md)** - Custom project notes
 
-**Data not saving?**
-- Check you're logged in (email visible in header)
-- Verify Supabase tables exist
+## Phase Information
 
-**Can't login?**
-- Verify Supabase credentials in `.env`
-- Email confirmation is disabled (auto-confirms)
+**Current Phase:** Phase 1 - Multi-Project System ✅
 
-See **COMPLETE_SETUP.md** for more help.
+**Next Phase:** Phase 2 - Task Mini-Apps (modular task components)
 
-## 📚 Documentation
+See REBUILD_FROM_SCRATCH.md for Phase 2 planning details.
 
-- **COMPLETE_SETUP.md** - Full setup & troubleshooting
-- **README.md** - This file
+## Common Issues
 
-## 📝 License
+Consult [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md) Common Issues & Solutions section for:
+- Foreign key constraint errors
+- 406 Supabase REST API errors
+- CORS issues
+- Grok function 404 errors
+- Port conflicts
+
+## License
 
 MIT

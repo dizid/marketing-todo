@@ -349,8 +349,8 @@ Post 1 content here
 Important: Use [PLATFORM: ...] headers and --- separators between posts.`
 
     // Call Grok API through our proxy
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
-    const response = await fetch(grokUrl, {
+    // Using Vite proxy configured in vite.config.js
+    const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -130,8 +130,8 @@ CTA: ${keyMessage.value}
 
 Include: Layout, color suggestions, typography, imagery ideas, and design elements.`
 
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
-    const response = await fetch(grokUrl, {
+    // Using Vite proxy configured in vite.config.js
+    const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

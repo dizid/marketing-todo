@@ -323,8 +323,8 @@ ${includeOutline ? '[OUTLINE]\n- Point 1\n- Point 2\n...\n\n' : ''}
 ${includeCTA ? '\n\n[CALL TO ACTION]\n...' : ''}
 ${includeImages ? '\n\n[IMAGE SUGGESTIONS]\n1. Image idea...' : ''}`
 
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
-    const response = await fetch(grokUrl, {
+    // Using Vite proxy configured in vite.config.js
+    const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

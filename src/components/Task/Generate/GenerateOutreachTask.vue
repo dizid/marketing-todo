@@ -330,8 +330,8 @@ Message body here...
 ---TIPS---
 Provide 3-5 quick personalization tips to make this template even more effective.`
 
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
-    const response = await fetch(grokUrl, {
+    // Using Vite proxy configured in vite.config.js
+    const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

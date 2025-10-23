@@ -28,7 +28,7 @@ const taskComponentMap = {
 
   // Content Creation
   'content-1': () => import('@/components/Task/Generate/GenerateBlogTask.vue'),
-  'content-2': () => import('@/components/Task/Forms/GenerateVideoTask.vue'),
+  'content-2': () => import('@/components/Task/Generate/GenerateVideoTask.vue'),
   'content-3': () => import('@/components/Task/Generate/GenerateGraphicsTask.vue'),
 
   // User Acquisition & Engagement

@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center h-16">
         <!-- Left: Project Selector -->
         <div class="flex items-center gap-4">
-          <h1 class="text-2xl font-bold text-gray-900">Marketing To-Do</h1>
+          <h1 class="text-2xl font-bold text-gray-900">GrokFather</h1>
 
           <select
             v-model="selectedProjectId"

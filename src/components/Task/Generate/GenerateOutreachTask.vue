@@ -330,7 +330,8 @@ Message body here...
 ---TIPS---
 Provide 3-5 quick personalization tips to make this template even more effective.`
 
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`; const response = await fetch(grokUrl, {
+    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
+    const response = await fetch(grokUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

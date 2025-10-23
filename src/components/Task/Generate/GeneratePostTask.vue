@@ -340,7 +340,8 @@ Format:
 ---NOTES---
 [Brief explanation of changes]`
 
-    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`; const response = await fetch(grokUrl, {
+    const grokUrl = `${import.meta.env.VITE_FUNCTIONS_URL}/grok-proxy`
+    const response = await fetch(grokUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

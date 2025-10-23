@@ -1,34 +1,17 @@
 // netlify/functions/grok-proxy.js
 // Netlify serverless function to proxy requests to Grok AI API
-// Handles authentication and API communication securely
+// Handles authentication and LLM-style API communication securely
 
 export const handler = async (event) => {
-  console.log('Function invoked at:', new Date().toISOString())
-  console.log('Raw event:', JSON.stringify(event, null, 2))
-
-  console.log('Environment variables:', {
-    GROK_API_KEY: process.env.GROK_API_KEY ? 'present' : 'missing',
-  })
-
-  const sendResponse = (statusCode, body) => {
-    console.log('Sending response:', { statusCode, body })
-    return {
-      statusCode,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      body: JSON.stringify(body),
-    }
-  }
+  console.log('[grok-proxy] Function invoked at:', new Date().toISOString())
+  console.log('[grok-proxy] HTTP Method:', event.httpMethod)
 
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers: {
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
@@ -38,92 +21,173 @@ export const handler = async (event) => {
   }
 
   if (event.httpMethod !== 'POST') {
-    console.error('Invalid method:', event.httpMethod)
-    return sendResponse(405, { error: 'Method Not Allowed' })
+    console.error('[grok-proxy] Invalid HTTP method:', event.httpMethod)
+    return {
+      statusCode: 405,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Method Not Allowed' })
+    }
   }
 
   try {
+    // Parse request body
     if (!event.body) {
-      console.error('Request body is empty or undefined')
-      return sendResponse(400, { error: 'Request body is empty' })
+      console.error('[grok-proxy] Request body is empty or undefined')
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Request body is empty' })
+      }
     }
 
     let requestBody
     try {
-      console.log('Raw request body:', event.body)
       requestBody = JSON.parse(event.body)
     } catch (parseError) {
-      console.error('Failed to parse request body:', parseError.message)
-      return sendResponse(400, { error: 'Invalid request body format' })
+      console.error('[grok-proxy] Failed to parse request body:', parseError.message)
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Invalid request body format' })
+      }
     }
 
+    // Validate required fields for LLM API format
+    const { model, messages, temperature, max_tokens } = requestBody
+
+    if (!model) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Missing required field: model' })
+      }
+    }
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Missing or invalid required field: messages' })
+      }
+    }
+
+    // Check for API key
     if (!process.env.GROK_API_KEY) {
-      console.error('GROK_API_KEY environment variable is missing')
-      return sendResponse(500, { error: 'Server configuration error: Missing API key' })
+      console.error('[grok-proxy] GROK_API_KEY environment variable is missing')
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Server configuration error: Missing API key' })
+      }
     }
 
-    const { userData, requestType } = requestBody
-    if (!requestType) {
-      return sendResponse(400, { error: 'Missing requestType' })
-    }
+    console.log('[grok-proxy] Forwarding request to Grok API with model:', model)
+    console.log('[grok-proxy] Request has', messages.length, 'message(s)')
 
-    // Create dynamic prompt based on request type
-    const prompt = `Provide personalized ${requestType} based on the following data:
-- Triggers: ${JSON.stringify(userData.triggers || [])}
-- Historical Data: ${JSON.stringify(userData.historicalDrinkingPatterns || {})}
-- Context Frequencies: ${JSON.stringify(userData.contextFrequencies || {})}
-- Reflections: ${JSON.stringify(userData.reflections || [])}
+    // Forward request to Grok API with timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-Structure the advice in short paragraphs (1-2 sentences each) with clear sections.
-Keep it encouraging, concise, and supportive.`
-
-    console.log('Sending prompt to API:', prompt)
-
-    // Use grok-3 model for faster responses
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'grok-3',
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Grok API error:', response.status, errorText)
-      return sendResponse(500, { error: `Grok API error: ${response.status} - ${errorText}` })
-    }
-
-    let data
+    let grokResponse
     try {
-      const responseText = await response.text()
-      console.log('Raw Grok API response:', responseText)
-      data = JSON.parse(responseText)
-      console.log('Parsed Grok API response:', JSON.stringify(data, null, 2))
+      grokResponse = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: model || 'grok-beta',
+          messages: messages,
+          temperature: temperature || 0.7,
+          max_tokens: max_tokens || 2000
+        }),
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      if (fetchError.name === 'AbortError') {
+        console.error('[grok-proxy] Grok API request timed out')
+        return {
+          statusCode: 504,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ error: 'Grok API request timed out' })
+        }
+      }
+      console.error('[grok-proxy] Failed to connect to Grok API:', fetchError.message)
+      return {
+        statusCode: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: `Failed to connect to Grok API: ${fetchError.message}` })
+      }
+    }
+
+    if (!grokResponse.ok) {
+      const errorText = await grokResponse.text()
+      console.error('[grok-proxy] Grok API error:', grokResponse.status, errorText)
+      return {
+        statusCode: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({
+          error: `Grok API error: ${grokResponse.status}`,
+          details: errorText
+        })
+      }
+    }
+
+    // Parse and validate response
+    let responseData
+    try {
+      responseData = await grokResponse.json()
     } catch (parseError) {
-      console.error('Failed to parse Grok API response:', parseError.message)
-      return sendResponse(500, { error: 'Invalid response format from Grok API' })
+      console.error('[grok-proxy] Failed to parse Grok API response:', parseError.message)
+      return {
+        statusCode: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Invalid response format from Grok API' })
+      }
     }
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid Grok API response structure:', JSON.stringify(data, null, 2))
-      return sendResponse(500, { error: 'Invalid response structure from Grok API' })
+    // Validate response structure
+    if (!responseData.choices || !Array.isArray(responseData.choices) || responseData.choices.length === 0) {
+      console.error('[grok-proxy] Invalid Grok API response structure:', JSON.stringify(responseData, null, 2))
+      return {
+        statusCode: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Invalid response structure from Grok API' })
+      }
     }
 
-    const aiResponse = data.choices[0].message.content || 'No specific response generated; please try again.'
-    if (!data.choices[0].message.content) {
-      console.warn('Grok API returned empty content:', data)
+    const choice = responseData.choices[0]
+    if (!choice.message || !choice.message.content) {
+      console.error('[grok-proxy] Missing message content in response:', JSON.stringify(responseData, null, 2))
+      return {
+        statusCode: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'No content in Grok API response' })
+      }
     }
 
-    return sendResponse(200, {
-      [requestType === 'mainAdvice' ? 'advice' : 'response']: aiResponse
-    })
+    console.log('[grok-proxy] Successfully forwarded response to client')
+
+    // Return the full response in OpenAI format
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: JSON.stringify(responseData)
+    }
   } catch (error) {
-    console.error('Error in Grok proxy:', error.message, error.stack)
-    return sendResponse(500, { error: `Failed to get AI response: ${error.message}` })
+    console.error('[grok-proxy] Unexpected error:', error.message, error.stack)
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: `Failed to process request: ${error.message}` })
+    }
   }
 }

@@ -135,7 +135,7 @@ Include: Layout, color suggestions, typography, imagery ideas, and design elemen
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'grok-2',
+        model: 'grok-beta',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.8,
         max_tokens: 1500

@@ -374,7 +374,7 @@ Format the response clearly with all sections above.`
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-2',
+        model: 'grok-beta',
         messages: [
           {
             role: 'user',

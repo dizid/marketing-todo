@@ -356,7 +356,7 @@ Important: Use [PLATFORM: ...] headers and --- separators between posts.`
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-2',
+        model: 'grok-beta',
         messages: [
           {
             role: 'user',

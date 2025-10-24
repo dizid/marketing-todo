@@ -337,7 +337,7 @@ Provide 3-5 quick personalization tips to make this template even more effective
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-beta',
+        model: 'grok-2',
         messages: [
           {
             role: 'user',

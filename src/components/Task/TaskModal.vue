@@ -1,6 +1,6 @@
 <template>
   <!-- Task Modal Wrapper -->
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click.self="handleClose">
     <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
       <!-- Modal Header -->
       <div class="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
@@ -20,25 +20,13 @@
 
       <!-- Modal Content - Dynamic Component -->
       <div v-if="taskComponent" class="px-6 py-4">
-        <Suspense>
-          <template #default>
-            <component
-              :is="taskComponent"
-              :task-id="taskId"
-              :task-data="currentTaskData"
-              @save="handleSave"
-              @close="handleClose"
-            />
-          </template>
-          <template #fallback>
-            <div class="flex items-center justify-center py-8">
-              <div class="text-center">
-                <div class="animate-spin w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full mx-auto mb-2"></div>
-                <p class="text-gray-600">Loading task...</p>
-              </div>
-            </div>
-          </template>
-        </Suspense>
+        <component
+          :is="taskComponent"
+          :task-id="taskId"
+          :task-data="currentTaskData"
+          @save="handleSave"
+          @close="handleClose"
+        />
       </div>
 
       <!-- Fallback: Simple Task (checkbox + notes) -->
@@ -136,16 +124,23 @@ watch(
     }
 
     try {
+      console.log('[TaskModal] Loading task component for:', newTaskId)
       const componentFn = getTaskComponent(newTaskId)
+      console.log('[TaskModal] componentFn:', componentFn)
       if (componentFn) {
+        console.log('[TaskModal] Loading module...')
         const module = await componentFn()
+        console.log('[TaskModal] Module loaded:', module)
         // Extract the default export if it exists
         taskComponent.value = module.default || module
+        console.log('[TaskModal] Component assigned:', taskComponent.value?.__name || 'unknown')
       } else {
+        console.log('[TaskModal] No componentFn found for', newTaskId)
         taskComponent.value = null
       }
     } catch (error) {
-      console.error('Error loading task component:', error)
+      console.error('[TaskModal] Error loading task component:', error)
+      console.error('[TaskModal] Error stack:', error.stack)
       taskComponent.value = null
     }
   },
@@ -176,14 +171,6 @@ const handleClose = () => {
   notes.value = ''
   taskComponent.value = null
   emit('close')
-}
-
-const handleBackdropClick = (event) => {
-  // Only close if clicking directly on the backdrop, not the modal content
-  if (event.target === event.currentTarget) {
-    console.log('[TaskModal] Backdrop clicked, closing modal')
-    handleClose()
-  }
 }
 </script>
 

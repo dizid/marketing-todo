@@ -330,7 +330,7 @@ ${includeImages ? '\n\n[IMAGE SUGGESTIONS]\n1. Image idea...' : ''}`
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-beta',
+        model: 'grok-2',
         messages: [
           {
             role: 'user',

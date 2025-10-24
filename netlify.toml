@@ -8,6 +8,7 @@
   command = "npm run dev"
   targetPort = 3000
   functionsPort = 9999
+  timeout = 120
 
 [[redirects]]
   from = "/*"

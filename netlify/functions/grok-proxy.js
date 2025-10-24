@@ -2,7 +2,7 @@
 // Netlify serverless function to proxy requests to Grok AI API
 // Handles authentication and LLM-style API communication securely
 
-export const handler = async (event) => {
+const handler = async (event) => {
   console.log('[grok-proxy] Function invoked at:', new Date().toISOString())
   console.log('[grok-proxy] HTTP Method:', event.httpMethod)
 
@@ -86,10 +86,16 @@ export const handler = async (event) => {
 
     // Forward request to Grok API with timeout
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+    const timeoutId = setTimeout(() => {
+      console.error('[grok-proxy] Aborting request due to timeout')
+      controller.abort()
+    }, 60000) // 60 second timeout (increased from 30s)
 
     let grokResponse
     try {
+      console.log('[grok-proxy] Making fetch request to Grok API...')
+      const startTime = Date.now()
+
       grokResponse = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -97,13 +103,16 @@ export const handler = async (event) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: model || 'grok-beta',
+          model: model || 'grok-2',
           messages: messages,
           temperature: temperature || 0.7,
           max_tokens: max_tokens || 2000
         }),
         signal: controller.signal
       })
+
+      const elapsed = Date.now() - startTime
+      console.log('[grok-proxy] Grok API responded in', elapsed, 'ms with status:', grokResponse.status)
       clearTimeout(timeoutId)
     } catch (fetchError) {
       clearTimeout(timeoutId)
@@ -191,3 +200,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export { handler }

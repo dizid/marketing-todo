@@ -46,7 +46,6 @@
         @task-checked="(updates) => updateTask(item.id, updates)"
         @notes-updated="(updates) => updateTask(item.id, updates)"
         @task-removed="(data) => removeTask(item.id)"
-        @task-opened="(data) => emit('task-opened', data)"
       />
     </div>
 

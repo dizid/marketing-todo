@@ -43,33 +43,28 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="mt-3 flex gap-2 flex-wrap">
-          <button
-            @click="handleOpenTask"
-            class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded transition"
-            title="Open task details"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-            </svg>
-            Details
-          </button>
+        <div class="mt-3 flex gap-2 items-center justify-between">
+          <div class="flex gap-2">
+            <button
+              v-if="item.hasAI"
+              @click="handleGenerateAI"
+              :disabled="isGenerating"
+              class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded transition"
+            >
+              <svg v-if="!isGenerating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              <svg v-else class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isGenerating ? 'Generating...' : 'Generate with AI' }}
+            </button>
 
-          <button
-            v-if="item.hasAI"
-            @click="handleGenerateAI"
-            :disabled="isGenerating"
-            class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded transition"
-          >
-            <svg v-if="!isGenerating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-            <svg v-else class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isGenerating ? 'Generating...' : 'Generate with AI' }}
-          </button>
+            <p v-if="item.hasAI" class="text-xs text-gray-500 self-center">
+              Uses your app description in the prompt
+            </p>
+          </div>
 
           <button
             @click="handleRemoveTask"
@@ -81,16 +76,12 @@
             </svg>
             Remove
           </button>
-
-          <p v-if="item.hasAI" class="text-xs text-gray-500 self-center">
-            Uses your app description in the prompt
-          </p>
         </div>
       </div>
     </div>
 
     <!-- AI Output Modal -->
-    <div v-if="showAIModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div v-if="showAIModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click.self="showAIModal = false">
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -169,7 +160,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
 
 // State
 const isGenerating = ref(false)
@@ -177,13 +168,6 @@ const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
 const appDescription = ref('')
-
-/**
- * Handle opening task details modal
- */
-const handleOpenTask = () => {
-  emit('task-opened', { taskId: props.item.id })
-}
 
 /**
  * Handle task removal
@@ -235,41 +219,46 @@ const handleGenerateAI = async () => {
     // Construct the prompt by replacing placeholder
     const prompt = props.item.aiPrompt.replace('[app desc]', appDescription.value)
 
-    // For MVP: Show placeholder message since Grok API proxy isn't set up yet
-    // In production, uncomment the API call below
+    // Show modal with loading state
     showAIModal.value = true
-    aiOutput.value = `[Placeholder] AI-generated content for:\n\n"${prompt}"\n\nTo integrate actual AI generation:\n1. Set up Netlify Functions with GROK_API_KEY\n2. Create /netlify/functions/ai-proxy.js\n3. Call the proxy endpoint with your content request`
+    aiOutput.value = 'Generating content with Grok AI...'
 
-    // Actual API call (uncomment when proxy is ready):
-    /*
-    const response = await fetch('/.netlify/functions/ai-proxy', {
+    // Call grok-proxy API
+    const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-4',
+        model: 'grok-2',
         messages: [
           {
             role: 'user',
             content: prompt
           }
-        ]
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
       })
     })
 
     if (!response.ok) {
-      throw new Error('AI generation failed')
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || `API error: ${response.status}`)
     }
 
     const data = await response.json()
-    aiOutput.value = data.choices[0].message.content
-    showAIModal.value = true
-    */
+    const generatedContent = data.choices?.[0]?.message?.content
+
+    if (!generatedContent) {
+      throw new Error('No content received from AI')
+    }
+
+    aiOutput.value = generatedContent
   } catch (error) {
     console.error('AI generation error:', error)
     aiError.value = error.message || 'Failed to generate content. Please try again.'
-    showAIModal.value = true
+    aiOutput.value = ''
   } finally {
     isGenerating.value = false
   }

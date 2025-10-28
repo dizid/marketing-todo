@@ -452,6 +452,10 @@ const parsePostsFromResponse = (responseText, platforms) => {
 // Copy post to clipboard
 const copyToClipboard = async (index) => {
   try {
+    if (!generatedPosts.value || !generatedPosts.value[index] || !generatedPosts.value[index].content) {
+      error.value = 'Nothing to copy - invalid post'
+      return
+    }
     await navigator.clipboard.writeText(generatedPosts.value[index].content)
     copiedIndex.value = index
     setTimeout(() => {

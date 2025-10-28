@@ -401,6 +401,10 @@ Format the response clearly with all sections above.`
 // Copy campaign to clipboard
 const copyCampaign = async () => {
   try {
+    if (!generatedCampaign.value) {
+      error.value = 'Nothing to copy - generate campaign first'
+      return
+    }
     await navigator.clipboard.writeText(generatedCampaign.value)
     campaignCopied.value = true
     setTimeout(() => {

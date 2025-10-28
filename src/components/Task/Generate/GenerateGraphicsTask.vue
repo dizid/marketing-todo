@@ -156,6 +156,10 @@ Include: Layout, color suggestions, typography, imagery ideas, and design elemen
 
 const copyBrief = async () => {
   try {
+    if (!generatedBrief.value) {
+      error.value = 'Nothing to copy - generate brief first'
+      return
+    }
     await navigator.clipboard.writeText(generatedBrief.value)
     copied.value = true
     setTimeout(() => { copied.value = false }, 2000)

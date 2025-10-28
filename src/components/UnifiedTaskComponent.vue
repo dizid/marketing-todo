@@ -527,6 +527,11 @@ const handleSaveClick = async () => {
   console.log('[UnifiedTaskComponent] Save button clicked')
   console.log('[UnifiedTaskComponent] aiOutput:', aiOutput.value)
 
+  if (!aiOutput.value) {
+    aiError.value = 'Nothing to save - generate content first'
+    return
+  }
+
   try {
     // Copy to clipboard
     let textToCopy = ''
@@ -562,15 +567,19 @@ const handleSaveClick = async () => {
     }, 3000)
   } catch (err) {
     console.error('[UnifiedTaskComponent] Save/copy failed:', err)
-    aiSuccess.value = '❌ Error: Could not save'
+    aiError.value = '❌ Error: Could not save'
     setTimeout(() => {
-      aiSuccess.value = ''
+      aiError.value = ''
     }, 2000)
   }
 }
 
 const copyToClipboard = async () => {
   try {
+    if (!aiOutput.value) {
+      aiError.value = 'Nothing to copy - generate content first'
+      return
+    }
     const text = typeof aiOutput.value === 'string'
       ? aiOutput.value
       : JSON.stringify(aiOutput.value, null, 2)
@@ -579,6 +588,7 @@ const copyToClipboard = async () => {
     setTimeout(() => { hasCopied.value = false }, 2000)
   } catch (err) {
     console.error('Copy failed:', err)
+    aiError.value = 'Failed to copy to clipboard'
   }
 }
 

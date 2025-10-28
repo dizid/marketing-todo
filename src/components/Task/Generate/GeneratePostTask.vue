@@ -398,6 +398,10 @@ Format:
 // Copy optimized post to clipboard
 const copyOptimized = async () => {
   try {
+    if (!optimizedPost.value) {
+      error.value = 'Nothing to copy - generate optimized post first'
+      return
+    }
     await navigator.clipboard.writeText(optimizedPost.value)
     optimizedCopied.value = true
     setTimeout(() => {

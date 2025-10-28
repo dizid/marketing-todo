@@ -488,6 +488,10 @@ Format the response clearly with timing marks throughout.`
 // Copy script to clipboard
 const copyScript = async () => {
   try {
+    if (!generatedScript.value) {
+      error.value = 'Nothing to copy - generate script first'
+      return
+    }
     const fullText = productionNotes.value
       ? `${generatedScript.value}\n\n---PRODUCTION NOTES---\n${productionNotes.value}`
       : generatedScript.value

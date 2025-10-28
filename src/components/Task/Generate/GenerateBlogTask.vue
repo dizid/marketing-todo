@@ -379,6 +379,10 @@ ${includeImages ? '\n\n[IMAGE SUGGESTIONS]\n1. Image idea...' : ''}`
 // Copy content
 const copyContent = async () => {
   try {
+    if (!generatedContent.value) {
+      error.value = 'Nothing to copy - generate content first'
+      return
+    }
     await navigator.clipboard.writeText(generatedContent.value)
     contentCopied.value = true
     setTimeout(() => {

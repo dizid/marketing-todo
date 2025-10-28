@@ -412,6 +412,10 @@ Provide 3-5 quick personalization tips to make this template even more effective
 // Copy template to clipboard
 const copyTemplate = async () => {
   try {
+    if (!generatedTemplate.value) {
+      error.value = 'Nothing to copy - generate template first'
+      return
+    }
     const fullText = subjectLine.value
       ? `Subject: ${subjectLine.value}\n\n${generatedTemplate.value}`
       : generatedTemplate.value

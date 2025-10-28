@@ -294,6 +294,10 @@ const handleAIOutputChange = (event) => {
  * Copy AI output to clipboard
  */
 const copyAIOutput = (e) => {
+  if (!aiOutput.value) {
+    aiError.value = 'Nothing to copy - generate content first'
+    return
+  }
   navigator.clipboard.writeText(aiOutput.value).then(() => {
     // Show temporary success message
     const button = e.target

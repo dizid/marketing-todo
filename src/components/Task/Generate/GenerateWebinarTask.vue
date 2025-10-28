@@ -421,6 +421,10 @@ Format the response clearly with all sections above.`
 // Copy plan to clipboard
 const copyPlan = async () => {
   try {
+    if (!generatedPlan.value) {
+      error.value = 'Nothing to copy - generate plan first'
+      return
+    }
     await navigator.clipboard.writeText(generatedPlan.value)
     planCopied.value = true
     setTimeout(() => {

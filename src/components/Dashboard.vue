@@ -551,6 +551,10 @@ const exportAsJSON = () => {
  * Copy text to clipboard
  */
 const copyToClipboard = (text) => {
+  if (!text) {
+    console.warn('Nothing to copy')
+    return
+  }
   navigator.clipboard.writeText(text).catch(err => {
     console.error('Failed to copy:', err)
   })

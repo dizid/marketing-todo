@@ -156,6 +156,10 @@ const regenerate = () => {
 
 const copyToClipboard = async () => {
   try {
+    if (!output.value) {
+      error.value = 'Nothing to copy - generate content first'
+      return
+    }
     const textToCopy = typeof output.value === 'string' ? output.value : JSON.stringify(output.value)
     await navigator.clipboard.writeText(textToCopy)
     hasCopied.value = true

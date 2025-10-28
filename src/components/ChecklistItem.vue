@@ -46,7 +46,19 @@
         <div class="mt-3 flex gap-2 items-center justify-between">
           <div class="flex gap-2">
             <button
-              v-if="item.hasAI"
+              v-if="item.miniAppId"
+              @click="handleOpenMiniApp"
+              class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded transition"
+              title="Open full mini-app with form and AI generation"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+              Open Full Form
+            </button>
+
+            <button
+              v-if="item.hasAI && !item.miniAppId"
               @click="handleGenerateAI"
               :disabled="isGenerating"
               class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded transition"
@@ -61,7 +73,7 @@
               {{ isGenerating ? 'Generating...' : 'Generate with AI' }}
             </button>
 
-            <p v-if="item.hasAI" class="text-xs text-gray-500 self-center">
+            <p v-if="item.hasAI && !item.miniAppId" class="text-xs text-gray-500 self-center">
               Uses your app description in the prompt
             </p>
           </div>
@@ -160,7 +172,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
 
 // State
 const isGenerating = ref(false)
@@ -168,6 +180,13 @@ const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
 const appDescription = ref('')
+
+/**
+ * Handle opening the mini-app modal
+ */
+const handleOpenMiniApp = () => {
+  emit('task-opened', { taskId: props.item.id })
+}
 
 /**
  * Handle task removal

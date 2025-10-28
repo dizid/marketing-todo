@@ -11,11 +11,23 @@
       </button>
     </div>
 
-    <div v-if="successMessage" class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-      <p class="text-sm text-green-800">{{ successMessage }}</p>
+    <div v-if="successMessage" class="mb-4 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+      <p class="text-sm text-green-900 font-medium mb-4">{{ successMessage }}</p>
+      <!-- SAVE/USE BUTTON -->
+      <button
+        @click="useOutput"
+        style="display: block; width: 100%; padding: 14px 16px; margin-bottom: 10px; background-color: #22c55e; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;"
+        onmouseover="this.style.backgroundColor='#16a34a'"
+        onmouseout="this.style.backgroundColor='#22c55e'"
+      >
+        ✓ Save This
+      </button>
+      <!-- DISMISS BUTTON -->
       <button
         @click="successMessage = ''"
-        class="mt-2 text-sm text-green-600 hover:text-green-800 underline"
+        style="display: block; width: 100%; padding: 10px 16px; background-color: white; color: #15803d; border: 2px solid #22c55e; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500;"
+        onmouseover="this.style.backgroundColor='#f0fdf4'"
+        onmouseout="this.style.backgroundColor='white'"
       >
         Dismiss
       </button>
@@ -38,8 +50,8 @@
     </button>
 
     <!-- Generated Output -->
-    <div v-if="output" class="mt-4">
-      <div class="flex justify-between items-center mb-3">
+    <div v-if="output" class="mt-4 border border-blue-200 rounded-lg overflow-hidden">
+      <div class="flex justify-between items-center mb-3 bg-blue-50 p-3 border-b border-blue-200">
         <h5 class="font-semibold text-gray-900">Generated Output</h5>
         <button
           @click="regenerate"
@@ -50,24 +62,24 @@
         </button>
       </div>
 
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div class="bg-gray-50 border-b border-gray-200 p-4">
         <p v-if="typeof output === 'string'" class="text-sm text-gray-700 whitespace-pre-wrap">{{ output }}</p>
         <div v-else class="text-sm text-gray-700">
           <slot name="output" :output="output"></slot>
         </div>
       </div>
 
-      <!-- Copy and Use Buttons -->
-      <div class="mt-3 flex gap-2">
+      <!-- Copy and Use Buttons - ALWAYS VISIBLE -->
+      <div class="flex gap-2 p-3 bg-white border-t border-gray-200">
         <button
           @click="copyToClipboard"
-          class="flex-1 px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 rounded transition"
+          class="flex-1 px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium transition"
         >
           {{ hasCopied ? '✓ Copied!' : '📋 Copy' }}
         </button>
         <button
           @click="useOutput"
-          class="flex-1 px-3 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded transition"
+          class="flex-1 px-3 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded font-medium transition"
         >
           ✓ Use This
         </button>
@@ -126,7 +138,7 @@ const generate = async () => {
     console.log('[AIPanel] Result received:', result)
     output.value = result
     emit('output', result)
-    successMessage.value = 'Generated successfully!'
+    successMessage.value = 'Generated successfully! Click "✓ Use This" to save.'
   } catch (err) {
     console.error('[AIPanel] Generation error:', err)
     error.value = err.message || 'Failed to generate. Please try again.'

@@ -1,7 +1,7 @@
 <template>
   <!-- Task Modal Wrapper -->
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click.self="handleClose">
-    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click="handleBackdropClick">
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
       <!-- Modal Header -->
       <div class="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
         <div>
@@ -18,14 +18,13 @@
         </button>
       </div>
 
-      <!-- Modal Content - Dynamic Component -->
-      <div v-if="taskComponent" class="px-6 py-4">
-        <component
-          :is="taskComponent"
+      <!-- Modal Content - Unified Task Component -->
+      <div v-if="taskConfig" class="px-6 py-4">
+        <UnifiedTaskComponent
           :task-id="taskId"
-          :task-data="currentTaskData"
+          :task-config="taskConfig"
+          :initial-data="currentTaskData"
           @save="handleSave"
-          @close="handleClose"
         />
       </div>
 
@@ -51,14 +50,7 @@
           @click="handleClose"
           class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition font-medium text-sm"
         >
-          Cancel
-        </button>
-        <button
-          @click="handleSave"
-          :disabled="isSaving"
-          class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium text-sm"
-        >
-          {{ isSaving ? '⏳ Saving...' : '✓ Save' }}
+          Done
         </button>
       </div>
     </div>
@@ -67,19 +59,21 @@
 
 <script setup>
 /**
- * TaskModal Component
+ * TaskModal Component - Refactored for Unified Task System
  *
- * Generic modal wrapper for task mini-apps
+ * Generic modal wrapper for all tasks (simple or with AI generation)
  * Features:
- * - Dynamic component loading from taskRegistry
- * - Save/cancel handlers
- * - Loading states
- * - Fallback for simple tasks (just notes)
+ * - Unified task configuration loading
+ * - Automatic UnifiedTaskComponent rendering
+ * - Auto-save via Pinia store
+ * - Fallback for basic tasks (notes only)
  */
 
-import { ref, computed, shallowRef, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
-import { getTaskComponent, getTaskMetadata } from '@/services/taskRegistry'
+import { getTaskMetadata } from '@/services/taskRegistry'
+import { unifiedTasksMap } from '@/configs/unifiedTasks'
+import UnifiedTaskComponent from '@/components/UnifiedTaskComponent.vue'
 
 // Props
 const props = defineProps({
@@ -100,12 +94,15 @@ const emit = defineEmits(['close', 'save'])
 const projectStore = useProjectStore()
 
 // State
-const taskComponent = shallowRef(null)
-const isSaving = ref(false)
 const notes = ref('')
 
 // Computed
 const taskMetadata = computed(() => getTaskMetadata(props.taskId))
+
+const taskConfig = computed(() => {
+  if (!props.taskId) return null
+  return unifiedTasksMap[props.taskId] || null
+})
 
 const currentTaskData = computed(() => {
   if (!projectStore.projectData.taskData) {
@@ -114,62 +111,24 @@ const currentTaskData = computed(() => {
   return projectStore.projectData.taskData[props.taskId] || {}
 })
 
-// Watch for task changes and load component
-watch(
-  () => props.taskId,
-  async (newTaskId) => {
-    if (!newTaskId) {
-      taskComponent.value = null
-      return
-    }
-
-    try {
-      console.log('[TaskModal] Loading task component for:', newTaskId)
-      const componentFn = getTaskComponent(newTaskId)
-      console.log('[TaskModal] componentFn:', componentFn)
-      if (componentFn) {
-        console.log('[TaskModal] Loading module...')
-        const module = await componentFn()
-        console.log('[TaskModal] Module loaded:', module)
-        // Extract the default export if it exists
-        taskComponent.value = module.default || module
-        console.log('[TaskModal] Component assigned:', taskComponent.value?.__name || 'unknown')
-      } else {
-        console.log('[TaskModal] No componentFn found for', newTaskId)
-        taskComponent.value = null
-      }
-    } catch (error) {
-      console.error('[TaskModal] Error loading task component:', error)
-      console.error('[TaskModal] Error stack:', error.stack)
-      taskComponent.value = null
-    }
-  },
-  { immediate: true }
-)
-
 // Methods
-const handleSave = async () => {
-  isSaving.value = true
-  try {
-    // If custom component, it will emit save event
-    // Otherwise save simple task data (notes)
-    if (!taskComponent.value) {
-      await projectStore.updateTask(props.taskId, { notes: notes.value })
-    }
-
-    emit('save', { taskId: props.taskId })
+const handleBackdropClick = (e) => {
+  // Only close if clicking on the backdrop itself, not the modal
+  if (e.target === e.currentTarget) {
     handleClose()
-  } catch (error) {
-    console.error('Error saving task:', error)
-  } finally {
-    isSaving.value = false
   }
+}
+
+const handleSave = async (data) => {
+  // This is called on every form change (auto-save)
+  // Don't close the modal - only close on explicit user action
+  // Just emit the event for parent to handle
+  emit('save', { taskId: props.taskId, data })
 }
 
 const handleClose = () => {
   // Reset local state
   notes.value = ''
-  taskComponent.value = null
   emit('close')
 }
 </script>

@@ -197,7 +197,8 @@ const taskCategories = ref([
         name: 'Define Audience & Goals',
         description: 'Profile ideal users and set acquisition targets.',
         aiPrompt: 'Suggest 3 personas and a 30-day plan for [app desc] to get 150 users.',
-        hasAI: true
+        hasAI: true,
+        miniAppId: 'define-audience'
       },
       {
         id: 'setup-2',
@@ -238,7 +239,8 @@ const taskCategories = ref([
         name: 'Schedule Posts',
         description: 'Plan and queue 4-6 updates on X/LinkedIn/Instagram.',
         aiPrompt: 'Generate 10 posts for [app desc] with hashtags, emojis, and sign-up links.',
-        hasAI: true
+        hasAI: true,
+        miniAppId: 'generate-posts'
       },
       {
         id: 'social-2',

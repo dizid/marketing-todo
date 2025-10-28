@@ -3,25 +3,28 @@
     :task-config="config"
     :task-data="taskData"
     @save="handleSave"
+    ref="miniAppShell"
   >
     <template #ai-output="{ output }">
-      <div v-if="output && Array.isArray(output)" class="space-y-3">
-        <div
-          v-for="(post, index) in output"
-          :key="index"
-          class="bg-white border border-gray-200 rounded-lg p-3"
-        >
-          <div class="flex justify-between items-start gap-2 mb-2">
-            <h5 class="font-semibold text-gray-900 text-sm">{{ post.platform }}</h5>
-            <span class="text-xs text-gray-500">
-              {{ post.content.length }}/{{ getCharLimit(post.platform) }} chars
-            </span>
-          </div>
-          <p class="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded border border-gray-100">
-            {{ post.content }}
-          </p>
-          <div v-if="getCharLimit(post.platform) && post.content.length > getCharLimit(post.platform)" class="text-xs text-red-600 mt-2">
-            ⚠️ Exceeds character limit by {{ post.content.length - getCharLimit(post.platform) }}
+      <div v-if="output && Array.isArray(output)" class="space-y-4">
+        <div class="space-y-3">
+          <div
+            v-for="(post, index) in output"
+            :key="index"
+            class="bg-white border border-gray-200 rounded-lg p-3"
+          >
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <h5 class="font-semibold text-gray-900 text-sm">{{ post.platform }}</h5>
+              <span class="text-xs text-gray-500">
+                {{ post.content.length }}/{{ getCharLimit(post.platform) }} chars
+              </span>
+            </div>
+            <p class="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded border border-gray-100">
+              {{ post.content }}
+            </p>
+            <div v-if="getCharLimit(post.platform) && post.content.length > getCharLimit(post.platform)" class="text-xs text-red-600 mt-2">
+              ⚠️ Exceeds character limit by {{ post.content.length - getCharLimit(post.platform) }}
+            </div>
           </div>
         </div>
       </div>

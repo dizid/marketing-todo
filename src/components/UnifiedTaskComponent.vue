@@ -164,15 +164,25 @@
 
       <div v-if="aiSuccess" class="mb-4 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
         <p class="text-sm text-green-900 font-medium mb-4">{{ aiSuccess }}</p>
-        <!-- SAVE BUTTON - directly in success message -->
-        <button
-          @click="handleSaveClick"
-          style="display: block; width: 100%; padding: 14px 16px; background-color: #22c55e; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;"
-          onmouseover="this.style.backgroundColor='#16a34a'"
-          onmouseout="this.style.backgroundColor='#22c55e'"
-        >
-          ✓ Save This
-        </button>
+        <!-- BUTTONS - save and copy -->
+        <div class="flex gap-2">
+          <button
+            @click="handleSaveClick"
+            style="flex: 1; padding: 14px 16px; background-color: #22c55e; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;"
+            onmouseover="this.style.backgroundColor='#16a34a'"
+            onmouseout="this.style.backgroundColor='#22c55e'"
+          >
+            ✓ Save This
+          </button>
+          <button
+            @click="copyToClipboard"
+            style="flex: 1; padding: 14px 16px; background-color: #3b82f6; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;"
+            onmouseover="this.style.backgroundColor='#1d4ed8'"
+            onmouseout="this.style.backgroundColor='#3b82f6'"
+          >
+            {{ hasCopied ? '✓ Copied!' : '📋 Copy' }}
+          </button>
+        </div>
       </div>
 
       <!-- Generate Button -->
@@ -397,11 +407,16 @@ const updateCheckboxField = (fieldId, optionValue, isChecked) => {
 }
 
 const generateAI = async () => {
+  console.log('[UnifiedTaskComponent] generateAI called')
+  console.log('[UnifiedTaskComponent] isFormValid:', isFormValid.value)
+  console.log('[UnifiedTaskComponent] taskConfig:', props.taskConfig)
+
   if (!isFormValid.value) {
     aiError.value = 'Please fill in all required fields'
     return
   }
 
+  console.log('[UnifiedTaskComponent] Starting generation...')
   isGenerating.value = true
   aiError.value = ''
   aiSuccess.value = ''
@@ -461,16 +476,23 @@ const generateAI = async () => {
     }
 
     const data = await response.json()
+    console.log('[UnifiedTaskComponent] API response:', data)
     const responseText = data.choices?.[0]?.message?.content
 
     if (!responseText) {
       throw new Error('No content received from AI')
     }
 
+    console.log('[UnifiedTaskComponent] Raw responseText:', responseText.substring(0, 200) + '...')
+
     // Parse response if parser provided
     let output = responseText
     if (props.taskConfig.ai.responseParser) {
+      console.log('[UnifiedTaskComponent] Using custom responseParser')
       output = props.taskConfig.ai.responseParser(responseText)
+      console.log('[UnifiedTaskComponent] Parsed output:', output)
+    } else {
+      console.log('[UnifiedTaskComponent] No responseParser, using raw text')
     }
 
     // Validate response if validator provided
@@ -482,7 +504,22 @@ const generateAI = async () => {
     }
 
     aiOutput.value = output
-    aiSuccess.value = 'Generated successfully! Click "Use This" to save.'
+    console.log('[UnifiedTaskComponent] aiOutput.value set to:', aiOutput.value)
+
+    // Automatically copy to clipboard
+    if (output) {
+      try {
+        const textToCopy = typeof output === 'string' ? output : JSON.stringify(output, null, 2)
+        await navigator.clipboard.writeText(textToCopy)
+        console.log('[UnifiedTaskComponent] Auto-copied to clipboard')
+        aiSuccess.value = '✓ Generated & Copied to clipboard! Click "Use This" to save.'
+      } catch (err) {
+        console.error('[UnifiedTaskComponent] Auto-copy failed:', err)
+        aiSuccess.value = 'Generated successfully! Click "Use This" to save.'
+      }
+    } else {
+      aiSuccess.value = 'Generated successfully! Click "Use This" to save.'
+    }
   } catch (err) {
     console.error('AI generation error:', err)
     aiError.value = err.message || 'Error generating content'
@@ -524,10 +561,13 @@ const useAIOutput = () => {
 }
 
 const handleSaveClick = async () => {
-  console.log('[UnifiedTaskComponent] Save button clicked')
-  console.log('[UnifiedTaskComponent] aiOutput:', aiOutput.value)
+  console.log('[UnifiedTaskComponent] Save button clicked at', new Date().toISOString())
+  console.log('[UnifiedTaskComponent] aiOutput.value:', aiOutput.value)
+  console.log('[UnifiedTaskComponent] aiOutput type:', typeof aiOutput.value)
+  console.log('[UnifiedTaskComponent] aiOutput keys:', aiOutput.value ? Object.keys(aiOutput.value) : 'N/A')
 
   if (!aiOutput.value) {
+    console.warn('[UnifiedTaskComponent] aiOutput is null/undefined, cannot save')
     aiError.value = 'Nothing to save - generate content first'
     return
   }

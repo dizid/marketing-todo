@@ -16,7 +16,7 @@
 const taskComponentMap = {
   // Setup Basics - NOW using new Mini-Apps (v2 - configuration-driven framework)
   'setup-1': () => import('@/components/TaskMiniApps/DefineAudienceMiniApp.vue'),  // NEW: Mini-App version
-  'setup-2': () => import('@/components/Task/Forms/DefineGoalsTask.vue'),
+  'setup-2': () => import('@/components/TaskMiniApps/LandingPageCreatorAssistant.vue'),  // NEW: Landing Page Creator Mini-App
   'setup-3': () => import('@/components/Task/Forms/SetupIntegrationsTask.vue'),
   'setup-4': () => import('@/components/Task/Forms/PrepareAssetsTask.vue'),
   'setup-5': () => import('@/components/Task/Forms/SetupTrackingTask.vue'),
@@ -76,14 +76,14 @@ const taskMetadata = {
 
   // NOTE: Old setup-1 and social-1 metadata removed - replaced with mini-app versions above
   'setup-2': {
-    name: 'Set Up Landing Page',
-    type: 'form',
+    name: 'Landing Page Creator',
+    type: 'miniapp',
     category: 'setup',
-    icon: '📄',
-    description: 'Build a simple site with features, screenshots, and sign-up form.',
+    icon: '🚀',
+    description: 'Build a professional landing page in 5 minutes. No coding required. AI-assisted copy suggestions included.',
     hasAI: true,
-    aiPrompt: 'Generate headline, 5 bullets, and CTA copy for landing page on [app desc].',
-    fields: ['headline', 'bullets', 'ctaCopy', 'notes']
+    miniAppId: 'landing-page-creator',
+    fields: ['brand_name', 'tagline', 'hero_headline', 'hero_subheadline', 'features', 'signup_headline', 'footer_company_name']
   },
   'setup-3': {
     name: 'Connect Accounts',

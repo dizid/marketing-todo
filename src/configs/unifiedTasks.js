@@ -1441,6 +1441,68 @@ Generate:
   }
 }
 
+export const landingPageCreatorTask = {
+  id: 'setup-2',
+  name: 'Landing Page Creator',
+  description: 'Build a professional landing page in 5 minutes. No coding required. Step-by-step wizard with AI-assisted copy suggestions.',
+  category: 'setup',
+
+  form: [],  // Empty - uses custom wizard interface
+
+  ai: {
+    template: `You are an expert landing page copywriter. Help improve this landing page copy:
+
+Product: {brand_name}
+Tagline: {tagline}
+
+Current Headlines:
+- Main: {hero_headline}
+- Sub: {hero_subheadline}
+
+Features: {feature_titles}
+
+Please suggest:
+1. 3 alternative main headlines (more compelling)
+2. 2 alternative sub-headlines (create urgency/excitement)
+3. How to improve feature descriptions (make them benefit-focused)
+4. CTA optimization (what words convert best)
+5. Overall landing page copy recommendations`,
+
+    temperature: 0.8,
+    maxTokens: 1200,
+
+    contextProvider: () => {
+      try {
+        const stored = localStorage.getItem('marketing-app-data')
+        if (stored) {
+          const data = JSON.parse(stored)
+          return {
+            app_description: data.appDescription || '',
+            company_name: data.companyName || ''
+          }
+        }
+      } catch (e) {
+        console.error('Error loading context:', e)
+      }
+      return {}
+    }
+  },
+
+  output: {
+    enabled: true,
+    exportFilename: 'landing-page',
+    displayFormat: 'html',
+    editable: false,
+    deletable: false,
+    exportable: true,
+    copyable: true
+  },
+
+  // Custom UI flag
+  customComponent: 'LandingPageCreatorAssistant',
+  useWizard: true
+}
+
 // ============================================================================
 // EXPORTS
 // ============================================================================
@@ -1448,7 +1510,7 @@ Generate:
 // Export a map of all tasks by ID for easy lookup
 export const unifiedTasksMap = {
   'setup-1': defineAudienceTask,
-  'setup-2': defineGoalsTask,
+  'setup-2': landingPageCreatorTask,
   'setup-3': setupIntegrationsTask,
   'setup-4': prepareAssetsTask,
   'setup-5': setupTrackingTask,

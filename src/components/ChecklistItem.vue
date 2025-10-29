@@ -45,8 +45,22 @@
         <!-- Action Buttons -->
         <div class="mt-3 flex gap-2 items-center justify-between">
           <div class="flex gap-2">
+            <!-- Special Button for Landing Page Builder -->
             <button
-              v-if="item.miniAppId"
+              v-if="item.id === 'setup-2'"
+              @click="handleOpenMiniApp"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold rounded transition shadow-md hover:shadow-lg"
+              title="Start the landing page builder wizard"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              ✨ Start Landing Page Builder
+            </button>
+
+            <!-- Standard Button for Other Mini-Apps -->
+            <button
+              v-else-if="item.miniAppId"
               @click="handleOpenMiniApp"
               class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded transition"
               title="Open full mini-app with form and AI generation"

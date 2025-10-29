@@ -30,22 +30,6 @@
           </p>
         </div>
 
-        <!-- Quick Start Actions -->
-        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg shadow-md p-6 mb-6 border-l-4 border-indigo-600">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">🚀 Ready to Build?</h3>
-              <p class="text-gray-600 text-sm mt-1">Create your professional landing page in 5 minutes - no coding required.</p>
-            </div>
-            <button
-              @click="handleLandingPageQuickStart"
-              class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold rounded-lg transition shadow-lg hover:shadow-xl"
-            >
-              ✨ Start Landing Page Builder
-            </button>
-          </div>
-        </div>
-
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -463,14 +447,6 @@ const handleTaskRemoved = async (data) => {
  */
 const handleTaskOpened = (data) => {
   selectedTaskId.value = data.taskId
-  showTaskModal.value = true
-}
-
-/**
- * Quick-start the landing page builder
- */
-const handleLandingPageQuickStart = () => {
-  selectedTaskId.value = 'setup-2'
   showTaskModal.value = true
 }
 

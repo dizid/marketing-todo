@@ -17,34 +17,34 @@ const taskComponentMap = {
   // Setup Basics - NOW using new Mini-Apps (v2 - configuration-driven framework)
   'setup-1': () => import('@/components/TaskMiniApps/DefineAudienceMiniApp.vue'),  // NEW: Mini-App version
   'setup-2': () => import('@/components/TaskMiniApps/LandingPageCreatorAssistant.vue'),  // NEW: Landing Page Creator Mini-App
-  'setup-3': () => import('@/components/Task/Forms/SetupIntegrationsTask.vue'),
-  'setup-4': () => import('@/components/Task/Forms/PrepareAssetsTask.vue'),
-  'setup-5': () => import('@/components/Task/Forms/SetupTrackingTask.vue'),
+  'setup-3': () => import('@/components/TaskMiniApps/ConnectAccountsMiniApp.vue'),
+  'setup-4': () => import('@/components/TaskMiniApps/PrepareAssetsMiniApp.vue'),
+  'setup-5': () => import('@/components/TaskMiniApps/TrackingSheetMiniApp.vue'),
 
   // Social Media - NOW using new Mini-Apps
   'social-1': () => import('@/components/TaskMiniApps/GeneratePostsMiniApp.vue'),  // NEW: Mini-App version
-  'social-2': () => import('@/components/Task/Forms/EngageFollowersTask.vue'),
-  'social-3': () => import('@/components/Task/Generate/GenerateGiveawayTask.vue'),
+  'social-2': () => import('@/components/TaskMiniApps/EngageFollowersMiniApp.vue'),
+  'social-3': () => import('@/components/TaskMiniApps/GiveawayMiniApp.vue'),
 
   // Content Creation
-  'content-1': () => import('@/components/Task/Generate/GenerateBlogTask.vue'),
-  'content-2': () => import('@/components/Task/Generate/GenerateVideoTask.vue'),
-  'content-3': () => import('@/components/Task/Generate/GenerateGraphicsTask.vue'),
+  'content-1': () => import('@/components/TaskMiniApps/WriteBlogPostMiniApp.vue'),
+  'content-2': () => import('@/components/TaskMiniApps/VideoScriptMiniApp.vue'),
+  'content-3': () => import('@/components/TaskMiniApps/DesignGraphicsMiniApp.vue'),
 
   // User Acquisition & Engagement
-  'acq-1': () => import('@/components/Task/Generate/GeneratePostTask.vue'),
-  'acq-2': () => import('@/components/Task/Generate/GenerateOutreachTask.vue'),
-  'acq-3': () => import('@/components/Task/Generate/GenerateWebinarTask.vue'),
+  'acq-1': () => import('@/components/TaskMiniApps/CommunityPostsMiniApp.vue'),
+  'acq-2': () => import('@/components/TaskMiniApps/OutreachMiniApp.vue'),
+  'acq-3': () => import('@/components/TaskMiniApps/WebinarMiniApp.vue'),
 
   // Feedback & Iteration
-  'feedback-1': () => import('@/components/Task/Forms/CollectFeedbackTask.vue'),
-  'feedback-2': () => import('@/components/Task/Forms/PublishUpdatesTask.vue'),
-  'feedback-3': () => import('@/components/Task/Forms/IterateFeaturesTask.vue'),
+  'feedback-1': () => import('@/components/TaskMiniApps/FeedbackCollectionMiniApp.vue'),
+  'feedback-2': () => import('@/components/TaskMiniApps/ChangelogMiniApp.vue'),
+  'feedback-3': () => import('@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'),
 
   // Analytics & Optimization
-  'analytics-1': () => import('@/components/Task/Forms/SetupAnalyticsTask.vue'),
-  'analytics-2': () => import('@/components/Task/Forms/OptimizeChannelsTask.vue'),
-  'analytics-3': () => import('@/components/Task/Forms/ReviewROITask.vue')
+  'analytics-1': () => import('@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'),
+  'analytics-2': () => import('@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'),
+  'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue')
 }
 
 /**
@@ -87,170 +87,170 @@ const taskMetadata = {
   },
   'setup-3': {
     name: 'Connect Accounts',
-    type: 'form',
+    type: 'miniapp',
     category: 'setup',
     icon: '🔗',
-    description: 'Link social (X, LinkedIn, Reddit), email (Mailchimp), and analytics.',
+    description: 'Link your social media, email, and analytics accounts. Takes 5 minutes per platform.',
     hasAI: false,
-    fields: ['integrations', 'notes']
+    miniAppId: 'connect-accounts'
   },
   'setup-4': {
     name: 'Prepare Assets',
-    type: 'form',
+    type: 'miniapp',
     category: 'setup',
     icon: '🎨',
-    description: 'Create demo video/screenshots and basic branding.',
-    hasAI: true,
-    aiPrompt: 'Describe 4 visual asset ideas (e.g., banners) for [app desc].',
-    fields: ['assets', 'branding', 'notes']
+    description: 'Create logos, images, videos, and brand guidelines.',
+    hasAI: false,
+    miniAppId: 'prepare-assets'
   },
   'setup-5': {
     name: 'Set Up Tracking Sheet',
-    type: 'form',
+    type: 'miniapp',
     category: 'setup',
     icon: '📊',
-    description: 'Use Google Sheets for logging sign-ups and sources.',
-    hasAI: true,
-    aiPrompt: 'Create a spreadsheet template outline for tracking marketing metrics.',
-    fields: ['metrics', 'sources', 'notes']
+    description: 'Create a tracking sheet to monitor sign-ups, sources, and conversions.',
+    hasAI: false,
+    miniAppId: 'tracking-sheet'
   },
   'social-2': {
     name: 'Engage Followers',
-    type: 'form',
+    type: 'miniapp',
     category: 'social',
     icon: '💬',
-    description: 'Respond to comments/DMs to build community.',
-    hasAI: true,
-    aiPrompt: 'Create 6 reply templates for common interactions on [app desc].',
-    fields: ['replyTemplates', 'notes']
+    description: 'Template responses for common interactions. Build community by engaging followers.',
+    hasAI: false,
+    miniAppId: 'engage-followers',
+    fields: ['completed']
   },
   'social-3': {
     name: 'Run Giveaway/Contest',
-    type: 'generate',
+    type: 'miniapp',
     category: 'social',
     icon: '🎁',
-    description: 'Offer free access for shares/retweets.',
-    hasAI: true,
-    aiPrompt: 'Draft a giveaway announcement post and rules for [app desc].',
-    fields: ['giveawayContent', 'rules', 'notes']
+    description: 'Launch a giveaway in 5 steps. Offer free access for shares and engagement.',
+    hasAI: false,
+    miniAppId: 'giveaway',
+    fields: ['prizeValue', 'duration', 'prizeDescription', 'rules', 'promotion']
   },
   'content-1': {
     name: 'Write Blog Post',
-    type: 'generate',
+    type: 'miniapp',
     category: 'content',
     icon: '📝',
-    description: 'Detail app benefits or niche tutorials.',
+    description: 'Create a compelling blog post with AI-guided structure and research',
     hasAI: true,
-    aiPrompt: 'Draft 500-word blog on [app niche], including promo for [app desc].',
-    fields: ['blogContent', 'notes']
+    miniAppId: 'write-blog',
+    fields: ['topic', 'audience', 'keywords', 'tone', 'wordCount', 'sections', 'fullBlog']
   },
   'content-2': {
     name: 'Create Video Tutorial',
-    type: 'form',
+    type: 'miniapp',
     category: 'content',
     icon: '🎥',
-    description: 'Short demo of key features.',
-    hasAI: true,
-    aiPrompt: 'Script a 2-min video walkthrough for [app desc].',
-    fields: ['videoScript', 'features', 'notes']
+    description: 'Script a 2-minute product demo. Section-by-section guidance with timing targets.',
+    hasAI: false,
+    miniAppId: 'video-script',
+    fields: ['hook', 'problem', 'demo', 'features', 'cta']
   },
   'content-3': {
     name: 'Design Graphics',
-    type: 'generate',
+    type: 'miniapp',
     category: 'content',
     icon: '🖼️',
-    description: 'Social banners, infographics.',
+    description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
     hasAI: true,
-    aiPrompt: 'Describe 5 graphic designs (colors, elements) for promoting [app desc].',
-    fields: ['graphicDescriptions', 'notes']
+    miniAppId: 'design-graphics',
+    fields: ['purpose', 'style', 'message', 'brief', 'designHistory']
   },
   'acq-1': {
     name: 'Post in Communities',
-    type: 'generate',
+    type: 'miniapp',
     category: 'acquisition',
     icon: '🌐',
-    description: 'Share on Reddit, Indie Hackers, Product Hunt.',
-    hasAI: true,
-    aiPrompt: 'Write an announcement post for Reddit r/[subreddit] about [app desc].',
-    fields: ['communityPosts', 'selectedCommunities', 'notes']
+    description: 'Share on Reddit, Indie Hackers, Product Hunt, HackerNews, Dev.to. Community-specific tone guides.',
+    hasAI: false,
+    miniAppId: 'community-posts',
+    fields: ['posted']
   },
   'acq-2': {
     name: 'Personalized Outreach',
-    type: 'generate',
+    type: 'miniapp',
     category: 'acquisition',
     icon: '✉️',
-    description: 'Email/DM 20-50 potential users.',
-    hasAI: true,
-    aiPrompt: 'Generate 5 cold outreach templates for devs interested in [app desc].',
-    fields: ['outreachTemplates', 'selectedTemplates', 'notes']
+    description: 'Email/DM 20-50 potential users. 5 proven cold outreach templates.',
+    hasAI: false,
+    miniAppId: 'outreach',
+    fields: ['items']
   },
   'acq-3': {
     name: 'Host Webinar/Q&A',
-    type: 'generate',
+    type: 'miniapp',
     category: 'acquisition',
     icon: '🎤',
-    description: 'Live session for demos.',
-    hasAI: true,
-    aiPrompt: 'Outline a 30-min webinar script on [app topic].',
-    fields: ['webinarScript', 'topics', 'notes']
+    description: 'Plan a 30-minute webinar. Structure, topics, and Q&A guidance.',
+    hasAI: false,
+    miniAppId: 'webinar',
+    fields: ['items']
   },
   'feedback-1': {
     name: 'Collect User Feedback',
-    type: 'form',
+    type: 'miniapp',
     category: 'feedback',
     icon: '💭',
-    description: 'Send surveys or interviews to 10+ users.',
-    hasAI: true,
-    aiPrompt: 'Create 10 survey questions to gather feedback on [app desc].',
-    fields: ['surveyQuestions', 'feedbackSources', 'notes']
+    description: 'Send surveys or interviews to 10+ users. 5 survey type templates.',
+    hasAI: false,
+    miniAppId: 'feedback-collection',
+    fields: ['items']
   },
   'feedback-2': {
     name: 'Publish Product Updates',
-    type: 'form',
+    type: 'miniapp',
     category: 'feedback',
     icon: '🆕',
-    description: 'Share improvements and bug fixes on social.',
-    hasAI: true,
-    aiPrompt: 'Write 3 social media announcements for new features in [app desc].',
-    fields: ['updates', 'channels', 'notes']
+    description: 'Share improvements and bug fixes. Track changelog across channels.',
+    hasAI: false,
+    miniAppId: 'changelog',
+    fields: ['items']
   },
   'feedback-3': {
     name: 'Iterate on Features',
-    type: 'form',
+    type: 'miniapp',
     category: 'feedback',
     icon: '🔄',
-    description: 'Prioritize user requests and refine product.',
-    hasAI: true,
-    aiPrompt: 'Suggest 3 feature improvements based on user feedback for [app desc].',
-    fields: ['improvements', 'priorityLevel', 'notes']
+    description: 'Prioritize user requests and refine product. Feature matrix with impact/effort.',
+    hasAI: false,
+    miniAppId: 'feature-prioritization',
+    fields: ['items']
   },
   'analytics-1': {
     name: 'Set Up Analytics',
-    type: 'form',
+    type: 'miniapp',
     category: 'analytics',
     icon: '📈',
-    description: 'Track sign-ups, retention, and engagement metrics.',
+    description: 'Track sign-ups, retention, engagement metrics. Setup guides for 5 tools.',
     hasAI: false,
-    fields: ['metrics', 'tools', 'notes']
+    miniAppId: 'analytics-setup',
+    fields: ['items']
   },
   'analytics-2': {
     name: 'Optimize Channels',
-    type: 'form',
+    type: 'miniapp',
     category: 'analytics',
     icon: '🎯',
-    description: 'Double down on high-performers.',
-    hasAI: true,
-    aiPrompt: 'Based on [metrics], suggest a pivot plan for marketing focus.',
-    fields: ['topChannels', 'optimizations', 'notes']
+    description: 'Analyze metrics by channel. Double down on high-performers.',
+    hasAI: false,
+    miniAppId: 'channel-analyzer',
+    fields: ['items']
   },
   'analytics-3': {
     name: 'Review ROI',
-    type: 'form',
+    type: 'miniapp',
     category: 'analytics',
     icon: '💰',
-    description: 'Calculate cost-per-user (even if organic).',
+    description: 'Calculate cost-per-user and track ROI metrics. 5 key metrics to monitor.',
     hasAI: false,
-    fields: ['costPerUser', 'roi', 'notes']
+    miniAppId: 'roi-calculator',
+    fields: ['items']
   }
 }
 

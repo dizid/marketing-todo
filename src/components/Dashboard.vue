@@ -212,21 +212,24 @@ const taskCategories = ref([
         name: 'Connect Accounts',
         description: 'Link social (X, LinkedIn, Reddit), email (Mailchimp), and analytics.',
         aiPrompt: '',
-        hasAI: false
+        hasAI: false,
+        miniAppId: 'connect-accounts'
       },
       {
         id: 'setup-4',
         name: 'Prepare Assets',
         description: 'Create demo video/screenshots and basic branding.',
-        aiPrompt: 'Describe 4 visual asset ideas (e.g., banners) for [app desc].',
-        hasAI: true
+        aiPrompt: '',
+        hasAI: false,
+        miniAppId: 'prepare-assets'
       },
       {
         id: 'setup-5',
         name: 'Set Up Tracking Sheet',
         description: 'Use Google Sheets for logging sign-ups and sources.',
-        aiPrompt: 'Create a spreadsheet template outline for tracking marketing metrics.',
-        hasAI: true
+        aiPrompt: '',
+        hasAI: false,
+        miniAppId: 'tracking-sheet'
       }
     ]
   },
@@ -245,16 +248,16 @@ const taskCategories = ref([
       {
         id: 'social-2',
         name: 'Engage Followers',
-        description: 'Respond to comments/DMs to build community.',
-        aiPrompt: 'Create 6 reply templates for common interactions on [app desc].',
-        hasAI: true
+        description: 'Template responses for common interactions. Build community by engaging followers.',
+        miniAppId: 'engage-followers',
+        hasAI: false
       },
       {
         id: 'social-3',
         name: 'Run Giveaway/Contest',
-        description: 'Offer free access for shares/retweets.',
-        aiPrompt: 'Draft a giveaway announcement post and rules for [app desc].',
-        hasAI: true
+        description: 'Launch a giveaway in 5 steps. Offer free access for shares and engagement.',
+        miniAppId: 'giveaway',
+        hasAI: false
       }
     ]
   },
@@ -265,22 +268,22 @@ const taskCategories = ref([
       {
         id: 'content-1',
         name: 'Write Blog Post',
-        description: 'Detail app benefits or niche tutorials.',
-        aiPrompt: 'Draft 500-word blog on [app niche], including promo for [app desc].',
+        description: 'Create a compelling blog post with AI-guided structure and research',
+        miniAppId: 'write-blog',
         hasAI: true
       },
       {
         id: 'content-2',
         name: 'Create Video Tutorial',
-        description: 'Short demo of key features.',
-        aiPrompt: 'Script a 2-min video walkthrough for [app desc].',
-        hasAI: true
+        description: 'Script a 2-minute product demo. Section-by-section guidance with timing targets.',
+        miniAppId: 'video-script',
+        hasAI: false
       },
       {
         id: 'content-3',
         name: 'Design Graphics',
-        description: 'Social banners, infographics.',
-        aiPrompt: 'Describe 5 graphic designs (colors, elements) for promoting [app desc].',
+        description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
+        miniAppId: 'design-graphics',
         hasAI: true
       }
     ]
@@ -292,23 +295,23 @@ const taskCategories = ref([
       {
         id: 'acq-1',
         name: 'Post in Communities',
-        description: 'Share on Reddit, Indie Hackers, Product Hunt.',
-        aiPrompt: 'Write an announcement post for Reddit r/[subreddit] about [app desc].',
-        hasAI: true
+        description: 'Share on Reddit, Indie Hackers, Product Hunt, HackerNews, Dev.to. Community-specific tone guides.',
+        miniAppId: 'community-posts',
+        hasAI: false
       },
       {
         id: 'acq-2',
         name: 'Personalized Outreach',
-        description: 'Email/DM 20-50 potential users.',
-        aiPrompt: 'Generate 5 cold outreach templates for devs interested in [app desc].',
-        hasAI: true
+        description: 'Email/DM 20-50 potential users. 5 proven cold outreach templates.',
+        miniAppId: 'outreach',
+        hasAI: false
       },
       {
         id: 'acq-3',
         name: 'Host Webinar/Q&A',
-        description: 'Live session for demos.',
-        aiPrompt: 'Outline a 30-min webinar script on [app topic].',
-        hasAI: true
+        description: 'Plan a 30-minute webinar. Structure, topics, and Q&A guidance.',
+        miniAppId: 'webinar',
+        hasAI: false
       }
     ]
   },
@@ -317,25 +320,25 @@ const taskCategories = ref([
     label: 'Feedback & Iteration',
     items: [
       {
-        id: 'fb-1',
-        name: 'Collect Feedback',
-        description: 'Post-signup surveys or polls.',
-        aiPrompt: 'Design a 6-question NPS survey for [app desc] users.',
-        hasAI: true
+        id: 'feedback-1',
+        name: 'Collect User Feedback',
+        description: 'Send surveys or interviews to 10+ users. 5 survey type templates.',
+        miniAppId: 'feedback-collection',
+        hasAI: false
       },
       {
-        id: 'fb-2',
-        name: 'Analyze Responses',
-        description: 'Summarize and prioritize issues.',
-        aiPrompt: 'Summarize [paste 10 feedbacks] and recommend 4 improvements.',
-        hasAI: true
+        id: 'feedback-2',
+        name: 'Publish Product Updates',
+        description: 'Share improvements and bug fixes. Track changelog across channels.',
+        miniAppId: 'changelog',
+        hasAI: false
       },
       {
-        id: 'fb-3',
-        name: 'User Interviews',
-        description: 'Schedule 1:1 calls with early users.',
-        aiPrompt: 'Prepare 8 interview questions for [app] feedback.',
-        hasAI: true
+        id: 'feedback-3',
+        name: 'Iterate on Features',
+        description: 'Prioritize user requests and refine product. Feature matrix with impact/effort.',
+        miniAppId: 'feature-prioritization',
+        hasAI: false
       }
     ]
   },
@@ -345,23 +348,23 @@ const taskCategories = ref([
     items: [
       {
         id: 'analytics-1',
-        name: 'Track Metrics',
-        description: 'Monitor sign-ups, traffic, engagement.',
-        aiPrompt: 'Interpret [paste data] and highlight key insights.',
-        hasAI: true
+        name: 'Set Up Analytics',
+        description: 'Track sign-ups, retention, engagement metrics. Setup guides for 5 tools.',
+        miniAppId: 'analytics-setup',
+        hasAI: false
       },
       {
         id: 'analytics-2',
         name: 'Optimize Channels',
-        description: 'Double down on high-performers.',
-        aiPrompt: 'Based on [metrics], suggest a pivot plan for marketing focus.',
-        hasAI: true
+        description: 'Analyze metrics by channel. Double down on high-performers.',
+        miniAppId: 'channel-analyzer',
+        hasAI: false
       },
       {
         id: 'analytics-3',
         name: 'Review ROI',
-        description: 'Calculate cost-per-user (even if organic).',
-        aiPrompt: '',
+        description: 'Calculate cost-per-user and track ROI metrics. 5 key metrics to monitor.',
+        miniAppId: 'roi-calculator',
         hasAI: false
       }
     ]

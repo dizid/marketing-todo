@@ -5,6 +5,24 @@
  * Each task can be rendered by UnifiedTaskComponent without any custom Vue components.
  */
 
+import { connectAccountsTask } from './connectAccounts.config'
+import { prepareAssetsTask } from './prepareAssets.config'
+import { trackingSheetTask } from './trackingSheet.config'
+import { writeBlogTask } from './writeBlog.config'
+import { designGraphicsTask } from './designGraphics.config'
+import { engageFollowersTask } from './engageFollowers.config'
+import { giveawayTask } from './giveaway.config'
+import { videoScriptTask } from './videoScript.config'
+import { communityPostsTask } from './communityPosts.config'
+import { outreachTask } from './outreach.config'
+import { webinarTask } from './webinar.config'
+import { feedbackCollectionTask } from './feedbackCollection.config'
+import { changelogTask } from './changelog.config'
+import { featurePrioritizationTask } from './featurePrioritization.config'
+import { analyticsSetupTask } from './analyticsSetup.config'
+import { channelAnalyzerTask } from './channelAnalyzer.config'
+import { roiCalculatorTask } from './roiCalculator.config'
+
 export const defineAudienceTask = {
   id: 'define-audience',
   name: 'Define Target Audience',
@@ -407,205 +425,29 @@ export const defineGoalsTask = {
   }
 }
 
-export const setupIntegrationsTask = {
-  id: 'setup-3',
-  name: 'Setup Integrations',
-  description: 'Configure third-party integrations for your marketing tools.',
-  category: 'setup',
+// setupIntegrationsTask replaced with connectAccountsTask from connectAccounts.config
+export const setupIntegrationsTask = connectAccountsTask
 
-  form: [
-    {
-      id: 'integrations',
-      type: 'checkboxes',
-      label: 'Select Integrations to Setup',
-      options: [
-        { value: 'stripe', label: 'Stripe (Payments)' },
-        { value: 'mailchimp', label: 'Mailchimp (Email)' },
-        { value: 'hubspot', label: 'HubSpot (CRM)' },
-        { value: 'slack', label: 'Slack (Team Communication)' },
-        { value: 'zapier', label: 'Zapier (Automation)' },
-        { value: 'google-analytics', label: 'Google Analytics (Analytics)' }
-      ]
-    },
-    {
-      id: 'integration_notes',
-      type: 'textarea',
-      label: 'Setup Notes',
-      placeholder: 'Add any notes about integration setup...',
-      rows: 3
-    }
-  ],
+// prepareAssetsTask imported from prepareAssets.config at top of file
 
-  ai: null,
+// setupTrackingTask replaced with trackingSheetTask from trackingSheet.config
+export const setupTrackingTask = trackingSheetTask
 
-  output: {
-    enabled: false
-  }
-}
+// engageFollowersTask imported from engageFollowers.config at top of file
+// giveawayTask imported from giveaway.config at top of file
+// videoScriptTask imported from videoScript.config at top of file
+// communityPostsTask imported from communityPosts.config at top of file
+// outreachTask imported from outreach.config at top of file
+// webinarTask imported from webinar.config at top of file
+// feedbackCollectionTask imported from feedbackCollection.config at top of file
+// changelogTask imported from changelog.config at top of file
+// featurePrioritizationTask imported from featurePrioritization.config at top of file
+// analyticsSetupTask imported from analyticsSetup.config at top of file
+// channelAnalyzerTask imported from channelAnalyzer.config at top of file
+// roiCalculatorTask imported from roiCalculator.config at top of file
 
-export const prepareAssetsTask = {
-  id: 'setup-4',
-  name: 'Prepare Marketing Assets',
-  description: 'Prepare logos, banners, videos, and other marketing materials.',
-  category: 'setup',
-
-  form: [
-    {
-      id: 'assets_logos',
-      type: 'text',
-      label: 'Logo Files Ready?',
-      placeholder: 'e.g., SVG, PNG (300px, 1000px)',
-      description: 'Describe your logo files'
-    },
-    {
-      id: 'assets_colors',
-      type: 'text',
-      label: 'Brand Colors',
-      placeholder: 'e.g., Primary: #2563EB, Secondary: #1E40AF',
-      description: 'Your brand color palette'
-    },
-    {
-      id: 'assets_fonts',
-      type: 'text',
-      label: 'Brand Fonts',
-      placeholder: 'e.g., Headings: Poppins, Body: Inter',
-      description: 'Font families for your brand'
-    },
-    {
-      id: 'assets_templates',
-      type: 'textarea',
-      label: 'Templates & Templates',
-      placeholder: 'Social templates, Email templates, Website templates...',
-      rows: 3
-    }
-  ],
-
-  ai: null,
-
-  output: {
-    enabled: false
-  }
-}
-
-export const setupTrackingTask = {
-  id: 'setup-5',
-  name: 'Setup Conversion Tracking',
-  description: 'Configure conversion tracking and analytics to measure campaign success.',
-  category: 'setup',
-
-  form: [
-    {
-      id: 'tracking_goals',
-      type: 'checkboxes',
-      label: 'Conversion Goals',
-      options: [
-        { value: 'signup', label: 'Sign Up' },
-        { value: 'purchase', label: 'Purchase' },
-        { value: 'email_signup', label: 'Email Signup' },
-        { value: 'download', label: 'Download' },
-        { value: 'contact', label: 'Contact Form' },
-        { value: 'custom', label: 'Custom Event' }
-      ]
-    },
-    {
-      id: 'tracking_platforms',
-      type: 'checkboxes',
-      label: 'Tracking Platforms',
-      options: [
-        { value: 'google_analytics', label: 'Google Analytics' },
-        { value: 'facebook_pixel', label: 'Facebook Pixel' },
-        { value: 'linkedin_tracking', label: 'LinkedIn Tracking' },
-        { value: 'custom_gtag', label: 'Custom GTags' }
-      ]
-    },
-    {
-      id: 'tracking_notes',
-      type: 'textarea',
-      label: 'Implementation Notes',
-      placeholder: 'Technical notes for tracking setup...',
-      rows: 3
-    }
-  ],
-
-  ai: null,
-
-  output: {
-    enabled: false
-  }
-}
-
-export const engageFollowersTask = {
-  id: 'social-2',
-  name: 'Engage Your Followers',
-  description: 'Create engagement strategies and campaigns to build community.',
-  category: 'social',
-
-  form: [
-    {
-      id: 'engagement_goal',
-      type: 'textarea',
-      label: 'Engagement Goal',
-      placeholder: 'What do you want to achieve? (e.g., Increase likes, Build community, Launch poll)',
-      required: true,
-      rows: 2
-    },
-    {
-      id: 'engagement_tactics',
-      type: 'checkboxes',
-      label: 'Engagement Tactics',
-      options: [
-        { value: 'polls', label: 'Polls & Surveys' },
-        { value: 'questions', label: 'Ask Questions' },
-        { value: 'contests', label: 'Contests & Giveaways' },
-        { value: 'replies', label: 'Reply to Comments' },
-        { value: 'stories', label: 'Stories & Behind-the-Scenes' },
-        { value: 'user_generated', label: 'User-Generated Content' }
-      ]
-    },
-    {
-      id: 'target_audience',
-      type: 'text',
-      label: 'Target Audience Segment',
-      placeholder: 'Who do you want to engage? (e.g., existing customers, followers)'
-    },
-    {
-      id: 'tone',
-      type: 'select',
-      label: 'Tone',
-      options: [
-        { value: 'friendly', label: 'Friendly & Casual' },
-        { value: 'professional', label: 'Professional' },
-        { value: 'humorous', label: 'Humorous & Fun' },
-        { value: 'educational', label: 'Educational' }
-      ]
-    }
-  ],
-
-  ai: {
-    template: `Create an engagement strategy for followers:
-
-Goal: {engagement_goal}
-Tactics: {engagement_tactics}
-Audience: {target_audience}
-Tone: {tone}
-
-Generate:
-1. 3 specific engagement post ideas
-2. Sample questions or prompts
-3. Best times to post
-4. Expected engagement metrics`,
-
-    temperature: 0.8,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'engagement-strategy',
-    displayFormat: 'text'
-  }
-}
-
+// OLD EXPORTS - NO LONGER USED (using imported configs instead)
+/*
 export const generateGiveawayTask = {
   id: 'social-3',
   name: 'Generate Giveaway Campaign',
@@ -1440,6 +1282,7 @@ Generate:
     displayFormat: 'text'
   }
 }
+*/
 
 export const landingPageCreatorTask = {
   id: 'setup-2',
@@ -1511,28 +1354,29 @@ Please suggest:
 export const unifiedTasksMap = {
   'setup-1': defineAudienceTask,
   'setup-2': landingPageCreatorTask,
-  'setup-3': setupIntegrationsTask,
+  'setup-3': connectAccountsTask,
   'setup-4': prepareAssetsTask,
-  'setup-5': setupTrackingTask,
+  'setup-5': trackingSheetTask,
 
   'social-1': generatePostsTask,
   'social-2': engageFollowersTask,
-  'social-3': generateGiveawayTask,
+  'social-3': giveawayTask,
 
-  'content-1': generateBlogTask,
-  'content-2': generateVideoTask,
-  'content-3': generateGraphicsTask,
+  'content-1': writeBlogTask,
+  'content-2': videoScriptTask,
+  'content-3': designGraphicsTask,
 
-  'acq-2': generateOutreachTask,
-  'acq-3': generateWebinarTask,
+  'acq-1': communityPostsTask,
+  'acq-2': outreachTask,
+  'acq-3': webinarTask,
 
-  'feedback-1': collectFeedbackTask,
-  'feedback-2': publishUpdatesTask,
-  'feedback-3': iterateFeaturesTask,
+  'feedback-1': feedbackCollectionTask,
+  'feedback-2': changelogTask,
+  'feedback-3': featurePrioritizationTask,
 
-  'analytics-1': setupAnalyticsTask,
-  'analytics-2': optimizeChannelsTask,
-  'analytics-3': reviewROITask
+  'analytics-1': analyticsSetupTask,
+  'analytics-2': channelAnalyzerTask,
+  'analytics-3': roiCalculatorTask
 }
 
 // Export all tasks as array for iteration

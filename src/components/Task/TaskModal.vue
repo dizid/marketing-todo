@@ -2,7 +2,7 @@
   <!-- Task Modal Wrapper -->
   <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 md:p-4" @click="handleBackdropClick">
     <div
-      class="bg-white w-full h-full md:h-auto rounded-none md:rounded-lg shadow-xl overflow-y-auto"
+      class="bg-white w-full h-full md:h-auto md:max-h-[90vh] rounded-none md:rounded-lg shadow-xl overflow-y-auto flex flex-col"
       :class="customComponent ? 'md:max-w-6xl' : 'md:max-w-3xl'"
       @click.stop
     >
@@ -90,10 +90,44 @@ import { getTaskMetadata } from '@/services/taskRegistry'
 import { unifiedTasksMap } from '@/configs/unifiedTasks'
 import UnifiedTaskComponent from '@/components/UnifiedTaskComponent.vue'
 import LandingPageCreatorAssistant from '@/components/TaskMiniApps/LandingPageCreatorAssistant.vue'
+import ConnectAccountsMiniApp from '@/components/TaskMiniApps/ConnectAccountsMiniApp.vue'
+import PrepareAssetsMiniApp from '@/components/TaskMiniApps/PrepareAssetsMiniApp.vue'
+import TrackingSheetMiniApp from '@/components/TaskMiniApps/TrackingSheetMiniApp.vue'
+import WriteBlogPostMiniApp from '@/components/TaskMiniApps/WriteBlogPostMiniApp.vue'
+import DesignGraphicsMiniApp from '@/components/TaskMiniApps/DesignGraphicsMiniApp.vue'
+import EngageFollowersMiniApp from '@/components/TaskMiniApps/EngageFollowersMiniApp.vue'
+import GiveawayMiniApp from '@/components/TaskMiniApps/GiveawayMiniApp.vue'
+import VideoScriptMiniApp from '@/components/TaskMiniApps/VideoScriptMiniApp.vue'
+import CommunityPostsMiniApp from '@/components/TaskMiniApps/CommunityPostsMiniApp.vue'
+import OutreachMiniApp from '@/components/TaskMiniApps/OutreachMiniApp.vue'
+import WebinarMiniApp from '@/components/TaskMiniApps/WebinarMiniApp.vue'
+import FeedbackCollectionMiniApp from '@/components/TaskMiniApps/FeedbackCollectionMiniApp.vue'
+import ChangelogMiniApp from '@/components/TaskMiniApps/ChangelogMiniApp.vue'
+import FeaturePrioritizationMiniApp from '@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'
+import AnalyticsSetupMiniApp from '@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'
+import ChannelAnalyzerMiniApp from '@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'
+import RoiCalculatorMiniApp from '@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'
 
 // Map of custom component names to their imported components
 const customComponentMap = {
-  'LandingPageCreatorAssistant': LandingPageCreatorAssistant
+  'LandingPageCreatorAssistant': LandingPageCreatorAssistant,
+  'ConnectAccountsMiniApp': ConnectAccountsMiniApp,
+  'PrepareAssetsMiniApp': PrepareAssetsMiniApp,
+  'TrackingSheetMiniApp': TrackingSheetMiniApp,
+  'WriteBlogPostMiniApp': WriteBlogPostMiniApp,
+  'DesignGraphicsMiniApp': DesignGraphicsMiniApp,
+  'EngageFollowersMiniApp': EngageFollowersMiniApp,
+  'GiveawayMiniApp': GiveawayMiniApp,
+  'VideoScriptMiniApp': VideoScriptMiniApp,
+  'CommunityPostsMiniApp': CommunityPostsMiniApp,
+  'OutreachMiniApp': OutreachMiniApp,
+  'WebinarMiniApp': WebinarMiniApp,
+  'FeedbackCollectionMiniApp': FeedbackCollectionMiniApp,
+  'ChangelogMiniApp': ChangelogMiniApp,
+  'FeaturePrioritizationMiniApp': FeaturePrioritizationMiniApp,
+  'AnalyticsSetupMiniApp': AnalyticsSetupMiniApp,
+  'ChannelAnalyzerMiniApp': ChannelAnalyzerMiniApp,
+  'RoiCalculatorMiniApp': RoiCalculatorMiniApp
 }
 
 // Props

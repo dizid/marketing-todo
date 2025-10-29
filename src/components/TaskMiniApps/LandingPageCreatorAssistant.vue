@@ -259,8 +259,8 @@ const generateFieldSuggestions = async (fieldId) => {
     // Call the AI service with the task config and form data
     const taskConfig = {
       name: 'Landing Page Creator',
-      ai: {
-        template: `You are an expert landing page copywriter. Help improve this landing page copy:
+      aiConfig: {
+        promptTemplate: `You are an expert landing page copywriter. Help improve this landing page copy:
 
 Product: {brand_name}
 Tagline: {tagline}

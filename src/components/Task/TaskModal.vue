@@ -18,9 +18,20 @@
         </button>
       </div>
 
-      <!-- Modal Content - Unified Task Component -->
+      <!-- Modal Content - Custom or Unified Task Component -->
       <div v-if="taskConfig" class="px-6 py-4">
+        <!-- Custom Component (e.g., Landing Page Creator) -->
+        <component
+          v-if="customComponent"
+          :is="customComponent"
+          :task-config="taskConfig"
+          :task-data="currentTaskData"
+          @save="handleSave"
+        />
+
+        <!-- Default: Unified Task Component -->
         <UnifiedTaskComponent
+          v-else
           :task-id="taskId"
           :task-config="taskConfig"
           :initial-data="currentTaskData"
@@ -74,6 +85,12 @@ import { useProjectStore } from '@/stores/projectStore'
 import { getTaskMetadata } from '@/services/taskRegistry'
 import { unifiedTasksMap } from '@/configs/unifiedTasks'
 import UnifiedTaskComponent from '@/components/UnifiedTaskComponent.vue'
+import LandingPageCreatorAssistant from '@/components/TaskMiniApps/LandingPageCreatorAssistant.vue'
+
+// Map of custom component names to their imported components
+const customComponentMap = {
+  'LandingPageCreatorAssistant': LandingPageCreatorAssistant
+}
 
 // Props
 const props = defineProps({
@@ -102,6 +119,11 @@ const taskMetadata = computed(() => getTaskMetadata(props.taskId))
 const taskConfig = computed(() => {
   if (!props.taskId) return null
   return unifiedTasksMap[props.taskId] || null
+})
+
+const customComponent = computed(() => {
+  if (!taskConfig.value?.customComponent) return null
+  return customComponentMap[taskConfig.value.customComponent] || null
 })
 
 const currentTaskData = computed(() => {

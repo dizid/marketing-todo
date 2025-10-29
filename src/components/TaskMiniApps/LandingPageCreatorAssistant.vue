@@ -25,7 +25,7 @@
           :step-number="currentStep"
           :form-data="formData"
           @update:formData="formData = $event"
-          @generate-ai="generateAIContent"
+          @generate-ai="generateFieldSuggestions"
         />
 
         <!-- Navigation Buttons -->
@@ -158,6 +158,35 @@
         </div>
       </div>
     </div>
+
+    <!-- AI Suggestions Modal -->
+    <div v-if="showAISuggestionsModal" class="modal-overlay" @click.self="showAISuggestionsModal = false">
+      <div class="modal-content">
+        <button class="modal-close" @click="showAISuggestionsModal = false">✕</button>
+
+        <h3 class="modal-title">✨ AI Suggestions for {{ currentAIField }}</h3>
+
+        <div v-if="isGeneratingAI" class="loading-spinner">
+          <p>Generating suggestions...</p>
+        </div>
+
+        <div v-else-if="aiError" class="error-message">
+          {{ aiError }}
+        </div>
+
+        <div v-else-if="aiSuggestions" class="suggestions-container">
+          <div class="suggestions-text">
+            {{ aiSuggestions }}
+          </div>
+          <button
+            @click="showAISuggestionsModal = false"
+            class="btn btn-primary"
+          >
+            Got it, thanks!
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -175,6 +204,11 @@ const previewDevice = ref('desktop')
 const showExportModal = ref(false)
 const showDeploymentGuide = ref(false)
 const copySuccess = ref(false)
+const showAISuggestionsModal = ref(false)
+const aiSuggestions = ref(null)
+const currentAIField = ref(null)
+const isGeneratingAI = ref(false)
+const aiError = ref(null)
 
 const formData = ref({
   brand_name: '',
@@ -213,11 +247,58 @@ const previousStep = () => {
   }
 }
 
-// AI content generation is handled via imported service
-// Placeholder for future AI integration
-const handleAIGenerate = async (fieldId) => {
-  console.log('[LandingPageCreatorAssistant] AI generation requested for field:', fieldId)
-  // Future: integrate with Grok AI for real-time copy suggestions
+// Generate AI suggestions for a field
+const generateFieldSuggestions = async (fieldId) => {
+  console.log('[LandingPageCreatorAssistant] Generating AI suggestions for field:', fieldId)
+
+  currentAIField.value = fieldId
+  isGeneratingAI.value = true
+  aiError.value = null
+
+  try {
+    // Call the AI service with the task config and form data
+    const taskConfig = {
+      name: 'Landing Page Creator',
+      ai: {
+        template: `You are an expert landing page copywriter. Help improve this landing page copy:
+
+Product: {brand_name}
+Tagline: {tagline}
+
+Current Headlines:
+- Main: {hero_headline}
+- Sub: {hero_subheadline}
+
+Features: {feature_1_title}, {feature_2_title}, {feature_3_title}
+
+Current Field: {current_field}
+Current Value: {current_value}
+
+Please suggest 3 alternatives for this field that are more compelling, benefit-focused, and likely to convert visitors.
+Format as a numbered list with brief explanations.`,
+        temperature: 0.7,
+        maxTokens: 800
+      }
+    }
+
+    // Prepare template variables
+    const templateData = {
+      ...formData.value,
+      current_field: fieldId,
+      current_value: formData.value[fieldId] || ''
+    }
+
+    // Call the AI generation service (imported function)
+    const suggestions = await generateAIContent(taskConfig, templateData)
+    aiSuggestions.value = suggestions
+    showAISuggestionsModal.value = true
+
+  } catch (err) {
+    console.error('[LandingPageCreatorAssistant] AI generation error:', err)
+    aiError.value = 'Failed to generate suggestions. Please try again.'
+  } finally {
+    isGeneratingAI.value = false
+  }
 }
 
 const copyHTMLCode = async () => {
@@ -530,6 +611,59 @@ const downloadHTMLFile = () => {
   background: #d1fae5;
   border: 1px solid #6ee7b7;
   color: #047857;
+  padding: 15px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* AI Suggestions Container */
+.suggestions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.suggestions-text {
+  background: #f9f7ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 8px;
+  padding: 20px;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading-spinner::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #e0e0e0;
+  border-top: 3px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
   padding: 15px;
   border-radius: 6px;
   text-align: center;

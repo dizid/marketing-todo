@@ -14,7 +14,7 @@
 import { computed } from 'vue'
 import { generateLandingPageHTML } from '../../../services/landingPageExporter'
 
-defineProps({
+const props = defineProps({
   formData: {
     type: Object,
     required: true
@@ -28,7 +28,7 @@ defineProps({
 
 const htmlContent = computed(() => {
   try {
-    return generateLandingPageHTML(formData.value)
+    return generateLandingPageHTML(props.formData)
   } catch (err) {
     console.error('Error generating preview:', err)
     return '<p>Error generating preview. Check your data.</p>'

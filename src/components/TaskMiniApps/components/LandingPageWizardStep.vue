@@ -142,13 +142,14 @@
           </p>
         </div>
 
-        <!-- AI Improve Button -->
+        <!-- AI Improve Button (Coming Soon) -->
         <button
           v-if="field.aiTip"
           class="btn-ai-improve"
-          @click="$emit('generate-ai', field.id)"
+          disabled
+          title="AI suggestions coming soon"
         >
-          ✨ AI Suggestions
+          ✨ AI Suggestions (Coming Soon)
         </button>
       </div>
     </div>
@@ -388,9 +389,14 @@ const emojiOptions = [
   width: 100%;
 }
 
-.btn-ai-improve:hover {
+.btn-ai-improve:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-ai-improve:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Responsive */

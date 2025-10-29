@@ -1,5 +1,5 @@
 /**
- * AI Generation Service
+ * AI Generation Service - update for NEt lify
  *
  * Unified service for all AI generation operations.
  * Handles template variable substitution, API calls, response parsing, and error handling.

@@ -564,7 +564,15 @@ const handleSaveClick = async () => {
   console.log('[UnifiedTaskComponent] Save button clicked at', new Date().toISOString())
   console.log('[UnifiedTaskComponent] aiOutput.value:', aiOutput.value)
   console.log('[UnifiedTaskComponent] aiOutput type:', typeof aiOutput.value)
-  console.log('[UnifiedTaskComponent] aiOutput keys:', aiOutput.value ? Object.keys(aiOutput.value) : 'N/A')
+  if (aiOutput.value) {
+    if (typeof aiOutput.value === 'string') {
+      console.log('[UnifiedTaskComponent] String length:', aiOutput.value.length)
+      console.log('[UnifiedTaskComponent] First 200 chars:', aiOutput.value.substring(0, 200))
+    } else {
+      console.log('[UnifiedTaskComponent] Is Array:', Array.isArray(aiOutput.value))
+      console.log('[UnifiedTaskComponent] Object keys:', Object.keys(aiOutput.value))
+    }
+  }
 
   if (!aiOutput.value) {
     console.warn('[UnifiedTaskComponent] aiOutput is null/undefined, cannot save')

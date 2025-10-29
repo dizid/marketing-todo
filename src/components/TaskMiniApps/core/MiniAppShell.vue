@@ -48,7 +48,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { generateAIContent } from '../../services/aiGeneration.js'
+import { generateAIContent } from '../../../services/aiGeneration.js'
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
 import OutputSection from '../shared/OutputSection.vue'

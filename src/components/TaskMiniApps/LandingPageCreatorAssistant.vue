@@ -24,7 +24,7 @@
           :step="wizardSteps[currentStep - 1]"
           :step-number="currentStep"
           :form-data="formData"
-          @update:formData="formData = $event"
+          @update:formData="updateFormData"
           @generate-ai="generateFieldSuggestions"
         />
 
@@ -191,12 +191,27 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import LandingPageWizardStep from './components/LandingPageWizardStep.vue'
 import LandingPagePreview from './components/LandingPagePreview.vue'
 import { generateLandingPageHTML } from '../../services/landingPageExporter'
 import { wizardSteps } from '../../configs/landingPageCreatorAssistant.config'
 import { generateAIContent } from '../../services/aiGeneration'
+
+// Props
+const props = defineProps({
+  taskConfig: {
+    type: Object,
+    required: true
+  },
+  taskData: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+// Emits
+const emit = defineEmits(['save'])
 
 // State
 const currentStep = ref(1)
@@ -228,9 +243,31 @@ const formData = ref({
   footer_links: ''
 })
 
+// Initialize with existing data if available
+if (props.taskData && props.taskData.formData) {
+  formData.value = { ...formData.value, ...props.taskData.formData }
+}
+
 // Computed
 const totalSteps = computed(() => wizardSteps.length)
 const progressPercent = computed(() => (currentStep.value / totalSteps.value) * 100)
+
+// Watch for form data changes and auto-save to database
+watch(
+  () => formData.value,
+  (newData) => {
+    // Emit save event with form data
+    emit('save', {
+      formData: newData
+    })
+  },
+  { deep: true }
+)
+
+// Update form data and trigger save
+const updateFormData = (newData) => {
+  formData.value = newData
+}
 
 // Methods
 const nextStep = () => {

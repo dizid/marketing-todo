@@ -1,7 +1,11 @@
 <template>
   <!-- Task Modal Wrapper -->
   <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click="handleBackdropClick">
-    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+    <div
+      class="bg-white rounded-lg shadow-xl w-full max-h-[90vh] overflow-y-auto"
+      :class="customComponent ? 'max-w-6xl' : 'max-w-3xl'"
+      @click.stop
+    >
       <!-- Modal Header -->
       <div class="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
         <div>

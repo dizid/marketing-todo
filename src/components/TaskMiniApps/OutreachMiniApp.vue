@@ -1,53 +1,156 @@
 <template>
-  <div class="app">
-    <h2>{{ title }}</h2>
-    <p>{{ description }}</p>
-    <div class="content">
-      <div class="form-group">
-        <label>Add your input:</label>
-        <textarea v-model="userInput" placeholder="Start typing..." class="textarea"></textarea>
+  <MiniAppShell
+    :task-config="config"
+    :task-data="taskData"
+    @save="handleSave"
+    ref="miniAppShell"
+  >
+    <template #ai-output="{ output }">
+      <!-- Email format with subject line -->
+      <div v-if="output && output.type === 'email'" class="space-y-3">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="text-xs font-semibold text-blue-900 mb-2">SUBJECT:</div>
+          <p class="text-sm text-blue-900 font-medium">{{ output.subject }}</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <div class="text-xs font-semibold text-gray-600 mb-2">MESSAGE BODY:</div>
+          <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ output.body }}</p>
+        </div>
+        <!-- Save button for generated message -->
+        <button
+          @click="saveGeneratedMessage(output)"
+          class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
+        >
+          ✓ Save to Outreach List
+        </button>
       </div>
-      <button @click="save" class="btn-primary">Save Progress</button>
-    </div>
-    <div v-if="items.length" class="items">
-      <h3>Your Items</h3>
-      <div v-for="(item, idx) in items" :key="idx" class="item">
-        {{ item }}
+
+      <!-- Generic message format -->
+      <div v-else-if="output && output.type === 'message'" class="space-y-3">
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ output.content }}</p>
+        </div>
+        <button
+          @click="saveGeneratedMessage(output)"
+          class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
+        >
+          ✓ Save to Outreach List
+        </button>
       </div>
-    </div>
-  </div>
+    </template>
+
+    <!-- Custom Saved Messages Section -->
+    <template #content>
+      <div v-if="savedMessages.length > 0" class="space-y-4 mt-8 pt-8 border-t border-gray-200">
+        <h4 class="font-semibold text-gray-900">Saved Messages</h4>
+
+        <div v-for="(msg, idx) in savedMessages" :key="idx" class="border border-gray-200 rounded-lg p-4 space-y-3">
+          <!-- Show message preview -->
+          <div v-if="msg.type === 'email'" class="space-y-2">
+            <div class="bg-gray-50 p-2 rounded">
+              <div class="text-xs font-semibold text-gray-600">SUBJECT:</div>
+              <p class="text-sm text-gray-800 font-medium">{{ msg.subject }}</p>
+            </div>
+            <div class="text-xs text-gray-600">Preview:</div>
+            <p class="text-sm text-gray-700 line-clamp-2">{{ msg.body }}</p>
+          </div>
+
+          <div v-else class="text-sm text-gray-700 line-clamp-2">{{ msg.content }}</div>
+
+          <!-- Action buttons -->
+          <div class="flex gap-2 pt-2">
+            <button
+              @click="copyMessage(msg)"
+              class="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition"
+            >
+              📋 Copy
+            </button>
+            <button
+              @click="removeMessage(idx)"
+              class="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition"
+            >
+              🗑️ Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </MiniAppShell>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import MiniAppShell from './core/MiniAppShell.vue'
+import { outreachConfig } from './configs/outreach.config.js'
 
-const props = defineProps({ taskConfig: Object, taskData: Object })
+const props = defineProps({
+  taskId: String,
+  taskData: Object,
+  taskConfig: Object  // May receive task config from TaskModal
+})
+
 const emit = defineEmits(['save'])
 
-const title = 'Outreach Task'
-const description = 'Track and manage your Outreach'
-const userInput = ref('')
-const items = ref(props.taskData?.items || [])
+// Always use the mini-app config, not the task config
+const config = computed(() => outreachConfig)
 
-const save = () => {
-  if (userInput.value) {
-    items.value.push(userInput.value)
-    userInput.value = ''
+// Saved messages list
+const savedMessages = ref(props.taskData?.savedItems || [])
+
+// Local task data - initialize once
+const taskData = ref(props.taskData || {
+  formData: {},
+  aiOutput: null,
+  savedItems: []
+})
+
+// Save a generated message to the list
+const saveGeneratedMessage = (message) => {
+  savedMessages.value.push(message)
+
+  // Also update taskData
+  taskData.value = {
+    ...taskData.value,
+    savedItems: savedMessages.value
   }
-  emit('save', { items: items.value })
+
+  // Emit save event
+  handleSave(taskData.value)
+}
+
+// Copy message to clipboard
+const copyMessage = (message) => {
+  let text = ''
+
+  if (message.type === 'email') {
+    text = `SUBJECT: ${message.subject}\n\n${message.body}`
+  } else {
+    text = message.content || message.fullMessage
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Message copied to clipboard!')
+  }).catch(err => {
+    console.error('Failed to copy:', err)
+  })
+}
+
+// Remove a saved message
+const removeMessage = (idx) => {
+  savedMessages.value.splice(idx, 1)
+
+  // Update taskData
+  taskData.value = {
+    ...taskData.value,
+    savedItems: savedMessages.value
+  }
+
+  // Emit save event
+  handleSave(taskData.value)
+}
+
+// Save handler - just emit, don't update local state
+const handleSave = (data) => {
+  emit('save', data)
 }
 </script>
-
-<style scoped>
-.app { max-width: 800px; margin: 0 auto; padding: 20px; }
-h2 { margin: 0 0 10px 0; }
-p { color: #666; margin: 0 0 20px 0; }
-.content { background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-.textarea { width: 100%; min-height: 100px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-family: inherit; }
-.btn-primary { background: #6366f1; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.items { margin-top: 30px; }
-.items h3 { margin: 0 0 12px 0; }
-.item { background: #f9f9f9; border-left: 4px solid #6366f1; padding: 12px; margin-bottom: 8px; border-radius: 4px; }
-</style>

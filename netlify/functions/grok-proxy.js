@@ -2,6 +2,65 @@
 // Netlify serverless function to proxy requests to Grok AI API
 // Handles authentication and LLM-style API communication securely
 
+/**
+ * Build a comprehensive prompt for executive summary generation
+ * Analyzes project data and requests prioritized quick-win tasks
+ */
+function buildExecutiveSummaryPrompt(userData) {
+  const {
+    projectGoals = '',
+    appDescription = '',
+    targetAudience = '',
+    techStack = '',
+    progress = 0,
+    completedTasks = 0,
+    totalTasks = 0,
+    checklist = []
+  } = userData
+
+  const categoryBreakdown = checklist
+    .map(cat => `- ${cat.category}: ${cat.completedCount}/${cat.totalCount} completed`)
+    .join('\n')
+
+  return `You are an expert marketing and business strategist. Analyze the following project data and provide:
+
+PROJECT OVERVIEW:
+- Description: ${appDescription || 'N/A'}
+- Target Audience: ${targetAudience || 'N/A'}
+- Goals: ${projectGoals || 'N/A'}
+- Tech Stack: ${techStack || 'N/A'}
+
+PROJECT PROGRESS:
+- Overall Progress: ${progress}% (${completedTasks}/${totalTasks} tasks completed)
+- Category Breakdown:
+${categoryBreakdown || 'No category data available'}
+
+REQUIRED OUTPUT FORMAT:
+
+## Executive Summary
+Provide a 2-3 sentence executive summary of the project status, including:
+- Current momentum and progress status
+- Key strengths or completed work
+- Most critical gap or next focus area
+
+## Priority Quick-Win Tasks
+Provide exactly 3-5 priority tasks ranked by "quick wins" (high impact, low effort).
+Format each task as:
+[Task Number]. [Task Title]
+   - Impact: [High/Medium/Low]
+   - Effort: [Low/Medium/High]
+   - Why: [Brief explanation of why this matters]
+   - Next Steps: [1-2 specific action items]
+
+IMPORTANT: Prioritize tasks that:
+1. Require minimal effort but have significant impact
+2. Address the identified gaps in the project
+3. Align with stated goals
+4. Can be completed quickly to build momentum
+
+Provide actionable, specific recommendations tailored to this project.`
+}
+
 const handler = async (event) => {
   console.log('[grok-proxy] Function invoked at:', new Date().toISOString())
   console.log('[grok-proxy] HTTP Method:', event.httpMethod)
@@ -52,22 +111,34 @@ const handler = async (event) => {
       }
     }
 
-    // Validate required fields for LLM API format
-    const { model, messages, temperature, max_tokens } = requestBody
+    // Extract fields
+    let { model, messages, temperature, max_tokens, userData, requestType } = requestBody
 
-    if (!model) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Missing required field: model' })
+    // Handle different request types
+    if (requestType === 'executiveSummary') {
+      console.log('[grok-proxy] Processing executiveSummary request')
+      // Build prompt for executive summary
+      const summaryPrompt = buildExecutiveSummaryPrompt(userData)
+      messages = [{ role: 'user', content: summaryPrompt }]
+      model = model || 'grok-2'
+      temperature = temperature !== undefined ? temperature : 0.5
+      max_tokens = max_tokens || 2500
+    } else {
+      // Default behavior for other request types
+      if (!model) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ error: 'Missing required field: model' })
+        }
       }
-    }
 
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Missing or invalid required field: messages' })
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ error: 'Missing or invalid required field: messages' })
+        }
       }
     }
 

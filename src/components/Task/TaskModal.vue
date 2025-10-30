@@ -102,6 +102,8 @@ import CommunityPostsMiniApp from '@/components/TaskMiniApps/CommunityPostsMiniA
 import OutreachMiniApp from '@/components/TaskMiniApps/OutreachMiniApp.vue'
 import WebinarMiniApp from '@/components/TaskMiniApps/WebinarMiniApp.vue'
 import FeedbackCollectionMiniApp from '@/components/TaskMiniApps/FeedbackCollectionMiniApp.vue'
+import PublishUpdatesMiniApp from '@/components/TaskMiniApps/PublishUpdatesMiniApp.vue'
+import IterateFeaturesMiniApp from '@/components/TaskMiniApps/IterateFeaturesMiniApp.vue'
 import ChangelogMiniApp from '@/components/TaskMiniApps/ChangelogMiniApp.vue'
 import FeaturePrioritizationMiniApp from '@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'
 import AnalyticsSetupMiniApp from '@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'
@@ -123,6 +125,8 @@ const customComponentMap = {
   'OutreachMiniApp': OutreachMiniApp,
   'WebinarMiniApp': WebinarMiniApp,
   'FeedbackCollectionMiniApp': FeedbackCollectionMiniApp,
+  'PublishUpdatesMiniApp': PublishUpdatesMiniApp,
+  'IterateFeaturesMiniApp': IterateFeaturesMiniApp,
   'ChangelogMiniApp': ChangelogMiniApp,
   'FeaturePrioritizationMiniApp': FeaturePrioritizationMiniApp,
   'AnalyticsSetupMiniApp': AnalyticsSetupMiniApp,

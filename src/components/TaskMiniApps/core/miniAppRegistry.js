@@ -7,10 +7,20 @@
 
 import { defineAudienceConfig } from '../configs/defineAudience.config.js'
 import { generatePostsConfig } from '../configs/generatePosts.config.js'
+import { outreachConfig } from '../configs/outreach.config.js'
+import { webinarConfig } from '../configs/webinar.config.js'
+import { feedbackConfig } from '../configs/feedback.config.js'
+import { publishUpdatesConfig } from '../configs/publishUpdates.config.js'
+import { iterateFeaturesConfig } from '../configs/iterateFeatures.config.js'
 
 export const miniAppRegistry = {
   'define-audience': defineAudienceConfig,
-  'generate-posts': generatePostsConfig
+  'generate-posts': generatePostsConfig,
+  'outreach': outreachConfig,
+  'webinar': webinarConfig,
+  'feedback': feedbackConfig,
+  'publish-updates': publishUpdatesConfig,
+  'iterate-features': iterateFeaturesConfig
   // Add more configs here as we build them
 }
 

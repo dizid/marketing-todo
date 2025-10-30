@@ -763,76 +763,6 @@ Generate:
   }
 }
 
-export const generateOutreachTask = {
-  id: 'acq-2',
-  name: 'Generate Outreach Campaign',
-  description: 'Create an outreach campaign to acquire new users and customers.',
-  category: 'acquisition',
-
-  form: [
-    {
-      id: 'outreach_goal',
-      type: 'textarea',
-      label: 'Campaign Goal',
-      placeholder: 'What do you want to achieve? (e.g., Partnership, Customer acquisition, Beta signup)',
-      required: true,
-      rows: 2
-    },
-    {
-      id: 'outreach_target',
-      type: 'text',
-      label: 'Target Profile',
-      placeholder: 'e.g., SaaS founders, Marketing managers, Enterprise CTOs',
-      required: true
-    },
-    {
-      id: 'outreach_channel',
-      type: 'select',
-      label: 'Outreach Channel',
-      options: [
-        { value: 'email', label: 'Email Outreach' },
-        { value: 'linkedin', label: 'LinkedIn Messaging' },
-        { value: 'twitter', label: 'Twitter / X DM' },
-        { value: 'partnership', label: 'Partnership Pitch' }
-      ]
-    },
-    {
-      id: 'outreach_value',
-      type: 'textarea',
-      label: 'Value Proposition',
-      placeholder: 'What value do you offer to them?',
-      rows: 2
-    }
-  ],
-
-  ai: {
-    template: `Create an outreach campaign:
-
-Goal: {outreach_goal}
-Target: {outreach_target}
-Channel: {outreach_channel}
-Value Proposition: {outreach_value}
-
-Generate:
-1. Subject line (compelling and clear)
-2. Opening hook (personalized and relevant)
-3. Problem statement (their pain point)
-4. Your solution
-5. Social proof / credibility
-6. Call-to-action
-7. Follow-up messaging strategy`,
-
-    temperature: 0.8,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'outreach-campaign',
-    displayFormat: 'text'
-  }
-}
-
 export const generateWebinarTask = {
   id: 'acq-3',
   name: 'Generate Webinar Plan',
@@ -906,6 +836,10 @@ Generate:
   }
 }
 
+*/
+
+// TASKS THAT ARE ACTIVELY USED
+
 export const collectFeedbackTask = {
   id: 'feedback-1',
   name: 'Collect Customer Feedback',
@@ -978,129 +912,28 @@ Generate:
   }
 }
 
+// NEW MINI-APP TASKS
+
 export const publishUpdatesTask = {
   id: 'feedback-2',
   name: 'Publish Product Updates',
-  description: 'Communicate product updates and improvements to your audience.',
+  description: 'Plan and execute product update announcements across multiple channels with step-by-step guidance.',
   category: 'feedback',
-
-  form: [
-    {
-      id: 'update_title',
-      type: 'text',
-      label: 'Update Title',
-      placeholder: 'e.g., New AI Features Released',
-      required: true
-    },
-    {
-      id: 'update_features',
-      type: 'textarea',
-      label: 'Features / Improvements',
-      placeholder: 'List the key changes and improvements...',
-      required: true,
-      rows: 3
-    },
-    {
-      id: 'update_impact',
-      type: 'text',
-      label: 'User Impact',
-      placeholder: 'How does this benefit users?'
-    },
-    {
-      id: 'update_channels',
-      type: 'checkboxes',
-      label: 'Communication Channels',
-      options: [
-        { value: 'email', label: 'Email Newsletter' },
-        { value: 'blog', label: 'Blog Post' },
-        { value: 'social', label: 'Social Media' },
-        { value: 'changelog', label: 'Changelog / Release Notes' }
-      ]
-    }
-  ],
-
-  ai: {
-    template: `Create product update announcements:
-
-Title: {update_title}
-Features: {update_features}
-Impact: {update_impact}
-Channels: {update_channels}
-
-Generate:
-1. Email announcement
-2. Social media posts (Twitter, LinkedIn, Facebook)
-3. Blog post excerpt
-4. Changelog entry
-5. Internal team announcement
-6. Key benefits summary`,
-
-    temperature: 0.8,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'product-updates',
-    displayFormat: 'text'
-  }
+  customComponent: 'PublishUpdatesMiniApp',
+  miniAppId: 'publish-updates',
+  type: 'miniapp',
+  hasAI: false
 }
 
 export const iterateFeaturesTask = {
   id: 'feedback-3',
-  name: 'Plan Feature Iteration',
-  description: 'Plan how to iterate on features based on user feedback.',
+  name: 'Iterate on Features',
+  description: 'Prioritize features based on impact and implementation effort using a priority matrix framework.',
   category: 'feedback',
-
-  form: [
-    {
-      id: 'iteration_feature',
-      type: 'text',
-      label: 'Feature Name',
-      placeholder: 'Which feature are you iterating on?',
-      required: true
-    },
-    {
-      id: 'iteration_feedback',
-      type: 'textarea',
-      label: 'User Feedback',
-      placeholder: 'What feedback did you receive from users?',
-      required: true,
-      rows: 3
-    },
-    {
-      id: 'iteration_goal',
-      type: 'text',
-      label: 'Iteration Goal',
-      placeholder: 'e.g., Improve usability, Add missing features, Fix bugs'
-    }
-  ],
-
-  ai: {
-    template: `Create a feature iteration plan:
-
-Feature: {iteration_feature}
-User Feedback: {iteration_feedback}
-Goal: {iteration_goal}
-
-Generate:
-1. Problem analysis (what's the core issue?)
-2. Proposed solutions (3 options)
-3. MVP approach (minimal changes to ship faster)
-4. Success metrics
-5. Timeline and milestones
-6. Testing plan
-7. Communication strategy to users`,
-
-    temperature: 0.7,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'feature-iteration-plan',
-    displayFormat: 'text'
-  }
+  customComponent: 'IterateFeaturesMiniApp',
+  miniAppId: 'iterate-features',
+  type: 'miniapp',
+  hasAI: false
 }
 
 export const setupAnalyticsTask = {
@@ -1282,7 +1115,6 @@ Generate:
     displayFormat: 'text'
   }
 }
-*/
 
 export const landingPageCreatorTask = {
   id: 'setup-2',
@@ -1346,6 +1178,7 @@ Please suggest:
   useWizard: true
 }
 
+
 // ============================================================================
 // EXPORTS
 // ============================================================================
@@ -1370,13 +1203,13 @@ export const unifiedTasksMap = {
   'acq-2': outreachTask,
   'acq-3': webinarTask,
 
-  'feedback-1': feedbackCollectionTask,
-  'feedback-2': changelogTask,
-  'feedback-3': featurePrioritizationTask,
+  'feedback-1': collectFeedbackTask,
+  'feedback-2': publishUpdatesTask,
+  'feedback-3': iterateFeaturesTask,
 
-  'analytics-1': analyticsSetupTask,
-  'analytics-2': channelAnalyzerTask,
-  'analytics-3': roiCalculatorTask
+  'analytics-1': setupAnalyticsTask,
+  'analytics-2': optimizeChannelsTask,
+  'analytics-3': reviewROITask
 }
 
 // Export all tasks as array for iteration

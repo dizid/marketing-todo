@@ -177,10 +177,10 @@ const taskMetadata = {
     type: 'miniapp',
     category: 'acquisition',
     icon: '✉️',
-    description: 'Email/DM 20-50 potential users. 5 proven cold outreach templates.',
-    hasAI: false,
+    description: 'Generate personalized outreach emails and messages with AI assistance. Tailored to your audience and product.',
+    hasAI: true,
     miniAppId: 'outreach',
-    fields: ['items']
+    fields: ['recipient_segment', 'channel', 'tone', 'call_to_action', 'additional_details', 'notes']
   },
   'acq-3': {
     name: 'Host Webinar/Q&A',

@@ -55,3 +55,40 @@ export async function getMindfulnessTip(triggers) {
     throw error
   }
 }
+
+/**
+ * Get Executive Summary and Priority Tasks from Grok
+ * @param {object} projectData - Complete project data including settings, progress, and task details
+ * @returns {Promise<object>} Object with summary and prioritizedTasks array
+ */
+export async function getExecutiveSummaryAndTasks(projectData) {
+  try {
+    console.log('Fetching executive summary with projectData:', JSON.stringify(projectData, null, 2))
+    const functionUrl = import.meta.env.VITE_FUNCTIONS_URL || '/.netlify/functions'
+    const response = await fetch(`${functionUrl}/grok-proxy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userData: projectData,
+        requestType: 'executiveSummary',
+        temperature: 0.5,
+        max_tokens: 2500
+      })
+    })
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`)
+    }
+    const data = await response.json()
+    console.log('Executive summary response:', JSON.stringify(data, null, 2))
+    if (data.error) {
+      throw new Error(data.error)
+    }
+    // Extract the text content from OpenAI-format response
+    const content = data.choices?.[0]?.message?.content || ''
+    console.log('Extracted content:', content)
+    return { responseText: content }
+  } catch (error) {
+    console.error('Error fetching executive summary:', error)
+    throw error
+  }
+}

@@ -90,35 +90,60 @@
           />
         </div>
 
-        <!-- AI Advice Section -->
+        <!-- Executive Summary Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mt-8">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">🤖 Grok AI Advice</h2>
+            <h2 class="text-lg font-semibold text-gray-900">📊 Executive Summary & Priority Tasks</h2>
             <button
-              @click="generateGrokAdvice"
-              :disabled="isGenerating"
-              class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg transition font-medium text-sm"
+              @click="generateExecutiveSummary"
+              :disabled="isGeneratingSummary"
+              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium text-sm"
             >
-              {{ isGenerating ? '⏳ Generating...' : '✨ Generate Advice' }}
+              {{ isGeneratingSummary ? '⏳ Generating...' : '🎯 Generate Summary' }}
             </button>
           </div>
 
           <p class="text-gray-600 text-sm mb-4">
-            Get AI-powered suggestions tailored to your project.
+            Get an AI-powered executive summary with 3-5 priority quick-win tasks for your project.
           </p>
 
-          <div v-if="aiError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p class="text-sm text-red-800">{{ aiError }}</p>
+          <div v-if="summaryError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-800">{{ summaryError }}</p>
           </div>
 
-          <div v-if="grokAdvice" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
-              {{ grokAdvice }}
+          <div v-if="executiveSummary" class="space-y-4">
+            <!-- Executive Summary Card -->
+            <div class="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">📈 Project Status Summary</h3>
+              <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap text-sm">
+                {{ executiveSummary.summary }}
+              </div>
+            </div>
+
+            <!-- Priority Tasks -->
+            <div v-if="executiveSummary.tasks && executiveSummary.tasks.length > 0">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">🎯 Priority Quick-Win Tasks</h3>
+              <div class="space-y-3">
+                <div
+                  v-for="(task, idx) in executiveSummary.tasks"
+                  :key="idx"
+                  class="bg-green-50 border border-green-200 rounded-lg p-4"
+                >
+                  <div class="flex items-start justify-between mb-2">
+                    <h4 class="font-semibold text-gray-900">{{ idx + 1 }}. {{ task.title }}</h4>
+                    <span class="text-xs font-semibold px-2 py-1 bg-green-200 text-green-800 rounded">
+                      {{ task.impact }} Impact / {{ task.effort }} Effort
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-700 mb-2"><strong>Why:</strong> {{ task.why }}</p>
+                  <p class="text-sm text-gray-700"><strong>Next Steps:</strong> {{ task.nextSteps }}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div v-if="!grokAdvice && !isGenerating" class="text-gray-500 text-sm italic">
-            Click "Generate Advice" to get personalized recommendations from Grok AI
+          <div v-if="!executiveSummary && !isGeneratingSummary" class="text-gray-500 text-sm italic">
+            Click "Generate Summary" to get an AI-powered analysis of your project with priority tasks
           </div>
         </div>
 
@@ -129,12 +154,6 @@
             class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm"
           >
             📄 Export as Markdown
-          </button>
-          <button
-            @click="exportAsJSON"
-            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium text-sm"
-          >
-            💾 Export as JSON
           </button>
           <button
             @click="resetProjectTasks"
@@ -172,7 +191,7 @@ import { useProjectStore } from '@/stores/projectStore'
 import ChecklistCategory from './ChecklistCategory.vue'
 import ProjectHeader from './Project/ProjectHeader.vue'
 import TaskModal from './Task/TaskModal.vue'
-import { getGrokAdvice } from '@/services/grok.js'
+import { getExecutiveSummaryAndTasks } from '@/services/grok.js'
 
 const projectStore = useProjectStore()
 
@@ -180,9 +199,9 @@ const projectStore = useProjectStore()
 const searchQuery = ref('')
 const selectedCategory = ref('')
 const selectedStatus = ref('')
-const grokAdvice = ref('')
-const isGenerating = ref(false)
-const aiError = ref('')
+const executiveSummary = ref(null)
+const isGeneratingSummary = ref(false)
+const summaryError = ref('')
 const showTaskModal = ref(false)
 const selectedTaskId = ref(null)
 
@@ -429,7 +448,6 @@ const handleTaskUpdate = async (updatedTasks) => {
     await projectStore.updateProjectTasks(updatedTasks)
   } catch (error) {
     console.error('Error updating tasks:', error)
-    aiError.value = 'Failed to save task changes'
   }
 }
 
@@ -441,7 +459,6 @@ const handleTaskRemoved = async (data) => {
     await projectStore.removeTask(data.taskId)
   } catch (error) {
     console.error('Error removing task:', error)
-    aiError.value = 'Failed to remove task'
   }
 }
 
@@ -462,17 +479,18 @@ const handleTaskModalClosed = () => {
 }
 
 /**
- * Generate Grok AI advice
+ * Generate Executive Summary with Priority Tasks
  */
-const generateGrokAdvice = async () => {
-  if (isGenerating.value) return
-  isGenerating.value = true
-  aiError.value = ''
+const generateExecutiveSummary = async () => {
+  if (isGeneratingSummary.value) return
+  isGeneratingSummary.value = true
+  summaryError.value = ''
 
   try {
-    const userData = {
-      appDescription: projectStore.currentProjectSettings.targetAudience || '',
+    const projectData = {
+      appDescription: projectStore.currentProjectSettings.appDescription || '',
       projectGoals: projectStore.currentProjectSettings.goals || '',
+      targetAudience: projectStore.currentProjectSettings.targetAudience || '',
       techStack: projectStore.currentProjectSettings.techStack || '',
       completedTasks: completedTasks.value,
       totalTasks: totalTasks.value,
@@ -484,13 +502,58 @@ const generateGrokAdvice = async () => {
       }))
     }
 
-    const advice = await getGrokAdvice(userData)
-    grokAdvice.value = advice
+    console.log('[Dashboard] Sending project data:', projectData)
+    const result = await getExecutiveSummaryAndTasks(projectData)
+    console.log('[Dashboard] Received summary result:', result)
+
+    // Parse the response - Grok returns the text content with structured format
+    const responseText = result.responseText || ''
+
+    // Extract summary and tasks from the response
+    const summaryMatch = responseText.match(/## Executive Summary\n([\s\S]*?)(?=## Priority Quick-Win Tasks|\Z)/)?.[1]
+    const tasksSection = responseText.match(/## Priority Quick-Win Tasks\n([\s\S]*)/)?.[1]
+
+    let parsedTasks = []
+    if (tasksSection) {
+      // Parse individual tasks from the formatted response
+      const taskLines = tasksSection.split('\n').filter(line => line.trim())
+      let currentTask = null
+
+      for (const line of taskLines) {
+        if (line.match(/^\d+\./)) {
+          // Start of a new task
+          if (currentTask) parsedTasks.push(currentTask)
+          const title = line.replace(/^\d+\.\s*/, '').trim()
+          currentTask = { title, impact: '', effort: '', why: '', nextSteps: '' }
+        } else if (currentTask) {
+          if (line.includes('Impact:')) {
+            const match = line.match(/Impact:\s*(\w+)/i)
+            if (match) currentTask.impact = match[1]
+          } else if (line.includes('Effort:')) {
+            const match = line.match(/Effort:\s*(\w+)/i)
+            if (match) currentTask.effort = match[1]
+          } else if (line.includes('Why:')) {
+            currentTask.why = line.replace(/.*Why:\s*/i, '').trim()
+          } else if (line.includes('Next Steps:')) {
+            currentTask.nextSteps = line.replace(/.*Next Steps:\s*/i, '').trim()
+          }
+        }
+      }
+      if (currentTask) parsedTasks.push(currentTask)
+    }
+
+    // Limit to 5 tasks
+    parsedTasks = parsedTasks.slice(0, 5)
+
+    executiveSummary.value = {
+      summary: summaryMatch ? summaryMatch.trim() : responseText.substring(0, 300),
+      tasks: parsedTasks
+    }
   } catch (error) {
-    console.error('Error generating Grok advice:', error)
-    aiError.value = error.message || 'Failed to generate AI advice. Please try again.'
+    console.error('Error generating executive summary:', error)
+    summaryError.value = error.message || 'Failed to generate executive summary. Please try again.'
   } finally {
-    isGenerating.value = false
+    isGeneratingSummary.value = false
   }
 }
 
@@ -525,29 +588,6 @@ const exportAsMarkdown = () => {
 
   copyToClipboard(markdown)
   alert('Markdown copied to clipboard!')
-}
-
-/**
- * Export data as JSON format
- */
-const exportAsJSON = () => {
-  const exportData = {
-    exportedAt: new Date().toISOString(),
-    project: {
-      name: projectStore.currentProject.name,
-      settings: projectStore.currentProjectSettings
-    },
-    progress: {
-      completed: completedTasks.value,
-      total: totalTasks.value,
-      percentage: progressPercentage.value
-    },
-    tasks: projectStore.currentProjectTasks
-  }
-
-  const jsonString = JSON.stringify(exportData, null, 2)
-  copyToClipboard(jsonString)
-  alert('JSON data copied to clipboard!')
 }
 
 /**

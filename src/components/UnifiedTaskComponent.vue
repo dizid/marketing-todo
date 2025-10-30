@@ -185,8 +185,9 @@
         </div>
       </div>
 
-      <!-- Generate Button -->
+      <!-- Generate Button (only show if AI is configured) -->
       <button
+        v-if="props.taskConfig?.ai"
         @click="generateAI"
         :disabled="isGenerating || !isFormValid"
         class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg transition font-medium text-sm flex items-center justify-center gap-2"
@@ -410,6 +411,12 @@ const generateAI = async () => {
   console.log('[UnifiedTaskComponent] generateAI called')
   console.log('[UnifiedTaskComponent] isFormValid:', isFormValid.value)
   console.log('[UnifiedTaskComponent] taskConfig:', props.taskConfig)
+
+  // Check if AI is configured for this task
+  if (!props.taskConfig?.ai) {
+    aiError.value = 'This task does not have AI generation configured'
+    return
+  }
 
   if (!isFormValid.value) {
     aiError.value = 'Please fill in all required fields'

@@ -15,7 +15,11 @@ A modern, full-stack sales dashboard with AI-powered marketing advice using Grok
 - 🎨 **Beautiful UI** - Tailwind CSS v4 responsive design
 - 📤 **Export** - Export data as Markdown or JSON
 
-**Technology Stack**: Vue 3 / Vite / Tailwind CSS / Netlify proxy function if sensitive API keys, Grok AI API, Supabase API
+**Technology Stack**: 
+Vue 3 / Vite / Tailwind CSS
+Netlify proxy function if sensitive API keys, Grok AI API, Supabase API
+Vite dev server running on port 3000 (hot-reload enabled)
+Netlify functions server running on port 9999
 **Architecture**: Serverless
 **Deployment**: Github → Netlify (through webhook)
 
@@ -91,9 +95,9 @@ Eliminate patterns that consume tokens without advancing implementation:
 ### Essential Commands
 
 #### Development
-Your dev server command: npm run dev
+Your dev server command: netlify dev
 Your build command: npm run build
-Your test command
+Your test command:
 #### Database
 Your migration commands
 Your seeding commands

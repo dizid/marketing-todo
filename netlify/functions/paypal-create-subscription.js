@@ -74,18 +74,20 @@ async function getPayPalAccessToken() {
 }
 
 /**
- * Create subscription record in Supabase
+ * Create or update subscription record in Supabase
+ * Uses upsert to handle both new subscriptions and updates
  */
 async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPayerId) {
   try {
-    console.log(`[PayPal] Creating subscription record for user: ${userId}`)
+    console.log(`[PayPal] Creating/updating subscription record for user: ${userId}`)
 
     const now = new Date().toISOString()
     const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
+    // Use upsert: if user_id exists, update; if not, insert
     const { data, error } = await supabase
       .from('subscriptions')
-      .insert([{
+      .upsert([{
         user_id: userId,
         tier: 'premium',
         status: 'active',
@@ -95,16 +97,16 @@ async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPaye
         current_period_end: periodEnd,
         created_at: now,
         updated_at: now
-      }])
+      }], { onConflict: 'user_id' })
       .select()
       .single()
 
     if (error) {
-      console.error('[PayPal] Failed to create subscription record:', error)
+      console.error('[PayPal] Failed to create/update subscription record:', error)
       throw error
     }
 
-    console.log(`[PayPal] Subscription record created: ${data?.id}`)
+    console.log(`[PayPal] Subscription record created/updated: ${data?.id}`)
     return data
   } catch (err) {
     console.error('[PayPal] Error creating subscription record:', err.message)

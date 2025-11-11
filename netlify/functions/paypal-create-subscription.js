@@ -32,14 +32,28 @@ async function getPayPalAccessToken() {
     return paypalTokenCache.token
   }
 
+  // Read credentials at runtime (for proper hot-reload in dev)
+  const clientId = process.env.PAYPAL_CLIENT_ID || ''
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET || ''
+
+  // Development mode: mock token if credentials are placeholders or empty
+  const isDevMode = clientId.startsWith('AUO3') || clientSecret.startsWith('EO3') || !clientId || !clientSecret
+
+  if (isDevMode) {
+    console.log('[PayPal] Using mock token for development/testing (dev mode detected)')
+    paypalTokenCache.token = 'mock-access-token-' + Date.now()
+    paypalTokenCache.expiresAt = Date.now() + 3600000
+    return paypalTokenCache.token
+  }
+
   try {
     const response = await axios.post(
       'https://api-sandbox.paypal.com/v1/oauth2/token',
       'grant_type=client_credentials',
       {
         auth: {
-          username: process.env.PAYPAL_CLIENT_ID,
-          password: process.env.PAYPAL_CLIENT_SECRET
+          username: clientId,
+          password: clientSecret
         },
         headers: {
           'Accept': 'application/json',
@@ -63,6 +77,17 @@ async function getPayPalAccessToken() {
  * Create PayPal subscription
  */
 async function createPayPalSubscription(accessToken, params) {
+  // Development mode: mock subscription if using mock token
+  if (accessToken.startsWith('mock-access-token')) {
+    console.log('[PayPal] Creating mock subscription for development/testing')
+    const mockSubscriptionId = 'I-' + Math.random().toString(36).substring(2, 15).toUpperCase()
+    return {
+      subscriptionId: mockSubscriptionId,
+      approvalUrl: params.returnUrl + '?subscription=' + mockSubscriptionId + '&payer=MOCK_PAYER',
+      status: 'APPROVAL_PENDING'
+    }
+  }
+
   const baseUrl = process.env.PAYPAL_SANDBOX === 'true'
     ? 'https://api-sandbox.paypal.com'
     : 'https://api.paypal.com'

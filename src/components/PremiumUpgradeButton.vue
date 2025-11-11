@@ -146,8 +146,9 @@ const handlePayPalReturn = async () => {
     console.log('[PremiumUpgradeButton] PayPal return detected - success')
 
     // Get subscription ID and payer ID from query params
-    const subscriptionId = params.get('subscription_id')
-    const payerId = params.get('payer_id')
+    // Support both real PayPal format (subscription_id, payer_id) and mock format (subscription, payer)
+    const subscriptionId = params.get('subscription_id') || params.get('subscription')
+    const payerId = params.get('payer_id') || params.get('payer')
 
     if (subscriptionId && payerId) {
       try {

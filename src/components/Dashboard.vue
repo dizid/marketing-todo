@@ -5,6 +5,8 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Quota Status Card -->
+      <QuotaStatusCard @upgrade-clicked="handleUpgradeClick" />
       <!-- No Project State -->
       <div v-if="!projectStore.currentProject" class="bg-white rounded-lg shadow-md p-12 text-center">
         <p class="text-gray-600 mb-4">No project selected. Create a new project to get started.</p>
@@ -187,12 +189,15 @@
 
 import { ref, computed, onMounted } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { useSubscriptionStore } from '@/stores/subscriptionStore'
 import ChecklistCategory from './ChecklistCategory.vue'
 import ProjectHeader from './Project/ProjectHeader.vue'
+import QuotaStatusCard from './QuotaStatusCard.vue'
 import TaskModal from './Task/TaskModal.vue'
 import { getExecutiveSummaryAndTasks } from '@/services/grok.js'
 
 const projectStore = useProjectStore()
+const subscriptionStore = useSubscriptionStore()
 
 // State
 const searchQuery = ref('')
@@ -554,6 +559,15 @@ const generateExecutiveSummary = async () => {
   } finally {
     isGeneratingSummary.value = false
   }
+}
+
+/**
+ * Handle upgrade button click from quota card
+ */
+const handleUpgradeClick = () => {
+  // TODO: Navigate to upgrade/pricing page or show upgrade modal
+  console.log('[Dashboard] Upgrade button clicked')
+  // This will be connected to the PayPal upgrade flow in Phase 6
 }
 
 /**

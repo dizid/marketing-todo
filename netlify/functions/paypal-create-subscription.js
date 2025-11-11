@@ -120,6 +120,15 @@ async function createPayPalSubscription(accessToken, params) {
   if (accessToken.startsWith('mock-access-token')) {
     console.log('[PayPal] Creating mock subscription for development/testing')
     const mockSubscriptionId = 'I-' + Math.random().toString(36).substring(2, 15).toUpperCase()
+
+    // Also create the subscription record in the database for mock mode
+    try {
+      await createSubscriptionRecord(params.userId, mockSubscriptionId, 'MOCK_PAYER')
+    } catch (err) {
+      console.error('[PayPal] Warning: Failed to create subscription record for mock:', err.message)
+      // Continue anyway - will retry on return
+    }
+
     return {
       subscriptionId: mockSubscriptionId,
       approvalUrl: params.returnUrl + '&subscription=' + mockSubscriptionId + '&payer=MOCK_PAYER',

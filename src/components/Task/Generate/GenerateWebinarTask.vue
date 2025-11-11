@@ -202,6 +202,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,

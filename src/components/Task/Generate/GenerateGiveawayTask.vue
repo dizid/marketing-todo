@@ -194,6 +194,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,
@@ -276,16 +277,16 @@ const generateCampaign = async () => {
   try {
     const mechanicsList = entryMechanics.value.join(', ')
 
-    const prompt = `Generate a complete giveaway campaign strategy with the following specifications:
+    const promptTemplate = `Generate a complete giveaway campaign strategy with the following specifications:
 
-Product/Company Context: ${appDescription.value}
+Product/Company Context: {appDescription}
 
 Campaign Details:
-- Giveaway Type: ${giveawayType.value}
-- Prize: ${prizeDescription.value}
-- Entry Mechanics: ${mechanicsList}
-- Duration: ${duration.value} days
-- Target Audience: ${targetAudience.value || 'General audience'}
+- Giveaway Type: {giveawayType}
+- Prize: {prizeDescription}
+- Entry Mechanics: {mechanicsList}
+- Duration: {duration} days
+- Target Audience: {targetAudience}
 
 Please provide a comprehensive campaign plan including:
 
@@ -332,36 +333,26 @@ Please provide a comprehensive campaign plan including:
 
 Format the response clearly with all sections above.`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+    const config = {
+      id: 'generate-giveaway',
+      aiConfig: {
+        promptTemplate,
         temperature: 0.8,
-        max_tokens: 4000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
+        maxTokens: 4000,
+        model: 'grok-2'
+      }
     }
 
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
-
-    if (!responseText) {
-      throw new Error('No content received from AI')
+    const formDataForAI = {
+      appDescription: appDescription.value,
+      giveawayType: giveawayType.value,
+      prizeDescription: prizeDescription.value,
+      mechanicsList,
+      duration: duration.value,
+      targetAudience: targetAudience.value || 'General audience'
     }
+
+    const responseText = await generateAIContent(config, formDataForAI)
 
     generatedCampaign.value = responseText
 
@@ -378,7 +369,12 @@ Format the response clearly with all sections above.`
     successMessage.value = 'Campaign strategy generated successfully!'
   } catch (err) {
     console.error('Generation error:', err)
-    error.value = err.message || 'Failed to generate campaign. Please try again.'
+    // Check if it's a quota error
+    if (err.message && err.message.includes('quota')) {
+      error.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
+    } else {
+      error.value = err.message || 'Failed to generate campaign. Please try again.'
+    }
     generatedCampaign.value = ''
   } finally {
     isGenerating.value = false

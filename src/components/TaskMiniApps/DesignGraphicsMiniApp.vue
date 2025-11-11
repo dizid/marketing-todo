@@ -295,6 +295,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { designGraphicsTask, designPurposes, designStyles, diyGuides } from '@/configs/designGraphics.config'
+import { generateAIContent } from '@/services/aiGeneration'
 
 // Props
 const props = defineProps({
@@ -505,33 +506,25 @@ const generateBrief = async () => {
       "tips": ["tip 1", "tip 2", "tip 3"]
     }`
 
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+    const config = {
+      id: 'design-graphics-brief',
+      aiConfig: {
+        promptTemplate: prompt,
         temperature: 0.7,
-        max_tokens: 2000
-      })
-    })
+        maxTokens: 2000,
+        model: 'grok-2'
+      }
+    }
 
-    if (!response.ok) {
-      console.warn('API failed, using default brief')
+    let responseText
+    try {
+      responseText = await generateAIContent(config, {})
+    } catch (err) {
+      console.warn('AI generation failed, using default brief:', err)
       brief.value = generateDefaultBrief()
       saveProgress()
       return
     }
-
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
 
     if (!responseText) {
       console.warn('No AI response, using default brief')

@@ -188,6 +188,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,
@@ -287,66 +288,62 @@ const generateOutreach = async () => {
 
     const needsSubject = messageType.value === 'email' || messageType.value === 'cold'
 
-    const prompt = `Generate a personalized outreach ${messageType.value} template with the following specifications:
+    const promptTemplate = `Generate a personalized outreach {messageType} template with the following specifications:
 
-Product/Company Context: ${appDescription.value}
+Product/Company Context: {appDescription}
 
 Outreach Details:
-- Goal: ${outreachGoal.value} - ${goalDescriptions[outreachGoal.value]}
-- Recipient Type: ${recipientType.value}
-- Personalization Context: ${context.value || 'General outreach'}
-- Tone: ${tone.value} - ${toneDescriptions[tone.value]}
-- Message Type: ${messageType.value}
+- Goal: {outreachGoal} - {goalDescription}
+- Recipient Type: {recipientType}
+- Personalization Context: {context}
+- Tone: {tone} - {toneDescription}
+- Message Type: {messageType}
 
 Requirements:
-${needsSubject ? '- Create compelling subject line (under 50 characters)' : ''}
+{subjectRequirement}
 - Start with strong, personalized opening
 - Clearly state the value proposition
 - Include specific call-to-action
-- Keep appropriate length for ${messageType.value}
+- Keep appropriate length for {messageType}
 - Use placeholders [NAME], [COMPANY], [SPECIFIC_DETAIL] where personalization needed
 - Sound genuine, not templated or spammy
-${messageType.value === 'linkedin' ? '- Keep under 300 words (LinkedIn DM limit)' : ''}
-${messageType.value === 'twitter' ? '- Keep very brief (Twitter DM context)' : ''}
+{linkedinRequirement}
+{twitterRequirement}
 
 Format your response EXACTLY like this:
 
-${needsSubject ? '[SUBJECT]\nSubject line here\n\n' : ''}[TEMPLATE]
+{subjectFormat}[TEMPLATE]
 Message body here...
 
 ---TIPS---
 Provide 3-5 quick personalization tips to make this template even more effective.`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+    const config = {
+      id: 'generate-outreach',
+      aiConfig: {
+        promptTemplate,
         temperature: 0.8,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
+        maxTokens: 2000,
+        model: 'grok-2'
+      }
     }
 
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
-
-    if (!responseText) {
-      throw new Error('No content received from AI')
+    const formDataForAI = {
+      messageType: messageType.value,
+      appDescription: appDescription.value,
+      outreachGoal: outreachGoal.value,
+      goalDescription: goalDescriptions[outreachGoal.value],
+      recipientType: recipientType.value,
+      context: context.value || 'General outreach',
+      tone: tone.value,
+      toneDescription: toneDescriptions[tone.value],
+      subjectRequirement: needsSubject ? '- Create compelling subject line (under 50 characters)' : '',
+      linkedinRequirement: messageType.value === 'linkedin' ? '- Keep under 300 words (LinkedIn DM limit)' : '',
+      twitterRequirement: messageType.value === 'twitter' ? '- Keep very brief (Twitter DM context)' : '',
+      subjectFormat: needsSubject ? '[SUBJECT]\nSubject line here\n\n' : ''
     }
+
+    const responseText = await generateAIContent(config, formDataForAI)
 
     // Parse response
     let parsed = responseText
@@ -390,7 +387,12 @@ Provide 3-5 quick personalization tips to make this template even more effective
     successMessage.value = 'Outreach template generated! Customize placeholders before sending.'
   } catch (err) {
     console.error('Generation error:', err)
-    error.value = err.message || 'Failed to generate template. Please try again.'
+    // Check if it's a quota error
+    if (err.message && err.message.includes('quota')) {
+      error.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
+    } else {
+      error.value = err.message || 'Failed to generate template. Please try again.'
+    }
   } finally {
     isGenerating.value = false
   }

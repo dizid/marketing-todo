@@ -158,6 +158,7 @@
  */
 
 import { ref } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 // Props
 const props = defineProps({
@@ -215,7 +216,7 @@ const handleCheckChange = (event) => {
 
 /**
  * Handle AI generation button click
- * Constructs prompt and calls proxy/API
+ * Uses aiGeneration service with quota checks and tracking
  */
 const handleGenerateAI = async () => {
   if (!appDescription.value || appDescription.value.trim().length < 10) {
@@ -228,47 +229,32 @@ const handleGenerateAI = async () => {
   aiOutput.value = ''
 
   try {
-    // Construct the prompt by replacing placeholder
-    const prompt = props.item.aiPrompt.replace('[app desc]', appDescription.value)
-
     // Show modal with loading state
     showAIModal.value = true
     aiOutput.value = 'Generating content with Grok AI...'
 
-    // Call grok-proxy API
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+    // Create a config object with the aiPrompt for generateAIContent service
+    const config = {
+      id: props.item.id,
+      aiConfig: {
+        promptTemplate: props.item.aiPrompt,
         temperature: 0.7,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
+        maxTokens: 2000,
+        model: 'grok-4-fast'  // Use free tier model by default
+      }
     }
 
-    const data = await response.json()
-    const generatedContent = data.choices?.[0]?.message?.content
-
-    if (!generatedContent) {
-      throw new Error('No content received from AI')
+    // Create form data with app description
+    const formData = {
+      'app desc': appDescription.value
     }
+
+    // Use the service - includes quota checks and tracking
+    const generatedContent = await generateAIContent(config, formData)
 
     aiOutput.value = generatedContent
   } catch (error) {
-    console.error('AI generation error:', error)
+    console.error('[ChecklistItem] AI generation error:', error)
     aiError.value = error.message || 'Failed to generate content. Please try again.'
     aiOutput.value = ''
   } finally {

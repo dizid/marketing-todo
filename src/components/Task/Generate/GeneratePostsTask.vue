@@ -339,33 +339,15 @@ Post 1 content here
 
 Important: Use [PLATFORM: ...] headers and --- separators between posts.`
 
-    // Call Grok API through our proxy
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
+    // Call Grok API through centralized service with quota tracking
+    const output = await generateAIContent(
+      { id: 'social-1' },
+      { prompt },
+      'grok-2',
+      0.8,
+      2000
+    )
+    const responseText = output
 
     if (!responseText) {
       throw new Error('No content received from AI')

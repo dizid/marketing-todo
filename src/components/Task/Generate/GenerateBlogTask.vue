@@ -311,32 +311,15 @@ ${includeOutline ? '[OUTLINE]\n- Point 1\n- Point 2\n...\n\n' : ''}
 ${includeCTA ? '\n\n[CALL TO ACTION]\n...' : ''}
 ${includeImages ? '\n\n[IMAGE SUGGESTIONS]\n1. Image idea...' : ''}`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 4000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
+    // Call Grok API through centralized service with quota tracking
+    const output = await generateAIContent(
+      { id: 'content-1' },
+      { prompt },
+      'grok-2',
+      0.8,
+      4000
+    )
+    const responseText = output
 
     if (!responseText) {
       throw new Error('No content received from AI')

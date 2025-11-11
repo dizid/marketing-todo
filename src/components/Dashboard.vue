@@ -194,7 +194,8 @@ import ChecklistCategory from './ChecklistCategory.vue'
 import ProjectHeader from './Project/ProjectHeader.vue'
 import QuotaStatusCard from './QuotaStatusCard.vue'
 import TaskModal from './Task/TaskModal.vue'
-import { getExecutiveSummaryAndTasks } from '@/services/grok.js'
+import { generateAIContent } from '@/services/aiGeneration.js'
+import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
 
 const projectStore = useProjectStore()
 const subscriptionStore = useSubscriptionStore()
@@ -484,6 +485,7 @@ const handleTaskModalClosed = () => {
 
 /**
  * Generate Executive Summary with Priority Tasks
+ * Uses centralized generateAIContent() service for quota tracking
  */
 const generateExecutiveSummary = async () => {
   if (isGeneratingSummary.value) return
@@ -491,68 +493,37 @@ const generateExecutiveSummary = async () => {
   summaryError.value = ''
 
   try {
-    const projectData = {
+    // Build form data with all project information for the AI prompt
+    const formData = {
       appDescription: projectStore.currentProjectSettings.appDescription || '',
       projectGoals: projectStore.currentProjectSettings.goals || '',
       targetAudience: projectStore.currentProjectSettings.targetAudience || '',
       techStack: projectStore.currentProjectSettings.techStack || '',
-      completedTasks: completedTasks.value,
-      totalTasks: totalTasks.value,
-      progress: progressPercentage.value,
-      checklist: taskCategories.value.map(cat => ({
-        category: cat.label,
-        completedCount: cat.items.filter(item => projectStore.currentProjectTasks[item.id]?.checked).length,
-        totalCount: cat.items.length
-      }))
+      progress: progressPercentage.value.toString(),
+      completedTasks: completedTasks.value.toString(),
+      totalTasks: totalTasks.value.toString(),
+      checklistSummary: taskCategories.value
+        .map(cat => {
+          const completed = cat.items.filter(item => projectStore.currentProjectTasks[item.id]?.checked).length
+          const total = cat.items.length
+          return `  - ${cat.label}: ${completed}/${total} completed`
+        })
+        .join('\n')
     }
 
-    console.log('[Dashboard] Sending project data:', projectData)
-    const result = await getExecutiveSummaryAndTasks(projectData)
+    console.log('[Dashboard] Calling generateAIContent with project data')
+
+    // Call centralized AI generation service (includes quota checks and tracking)
+    const result = await generateAIContent(
+      executiveSummaryConfig,  // Task configuration with aiConfig
+      formData,                 // Form data with project information
+      { skipQuotaCheck: false } // Enforce quota checking
+    )
+
     console.log('[Dashboard] Received summary result:', result)
 
-    // Parse the response - Grok returns the text content with structured format
-    const responseText = result.responseText || ''
-
-    // Extract summary and tasks from the response
-    const summaryMatch = responseText.match(/## Executive Summary\n([\s\S]*?)(?=## Priority Quick-Win Tasks|\Z)/)?.[1]
-    const tasksSection = responseText.match(/## Priority Quick-Win Tasks\n([\s\S]*)/)?.[1]
-
-    let parsedTasks = []
-    if (tasksSection) {
-      // Parse individual tasks from the formatted response
-      const taskLines = tasksSection.split('\n').filter(line => line.trim())
-      let currentTask = null
-
-      for (const line of taskLines) {
-        if (line.match(/^\d+\./)) {
-          // Start of a new task
-          if (currentTask) parsedTasks.push(currentTask)
-          const title = line.replace(/^\d+\.\s*/, '').trim()
-          currentTask = { title, impact: '', effort: '', why: '', nextSteps: '' }
-        } else if (currentTask) {
-          if (line.includes('Impact:')) {
-            const match = line.match(/Impact:\s*(\w+)/i)
-            if (match) currentTask.impact = match[1]
-          } else if (line.includes('Effort:')) {
-            const match = line.match(/Effort:\s*(\w+)/i)
-            if (match) currentTask.effort = match[1]
-          } else if (line.includes('Why:')) {
-            currentTask.why = line.replace(/.*Why:\s*/i, '').trim()
-          } else if (line.includes('Next Steps:')) {
-            currentTask.nextSteps = line.replace(/.*Next Steps:\s*/i, '').trim()
-          }
-        }
-      }
-      if (currentTask) parsedTasks.push(currentTask)
-    }
-
-    // Limit to 5 tasks
-    parsedTasks = parsedTasks.slice(0, 5)
-
-    executiveSummary.value = {
-      summary: summaryMatch ? summaryMatch.trim() : responseText.substring(0, 300),
-      tasks: parsedTasks
-    }
+    // The parseResponse function from config already structured the result
+    executiveSummary.value = result
   } catch (error) {
     console.error('Error generating executive summary:', error)
     summaryError.value = error.message || 'Failed to generate executive summary. Please try again.'

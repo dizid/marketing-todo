@@ -83,7 +83,7 @@ async function createPayPalSubscription(accessToken, params) {
     const mockSubscriptionId = 'I-' + Math.random().toString(36).substring(2, 15).toUpperCase()
     return {
       subscriptionId: mockSubscriptionId,
-      approvalUrl: params.returnUrl + '?subscription=' + mockSubscriptionId + '&payer=MOCK_PAYER',
+      approvalUrl: params.returnUrl + '&subscription=' + mockSubscriptionId + '&payer=MOCK_PAYER',
       status: 'APPROVAL_PENDING'
     }
   }

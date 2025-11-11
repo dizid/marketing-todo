@@ -85,6 +85,7 @@ async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPaye
     const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
     // Use upsert: if user_id exists, update; if not, insert
+    // Note: created_at is immutable in Supabase, so we don't set it in the upsert data
     const { data, error } = await supabase
       .from('subscriptions')
       .upsert([{
@@ -95,8 +96,8 @@ async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPaye
         paypal_payer_id: paypalPayerId,
         current_period_start: now,
         current_period_end: periodEnd,
-        created_at: now,
         updated_at: now
+        // Note: NOT setting created_at here - it's immutable and only set on first insert
       }], { onConflict: 'user_id' })
       .select()
       .single()

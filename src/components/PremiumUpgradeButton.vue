@@ -152,9 +152,9 @@ const handlePayPalReturn = async () => {
 
     if (subscriptionId && payerId) {
       try {
-        // Activate subscription
-        await subscriptionStore.upgradeToPresentation(subscriptionId, payerId)
-        console.log('[PremiumUpgradeButton] Subscription activated successfully')
+        // Verify subscription was created
+        await subscriptionStore.upgradeToPresentation()
+        console.log('[PremiumUpgradeButton] Subscription verified successfully')
 
         // Clear URL params
         window.history.replaceState({}, document.title, '/app')

@@ -18,9 +18,20 @@ import { useAuthStore } from '@/stores/authStore'
 import AuthForm from '@/components/AuthForm.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import ResetPassword from '@/components/ResetPassword.vue'
+import LandingPage from '@/components/LandingPage.vue'
+import ManageSubscriptionPage from '@/components/ManageSubscriptionPage.vue'
 
 // Define routes
 const routes = [
+  {
+    path: '/landing',
+    name: 'Landing',
+    component: LandingPage,
+    meta: {
+      requiresAuth: false,
+      layout: 'blank'
+    }
+  },
   {
     path: '/auth',
     name: 'Auth',
@@ -41,6 +52,15 @@ const routes = [
   },
   {
     path: '/',
+    name: 'Home',
+    component: LandingPage,
+    meta: {
+      requiresAuth: false,
+      layout: 'blank'
+    }
+  },
+  {
+    path: '/app',
     name: 'Dashboard',
     component: Dashboard,
     meta: {
@@ -49,9 +69,9 @@ const routes = [
     }
   },
   {
-    path: '/app',
-    name: 'App',
-    component: Dashboard,
+    path: '/app/subscription',
+    name: 'ManageSubscription',
+    component: ManageSubscriptionPage,
     meta: {
       requiresAuth: true,
       layout: 'default'
@@ -103,7 +123,13 @@ router.beforeEach(async (to, from, next) => {
 
   // User is authenticated but trying to access auth page
   if (!to.meta.requiresAuth && isAuthenticated && to.path === '/auth') {
-    next('/')
+    next('/app')
+    return
+  }
+
+  // User is authenticated and trying to go to home page, redirect to app
+  if (isAuthenticated && to.path === '/') {
+    next('/app')
     return
   }
 

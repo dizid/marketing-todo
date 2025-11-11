@@ -88,13 +88,11 @@ export async function createSubscription(options = {}) {
 /**
  * Activate subscription after PayPal approval
  * Called after user is redirected back from PayPal
- * @param {Object} params - Query parameters from PayPal
- * @param {string} params.subscriptionId - PayPal subscription ID
- * @param {string} params.payerId - PayPal payer ID
+ * Server already created the subscription, just verify it exists
  * @returns {Promise<Object>} Updated subscription data
  * @throws {Error} If activation fails
  */
-export async function activateSubscription(params = {}) {
+export async function activateSubscription() {
   const authStore = useAuthStore()
   const subscriptionStore = useSubscriptionStore()
 
@@ -102,20 +100,13 @@ export async function activateSubscription(params = {}) {
     throw new Error('User not authenticated')
   }
 
-  if (!params.subscriptionId || !params.payerId) {
-    throw new Error('Missing subscription or payer ID')
-  }
-
   try {
-    console.log('[PayPalService] Activating subscription:', params.subscriptionId)
+    console.log('[PayPalService] Verifying subscription activation')
 
-    // Update database via service
-    const updatedSubscription = await subscriptionStore.upgradeToPresentation(
-      params.subscriptionId,
-      params.payerId
-    )
+    // Verify subscription was created by server
+    const updatedSubscription = await subscriptionStore.upgradeToPresentation()
 
-    console.log('[PayPalService] Subscription activated successfully')
+    console.log('[PayPalService] Subscription verified successfully')
     return updatedSubscription
   } catch (err) {
     console.error('[PayPalService] Failed to activate subscription:', err)

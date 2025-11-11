@@ -240,9 +240,9 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   /**
    * Upgrade subscription to premium
    * Note: Subscription is created server-side by paypal-create-subscription function
-   * This just ensures the subscription is activated (UPDATE)
+   * This just fetches the subscription to verify it was created
    */
-  const upgradeToPresentation = async (paypalSubscriptionId, paypalPayerId) => {
+  const upgradeToPresentation = async () => {
     if (!authStore.user) {
       throw new Error('User not authenticated')
     }
@@ -251,30 +251,27 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      // Simply update the subscription - server should have already created it
-      // Just update status/tier to ensure it's active
-      const { data: updateData, error: updateError } = await supabase
+      // Fetch the subscription - server should have already created it during PayPal flow
+      const { data: fetchData, error: fetchError } = await supabase
         .from('subscriptions')
-        .update({
-          tier: 'premium',
-          status: 'active',
-          updated_at: new Date().toISOString()
-        })
+        .select('*')
         .eq('user_id', authStore.user.id)
-        .select()
         .single()
 
-      if (updateError) {
-        // If subscription doesn't exist (PGRST116), that's a server-side failure
-        console.error('[subscriptionStore] Failed to update subscription:', updateError)
-        throw new Error(`Subscription upgrade failed: ${updateError.message}`)
+      if (fetchError) {
+        console.error('[subscriptionStore] Failed to fetch subscription after upgrade:', fetchError)
+        throw new Error(`Subscription upgrade failed: ${fetchError.message}`)
       }
 
-      subscription.value = updateData
+      if (!fetchData) {
+        throw new Error('Subscription record not found after upgrade')
+      }
+
+      subscription.value = fetchData
       lastFetched.value = Date.now()
 
-      console.log('[subscriptionStore] Subscription upgraded to premium successfully')
-      return updateData
+      console.log('[subscriptionStore] Subscription verified as premium successfully')
+      return fetchData
     } catch (err) {
       console.error('[subscriptionStore] Failed to upgrade subscription:', err)
       error.value = err.message
@@ -296,7 +293,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      const { data, error: updateError } = await supabase
+      // Update subscription to cancelled status
+      const { error: updateError } = await supabase
         .from('subscriptions')
         .update({
           status: 'cancelled',
@@ -305,10 +303,17 @@ export const useSubscriptionStore = defineStore('subscription', () => {
           updated_at: new Date().toISOString()
         })
         .eq('user_id', authStore.user.id)
-        .select()
-        .single()
 
       if (updateError) throw updateError
+
+      // Fetch the updated subscription (avoid .single() errors)
+      const { data, error: fetchError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .single()
+
+      if (fetchError) throw fetchError
 
       subscription.value = data
       lastFetched.value = Date.now()

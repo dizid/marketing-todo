@@ -1,12 +1,15 @@
 /**
- * AI Generation Service - update for NEt lify, 2x
+ * AI Generation Service - update for Netlify
  *
  * Unified service for all AI generation operations.
  * Handles template variable substitution, API calls, response parsing, and error handling.
  * Integrated with quota system for free/premium tier enforcement.
+ *
+ * NOTE: Usage tracking now happens server-side in grok-proxy function (with service role permissions)
  */
 
-import { checkQuotaBeforeGeneration, trackGeneration } from './aiQuotaService'
+import { checkQuotaBeforeGeneration } from './aiQuotaService'
+import { useAuthStore } from '@/stores/authStore'
 
 /**
  * Generate AI content based on configuration
@@ -32,19 +35,17 @@ export async function generateAIContent(config, formData, options = {}) {
   // Build prompt by replacing placeholders
   let prompt = buildPrompt(aiConfig.promptTemplate, formData, aiConfig.contextProvider)
 
-  // Call Grok API and get token counts
-  const { responseText, tokensInput, tokensOutput } = await callGrokAPI(prompt, aiConfig)
+  // Get user ID for server-side tracking
+  const authStore = useAuthStore()
+  const userId = authStore.user?.id
 
-  // Track AI usage (after successful generation)
-  try {
-    const model = aiConfig.model || 'grok-4-fast'
-    await trackGeneration(config.id, model, tokensInput, tokensOutput)
-    console.log(`[AIGeneration] Tracked usage for task ${config.id}: ${tokensOutput} output tokens`)
-  } catch (trackErr) {
-    console.error('[AIGeneration] Failed to track usage, but generation succeeded:', trackErr)
-    // Don't throw - generation was successful even if tracking failed
-    // This prevents losing the AI response due to database issues
-  }
+  // Call Grok API (usage tracking happens server-side)
+  const { responseText } = await callGrokAPI(
+    prompt,
+    aiConfig,
+    config.id,  // taskId for tracking
+    userId       // for tracking
+  )
 
   // Parse response if configured
   let output = responseText
@@ -121,12 +122,21 @@ function processFormData(formData) {
  * Call Grok API through Netlify proxy
  * @param {string} prompt - The prompt to send
  * @param {Object} aiConfig - AI configuration (temperature, maxTokens)
+ * @param {string} taskId - Task ID for quota tracking
+ * @param {string} userId - User ID for quota tracking
  * @returns {Promise<Object>} Object with responseText, tokensInput, and tokensOutput
  * @throws {Error} If API call fails
  */
-async function callGrokAPI(prompt, aiConfig) {
+async function callGrokAPI(prompt, aiConfig, taskId, userId) {
   try {
     console.log('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
+
+    const messages = [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
 
     const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
@@ -135,14 +145,11 @@ async function callGrokAPI(prompt, aiConfig) {
       },
       body: JSON.stringify({
         model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+        messages,
         temperature: aiConfig.temperature || 0.8,
-        max_tokens: aiConfig.maxTokens || 2000
+        max_tokens: aiConfig.maxTokens || 2000,
+        taskId,      // Send for server-side tracking
+        userId       // Send for server-side tracking
       })
     })
 

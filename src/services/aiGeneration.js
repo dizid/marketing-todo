@@ -1,19 +1,30 @@
 /**
- * AI Generation Service - update for NEt lify, 2x   
+ * AI Generation Service - update for NEt lify, 2x
  *
  * Unified service for all AI generation operations.
  * Handles template variable substitution, API calls, response parsing, and error handling.
+ * Integrated with quota system for free/premium tier enforcement.
  */
+
+import { checkQuotaBeforeGeneration, trackGeneration } from './aiQuotaService'
 
 /**
  * Generate AI content based on configuration
- * @param {Object} config - Task configuration with aiConfig
+ * @param {Object} config - Task configuration with aiConfig and id
  * @param {Object} formData - Form data from user input
+ * @param {Object} options - Optional parameters
+ * @param {boolean} options.skipQuotaCheck - If true, skip quota validation (admin only)
  * @returns {Promise<string|object>} Generated content (string or parsed object)
+ * @throws {Error} If quota exceeded or API call fails
  */
-export async function generateAIContent(config, formData) {
+export async function generateAIContent(config, formData, options = {}) {
   if (!config.aiConfig) {
     throw new Error('No aiConfig found in task configuration')
+  }
+
+  // Check quota before generating (unless explicitly skipped)
+  if (!options.skipQuotaCheck) {
+    checkQuotaBeforeGeneration(config.id)
   }
 
   const { aiConfig } = config
@@ -21,8 +32,19 @@ export async function generateAIContent(config, formData) {
   // Build prompt by replacing placeholders
   let prompt = buildPrompt(aiConfig.promptTemplate, formData, aiConfig.contextProvider)
 
-  // Call Grok API
-  const responseText = await callGrokAPI(prompt, aiConfig)
+  // Call Grok API and get token counts
+  const { responseText, tokensInput, tokensOutput } = await callGrokAPI(prompt, aiConfig)
+
+  // Track AI usage (after successful generation)
+  try {
+    const model = aiConfig.model || 'grok-4-fast'
+    await trackGeneration(config.id, model, tokensInput, tokensOutput)
+    console.log(`[AIGeneration] Tracked usage for task ${config.id}: ${tokensOutput} output tokens`)
+  } catch (trackErr) {
+    console.error('[AIGeneration] Failed to track usage, but generation succeeded:', trackErr)
+    // Don't throw - generation was successful even if tracking failed
+    // This prevents losing the AI response due to database issues
+  }
 
   // Parse response if configured
   let output = responseText
@@ -99,7 +121,7 @@ function processFormData(formData) {
  * Call Grok API through Netlify proxy
  * @param {string} prompt - The prompt to send
  * @param {Object} aiConfig - AI configuration (temperature, maxTokens)
- * @returns {Promise<string>} Response text from AI
+ * @returns {Promise<Object>} Object with responseText, tokensInput, and tokensOutput
  * @throws {Error} If API call fails
  */
 async function callGrokAPI(prompt, aiConfig) {
@@ -151,8 +173,18 @@ async function callGrokAPI(prompt, aiConfig) {
       throw new Error('No content received from AI API')
     }
 
+    // Extract token usage information
+    const tokensInput = data.usage?.prompt_tokens || prompt.length / 4 // Rough estimate if not provided
+    const tokensOutput = data.usage?.completion_tokens || responseText.length / 4 // Rough estimate if not provided
+
     console.log('[AIGeneration] Response text obtained, length:', responseText.length)
-    return responseText
+    console.log(`[AIGeneration] Token usage - Input: ${tokensInput}, Output: ${tokensOutput}`)
+
+    return {
+      responseText,
+      tokensInput,
+      tokensOutput
+    }
   } catch (err) {
     console.error('[AIGeneration] AI generation error:', err)
     throw err

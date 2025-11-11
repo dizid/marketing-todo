@@ -76,28 +76,15 @@
       </p>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex gap-3">
-      <!-- Upgrade Button (for free tier) -->
-      <div v-if="subscriptionStore.isFree" class="flex-1">
-        <PremiumUpgradeButton
-          variant="primary"
-          text="✨ Upgrade to Premium"
-          :show-price="true"
-          @success="handleUpgradeSuccess"
-          @error="handleUpgradeError"
-        />
-      </div>
-
-      <!-- Refresh Button -->
-      <button
-        @click="refreshQuota"
-        :disabled="isRefreshing"
-        class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 font-medium rounded-lg transition"
-      >
-        <span v-if="!isRefreshing">🔄 Refresh</span>
-        <span v-else>Refreshing...</span>
-      </button>
+    <!-- Upgrade Button (for free tier only) -->
+    <div v-if="subscriptionStore.isFree">
+      <PremiumUpgradeButton
+        variant="primary"
+        text="✨ Upgrade to Premium"
+        :show-price="true"
+        @success="handleUpgradeSuccess"
+        @error="handleUpgradeError"
+      />
     </div>
 
     <!-- AI Features Note -->
@@ -117,9 +104,6 @@ const emit = defineEmits(['upgrade-clicked'])
 
 // Store
 const subscriptionStore = useSubscriptionStore()
-
-// Local state
-const isRefreshing = ref(false)
 
 // Computed properties
 const quotaPercentage = computed(() => {
@@ -161,19 +145,6 @@ const statusMessageClasses = computed(() => {
 })
 
 // Methods
-const refreshQuota = async () => {
-  isRefreshing.value = true
-  try {
-    await subscriptionStore.fetchAIUsage()
-    // Also refresh subscription status to catch any upgrades
-    await subscriptionStore.fetchSubscriptionStatus(true)
-  } catch (err) {
-    console.error('Failed to refresh quota:', err)
-  } finally {
-    isRefreshing.value = false
-  }
-}
-
 const handleUpgradeSuccess = () => {
   console.log('[QuotaStatusCard] Upgrade successful, redirecting to PayPal')
   // PremiumUpgradeButton handles the actual redirect

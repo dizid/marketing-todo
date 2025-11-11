@@ -2,15 +2,25 @@
  * Vue Router Configuration
  *
  * Handles application routing including:
+ * - Public landing page (marketing)
  * - Authentication routes (login, signup)
- * - Protected dashboard routes
+ * - Protected dashboard & subscription routes
  * - Route guards for session validation
  * - Redirection based on auth state
  *
  * Routes:
- * - /auth - Authentication page (login/signup)
- * - / - Dashboard (protected, requires authentication)
- * - /app - Dashboard alias (for PayPal return URLs)
+ * - / (public) - Landing page (public marketing page)
+ * - /landing (public) - Landing page alias
+ * - /auth - Authentication page (login/signup, public)
+ * - /app (protected) - Dashboard
+ * - /app/subscription (protected) - Subscription management
+ *
+ * Auth Guards:
+ * - Unauthenticated users: / → LandingPage
+ * - Unauthenticated users: /app → /auth
+ * - Authenticated users: / → /app
+ * - Authenticated users: /auth → /app
+ * - Authenticated users can still access /landing for pricing info
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -132,6 +142,9 @@ router.beforeEach(async (to, from, next) => {
     next('/app')
     return
   }
+
+  // Authenticated users can still access /landing to see pricing
+  // (redirect handled by LandingPage component if needed)
 
   next()
 })

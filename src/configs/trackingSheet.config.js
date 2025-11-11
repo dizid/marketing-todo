@@ -102,6 +102,12 @@ export const trackingSheetTask = {
   description: 'Create a tracking sheet to monitor sign-ups, sources, and conversions',
   category: 'setup',
 
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Set up professional metrics tracking with Google Sheets or Excel templates. Track sign-ups, sources, conversions, and revenue in one dashboard with built-in formulas.',
+  why: 'Most startups fail because they don\'t track metrics. You can\'t optimize what you don\'t measure. Real-time metrics reveal which channels work and where to cut.',
+  how: 'Choose your template (Google Sheets or Excel), copy the column headers, then start entering daily data. Formulas auto-calculate conversion rate, revenue per source, and churn.',
+
   form: [],
   ai: null,
 

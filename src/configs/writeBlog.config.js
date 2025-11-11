@@ -11,6 +11,12 @@ export const writeBlogTask = {
   description: 'Create a compelling blog post with AI-guided structure and research',
   category: 'content',
 
+  // Freemium model fields
+  tier: 'free',
+  what: 'Write compelling blog posts with AI-guided outlines and SEO optimization tips. AI generates structure and section guidance, you add the authentic voice and examples.',
+  why: 'Blog content drives organic traffic and establishes you as a thought leader. One viral blog post can drive hundreds of qualified users to your product.',
+  how: 'Enter your topic and target audience, then get an AI-generated outline with section-by-section guidance. Write each section following the prompts, then optimize for SEO.',
+
   form: [
     {
       id: 'blog_topic',

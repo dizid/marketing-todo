@@ -10,6 +10,12 @@ export const generatePostsConfig = {
   title: 'Generate Social Media Posts',
   description: 'Create platform-optimized social media posts with AI assistance. Generate multiple variants and pick your favorites.',
 
+  // Freemium model fields
+  tier: 'free',
+  what: 'Generate platform-optimized social media posts in minutes. Create multiple variants per platform, then choose your favorites and schedule them to post automatically.',
+  why: 'Consistent social media presence drives brand awareness and engagement. Without a steady stream of content, your audience forgets you. AI helps you create more, faster.',
+  how: 'Select platforms and describe your content, then generate 3-5 post variants. Review quality, pick your favorites, and schedule them to post at optimal times for maximum engagement.',
+
   // Form configuration
   formTitle: 'Post Generation Settings',
   formFields: [

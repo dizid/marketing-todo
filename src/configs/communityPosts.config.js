@@ -51,6 +51,13 @@ export const communityPostsTask = {
   name: 'Post in Communities',
   description: 'Share your product in niche communities',
   category: 'acquisition',
+
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Distribute your content across 5+ communities (Reddit, ProductHunt, Indie Hackers, HackerNews, Dev.to) with community-specific tone guides and timing recommendations.',
+  why: 'Communities have millions of quality users. One successful community post can drive 500+ signups. Each community has different norms—wrong tone gets you banned.',
+  how: 'Choose 2-3 communities to start, read the community-specific tone guide, then craft your post with community rules in mind. Schedule for optimal posting times (3pm-5pm UTC typically best).',
+
   communities: communities,
   customComponent: 'CommunityPostsMiniApp',
   output: { enabled: false }

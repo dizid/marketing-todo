@@ -93,6 +93,12 @@ export const prepareAssetsTask = {
   description: 'Create logos, images, videos, and brand guidelines',
   category: 'setup',
 
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Organize and create all your brand assets—logos, hero images, demo videos, color palettes, and social media templates. One central place for all brand materials.',
+  why: 'Consistent branding across all channels builds recognition and trust. Disorganized assets waste time when you need them fast. A brand guideline saves hundreds of hours.',
+  how: 'Follow the 5-step asset checklist. Create or upload each asset (logo, hero image, videos, colors, social templates). Export as ready-to-use files for any channel.',
+
   form: [],
   ai: null,
 

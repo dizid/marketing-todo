@@ -8,6 +8,12 @@ export const giveawayTask = {
   description: 'Step-by-step guide to launch a giveaway',
   category: 'social',
 
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Plan and launch a giveaway or contest in 5 minutes. Define rules, create promotion assets, and track entries with a template that works for physical or digital prizes.',
+  why: 'Giveaways drive massive growth (50-200 new followers) in days. Email/signup requirements for entry build your mailing list. Contests create viral sharing moments.',
+  how: 'Define your prize value, duration, and entry requirements. AI generates the contest description, rules, and promotion copy. Share the link and track entries in a tracker.',
+
   steps: [
     {
       number: 1,

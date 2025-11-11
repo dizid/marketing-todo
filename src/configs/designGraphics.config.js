@@ -227,6 +227,12 @@ export const designGraphicsTask = {
   description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
   category: 'content',
 
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Get AI-guided design briefs and step-by-step tutorials for creating graphics (hero images, social assets, infographics). No design skills required—just follow the guidance.',
+  why: 'Great graphics drive engagement (5-10x more shares). Consistent visual style builds brand recognition. Most people don\'t have access to a designer—AI fills this gap.',
+  how: 'Describe what you want to create, then get AI-generated design brief with composition, colors, typography, and style tips. Use Canva or Figma to execute following the brief.',
+
   form: [
     {
       id: 'design_purpose',

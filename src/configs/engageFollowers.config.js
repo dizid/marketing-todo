@@ -91,6 +91,13 @@ export const engageFollowersTask = {
   name: 'Engage Followers',
   description: 'Template responses for common interactions',
   category: 'social',
+
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Build a systematic engagement strategy with templated responses for comments, DMs, and community interactions. Turn followers into brand advocates through consistent, authentic engagement.',
+  why: 'Social media algorithms favor engagement. Posts with replies/comments get 5x more reach. Communities with engaged followers become word-of-mouth growth engines.',
+  how: 'Review the 10 response templates (for compliments, questions, complaints, feedback requests, etc). Customize them with your voice, then copy-paste when responding to comments.',
+
   interactionTypes: interactionTypes,
   customComponent: 'EngageFollowersMiniApp',
   output: { enabled: false }

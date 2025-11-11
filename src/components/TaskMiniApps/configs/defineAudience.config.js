@@ -10,6 +10,12 @@ export const defineAudienceConfig = {
   title: 'Define Target Audience',
   description: 'Create detailed buyer personas and define your target market with AI assistance.',
 
+  // Freemium model fields
+  tier: 'free',
+  what: 'Create detailed buyer personas that guide all your marketing decisions. AI analyzes your audience, identifies pain points, and recommends the best channels to reach them.',
+  why: 'Understanding your audience is the foundation for all successful marketing. Without clear personas, you waste time and money on irrelevant channels and miss growth opportunities.',
+  how: 'Answer 5 key questions about your target audience, then use AI to generate detailed personas. Refine them based on your product knowledge and market research.',
+
   // Form configuration
   formTitle: 'Audience Information',
   formFields: [

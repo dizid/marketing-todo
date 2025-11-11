@@ -85,6 +85,12 @@ export const connectAccountsTask = {
   description: 'Link your social media, email, and analytics accounts',
   category: 'setup',
 
+  // Freemium model fields
+  tier: 'free',
+  what: 'Connect your email, social media, analytics, payments, and Slack accounts to this app in 15 minutes. One-click OAuth for most platforms.',
+  why: 'Connected accounts enable automation (scheduled posts, email campaigns) and real-time notifications (signups, customer feedback). Manual updates are slow and error-prone.',
+  how: 'Click each platform, follow the OAuth flow to authorize access, then come back. Your accounts stay secure—we only get access to what you grant permission for.',
+
   form: [],
   ai: null,
 

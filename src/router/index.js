@@ -3,13 +3,14 @@
  *
  * Handles application routing including:
  * - Authentication routes (login, signup)
- * - Protected dashboard route
+ * - Protected dashboard routes
  * - Route guards for session validation
  * - Redirection based on auth state
  *
  * Routes:
  * - /auth - Authentication page (login/signup)
  * - / - Dashboard (protected, requires authentication)
+ * - /app - Dashboard alias (for PayPal return URLs)
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -41,6 +42,15 @@ const routes = [
   {
     path: '/',
     name: 'Dashboard',
+    component: Dashboard,
+    meta: {
+      requiresAuth: true,
+      layout: 'default'
+    }
+  },
+  {
+    path: '/app',
+    name: 'App',
     component: Dashboard,
     meta: {
       requiresAuth: true,

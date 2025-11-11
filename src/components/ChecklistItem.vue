@@ -94,7 +94,7 @@
 
     <!-- AI Output Modal -->
     <div v-if="showAIModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @click.self="showAIModal = false">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full" @click.stop>
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 class="text-lg font-semibold text-gray-900">
@@ -109,7 +109,7 @@
         </div>
 
         <!-- Modal Content -->
-        <div class="px-6 py-4">
+        <div class="px-6 py-4" @click.stop>
           <div v-if="aiError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <p class="text-sm text-red-800">{{ aiError }}</p>
           </div>
@@ -117,6 +117,7 @@
           <textarea
             :value="aiOutput"
             @input="handleAIOutputChange"
+            @click.stop
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition min-h-[200px] resize-vertical font-mono text-sm"
           ></textarea>
 

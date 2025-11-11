@@ -76,8 +76,20 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // Initialize auth on first navigation
-  if (!authStore.session && !authStore.isLoading) {
+  // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
+  // This is critical for PayPal redirect flows where user is already logged in
+  if (authStore.isLoading) {
+    // Wait for auth to finish loading
+    await new Promise(resolve => {
+      const checkInterval = setInterval(() => {
+        if (!authStore.isLoading) {
+          clearInterval(checkInterval)
+          resolve()
+        }
+      }, 50)
+    })
+  } else if (!authStore.session) {
+    // Only initialize if we don't have a session yet
     await authStore.initializeAuth()
   }
 

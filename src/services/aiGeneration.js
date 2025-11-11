@@ -10,6 +10,7 @@
 
 import { checkQuotaBeforeGeneration } from './aiQuotaService'
 import { useAuthStore } from '@/stores/authStore'
+import { useSubscriptionStore } from '@/stores/subscriptionStore'
 
 /**
  * Generate AI content based on configuration
@@ -46,6 +47,15 @@ export async function generateAIContent(config, formData, options = {}) {
     config.id,  // taskId for tracking
     userId       // for tracking
   )
+
+  // Refresh quota after successful generation (UI will update reactively)
+  try {
+    const subscriptionStore = useSubscriptionStore()
+    await subscriptionStore.fetchAIUsage()
+  } catch (err) {
+    console.warn('[AIGeneration] Failed to refresh quota after generation:', err)
+    // Don't throw - quota refresh is non-critical
+  }
 
   // Parse response if configured
   let output = responseText

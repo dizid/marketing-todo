@@ -18,27 +18,34 @@ async function trackAIUsage(userId, taskId, model, tokensInput, tokensOutput) {
   try {
     console.log(`[grok-proxy] Tracking usage: user=${userId}, task=${taskId}, tokens=${tokensOutput}`)
 
-    const { error } = await supabase
+    // Verify we have service role key
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[grok-proxy] SUPABASE_SERVICE_ROLE_KEY not configured')
+      return false
+    }
+
+    const { data, error } = await supabase
       .from('ai_usage')
-      .insert({
+      .insert([{
         user_id: userId,
         task_id: taskId,
         model: model,
         tokens_input: tokensInput,
         tokens_output: tokensOutput,
         cost_estimate: 0 // Calculated server-side if needed
-      })
+      }])
+      .select()
 
     if (error) {
-      console.error('[grok-proxy] Failed to track usage:', error)
+      console.error('[grok-proxy] Failed to track usage - Error details:', JSON.stringify(error))
       // Don't throw - usage tracking should not fail the generation
       return false
     }
 
-    console.log('[grok-proxy] Usage tracked successfully')
+    console.log('[grok-proxy] Usage tracked successfully:', data?.[0]?.id || 'inserted')
     return true
   } catch (err) {
-    console.error('[grok-proxy] Error tracking usage:', err.message)
+    console.error('[grok-proxy] Exception in trackAIUsage:', err.message, err.stack)
     return false
   }
 }

@@ -84,7 +84,6 @@
             :category="category"
             :tasks="projectStore.currentProjectTasks"
             @task-checked="handleTaskUpdate"
-            @notes-updated="handleTaskUpdate"
             @task-removed="handleTaskRemoved"
             @task-opened="handleTaskOpened"
           />
@@ -579,9 +578,6 @@ const exportAsMarkdown = () => {
       const taskData = projectStore.currentProjectTasks[item.id] || {}
       const checked = taskData.checked ? '✅' : '☐'
       markdown += `- ${checked} ${item.name}\n`
-      if (taskData.notes) {
-        markdown += `  - Notes: ${taskData.notes}\n`
-      }
     })
     markdown += '\n'
   })

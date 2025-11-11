@@ -240,18 +240,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Additional Notes -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Video Production Notes</label>
-      <textarea
-        v-model="formData.notes"
-        placeholder="Add notes about your video strategy, equipment needed, shooting locations, talent, or editing requirements..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical min-h-[80px]"
-      ></textarea>
-    </div>
-  </div>
+    </div>  </div>
 </template>
 
 <script setup>
@@ -266,7 +255,7 @@ const emit = defineEmits(['save'])
 
 // State
 const formData = ref({
-  notes: '',
+  
   videoScripts: [],
   scriptHistory: []
 })
@@ -298,9 +287,7 @@ watch(
   () => props.taskData,
   (newData) => {
     if (newData && Object.keys(newData).length > 0) {
-      formData.value = {
-        notes: newData.notes || '',
-        videoScripts: newData.videoScripts || [],
+      formData.value = {        videoScripts: newData.videoScripts || [],
         scriptHistory: newData.scriptHistory || []
       }
       scriptHistory.value = newData.scriptHistory || []
@@ -574,14 +561,7 @@ const formatTimestamp = (isoString) => {
   } catch (e) {
     return 'Unknown'
   }
-}
-
-// Auto-save notes
-watch(
-  () => formData.value.notes,
-  () => {
-    emit('save', formData.value)
-  }
+}  }
 )
 </script>
 

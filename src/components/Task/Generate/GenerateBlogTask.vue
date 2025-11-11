@@ -192,18 +192,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Additional Notes -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Strategy Notes</label>
-      <textarea
-        v-model="formData.notes"
-        placeholder="Add notes about your blog content strategy, topics to cover, editorial calendar, or other important notes..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical min-h-[100px]"
-      ></textarea>
-    </div>
-  </div>
+    </div>  </div>
 </template>
 
 <script setup>
@@ -218,7 +207,7 @@ const emit = defineEmits(['save'])
 
 // State
 const formData = ref({
-  notes: '',
+  
   generatedPosts: [],
   generationHistory: []
 })
@@ -246,9 +235,7 @@ watch(
   () => props.taskData,
   (newData) => {
     if (newData && Object.keys(newData).length > 0) {
-      formData.value = {
-        notes: newData.notes || '',
-        generatedPosts: newData.generatedPosts || [],
+      formData.value = {        generatedPosts: newData.generatedPosts || [],
         generationHistory: newData.generationHistory || []
       }
       generationHistory.value = newData.generationHistory || []
@@ -443,14 +430,7 @@ const formatTimestamp = (isoString) => {
   } catch (e) {
     return 'Unknown'
   }
-}
-
-// Auto-save notes
-watch(
-  () => formData.value.notes,
-  () => {
-    emit('save', formData.value)
-  }
+}  }
 )
 </script>
 

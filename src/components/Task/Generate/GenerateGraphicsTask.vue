@@ -87,7 +87,7 @@ import { ref, watch, computed } from 'vue'
 const props = defineProps({ taskId: String, taskData: Object })
 const emit = defineEmits(['save'])
 
-const formData = ref({ notes: '', briefs: [] })
+const formData = ref({  briefs: [] })
 const designPurpose = ref('social-banner')
 const designStyle = ref('modern-minimal')
 const keyMessage = ref('')

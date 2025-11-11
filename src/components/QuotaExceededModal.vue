@@ -80,13 +80,13 @@
 
       <!-- Modal Footer -->
       <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col gap-3">
-        <!-- Upgrade Button -->
-        <button
-          @click="handleUpgrade"
-          class="w-full px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
-        >
-          ✨ Upgrade to Premium - $19/month
-        </button>
+        <!-- Upgrade Button (using PremiumUpgradeButton component) -->
+        <PremiumUpgradeButton
+          variant="primary"
+          text="✨ Upgrade to Premium - $19/month"
+          @success="handleUpgradeSuccess"
+          @error="handleUpgradeError"
+        />
 
         <!-- Close/Later Button -->
         <button
@@ -110,6 +110,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import PremiumUpgradeButton from './PremiumUpgradeButton.vue'
 
 // Props
 const props = defineProps({
@@ -120,7 +121,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['close', 'upgrade'])
+const emit = defineEmits(['close', 'upgrade', 'upgrade-success', 'upgrade-error'])
 
 // Store
 const subscriptionStore = useSubscriptionStore()
@@ -135,8 +136,16 @@ const remainingDays = computed(() => {
 })
 
 // Methods
-const handleUpgrade = () => {
-  emit('upgrade')
+const handleUpgradeSuccess = () => {
+  console.log('[QuotaExceededModal] Upgrade successful')
+  emit('upgrade-success')
+  // Modal will stay open while PayPal processes
+}
+
+const handleUpgradeError = (err) => {
+  console.error('[QuotaExceededModal] Upgrade error:', err)
+  emit('upgrade-error', err)
+  // Modal stays open to show error message from PremiumUpgradeButton
 }
 
 const handleClose = () => {

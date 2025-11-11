@@ -79,13 +79,15 @@
     <!-- Action Buttons -->
     <div class="flex gap-3">
       <!-- Upgrade Button (for free tier) -->
-      <button
-        v-if="subscriptionStore.isFree"
-        @click="$emit('upgrade-clicked')"
-        class="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-lg transition shadow-sm hover:shadow-md"
-      >
-        ✨ Upgrade to Premium
-      </button>
+      <div v-if="subscriptionStore.isFree" class="flex-1">
+        <PremiumUpgradeButton
+          variant="primary"
+          text="✨ Upgrade to Premium"
+          :show-price="true"
+          @success="handleUpgradeSuccess"
+          @error="handleUpgradeError"
+        />
+      </div>
 
       <!-- Refresh Button -->
       <button
@@ -108,6 +110,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import PremiumUpgradeButton from './PremiumUpgradeButton.vue'
 
 // Emit events
 const emit = defineEmits(['upgrade-clicked'])
@@ -169,6 +172,16 @@ const refreshQuota = async () => {
   } finally {
     isRefreshing.value = false
   }
+}
+
+const handleUpgradeSuccess = () => {
+  console.log('[QuotaStatusCard] Upgrade successful, redirecting to PayPal')
+  // PremiumUpgradeButton handles the actual redirect
+}
+
+const handleUpgradeError = (err) => {
+  console.error('[QuotaStatusCard] Upgrade error:', err)
+  // Error shown in PremiumUpgradeButton component
 }
 </script>
 

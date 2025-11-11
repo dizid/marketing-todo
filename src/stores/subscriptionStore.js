@@ -249,27 +249,58 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      const { data, error: updateError } = await supabase
+      const now = new Date().toISOString()
+      const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+      // Try to update existing subscription first
+      const { data: updateData, error: updateError } = await supabase
         .from('subscriptions')
         .update({
           tier: 'premium',
           status: 'active',
           paypal_subscription_id: paypalSubscriptionId,
           paypal_payer_id: paypalPayerId,
-          current_period_start: new Date().toISOString(),
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
+          current_period_start: now,
+          current_period_end: periodEnd,
+          updated_at: now
         })
         .eq('user_id', authStore.user.id)
         .select()
         .single()
 
-      if (updateError) throw updateError
+      // If no rows found (PGRST116), insert a new subscription instead
+      if (updateError && updateError.code === 'PGRST116') {
+        console.log('[subscriptionStore] No existing subscription found, creating new one')
 
-      subscription.value = data
+        const { data: insertData, error: insertError } = await supabase
+          .from('subscriptions')
+          .insert([{
+            user_id: authStore.user.id,
+            tier: 'premium',
+            status: 'active',
+            paypal_subscription_id: paypalSubscriptionId,
+            paypal_payer_id: paypalPayerId,
+            current_period_start: now,
+            current_period_end: periodEnd,
+            created_at: now,
+            updated_at: now
+          }])
+          .select()
+          .single()
+
+        if (insertError) throw insertError
+
+        subscription.value = insertData
+        lastFetched.value = Date.now()
+        return insertData
+      } else if (updateError) {
+        throw updateError
+      }
+
+      subscription.value = updateData
       lastFetched.value = Date.now()
 
-      return data
+      return updateData
     } catch (err) {
       console.error('Failed to upgrade subscription:', err)
       error.value = err.message

@@ -239,6 +239,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   /**
    * Upgrade subscription to premium
+   * Note: Subscription is created server-side by paypal-create-subscription function
+   * This just ensures the subscription is activated (UPDATE)
    */
   const upgradeToPresentation = async (paypalSubscriptionId, paypalPayerId) => {
     if (!authStore.user) {
@@ -249,60 +251,32 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      const now = new Date().toISOString()
-      const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-
-      // Try to update existing subscription first
+      // Simply update the subscription - server should have already created it
+      // Just update status/tier to ensure it's active
       const { data: updateData, error: updateError } = await supabase
         .from('subscriptions')
         .update({
           tier: 'premium',
           status: 'active',
-          paypal_subscription_id: paypalSubscriptionId,
-          paypal_payer_id: paypalPayerId,
-          current_period_start: now,
-          current_period_end: periodEnd,
-          updated_at: now
+          updated_at: new Date().toISOString()
         })
         .eq('user_id', authStore.user.id)
         .select()
         .single()
 
-      // If no rows found (PGRST116), insert a new subscription instead
-      if (updateError && updateError.code === 'PGRST116') {
-        console.log('[subscriptionStore] No existing subscription found, creating new one')
-
-        const { data: insertData, error: insertError } = await supabase
-          .from('subscriptions')
-          .insert([{
-            user_id: authStore.user.id,
-            tier: 'premium',
-            status: 'active',
-            paypal_subscription_id: paypalSubscriptionId,
-            paypal_payer_id: paypalPayerId,
-            current_period_start: now,
-            current_period_end: periodEnd,
-            created_at: now,
-            updated_at: now
-          }])
-          .select()
-          .single()
-
-        if (insertError) throw insertError
-
-        subscription.value = insertData
-        lastFetched.value = Date.now()
-        return insertData
-      } else if (updateError) {
-        throw updateError
+      if (updateError) {
+        // If subscription doesn't exist (PGRST116), that's a server-side failure
+        console.error('[subscriptionStore] Failed to update subscription:', updateError)
+        throw new Error(`Subscription upgrade failed: ${updateError.message}`)
       }
 
       subscription.value = updateData
       lastFetched.value = Date.now()
 
+      console.log('[subscriptionStore] Subscription upgraded to premium successfully')
       return updateData
     } catch (err) {
-      console.error('Failed to upgrade subscription:', err)
+      console.error('[subscriptionStore] Failed to upgrade subscription:', err)
       error.value = err.message
       throw err
     } finally {

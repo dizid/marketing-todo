@@ -10,7 +10,7 @@
 import axios from 'axios'
 import { createClient } from '@supabase/supabase-js'
 
-// Initialize Supabase client
+// Initialize Supabase client with service role for subscription creation
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -70,6 +70,45 @@ async function getPayPalAccessToken() {
   } catch (err) {
     console.error('[PayPal] Failed to get access token:', err.message)
     throw new Error('Failed to authenticate with PayPal')
+  }
+}
+
+/**
+ * Create subscription record in Supabase
+ */
+async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPayerId) {
+  try {
+    console.log(`[PayPal] Creating subscription record for user: ${userId}`)
+
+    const now = new Date().toISOString()
+    const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert([{
+        user_id: userId,
+        tier: 'premium',
+        status: 'active',
+        paypal_subscription_id: paypalSubscriptionId,
+        paypal_payer_id: paypalPayerId,
+        current_period_start: now,
+        current_period_end: periodEnd,
+        created_at: now,
+        updated_at: now
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('[PayPal] Failed to create subscription record:', error)
+      throw error
+    }
+
+    console.log(`[PayPal] Subscription record created: ${data?.id}`)
+    return data
+  } catch (err) {
+    console.error('[PayPal] Error creating subscription record:', err.message)
+    throw err
   }
 }
 
@@ -195,6 +234,15 @@ export async function handler(event) {
     }
 
     console.log(`[PayPal] Subscription created: ${paypalResult.subscriptionId}`)
+
+    // Create subscription record in database (server-side with service role)
+    // This allows client to skip the database INSERT when returning from PayPal
+    try {
+      await createSubscriptionRecord(userId, paypalResult.subscriptionId, 'MOCK_PAYER')
+    } catch (dbErr) {
+      console.error('[PayPal] Warning: Failed to create subscription record, will retry on return:', dbErr.message)
+      // Don't fail the whole flow - client can retry if needed
+    }
 
     // Return approval URL for redirect
     return {

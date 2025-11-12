@@ -163,20 +163,22 @@ const handleSignup = async () => {
       throw new Error('Signup failed - no user returned')
     }
 
-    // 2. Get fresh session and update auth store
-    const { data: sessionData } = await supabase.auth.getSession()
-
-    if (!sessionData.session) {
-      throw new Error('Failed to establish session. Please try signing in.')
+    // 2. Check if email confirmation is required
+    if (!authData.session) {
+      // Email confirmation required - keep wizard data in localStorage
+      errorMessage.value = '✉️ Please check your email to confirm your account. After confirmation, sign in to access your personalized plan.'
+      isSigningUp.value = false
+      // Wizard data stays in localStorage for use after email confirmation + login
+      return
     }
 
-    // Manually update auth store with session data
+    // 3. Session is available - proceed with project creation
     await authStore.initializeAuth()
 
     // Wait a moment to ensure session is fully propagated
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // 3. Create project with wizard data
+    // 4. Create project with wizard data
     const wizardData = onboardingStore.wizardData
     const projectName = wizardData.productName || 'My Product Launch'
 
@@ -194,7 +196,7 @@ Timeline: ${formatTimeline(wizardData.timeline)}
 
     const newProject = await projectStore.createProject(projectName, projectDescription)
 
-    // 4. Save wizard data to project settings
+    // 5. Save wizard data to project settings
     await projectStore.updateProjectSettings({
       productType: wizardData.productType,
       targetAudience: wizardData.targetAudience,
@@ -205,10 +207,10 @@ Timeline: ${formatTimeline(wizardData.timeline)}
       currentStage: wizardData.currentStage
     })
 
-    // 5. Clear wizard data
+    // 6. Clear wizard data
     onboardingStore.clearWizard()
 
-    // 6. Redirect to dashboard
+    // 7. Redirect to dashboard
     router.push('/app')
 
   } catch (error) {

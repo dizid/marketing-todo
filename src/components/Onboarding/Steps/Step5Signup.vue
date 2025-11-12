@@ -109,6 +109,7 @@ import { useOnboardingStore } from '@/stores/onboardingStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { supabase } from '@/utils/supabase'
+import { formatGoal, formatTimeline } from '@/utils/onboardingFormatters'
 
 const router = useRouter()
 const onboardingStore = useOnboardingStore()
@@ -227,26 +228,5 @@ Timeline: ${formatTimeline(wizardData.timeline)}
 
     isSigningUp.value = false
   }
-}
-
-const formatGoal = (goal) => {
-  const goals = {
-    first_100: 'Make first $100',
-    '1k_mrr': 'Reach $1K MRR',
-    '10k_mrr': 'Reach $10K MRR',
-    audience: 'Build an audience',
-    validate: 'Validate idea'
-  }
-  return goals[goal] || goal
-}
-
-const formatTimeline = (timeline) => {
-  const timelines = {
-    '1_month': '1 month',
-    '3_months': '3 months',
-    '6_months': '6 months',
-    no_timeline: 'No specific timeline'
-  }
-  return timelines[timeline] || timeline
 }
 </script>

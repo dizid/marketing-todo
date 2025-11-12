@@ -141,6 +141,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { resetPassword } from '@/utils/supabase'
+import { formatGoal, formatTimeline } from '@/utils/onboardingFormatters'
 
 const router = useRouter()
 
@@ -222,27 +223,6 @@ Timeline: ${formatTimeline(wizardData.timeline)}
     console.error('Error creating project from wizard data:', err)
     // Don't block login if project creation fails
   }
-}
-
-const formatGoal = (goal) => {
-  const goals = {
-    first_100: 'Make first $100',
-    '1k_mrr': 'Reach $1K MRR',
-    '10k_mrr': 'Reach $10K MRR',
-    audience: 'Build an audience',
-    validate: 'Validate idea'
-  }
-  return goals[goal] || goal
-}
-
-const formatTimeline = (timeline) => {
-  const timelines = {
-    '1_month': '1 month',
-    '3_months': '3 months',
-    '6_months': '6 months',
-    no_timeline: 'No specific timeline'
-  }
-  return timelines[timeline] || timeline
 }
 
 const handleSubmit = async () => {

@@ -853,77 +853,8 @@ Generate:
 
 // TASKS THAT ARE ACTIVELY USED
 
-export const collectFeedbackTask = {
-  id: 'feedback-1',
-  name: 'Collect Customer Feedback',
-  description: 'Create surveys and feedback campaigns to understand customer needs.',
-  category: 'feedback',
-
-  form: [
-    {
-      id: 'feedback_goal',
-      type: 'textarea',
-      label: 'Feedback Goal',
-      placeholder: 'What feedback do you want to collect? (e.g., Product satisfaction, Feature requests)',
-      required: true,
-      rows: 2
-    },
-    {
-      id: 'feedback_audience',
-      type: 'select',
-      label: 'Survey Audience',
-      options: [
-        { value: 'current_customers', label: 'Current Customers' },
-        { value: 'trial_users', label: 'Trial Users' },
-        { value: 'churned', label: 'Churned Customers' },
-        { value: 'prospects', label: 'Prospects' }
-      ]
-    },
-    {
-      id: 'feedback_method',
-      type: 'select',
-      label: 'Collection Method',
-      options: [
-        { value: 'survey', label: 'Online Survey' },
-        { value: 'interview', label: 'User Interview' },
-        { value: 'form', label: 'Feedback Form' },
-        { value: 'nps', label: 'NPS Survey' }
-      ]
-    },
-    {
-      id: 'feedback_incentive',
-      type: 'text',
-      label: 'Incentive (optional)',
-      placeholder: 'e.g., Gift card, discount, entry to raffle'
-    }
-  ],
-
-  ai: {
-    template: `Create a feedback collection campaign:
-
-Goal: {feedback_goal}
-Audience: {feedback_audience}
-Method: {feedback_method}
-Incentive: {feedback_incentive}
-
-Generate:
-1. 5-10 survey questions
-2. Invitation email template
-3. Thank you message
-4. Analysis framework for responses
-5. Follow-up actions
-6. Reporting template`,
-
-    temperature: 0.7,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'feedback-campaign',
-    displayFormat: 'text'
-  }
-}
+// Replaced with comprehensive Feedback Collection mini-app
+export const collectFeedbackTask = feedbackCollectionTask
 
 // NEW MINI-APP TASKS
 

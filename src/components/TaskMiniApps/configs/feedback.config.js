@@ -310,5 +310,207 @@ TIP: Record the conversation (with permission) so you can review it later.`
         { name: 'Miro', link: 'https://miro.com', pros: 'Visualize themes and affinity mapping' }
       ]
     }
+  ],
+
+  // Tool Setup Tutorials
+  toolTutorials: [
+    {
+      tool: 'Google Forms',
+      tagline: 'Free, simple, perfect for quick surveys',
+      difficulty: 'Beginner',
+      timeToSetup: '5 minutes',
+      steps: [
+        {
+          title: 'Create a new form',
+          description: 'Go to forms.google.com and click "+ Blank" to create a new form. Give it a clear title like "Product Feedback Survey".'
+        },
+        {
+          title: 'Add your questions',
+          description: 'Click "+" to add questions. Use Multiple Choice for rating scales, Short Answer for open text, or Linear Scale for 1-10 ratings. Copy questions from the templates above.'
+        },
+        {
+          title: 'Customize settings',
+          description: 'Click the gear icon → turn on "Collect email addresses" if needed, limit to 1 response per person, and show progress bar for longer surveys.'
+        },
+        {
+          title: 'Get shareable link',
+          description: 'Click "Send" → Link icon → Check "Shorten URL" → Copy the link. Share via email, Slack, or social media.'
+        },
+        {
+          title: 'View responses',
+          description: 'Go to "Responses" tab to see answers in real-time. Click the Sheets icon to export all responses to Google Sheets for analysis.'
+        }
+      ],
+      proTips: [
+        'Enable "Email notifications" to get alerts when someone responds',
+        'Use "Required" toggle on critical questions to avoid incomplete responses',
+        'Preview the form before sending (eye icon) to test user experience'
+      ]
+    },
+    {
+      tool: 'Typeform',
+      tagline: 'Beautiful, conversational surveys with higher completion rates',
+      difficulty: 'Beginner',
+      timeToSetup: '10 minutes',
+      steps: [
+        {
+          title: 'Sign up and create',
+          description: 'Go to typeform.com → Sign up (free plan available) → Click "Create typeform" → Choose "Start from scratch" or browse templates.'
+        },
+        {
+          title: 'Add questions one-by-one',
+          description: 'Typeform shows one question at a time (conversational). Click "+" to add questions. Choose Opinion Scale (1-10), Multiple Choice, or Long Text. Paste questions from templates.'
+        },
+        {
+          title: 'Customize design',
+          description: 'Click "Design" tab → Choose theme colors and fonts to match your brand. Upload a background image or logo if desired. Preview on mobile/desktop.'
+        },
+        {
+          title: 'Configure logic jumps (optional)',
+          description: 'Advanced: Click "Logic" on any question to show different follow-ups based on answers. Example: If NPS score < 7, ask "What disappointed you?"'
+        },
+        {
+          title: 'Publish and share',
+          description: 'Click "Publish" → Copy the unique link. Embed in email, website, or share directly. Track completion rate in real-time on dashboard.'
+        }
+      ],
+      proTips: [
+        'Free plan allows 10 responses/month - upgrade to Pro for unlimited',
+        'Use "Thank You Screen" to add a personal touch or redirect to your site',
+        'Enable Google Sheets integration to auto-export responses'
+      ]
+    },
+    {
+      tool: 'SurveyMonkey',
+      tagline: 'Powerful analytics and professional survey features',
+      difficulty: 'Intermediate',
+      timeToSetup: '15 minutes',
+      steps: [
+        {
+          title: 'Create account and survey',
+          description: 'Go to surveymonkey.com → Sign up → Click "Create Survey" → Choose template (Product Feedback, NPS, Customer Satisfaction) or start blank.'
+        },
+        {
+          title: 'Build your survey',
+          description: 'Drag and drop question types (Multiple Choice, Rating Scale, Matrix, Open-Ended). Customize question text using templates from above. Add page breaks for long surveys.'
+        },
+        {
+          title: 'Design and branding',
+          description: 'Click "Style" tab → Choose color theme, add logo, customize fonts. Preview how it looks on desktop and mobile devices.'
+        },
+        {
+          title: 'Set up collectors',
+          description: 'Click "Send Survey" → Choose method: Web Link (for email/social), Email Invitation (send directly), or Website Embed. Copy link or generate embed code.'
+        },
+        {
+          title: 'Analyze results',
+          description: 'Go to "Analyze Results" → View response summaries, charts, and individual responses. Export to Excel/CSV or create custom reports with filters and cross-tabs.'
+        }
+      ],
+      proTips: [
+        'Free plan limited to 10 questions - paid plans unlock skip logic and more',
+        'Use "Question Bank" for pre-written, research-backed questions',
+        'Set up email reminders to non-responders to boost completion rate'
+      ]
+    },
+    {
+      tool: 'Calendly',
+      tagline: 'Schedule user interviews and feedback calls effortlessly',
+      difficulty: 'Beginner',
+      timeToSetup: '10 minutes',
+      steps: [
+        {
+          title: 'Sign up and connect calendar',
+          description: 'Go to calendly.com → Sign up (free plan available) → Connect your Google/Outlook calendar so Calendly knows when you\'re available.'
+        },
+        {
+          title: 'Create event type',
+          description: 'Click "New Event Type" → Choose "One-on-One" → Name it "User Feedback Call" → Set duration (15, 30, or 60 minutes).'
+        },
+        {
+          title: 'Set availability',
+          description: 'Define when people can book you (e.g., weekdays 10am-4pm). Add buffer time between meetings. Set minimum notice period (e.g., 24 hours).'
+        },
+        {
+          title: 'Customize booking page',
+          description: 'Add description: "I\'d love to hear your feedback on [PRODUCT]". Add custom questions like "What area do you want to discuss?" or "What\'s your biggest challenge?"'
+        },
+        {
+          title: 'Share your link',
+          description: 'Copy your Calendly link (e.g., calendly.com/yourname/feedback) → Share via email, in-app message, or on your website. People book directly into your calendar.'
+        }
+      ],
+      proTips: [
+        'Add Zoom/Google Meet integration for automatic video call links',
+        'Use email reminders to reduce no-shows (send 1 hour before call)',
+        'Create different event types for different feedback topics'
+      ]
+    },
+    {
+      tool: 'Notion',
+      tagline: 'Organize and synthesize feedback in one collaborative workspace',
+      difficulty: 'Intermediate',
+      timeToSetup: '20 minutes',
+      steps: [
+        {
+          title: 'Create feedback database',
+          description: 'Open Notion → Create new page → Add "Table - Inline" database. Name columns: Date, User, Feedback Type, Key Quote, Theme, Priority, Status.'
+        },
+        {
+          title: 'Set up templates',
+          description: 'Create a "User Interview Template" page with standard questions. Each time you conduct an interview, duplicate this template and fill it out during/after the call.'
+        },
+        {
+          title: 'Log feedback entries',
+          description: 'After each survey/interview, add a row to your database. Copy key quotes verbatim. Tag with themes (e.g., "Onboarding", "Pricing", "Feature Request").'
+        },
+        {
+          title: 'Create views and filters',
+          description: 'Create filtered views: "High Priority Feedback", "Feature Requests", "Bugs/Issues". Use tags and filters to spot patterns across multiple users.'
+        },
+        {
+          title: 'Synthesize insights',
+          description: 'Create a "Feedback Summary" page. Group similar feedback into themes. Add quotes as evidence. Note frequency (how many users mentioned it). Create action items.'
+        }
+      ],
+      proTips: [
+        'Link feedback entries to specific product features or pages',
+        'Share workspace with your team for collaborative analysis',
+        'Use "@mentions" to assign follow-up actions to team members'
+      ]
+    },
+    {
+      tool: 'Dovetail',
+      tagline: 'Purpose-built for analyzing qualitative user research',
+      difficulty: 'Advanced',
+      timeToSetup: '30 minutes',
+      steps: [
+        {
+          title: 'Sign up and create project',
+          description: 'Go to dovetailapp.com → Sign up (free trial available) → Create a new project named "User Feedback Q1" or similar. Invite team members.'
+        },
+        {
+          title: 'Import feedback data',
+          description: 'Upload interview transcripts (text, audio, or video), survey responses (CSV), or type notes directly. Dovetail auto-transcribes audio/video files.'
+        },
+        {
+          title: 'Highlight and tag insights',
+          description: 'Read through transcripts and highlight key quotes. Tag each highlight with themes (e.g., "Pain Point", "Feature Request", "Positive"). Create custom tags as needed.'
+        },
+        {
+          title: 'Identify patterns',
+          description: 'Go to "Insights" tab → Dovetail automatically groups similar feedback. See which themes appear most frequently. Export charts showing top pain points or requests.'
+        },
+        {
+          title: 'Create reports',
+          description: 'Generate visual reports with quotes, frequency charts, and recommendations. Share reports with stakeholders or export as PDF. Track which insights led to product changes.'
+        }
+      ],
+      proTips: [
+        'Use "Fields" to capture user metadata (plan type, signup date, segment)',
+        'Collaborate in real-time - team members can tag and comment together',
+        'Connect Dovetail to Slack for feedback alerts and sharing insights'
+      ]
+    }
   ]
 }

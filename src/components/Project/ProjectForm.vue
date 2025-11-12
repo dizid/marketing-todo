@@ -127,10 +127,38 @@ const props = defineProps({
 const emit = defineEmits(['updated', 'close'])
 const projectStore = useProjectStore()
 
+/**
+ * Extract target audience from project description
+ * Looks for common patterns like "target audience:", "for:", "aimed at:"
+ */
+const extractTargetAudienceFromDescription = (description) => {
+  if (!description) return ''
+
+  // Pattern 1: "target audience: [text]"
+  const targetMatch = description.match(/target\s+audience:\s*(.+?)(?:\.|,|$)/i)
+  if (targetMatch) return targetMatch[1].trim()
+
+  // Pattern 2: "for: [text]"
+  const forMatch = description.match(/for:\s*(.+?)(?:\.|,|$)/i)
+  if (forMatch) return forMatch[1].trim()
+
+  // Pattern 3: "aimed at: [text]"
+  const aimedMatch = description.match(/aimed\s+at:\s*(.+?)(?:\.|,|$)/i)
+  if (aimedMatch) return aimedMatch[1].trim()
+
+  // Pattern 4: First sentence (if no pattern found)
+  const sentences = description.split(/[.!?]+/)
+  if (sentences.length > 0 && sentences[0].length > 10) {
+    return sentences[0].trim()
+  }
+
+  return ''
+}
+
 const form = ref({
   name: props.project.name,
   description: props.project.description,
-  targetAudience: '',
+  targetAudience: extractTargetAudienceFromDescription(props.project.description),
   goals: '',
   techStack: '',
   timeline: ''
@@ -145,7 +173,8 @@ watch(() => projectStore.currentProjectSettings, (settings) => {
     form.value = {
       name: props.project.name,
       description: props.project.description,
-      targetAudience: settings.targetAudience || '',
+      // Use stored settings or extract from description as fallback
+      targetAudience: settings.targetAudience || extractTargetAudienceFromDescription(props.project.description),
       goals: settings.goals || '',
       techStack: settings.techStack || '',
       timeline: settings.timeline || ''

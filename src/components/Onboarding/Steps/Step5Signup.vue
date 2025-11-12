@@ -95,9 +95,9 @@
 
     <!-- Already have account link -->
     <div v-if="!isSigningUp" class="text-center mt-6">
-      <a href="/login" class="text-sm text-indigo-600 hover:underline">
+      <router-link to="/auth?mode=login" class="text-sm text-indigo-600 hover:underline">
         Already have an account? Sign in
-      </a>
+      </router-link>
     </div>
   </div>
 </template>
@@ -149,14 +149,22 @@ const handleSignup = async () => {
       password: password.value
     })
 
-    if (signupError) throw signupError
+    if (signupError) {
+      // Check if user already exists
+      if (signupError.message?.includes('already registered')) {
+        errorMessage.value = 'This email is already registered. Please sign in instead.'
+        isSigningUp.value = false
+        return
+      }
+      throw signupError
+    }
 
     if (!authData.user) {
       throw new Error('Signup failed - no user returned')
     }
 
     // 2. Wait for auth store to update
-    await authStore.initialize()
+    await authStore.initializeAuth()
 
     // 3. Create project with wizard data
     const wizardData = onboardingStore.wizardData
@@ -186,7 +194,7 @@ Timeline: ${formatTimeline(wizardData.timeline)}
     onboardingStore.clearWizard()
 
     // 6. Redirect to dashboard
-    router.push('/dashboard')
+    router.push('/app')
 
   } catch (error) {
     console.error('Signup error:', error)

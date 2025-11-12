@@ -17,9 +17,19 @@ import { useAuthStore } from '@/stores/authStore'
 import AuthForm from '@/components/AuthForm.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import ResetPassword from '@/components/ResetPassword.vue'
+import OnboardingWizard from '@/components/Onboarding/OnboardingWizard.vue'
 
 // Define routes
 const routes = [
+  {
+    path: '/welcome',
+    name: 'Onboarding',
+    component: OnboardingWizard,
+    meta: {
+      requiresAuth: false,
+      layout: 'clean'
+    }
+  },
   {
     path: '/auth',
     name: 'Auth',

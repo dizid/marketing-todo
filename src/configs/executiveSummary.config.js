@@ -96,7 +96,7 @@ QUALITY STANDARDS:
         const summary = summaryMatch ? summaryMatch[1].trim() : ''
 
         // Extract priority tasks section
-        const tasksMatch = responseText.match(/## Priority Quick-Win Tasks\n([\s\S]*?)/)
+        const tasksMatch = responseText.match(/## Priority Quick-Win Tasks\n([\s\S]*)/)
         const tasksText = tasksMatch ? tasksMatch[1].trim() : ''
 
         // Parse individual tasks - improved parsing for multi-line fields

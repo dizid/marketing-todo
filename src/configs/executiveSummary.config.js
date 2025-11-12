@@ -15,7 +15,7 @@ export const executiveSummaryConfig = {
 
   // AI Generation configuration - uses centralized quota tracking
   aiConfig: {
-    promptTemplate: `You are a business consultant analyzing a project. Generate a comprehensive executive summary and priority quick-win tasks.
+    promptTemplate: `You are a strategic business consultant performing ULTRA-DEEP THINKING analysis. Your task is to provide comprehensive executive summary and priority quick-win tasks based on the project data below.
 
 PROJECT DATA:
 - App Description: {appDescription}
@@ -26,32 +26,50 @@ PROJECT DATA:
 - Completed Categories:
 {checklistSummary}
 
-TASK: Generate:
-1. A concise executive summary (150-200 words) analyzing project status and key insights
-2. Exactly 3-5 priority quick-win tasks with highest impact/effort ratio
+EXECUTIVE SUMMARY REQUIREMENTS:
+Generate a comprehensive 150-200 word executive summary that:
+1. Analyzes current project status and momentum
+2. Identifies key strengths and progress made
+3. Highlights critical gaps or blockers
+4. Recommends immediate strategic priorities
+5. Shows understanding of business fundamentals (market, audience, competition)
 
-FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+PRIORITY TASKS REQUIREMENTS:
+Generate exactly 3-5 priority quick-win tasks that:
+1. Have the highest impact/effort ratio (Quick Wins = High Impact + Low Effort)
+2. Are immediately actionable (can start today/tomorrow)
+3. Drive measurable business value
+4. Address critical gaps in the current progress
+5. Consider market timing and competitive advantage
+
+CRITICAL FORMATTING - YOUR RESPONSE MUST FOLLOW THIS STRUCTURE EXACTLY:
 
 ## Executive Summary
-[Write 150-200 word summary here analyzing project status, progress, strengths, and immediate opportunities]
+[Write 150-200 word comprehensive analysis here covering: current status, momentum, strengths, gaps, and strategic recommendations]
 
 ## Priority Quick-Win Tasks
 
-1. [Task Title]
+1. [Specific, actionable task title]
 Impact: High/Medium/Low
 Effort: High/Medium/Low
-Why: [1-2 sentence explanation of why this matters]
-Next Steps: [Specific action items]
+Why: [2-3 sentence explanation of business value and why this matters NOW]
+Next Steps: [Numbered list of specific 1-3 concrete action items]
 
-2. [Task Title]
+2. [Specific, actionable task title]
 Impact: High/Medium/Low
 Effort: High/Medium/Low
-Why: [1-2 sentence explanation of why this matters]
-Next Steps: [Specific action items]
+Why: [2-3 sentence explanation of business value and why this matters NOW]
+Next Steps: [Numbered list of specific 1-3 concrete action items]
 
-[Continue for 3-5 tasks total]
+3. [Continue for 3-5 tasks total]
 
-Be specific, actionable, and focus on tasks that will have the biggest impact with reasonable effort.`,
+QUALITY STANDARDS:
+- Be SPECIFIC and ACTIONABLE (not vague)
+- Focus on IMMEDIATE IMPACT (not long-term)
+- Prioritize HIGH IMPACT / LOW EFFORT combinations
+- Show DEEP UNDERSTANDING of the business context
+- Provide CLEAR JUSTIFICATION for each task
+- Make recommendations that are ACHIEVABLE within 1-2 weeks`,
 
     temperature: 0.7,
     maxTokens: 2500,
@@ -81,28 +99,46 @@ Be specific, actionable, and focus on tasks that will have the biggest impact wi
         const tasksMatch = responseText.match(/## Priority Quick-Win Tasks\n([\s\S]*?)/)
         const tasksText = tasksMatch ? tasksMatch[1].trim() : ''
 
-        // Parse individual tasks
+        // Parse individual tasks - improved parsing for multi-line fields
         const tasks = []
         const taskBlocks = tasksText.split(/^\d+\./m).slice(1) // Split by numbered headers, skip first empty
 
         for (const block of taskBlocks) {
-          const lines = block.trim().split('\n')
+          const lines = block.trim().split('\n').filter(line => line.trim())
           if (lines.length === 0) continue
 
           const title = lines[0].trim()
           let impact = '', effort = '', why = '', nextSteps = ''
 
-          for (const line of lines.slice(1)) {
+          // Parse fields - handle multi-line values
+          let currentField = null
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i]
+
             if (line.includes('Impact:')) {
               const match = line.match(/Impact:\s*(\w+)/i)
               impact = match ? match[1] : ''
+              currentField = null
             } else if (line.includes('Effort:')) {
               const match = line.match(/Effort:\s*(\w+)/i)
               effort = match ? match[1] : ''
+              currentField = null
             } else if (line.includes('Why:')) {
               why = line.replace(/.*Why:\s*/i, '').trim()
+              currentField = 'why'
             } else if (line.includes('Next Steps:')) {
               nextSteps = line.replace(/.*Next Steps:\s*/i, '').trim()
+              currentField = 'nextSteps'
+            } else if (currentField === 'why' && line.trim()) {
+              // Append to why if it's a continuation
+              if (!line.match(/^(Impact|Effort|Next Steps):/i)) {
+                why += ' ' + line.trim()
+              }
+            } else if (currentField === 'nextSteps' && line.trim()) {
+              // Append to nextSteps if it's a continuation
+              if (!line.match(/^(Impact|Effort|Why):/i)) {
+                nextSteps += ' ' + line.trim()
+              }
             }
           }
 
@@ -111,11 +147,13 @@ Be specific, actionable, and focus on tasks that will have the biggest impact wi
               title,
               impact: impact || 'Medium',
               effort: effort || 'Medium',
-              why: why || '',
-              nextSteps: nextSteps || ''
+              why: why.trim() || '',
+              nextSteps: nextSteps.trim() || ''
             })
           }
         }
+
+        console.log('[ExecutiveSummary] Parsed tasks:', tasks)
 
         return {
           summary: summary || responseText.substring(0, 300),
@@ -123,6 +161,7 @@ Be specific, actionable, and focus on tasks that will have the biggest impact wi
         }
       } catch (error) {
         console.error('Error parsing executive summary response:', error)
+        console.error('Response text:', responseText)
         // Return raw response if parsing fails
         return {
           summary: responseText.substring(0, 300),

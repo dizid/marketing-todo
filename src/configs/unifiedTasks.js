@@ -20,6 +20,7 @@ import { feedbackCollectionTask } from './feedbackCollection.config'
 import { changelogTask } from './changelog.config'
 import { featurePrioritizationTask } from './featurePrioritization.config'
 import { analyticsSetupTask } from './analyticsSetup.config'
+import { channelOptimizerTask } from './channelOptimizer.config'
 import { channelAnalyzerTask } from './channelAnalyzer.config'
 import { roiCalculatorTask } from './roiCalculator.config'
 
@@ -852,77 +853,8 @@ Generate:
 
 // TASKS THAT ARE ACTIVELY USED
 
-export const collectFeedbackTask = {
-  id: 'feedback-1',
-  name: 'Collect Customer Feedback',
-  description: 'Create surveys and feedback campaigns to understand customer needs.',
-  category: 'feedback',
-
-  form: [
-    {
-      id: 'feedback_goal',
-      type: 'textarea',
-      label: 'Feedback Goal',
-      placeholder: 'What feedback do you want to collect? (e.g., Product satisfaction, Feature requests)',
-      required: true,
-      rows: 2
-    },
-    {
-      id: 'feedback_audience',
-      type: 'select',
-      label: 'Survey Audience',
-      options: [
-        { value: 'current_customers', label: 'Current Customers' },
-        { value: 'trial_users', label: 'Trial Users' },
-        { value: 'churned', label: 'Churned Customers' },
-        { value: 'prospects', label: 'Prospects' }
-      ]
-    },
-    {
-      id: 'feedback_method',
-      type: 'select',
-      label: 'Collection Method',
-      options: [
-        { value: 'survey', label: 'Online Survey' },
-        { value: 'interview', label: 'User Interview' },
-        { value: 'form', label: 'Feedback Form' },
-        { value: 'nps', label: 'NPS Survey' }
-      ]
-    },
-    {
-      id: 'feedback_incentive',
-      type: 'text',
-      label: 'Incentive (optional)',
-      placeholder: 'e.g., Gift card, discount, entry to raffle'
-    }
-  ],
-
-  ai: {
-    template: `Create a feedback collection campaign:
-
-Goal: {feedback_goal}
-Audience: {feedback_audience}
-Method: {feedback_method}
-Incentive: {feedback_incentive}
-
-Generate:
-1. 5-10 survey questions
-2. Invitation email template
-3. Thank you message
-4. Analysis framework for responses
-5. Follow-up actions
-6. Reporting template`,
-
-    temperature: 0.7,
-    maxTokens: 1500
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'feedback-campaign',
-    displayFormat: 'text'
-  }
-}
+// Replaced with comprehensive Feedback Collection mini-app
+export const collectFeedbackTask = feedbackCollectionTask
 
 // NEW MINI-APP TASKS
 
@@ -995,69 +927,8 @@ export const setupAnalyticsTask = {
   }
 }
 
-export const optimizeChannelsTask = {
-  id: 'analytics-2',
-  name: 'Optimize Marketing Channels',
-  description: 'Analyze and optimize your marketing channels for better ROI.',
-  category: 'analytics',
-
-  form: [
-    {
-      id: 'optimize_channels',
-      type: 'checkboxes',
-      label: 'Channels to Optimize',
-      options: [
-        { value: 'paid_search', label: 'Paid Search (Google Ads)' },
-        { value: 'social_ads', label: 'Social Ads (Meta, LinkedIn)' },
-        { value: 'email', label: 'Email Marketing' },
-        { value: 'content', label: 'Content Marketing' },
-        { value: 'referral', label: 'Referral / Partnerships' }
-      ]
-    },
-    {
-      id: 'optimize_metrics',
-      type: 'textarea',
-      label: 'Current Performance Issues',
-      placeholder: "What's not working well? (e.g., High CPC, Low CTR, Poor retention)",
-      required: true,
-      rows: 2
-    },
-    {
-      id: 'optimize_budget',
-      type: 'number',
-      label: 'Monthly Budget',
-      placeholder: '5000',
-      suffix: 'USD',
-      min: 100
-    }
-  ],
-
-  ai: {
-    template: `Create a marketing optimization strategy:
-
-Channels: {optimize_channels}
-Current Issues: {optimize_metrics}
-Budget: {optimize_budget}
-
-Generate:
-1. Root cause analysis for each channel
-2. Optimization recommendations (specific, actionable)
-3. A/B testing ideas
-4. Budget allocation strategy
-5. Expected ROI improvements
-6. Timeline for implementation
-7. Success metrics and monitoring`,
-
-    temperature: 0.8,
-    maxTokens: 2000
-  },
-
-  output: {
-    enabled: true,
-    exportFilename: 'channel-optimization',
-    displayFormat: 'text'
-  }
-}
+// Replaced with comprehensive multi-tab Channel Optimizer mini-app
+export const optimizeChannelsTask = channelOptimizerTask
 
 export const reviewROITask = {
   id: 'analytics-3',
@@ -1220,7 +1091,7 @@ export const unifiedTasksMap = {
   'feedback-3': iterateFeaturesTask,
 
   'analytics-1': setupAnalyticsTask,
-  'analytics-2': optimizeChannelsTask,
+  'analytics-2': channelOptimizerTask,
   'analytics-3': reviewROITask
 }
 

@@ -90,6 +90,65 @@
         </div>
       </div>
 
+      <!-- Tool Setup Tutorials -->
+      <div class="space-y-6 mt-8 pt-8 border-t border-gray-200">
+        <h2 class="text-xl font-bold text-gray-900">📚 Tool Setup Tutorials</h2>
+        <p class="text-sm text-gray-600">Step-by-step guides to get started with popular feedback collection tools</p>
+
+        <div v-for="tutorial in config.toolTutorials" :key="tutorial.tool" class="border border-gray-200 rounded-lg overflow-hidden">
+          <!-- Tutorial Header -->
+          <button
+            @click="toggleTutorial(tutorial.tool)"
+            class="w-full px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition flex items-center justify-between text-left"
+          >
+            <div class="flex-1">
+              <div class="font-semibold text-gray-900 text-base">{{ tutorial.tool }}</div>
+              <div class="text-sm text-gray-600 mt-1">{{ tutorial.tagline }}</div>
+              <div class="flex gap-3 mt-2 text-xs text-gray-500">
+                <span class="flex items-center gap-1">
+                  <span class="font-medium">Difficulty:</span> {{ tutorial.difficulty }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="font-medium">Setup time:</span> {{ tutorial.timeToSetup }}
+                </span>
+              </div>
+            </div>
+            <div class="ml-4 text-gray-400 text-xl">
+              {{ expandedTutorials[tutorial.tool] ? '−' : '+' }}
+            </div>
+          </button>
+
+          <!-- Tutorial Content (Expandable) -->
+          <div v-show="expandedTutorials[tutorial.tool]" class="p-4 bg-white space-y-4">
+            <!-- Steps -->
+            <div class="space-y-3">
+              <div v-for="(step, idx) in tutorial.steps" :key="idx" class="flex gap-3">
+                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+                  {{ idx + 1 }}
+                </div>
+                <div class="flex-1 pt-0.5">
+                  <div class="font-semibold text-gray-900 text-sm">{{ step.title }}</div>
+                  <div class="text-sm text-gray-600 mt-1">{{ step.description }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pro Tips -->
+            <div v-if="tutorial.proTips && tutorial.proTips.length > 0" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
+              <div class="font-semibold text-yellow-900 text-sm flex items-center gap-2">
+                💡 Pro Tips
+              </div>
+              <ul class="space-y-1.5 text-sm text-yellow-900">
+                <li v-for="(tip, idx) in tutorial.proTips" :key="idx" class="flex gap-2">
+                  <span class="text-yellow-600">•</span>
+                  <span>{{ tip }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Save Collection Plan Button -->
       <div class="mt-8 flex gap-2">
         <button
@@ -159,6 +218,14 @@ const savedPlans = ref(props.taskData?.savedItems || [])
 
 // Track the last saved plan index for highlighting
 const lastSavedIndex = ref(-1)
+
+// Expanded tutorials state (for accordion)
+const expandedTutorials = ref({})
+
+// Toggle tutorial expansion
+const toggleTutorial = (toolName) => {
+  expandedTutorials.value[toolName] = !expandedTutorials.value[toolName]
+}
 
 // Local task data - this gets updated by MiniAppShell via @save
 const taskData = ref(props.taskData || {

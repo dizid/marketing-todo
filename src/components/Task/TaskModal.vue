@@ -107,6 +107,7 @@ import IterateFeaturesMiniApp from '@/components/TaskMiniApps/IterateFeaturesMin
 import ChangelogMiniApp from '@/components/TaskMiniApps/ChangelogMiniApp.vue'
 import FeaturePrioritizationMiniApp from '@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'
 import AnalyticsSetupMiniApp from '@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'
+import ChannelOptimizerMiniApp from '@/components/TaskMiniApps/ChannelOptimizerMiniApp.vue'
 import ChannelAnalyzerMiniApp from '@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'
 import RoiCalculatorMiniApp from '@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'
 
@@ -130,6 +131,7 @@ const customComponentMap = {
   'ChangelogMiniApp': ChangelogMiniApp,
   'FeaturePrioritizationMiniApp': FeaturePrioritizationMiniApp,
   'AnalyticsSetupMiniApp': AnalyticsSetupMiniApp,
+  'ChannelOptimizerMiniApp': ChannelOptimizerMiniApp,
   'ChannelAnalyzerMiniApp': ChannelAnalyzerMiniApp,
   'RoiCalculatorMiniApp': RoiCalculatorMiniApp
 }

@@ -28,6 +28,10 @@ export const defineAudienceTask = {
   name: 'Define Target Audience',
   description: 'Create detailed buyer personas and define your target market with AI assistance.',
   category: 'research',
+  tier: 'free',
+  what: 'Create detailed buyer personas and define your target market. Input audience demographics, pain points, budget, and goals to generate comprehensive personas with messaging strategies.',
+  why: 'A clear understanding of your target audience is the foundation for all marketing. Without buyer personas, your messaging will miss the mark and you\'ll waste time reaching the wrong people. Personas guide all decisions: content, positioning, channels, and messaging.',
+  how: 'Answer questions about your audience (who they are, what they want, what keeps them up at night). AI will synthesize this into detailed personas with actionable insights on how to reach and persuade them.',
 
   form: [
     {
@@ -161,6 +165,10 @@ export const generatePostsTask = {
   name: 'Generate Social Media Posts',
   description: 'Create platform-optimized social media posts with AI assistance. Generate multiple variants and pick your favorites.',
   category: 'content',
+  tier: 'free',
+  what: 'Generate 1-10 platform-optimized social media posts per channel (Twitter, LinkedIn, Instagram, Facebook). Specify your topic, tone, CTA, and audience. AI will create native content for each platform with proper formatting and engagement hooks.',
+  why: 'Consistent social posting drives brand awareness, engagement, and traffic. However, creating quality posts for multiple platforms is time-consuming (rewriting for each platform\'s culture and format). Manually posting 20+ times per week is unrealistic. AI-generated variants let you post consistently without the time drain.',
+  how: 'Tell AI what you want to say, who should hear it, and what tone you want. Select your platforms (Twitter, LinkedIn, Instagram, Facebook). AI will generate platform-native posts with appropriate length, hashtags, emojis, and CTAs for each channel. Pick your favorites and schedule them.',
 
   form: [
     {
@@ -369,6 +377,10 @@ export const defineGoalsTask = {
   name: 'Define Marketing Goals',
   description: 'Set SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) for your marketing campaign.',
   category: 'setup',
+  tier: 'free',
+  what: 'Define 3-5 SMART marketing goals (Specific, Measurable, Achievable, Relevant, Time-bound). Specify what you want to achieve, the metric, your strategy, why it matters, and your deadline.',
+  why: 'Without clear goals, your marketing efforts are scattered and unmeasurable. SMART goals create focus, accountability, and measurable success. They guide budget allocation, channel selection, and content strategy. Vague goals like "grow the business" lead to wasted effort.',
+  how: 'For each goal, answer: What do you want (e.g., 150 new users)? How will you measure it (e.g., signups)? Why is it important? What\'s your strategy (e.g., content marketing)? What\'s the deadline (e.g., 30 days)? Write these down and reference them in every marketing decision.',
 
   form: [
     {

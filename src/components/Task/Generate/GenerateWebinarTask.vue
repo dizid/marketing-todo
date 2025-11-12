@@ -197,22 +197,12 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Additional Notes -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Webinar Strategy Notes</label>
-      <textarea
-        v-model="formData.notes"
-        placeholder="Add notes about your webinar strategy, speaker bios, technical requirements, follow-up plans..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical min-h-[80px]"
-      ></textarea>
-    </div>
-  </div>
+    </div>  </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,
@@ -223,7 +213,7 @@ const emit = defineEmits(['save'])
 
 // State
 const formData = ref({
-  notes: '',
+  
   webinarPlans: [],
   webinarHistory: []
 })
@@ -251,9 +241,7 @@ watch(
   () => props.taskData,
   (newData) => {
     if (newData && Object.keys(newData).length > 0) {
-      formData.value = {
-        notes: newData.notes || '',
-        webinarPlans: newData.webinarPlans || [],
+      formData.value = {        webinarPlans: newData.webinarPlans || [],
         webinarHistory: newData.webinarHistory || []
       }
       webinarHistory.value = newData.webinarHistory || []
@@ -367,32 +355,15 @@ ${includeWorksheet.value ? '[WORKSHEET OUTLINE]\nSections and exercises for atte
 
 Format the response clearly with all sections above.`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 4000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
+    // Call Grok API through centralized service with quota tracking
+    const output = await generateAIContent(
+      { id: 'acq-3' },
+      { prompt },
+      'grok-2',
+      0.8,
+      4000
+    )
+    const responseText = output
 
     if (!responseText) {
       throw new Error('No content received from AI')
@@ -500,14 +471,7 @@ const formatTimestamp = (isoString) => {
   } catch (e) {
     return 'Unknown'
   }
-}
-
-// Auto-save notes
-watch(
-  () => formData.value.notes,
-  () => {
-    emit('save', formData.value)
-  }
+}  }
 )
 </script>
 

@@ -1,0 +1,369 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Subscription & Billing</h1>
+            <p class="mt-1 text-gray-600">Manage your account and billing settings</p>
+          </div>
+          <button
+            @click="goBack"
+            class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Subscription Status Card -->
+      <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Current Plan</h2>
+            <div class="flex items-center gap-3">
+              <span
+                :class="[
+                  'px-3 py-1 rounded-full text-sm font-semibold',
+                  subscriptionStore.isPremium
+                    ? 'bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800'
+                    : 'bg-gray-100 text-gray-800'
+                ]"
+              >
+                {{ subscriptionStore.tier === 'premium' ? '⭐ Premium' : 'Free' }}
+              </span>
+              <span
+                v-if="subscriptionStore.isActive"
+                class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"
+              >
+                ✓ Active
+              </span>
+              <span
+                v-else
+                class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800"
+              >
+                ✗ Inactive
+              </span>
+            </div>
+          </div>
+
+          <!-- Upgrade Button -->
+          <div v-if="subscriptionStore.isFree" class="text-right">
+            <p class="text-sm text-gray-600 mb-3">Ready for more?</p>
+            <button
+              @click="handleUpgrade"
+              :disabled="isLoading"
+              class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-blue-700 transition disabled:opacity-50"
+            >
+              <span v-if="!isLoading">✨ Upgrade to Premium - $19/month</span>
+              <span v-else>Processing...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subscription Details Grid -->
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Monthly Quota -->
+          <div class="border-l-4 border-indigo-500 pl-4">
+            <p class="text-sm text-gray-600 mb-1">Monthly Quota</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {{ subscriptionStore.currentMonthUsage }} /
+              {{ subscriptionStore.currentQuotaLimit }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">AI generations used this month</p>
+          </div>
+
+          <!-- Remaining Quota -->
+          <div class="border-l-4 border-green-500 pl-4">
+            <p class="text-sm text-gray-600 mb-1">Remaining Quota</p>
+            <p
+              :class="[
+                'text-2xl font-bold',
+                subscriptionStore.remainingQuota > 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              ]"
+            >
+              {{ subscriptionStore.remainingQuota }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">generations left</p>
+          </div>
+
+          <!-- Current Period -->
+          <div class="border-l-4 border-blue-500 pl-4">
+            <p class="text-sm text-gray-600 mb-1">Current Period</p>
+            <p class="text-sm font-semibold text-gray-900">
+              {{
+                subscriptionStore.subscription?.current_period_start
+                  ? formatDate(subscriptionStore.subscription.current_period_start)
+                  : 'N/A'
+              }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">starts</p>
+          </div>
+
+          <!-- Reset Date -->
+          <div class="border-l-4 border-orange-500 pl-4">
+            <p class="text-sm text-gray-600 mb-1">Next Reset</p>
+            <p class="text-sm font-semibold text-gray-900">
+              {{ subscriptionStore.formattedResetDate }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">monthly quota resets</p>
+          </div>
+        </div>
+
+        <!-- Quota Progress Bar -->
+        <div class="mt-8 pt-8 border-t border-gray-200">
+          <p class="text-sm font-semibold text-gray-900 mb-3">Quota Usage</p>
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              :style="{ width: subscriptionStore.quotaPercentage + '%' }"
+              :class="[
+                'h-full transition-all duration-300',
+                subscriptionStore.quotaPercentage < 50
+                  ? 'bg-green-500'
+                  : subscriptionStore.quotaPercentage < 75
+                  ? 'bg-yellow-500'
+                  : subscriptionStore.quotaPercentage < 90
+                  ? 'bg-orange-500'
+                  : 'bg-red-500'
+              ]"
+            ></div>
+          </div>
+          <p class="mt-2 text-xs text-gray-600 text-right">
+            {{ subscriptionStore.quotaPercentage }}% used
+          </p>
+        </div>
+      </div>
+
+      <!-- Plans Comparison -->
+      <div v-if="subscriptionStore.isFree" class="bg-white rounded-lg shadow-md p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Why Upgrade?</h2>
+        <div class="grid grid-cols-2 gap-8">
+          <!-- Free Plan -->
+          <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Free Plan</h3>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <span class="text-gray-400">✓</span>
+                <span class="text-gray-700">20 AI generations/month</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-gray-400">✓</span>
+                <span class="text-gray-700">Basic task management</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-gray-400">✓</span>
+                <span class="text-gray-700">Community support</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-gray-400">✗</span>
+                <span class="text-gray-500">Premium features</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Premium Plan -->
+          <div class="border-2 border-purple-500 rounded-lg p-6 bg-gradient-to-br from-purple-50 to-indigo-50">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Premium Plan</h3>
+              <span class="text-sm font-bold text-purple-600">BEST VALUE</span>
+            </div>
+            <p class="text-2xl font-bold text-purple-600 mb-4">$19/month</p>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <span class="text-green-500">✓</span>
+                <span class="font-semibold text-gray-900">200 AI generations/month</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-green-500">✓</span>
+                <span class="font-semibold text-gray-900">Advanced features</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-green-500">✓</span>
+                <span class="font-semibold text-gray-900">Priority support</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="text-green-500">✓</span>
+                <span class="font-semibold text-gray-900">Early access to new features</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div
+        v-if="subscriptionStore.isPremium && subscriptionStore.isActive"
+        class="bg-red-50 border-2 border-red-200 rounded-lg p-8"
+      >
+        <h2 class="text-2xl font-bold text-red-900 mb-2">Manage Premium Subscription</h2>
+        <p class="text-red-800 mb-6">
+          You can cancel your subscription anytime. No hidden fees or long-term contracts.
+        </p>
+
+        <div class="flex items-center gap-4">
+          <button
+            @click="handleCancel"
+            :disabled="isLoading || isCancelling"
+            class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+          >
+            <span v-if="!isCancelling">Cancel Premium Subscription</span>
+            <span v-else>Cancelling...</span>
+          </button>
+
+          <div v-if="showCancelConfirm" class="flex items-center gap-2 ml-4">
+            <span class="text-red-900 font-semibold">Are you sure?</span>
+            <button
+              @click="confirmCancel"
+              :disabled="isLoading || isCancelling"
+              class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition disabled:opacity-50"
+            >
+              Yes, Cancel
+            </button>
+            <button
+              @click="showCancelConfirm = false"
+              class="px-4 py-2 bg-gray-300 text-gray-900 text-sm font-semibold rounded hover:bg-gray-400 transition"
+            >
+              No, Keep
+            </button>
+          </div>
+        </div>
+
+        <p class="text-xs text-red-700 mt-4">
+          ⚠️ After cancellation, you'll revert to the Free plan (20 AI generations/month)
+        </p>
+      </div>
+
+      <!-- Billing History (Placeholder) -->
+      <div class="mt-8 bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Billing History</h2>
+        <div class="text-center py-12">
+          <p class="text-gray-500 mb-2">📋 No billing history yet</p>
+          <p class="text-sm text-gray-500">Your invoices will appear here after your first payment</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Toast -->
+    <transition name="fade">
+      <div
+        v-if="errorMessage"
+        class="fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg"
+      >
+        {{ errorMessage }}
+      </div>
+    </transition>
+
+    <!-- Success Toast -->
+    <transition name="fade">
+      <div
+        v-if="successMessage"
+        class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg"
+      >
+        {{ successMessage }}
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { createSubscription, cancelSubscription } from '@/services/paypalService'
+
+// Router
+const router = useRouter()
+
+// Store
+const subscriptionStore = useSubscriptionStore()
+
+// State
+const isLoading = ref(false)
+const isCancelling = ref(false)
+const showCancelConfirm = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+
+// Lifecycle
+onMounted(async () => {
+  // Ensure subscription data is loaded
+  await subscriptionStore.fetchSubscriptionStatus(true)
+})
+
+// Methods
+const goBack = () => {
+  router.push('/')
+}
+
+const handleUpgrade = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const approvalUrl = await createSubscription({
+      returnUrl: `${window.location.origin}/app?upgrade=success`,
+      cancelUrl: `${window.location.origin}/app/subscription`
+    })
+
+    // Redirect to PayPal
+    window.location.href = approvalUrl
+  } catch (err) {
+    errorMessage.value = err.message || 'Failed to start upgrade. Please try again.'
+    isLoading.value = false
+  }
+}
+
+const handleCancel = () => {
+  showCancelConfirm.value = true
+}
+
+const confirmCancel = async () => {
+  isCancelling.value = true
+  errorMessage.value = ''
+
+  try {
+    await cancelSubscription('User requested cancellation')
+    successMessage.value = 'Subscription cancelled successfully'
+    showCancelConfirm.value = false
+
+    // Refresh subscription data
+    await subscriptionStore.fetchSubscriptionStatus(true)
+
+    // Show success for 2 seconds then redirect
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  } catch (err) {
+    errorMessage.value = err.message || 'Failed to cancel subscription. Please try again.'
+    isCancelling.value = false
+    showCancelConfirm.value = false
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

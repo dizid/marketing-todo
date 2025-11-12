@@ -2,14 +2,27 @@
  * Vue Router Configuration
  *
  * Handles application routing including:
+ * - Public landing page (marketing)
+ * - Onboarding wizard (new user signup flow)
  * - Authentication routes (login, signup)
- * - Protected dashboard route
+ * - Protected dashboard & subscription routes
  * - Route guards for session validation
  * - Redirection based on auth state
  *
  * Routes:
- * - /auth - Authentication page (login/signup)
- * - / - Dashboard (protected, requires authentication)
+ * - / (public) - Landing page (public marketing page)
+ * - /welcome (public) - Onboarding wizard for new users
+ * - /landing (public) - Landing page alias
+ * - /auth - Authentication page (login/signup, public)
+ * - /app (protected) - Dashboard
+ * - /app/subscription (protected) - Subscription management
+ *
+ * Auth Guards:
+ * - Unauthenticated users: / → LandingPage
+ * - Unauthenticated users: /app → /auth
+ * - Authenticated users: / → /app
+ * - Authenticated users: /auth → /app
+ * - Authenticated users can still access /landing for pricing info
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -18,6 +31,8 @@ import AuthForm from '@/components/AuthForm.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import ResetPassword from '@/components/ResetPassword.vue'
 import OnboardingWizard from '@/components/Onboarding/OnboardingWizard.vue'
+import LandingPage from '@/components/LandingPage.vue'
+import ManageSubscriptionPage from '@/components/ManageSubscriptionPage.vue'
 
 // Define routes
 const routes = [
@@ -28,6 +43,15 @@ const routes = [
     meta: {
       requiresAuth: false,
       layout: 'clean'
+    }
+  },
+  {
+    path: '/landing',
+    name: 'Landing',
+    component: LandingPage,
+    meta: {
+      requiresAuth: false,
+      layout: 'blank'
     }
   },
   {
@@ -50,8 +74,26 @@ const routes = [
   },
   {
     path: '/',
+    name: 'Home',
+    component: LandingPage,
+    meta: {
+      requiresAuth: false,
+      layout: 'blank'
+    }
+  },
+  {
+    path: '/app',
     name: 'Dashboard',
     component: Dashboard,
+    meta: {
+      requiresAuth: true,
+      layout: 'default'
+    }
+  },
+  {
+    path: '/app/subscription',
+    name: 'ManageSubscription',
+    component: ManageSubscriptionPage,
     meta: {
       requiresAuth: true,
       layout: 'default'
@@ -76,8 +118,20 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // Initialize auth on first navigation
-  if (!authStore.session && !authStore.isLoading) {
+  // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
+  // This is critical for PayPal redirect flows where user is already logged in
+  if (authStore.isLoading) {
+    // Wait for auth to finish loading
+    await new Promise(resolve => {
+      const checkInterval = setInterval(() => {
+        if (!authStore.isLoading) {
+          clearInterval(checkInterval)
+          resolve()
+        }
+      }, 50)
+    })
+  } else if (!authStore.session) {
+    // Only initialize if we don't have a session yet
     await authStore.initializeAuth()
   }
 
@@ -91,9 +145,18 @@ router.beforeEach(async (to, from, next) => {
 
   // User is authenticated but trying to access auth page
   if (!to.meta.requiresAuth && isAuthenticated && to.path === '/auth') {
-    next('/')
+    next('/app')
     return
   }
+
+  // User is authenticated and trying to go to home page, redirect to app
+  if (isAuthenticated && to.path === '/') {
+    next('/app')
+    return
+  }
+
+  // Authenticated users can still access /landing to see pricing
+  // (redirect handled by LandingPage component if needed)
 
   next()
 })

@@ -5,6 +5,15 @@
  * Each step contains field definitions, tips, and AI helpers.
  */
 
+// Freemium model - Premium tier task
+export const landingPageCreatorConfig = {
+  id: 'setup-2',
+  tier: 'premium',
+  what: 'Build professional landing pages in 5 minutes with AI-assisted copy and design suggestions. No coding required—just fill out a form and get a fully responsive landing page.',
+  why: 'Landing pages are your #1 conversion tool. A well-designed page converts 3-5x better than a generic one. Professional design typically costs $1000+ but you need it immediately.',
+  how: 'Answer 5 questions about your brand, then use AI to generate headlines and copy. Customize colors and layout, then publish instantly with a custom domain or sharable link.',
+}
+
 export const wizardSteps = [
   {
     id: 'brand-basics',

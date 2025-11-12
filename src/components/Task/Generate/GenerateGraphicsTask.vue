@@ -83,11 +83,12 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({ taskId: String, taskData: Object })
 const emit = defineEmits(['save'])
 
-const formData = ref({ notes: '', briefs: [] })
+const formData = ref({  briefs: [] })
 const designPurpose = ref('social-banner')
 const designStyle = ref('modern-minimal')
 const keyMessage = ref('')
@@ -123,32 +124,39 @@ const generateGraphics = async () => {
   error.value = ''
 
   try {
-    const prompt = `Create a detailed design brief for ${designPurpose.value}:
-Product: ${appDescription.value}
-Style: ${designStyle.value}
-CTA: ${keyMessage.value}
+    const promptTemplate = `Create a detailed design brief for {designPurpose}:
+Product: {appDescription}
+Style: {designStyle}
+CTA: {keyMessage}
 
 Include: Layout, color suggestions, typography, imagery ideas, and design elements.`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [{ role: 'user', content: prompt }],
+    const config = {
+      id: 'generate-graphics',
+      aiConfig: {
+        promptTemplate,
         temperature: 0.8,
-        max_tokens: 1500
-      })
-    })
+        maxTokens: 1500,
+        model: 'grok-2'
+      }
+    }
 
-    if (!response.ok) throw new Error('API error')
+    const formDataForAI = {
+      designPurpose: designPurpose.value,
+      appDescription: appDescription.value,
+      designStyle: designStyle.value,
+      keyMessage: keyMessage.value
+    }
 
-    const data = await response.json()
-    generatedBrief.value = data.choices?.[0]?.message?.content || ''
+    const responseText = await generateAIContent(config, formDataForAI)
+    generatedBrief.value = responseText
     successMessage.value = 'Design brief generated!'
   } catch (err) {
-    error.value = 'Generation failed: ' + err.message
+    if (err.message && err.message.includes('quota')) {
+      error.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
+    } else {
+      error.value = 'Generation failed: ' + err.message
+    }
   } finally {
     isGenerating.value = false
   }

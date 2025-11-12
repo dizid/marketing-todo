@@ -211,21 +211,13 @@
       </div>
     </div>
 
-    <!-- Additional Notes -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Notes & Strategy</label>
-      <textarea
-        v-model="formData.notes"
-        placeholder="Add notes about your social media strategy, campaigns, or any special instructions..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical min-h-[80px]"
-      ></textarea>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,
@@ -237,7 +229,6 @@ const projectStore = useProjectStore()
 
 // State
 const formData = ref({
-  notes: '',
   generatedPosts: [],
   generationHistory: []
 })
@@ -348,33 +339,15 @@ Post 1 content here
 
 Important: Use [PLATFORM: ...] headers and --- separators between posts.`
 
-    // Call Grok API through our proxy
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.8,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
+    // Call Grok API through centralized service with quota tracking
+    const output = await generateAIContent(
+      { id: 'social-1' },
+      { prompt },
+      'grok-2',
+      0.8,
+      2000
+    )
+    const responseText = output
 
     if (!responseText) {
       throw new Error('No content received from AI')

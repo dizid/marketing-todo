@@ -46,6 +46,13 @@ export const analyticsSetupTask = {
   name: 'Set Up Analytics',
   description: 'Configure analytics tools',
   category: 'analytics',
+
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Configure advanced analytics tools (GA4, Mixpanel, Amplitude, Hotjar, Segment) with event tracking, funnels, cohorts, and real-time dashboards. See the complete user journey.',
+  why: 'Basic analytics shows traffic. Advanced analytics reveal where users drop off, which features convert best, and which segments are most valuable. This drives 10x growth.',
+  how: 'Choose 2-3 tools (GA4 + Mixpanel recommended), install tracking code, configure key events (signup, feature usage, purchase), then create dashboards for weekly review.',
+
   tools: analyticsTools,
   customComponent: 'AnalyticsSetupMiniApp',
   output: { enabled: false }

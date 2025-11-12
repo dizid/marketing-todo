@@ -47,6 +47,14 @@
           </button>
 
           <button
+            @click="goToSubscription"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm font-medium"
+            title="View subscription and billing"
+          >
+            💳 Subscription
+          </button>
+
+          <button
             @click="handleSignOut"
             class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-sm font-medium"
           >
@@ -126,6 +134,10 @@ const handleProjectCreated = async (project) => {
 const handleProjectUpdated = async (project) => {
   showProjectForm.value = false
   // Project store already updated
+}
+
+const goToSubscription = () => {
+  router.push('/app/subscription')
 }
 
 const handleSignOut = async () => {

@@ -1,6 +1,54 @@
 // netlify/functions/grok-proxy.js
 // Netlify serverless function to proxy requests to Grok AI API
 // Handles authentication and LLM-style API communication securely
+// Also tracks AI usage to Supabase for quota management
+
+import { createClient } from '@supabase/supabase-js'
+
+// Initialize Supabase client with service role for quota tracking
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
+/**
+ * Track AI usage in Supabase (server-side with service role)
+ */
+async function trackAIUsage(userId, taskId, model, tokensInput, tokensOutput) {
+  try {
+    console.log(`[grok-proxy] Tracking usage: user=${userId}, task=${taskId}, tokens=${tokensOutput}`)
+
+    // Verify we have service role key
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[grok-proxy] SUPABASE_SERVICE_ROLE_KEY not configured')
+      return false
+    }
+
+    const { data, error } = await supabase
+      .from('ai_usage')
+      .insert([{
+        user_id: userId,
+        task_id: taskId,
+        model: model,
+        tokens_input: tokensInput,
+        tokens_output: tokensOutput,
+        cost_estimate: 0 // Calculated server-side if needed
+      }])
+      .select()
+
+    if (error) {
+      console.error('[grok-proxy] Failed to track usage - Error details:', JSON.stringify(error))
+      // Don't throw - usage tracking should not fail the generation
+      return false
+    }
+
+    console.log('[grok-proxy] Usage tracked successfully:', data?.[0]?.id || 'inserted')
+    return true
+  } catch (err) {
+    console.error('[grok-proxy] Exception in trackAIUsage:', err.message, err.stack)
+    return false
+  }
+}
 
 /**
  * Build a comprehensive prompt for executive summary generation
@@ -112,7 +160,7 @@ const handler = async (event) => {
     }
 
     // Extract fields
-    let { model, messages, temperature, max_tokens, userData, requestType } = requestBody
+    let { model, messages, temperature, max_tokens, userData, requestType, userId, taskId } = requestBody
 
     // Handle different request types
     if (requestType === 'executiveSummary') {
@@ -250,6 +298,14 @@ const handler = async (event) => {
     }
 
     console.log('[grok-proxy] Successfully forwarded response to client')
+
+    // Track usage if userId and taskId provided
+    if (userId && taskId) {
+      const tokensInput = requestBody.messages?.reduce((sum, msg) => sum + (msg.content?.length || 0) / 4, 0) || 0
+      const tokensOutput = responseData.usage?.completion_tokens || responseData.choices[0].message.content.length / 4
+
+      await trackAIUsage(userId, taskId, model, Math.ceil(tokensInput), Math.ceil(tokensOutput))
+    }
 
     // Return the full response in OpenAI format
     return {

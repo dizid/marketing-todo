@@ -1,19 +1,34 @@
 /**
- * AI Generation Service - update for NEt lify, 2x   
+ * AI Generation Service - update for Netlify
  *
  * Unified service for all AI generation operations.
  * Handles template variable substitution, API calls, response parsing, and error handling.
+ * Integrated with quota system for free/premium tier enforcement.
+ *
+ * NOTE: Usage tracking now happens server-side in grok-proxy function (with service role permissions)
  */
+
+import { checkQuotaBeforeGeneration } from './aiQuotaService'
+import { useAuthStore } from '@/stores/authStore'
+import { useSubscriptionStore } from '@/stores/subscriptionStore'
 
 /**
  * Generate AI content based on configuration
- * @param {Object} config - Task configuration with aiConfig
+ * @param {Object} config - Task configuration with aiConfig and id
  * @param {Object} formData - Form data from user input
+ * @param {Object} options - Optional parameters
+ * @param {boolean} options.skipQuotaCheck - If true, skip quota validation (admin only)
  * @returns {Promise<string|object>} Generated content (string or parsed object)
+ * @throws {Error} If quota exceeded or API call fails
  */
-export async function generateAIContent(config, formData) {
+export async function generateAIContent(config, formData, options = {}) {
   if (!config.aiConfig) {
     throw new Error('No aiConfig found in task configuration')
+  }
+
+  // Check quota before generating (unless explicitly skipped)
+  if (!options.skipQuotaCheck) {
+    checkQuotaBeforeGeneration(config.id)
   }
 
   const { aiConfig } = config
@@ -21,8 +36,26 @@ export async function generateAIContent(config, formData) {
   // Build prompt by replacing placeholders
   let prompt = buildPrompt(aiConfig.promptTemplate, formData, aiConfig.contextProvider)
 
-  // Call Grok API
-  const responseText = await callGrokAPI(prompt, aiConfig)
+  // Get user ID for server-side tracking
+  const authStore = useAuthStore()
+  const userId = authStore.user?.id
+
+  // Call Grok API (usage tracking happens server-side)
+  const { responseText } = await callGrokAPI(
+    prompt,
+    aiConfig,
+    config.id,  // taskId for tracking
+    userId       // for tracking
+  )
+
+  // Refresh quota after successful generation (UI will update reactively)
+  try {
+    const subscriptionStore = useSubscriptionStore()
+    await subscriptionStore.fetchAIUsage()
+  } catch (err) {
+    console.warn('[AIGeneration] Failed to refresh quota after generation:', err)
+    // Don't throw - quota refresh is non-critical
+  }
 
   // Parse response if configured
   let output = responseText
@@ -99,12 +132,21 @@ function processFormData(formData) {
  * Call Grok API through Netlify proxy
  * @param {string} prompt - The prompt to send
  * @param {Object} aiConfig - AI configuration (temperature, maxTokens)
- * @returns {Promise<string>} Response text from AI
+ * @param {string} taskId - Task ID for quota tracking
+ * @param {string} userId - User ID for quota tracking
+ * @returns {Promise<Object>} Object with responseText, tokensInput, and tokensOutput
  * @throws {Error} If API call fails
  */
-async function callGrokAPI(prompt, aiConfig) {
+async function callGrokAPI(prompt, aiConfig, taskId, userId) {
   try {
     console.log('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
+
+    const messages = [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
 
     const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
@@ -113,14 +155,11 @@ async function callGrokAPI(prompt, aiConfig) {
       },
       body: JSON.stringify({
         model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+        messages,
         temperature: aiConfig.temperature || 0.8,
-        max_tokens: aiConfig.maxTokens || 2000
+        max_tokens: aiConfig.maxTokens || 2000,
+        taskId,      // Send for server-side tracking
+        userId       // Send for server-side tracking
       })
     })
 
@@ -151,8 +190,18 @@ async function callGrokAPI(prompt, aiConfig) {
       throw new Error('No content received from AI API')
     }
 
+    // Extract token usage information
+    const tokensInput = data.usage?.prompt_tokens || prompt.length / 4 // Rough estimate if not provided
+    const tokensOutput = data.usage?.completion_tokens || responseText.length / 4 // Rough estimate if not provided
+
     console.log('[AIGeneration] Response text obtained, length:', responseText.length)
-    return responseText
+    console.log(`[AIGeneration] Token usage - Input: ${tokensInput}, Output: ${tokensOutput}`)
+
+    return {
+      responseText,
+      tokensInput,
+      tokensOutput
+    }
   } catch (err) {
     console.error('[AIGeneration] AI generation error:', err)
     throw err

@@ -204,22 +204,12 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Additional Notes -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Strategy Notes</label>
-      <textarea
-        v-model="formData.notes"
-        placeholder="Add notes about your post optimization strategy, brand voice guidelines, or best practices..."
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical min-h-[80px]"
-      ></textarea>
-    </div>
-  </div>
+    </div>  </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: String,
@@ -230,7 +220,7 @@ const emit = defineEmits(['save'])
 
 // State
 const formData = ref({
-  notes: '',
+  
   optimizedPosts: [],
   optimizationHistory: []
 })
@@ -257,9 +247,7 @@ watch(
   () => props.taskData,
   (newData) => {
     if (newData && Object.keys(newData).length > 0) {
-      formData.value = {
-        notes: newData.notes || '',
-        optimizedPosts: newData.optimizedPosts || [],
+      formData.value = {        optimizedPosts: newData.optimizedPosts || [],
         optimizationHistory: newData.optimizationHistory || []
       }
       optimizationHistory.value = newData.optimizationHistory || []
@@ -314,20 +302,20 @@ const optimizePost = async () => {
       viral: 'Emotional appeal, shareability, relatable content, trending elements'
     }
 
-    const prompt = `Optimize this social media post for ${platform.value}:
+    const promptTemplate = `Optimize this social media post for {platform}:
 
 ORIGINAL POST:
-"${originalPost.value}"
+"{originalPost}"
 
-${appDescription.value ? `BRAND CONTEXT: ${appDescription.value}` : ''}
+{appDescription}
 
 OPTIMIZATION REQUIREMENTS:
-- Platform: ${platform.value} - ${platformGuidelines[platform.value]}
-- Focus: ${optimizationFocus.value} - ${focusGuidelines[optimizationFocus.value]}
-${addHashtags.value ? '- Add relevant hashtags (3-5 max)' : ''}
-${addEmojis.value ? '- Add strategic emojis to enhance message' : ''}
-${shortenPost.value ? '- Make more concise while keeping impact' : ''}
-${addCTA.value ? '- Include/strengthen call-to-action' : ''}
+- Platform: {platform} - {platformGuideline}
+- Focus: {focus} - {focusGuideline}
+{hashtagsRequirement}
+{emojisRequirement}
+{shortenRequirement}
+{ctaRequirement}
 
 DELIVERABLES:
 1. Provide the optimized post
@@ -340,36 +328,30 @@ Format:
 ---NOTES---
 [Brief explanation of changes]`
 
-    // Using Vite proxy configured in vite.config.js
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+    const config = {
+      id: 'optimize-post',
+      aiConfig: {
+        promptTemplate,
         temperature: 0.7,
-        max_tokens: 1000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
+        maxTokens: 1000,
+        model: 'grok-2'
+      }
     }
 
-    const data = await response.json()
-    const responseText = data.choices?.[0]?.message?.content
-
-    if (!responseText) {
-      throw new Error('No content received from AI')
+    const formDataForAI = {
+      platform: platform.value,
+      originalPost: originalPost.value,
+      appDescription: appDescription.value ? `BRAND CONTEXT: ${appDescription.value}` : '',
+      platformGuideline: platformGuidelines[platform.value],
+      focus: optimizationFocus.value,
+      focusGuideline: focusGuidelines[optimizationFocus.value],
+      hashtagsRequirement: addHashtags.value ? '- Add relevant hashtags (3-5 max)' : '',
+      emojisRequirement: addEmojis.value ? '- Add strategic emojis to enhance message' : '',
+      shortenRequirement: shortenPost.value ? '- Make more concise while keeping impact' : '',
+      ctaRequirement: addCTA.value ? '- Include/strengthen call-to-action' : ''
     }
+
+    const responseText = await generateAIContent(config, formDataForAI)
 
     // Parse response to separate post and notes
     const parts = responseText.split('---NOTES---')
@@ -389,7 +371,12 @@ Format:
     successMessage.value = 'Post optimized successfully! Review the changes below.'
   } catch (err) {
     console.error('Optimization error:', err)
-    error.value = err.message || 'Failed to optimize post. Please try again.'
+    // Check if it's a quota error
+    if (err.message && err.message.includes('quota')) {
+      error.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
+    } else {
+      error.value = err.message || 'Failed to optimize post. Please try again.'
+    }
   } finally {
     isGenerating.value = false
   }
@@ -485,14 +472,7 @@ const formatTimestamp = (isoString) => {
   } catch (e) {
     return 'Unknown'
   }
-}
-
-// Auto-save notes
-watch(
-  () => formData.value.notes,
-  () => {
-    emit('save', formData.value)
-  }
+}  }
 )
 </script>
 

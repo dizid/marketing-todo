@@ -10,6 +10,12 @@ export const outreachConfig = {
   title: 'Personalized Outreach',
   description: 'Generate personalized outreach messages tailored to specific audience segments with AI assistance.',
 
+  // Freemium model fields
+  tier: 'free',
+  what: 'Generate personalized outreach messages for email, LinkedIn, and direct messages. AI tailors each message to your audience and includes a clear call-to-action.',
+  why: 'Cold outreach is one of the most effective growth channels for B2B products. Personalization increases response rates by 2-3x compared to generic emails.',
+  how: 'Select a target persona, channel, and tone, then let AI generate message variants. Review for accuracy, personalize further if needed, then send to your leads.',
+
   // Form configuration
   formTitle: 'Outreach Message Settings',
   formFields: [

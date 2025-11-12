@@ -326,6 +326,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useProjectStore } from '../stores/projectStore'
+import { generateAIContent } from '@/services/aiGeneration'
 
 const props = defineProps({
   taskId: {
@@ -465,31 +466,19 @@ const generateAI = async () => {
       }
     }
 
-    // Call API
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'grok-2',
-        messages: [{ role: 'user', content: prompt }],
+    // Call AI generation service
+    const config = {
+      id: props.taskId,
+      aiConfig: {
+        promptTemplate: props.taskConfig.ai.template,
         temperature: props.taskConfig.ai.temperature || 0.8,
-        max_tokens: props.taskConfig.ai.maxTokens || 2000
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `API error: ${response.status}`)
+        maxTokens: props.taskConfig.ai.maxTokens || 2000,
+        model: props.taskConfig.ai.model || 'grok-2',
+        contextProvider: props.taskConfig.ai.contextProvider
+      }
     }
 
-    const data = await response.json()
-    console.log('[UnifiedTaskComponent] API response:', data)
-    const responseText = data.choices?.[0]?.message?.content
-
-    if (!responseText) {
-      throw new Error('No content received from AI')
-    }
-
+    const responseText = await generateAIContent(config, processedData)
     console.log('[UnifiedTaskComponent] Raw responseText:', responseText.substring(0, 200) + '...')
 
     // Parse response if parser provided
@@ -529,7 +518,12 @@ const generateAI = async () => {
     }
   } catch (err) {
     console.error('AI generation error:', err)
-    aiError.value = err.message || 'Error generating content'
+    // Check if it's a quota error
+    if (err.message && err.message.includes('quota')) {
+      aiError.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
+    } else {
+      aiError.value = err.message || 'Error generating content'
+    }
   } finally {
     isGenerating.value = false
   }

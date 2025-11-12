@@ -297,7 +297,12 @@ const router = useRouter()
 const pricingSection = ref(null)
 
 const goToAuth = (mode) => {
-  router.push(`/auth?mode=${mode}`)
+  // Redirect signup to onboarding wizard, login to auth page
+  if (mode === 'signup') {
+    router.push('/welcome')
+  } else {
+    router.push(`/auth?mode=${mode}`)
+  }
 }
 
 const scrollToSection = (sectionId) => {

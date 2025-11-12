@@ -7,7 +7,7 @@
       @click="handleUpgradeClick"
       :disabled="isLoading || isSuccess"
       :class="[
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition',
+        'w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-4 py-3 sm:py-2 rounded-lg font-semibold transition text-sm sm:text-base',
         variant === 'primary'
           ? 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
           : 'bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg'
@@ -24,15 +24,15 @@
     </button>
 
     <!-- Success Message -->
-    <div v-if="isSuccess" class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
+    <div v-if="isSuccess" class="w-full flex flex-col sm:flex-row sm:items-center sm:gap-2 px-4 sm:px-4 py-3 sm:py-2 bg-green-100 text-green-800 rounded-lg font-semibold text-sm sm:text-base">
       <span>✅ Upgrade Initiated</span>
-      <span class="text-sm text-green-700">(Redirecting to PayPal...)</span>
+      <span class="text-xs sm:text-sm text-green-700">(Redirecting to PayPal...)</span>
     </div>
 
     <!-- Error Message -->
-    <div v-if="errorMessage" class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <p class="text-sm text-red-800 font-medium">❌ {{ errorMessage }}</p>
-      <p class="text-xs text-red-700 mt-1">
+    <div v-if="errorMessage" class="w-full mt-2 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-sm sm:text-base text-red-800 font-medium">❌ {{ errorMessage }}</p>
+      <p class="text-xs sm:text-sm text-red-700 mt-2">
         Please try again or
         <a href="mailto:support@example.com" class="underline hover:text-red-900">contact support</a>
       </p>
@@ -40,16 +40,16 @@
 
     <!-- Loading Modal (shows PayPal redirect happening) -->
     <Teleport to="body" v-if="isLoading">
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-2xl p-8 text-center max-w-sm">
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl p-6 sm:p-8 text-center w-full max-w-sm">
           <div class="mb-4">
-            <svg class="animate-spin w-12 h-12 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="animate-spin w-10 sm:w-12 h-10 sm:h-12 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Upgrading to Premium</h3>
-          <p class="text-gray-600 mb-4">Redirecting to PayPal for payment...</p>
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2">Upgrading to Premium</h3>
+          <p class="text-sm sm:text-base text-gray-600 mb-4">Redirecting to PayPal for payment...</p>
           <p class="text-xs text-gray-500">Please wait and do not close this window</p>
         </div>
       </div>

@@ -62,6 +62,8 @@ onBeforeUnmount(() => {
 /* App-level styling */
 #app {
   width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 </style>

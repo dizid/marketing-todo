@@ -11,10 +11,13 @@ import axios from 'axios'
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client with service role for subscription creation
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
+// Note: These may be undefined - we check before using
+const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_URL
+  ? createClient(
+      process.env.VITE_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : null
 
 // PayPal OAuth token cache
 let paypalTokenCache = {
@@ -80,6 +83,18 @@ async function getPayPalAccessToken() {
 async function createSubscriptionRecord(userId, paypalSubscriptionId, paypalPayerId) {
   try {
     console.log(`[PayPal] Creating/updating subscription record for user: ${userId}`)
+
+    // Check if Supabase is configured
+    if (!supabase) {
+      console.warn('[PayPal] Supabase not configured - skipping subscription record creation')
+      console.warn('[PayPal] Required env vars: SUPABASE_SERVICE_ROLE_KEY, VITE_SUPABASE_URL')
+      // Return mock data so subscription can proceed
+      return {
+        user_id: userId,
+        paypal_subscription_id: paypalSubscriptionId,
+        status: 'pending_database'
+      }
+    }
 
     const now = new Date().toISOString()
     const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()

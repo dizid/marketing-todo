@@ -1,16 +1,16 @@
 <template>
   <!-- AI Generation Quota Status Card -->
-  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 w-full overflow-hidden">
     <!-- Header with Tier Badge -->
-    <div class="flex justify-between items-start mb-4">
-      <div>
-        <h3 class="text-lg font-semibold text-gray-900">AI Generation Quota</h3>
-        <p class="text-sm text-gray-600 mt-1">Monthly limit for AI-powered features</p>
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
+      <div class="flex-1">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900">AI Generation Quota</h3>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">Monthly limit for AI-powered features</p>
       </div>
       <!-- Tier Badge -->
       <span
         :class="[
-          'px-3 py-1 rounded-full text-xs font-semibold',
+          'px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0',
           subscriptionStore.isPremium
             ? 'bg-purple-100 text-purple-800'
             : 'bg-blue-100 text-blue-800'
@@ -22,9 +22,9 @@
 
     <!-- Quota Display with Numbers -->
     <div class="mb-4">
-      <div class="flex justify-between items-baseline mb-2">
-        <span class="text-sm font-medium text-gray-700">Generations Used</span>
-        <span class="text-2xl font-bold text-gray-900">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2 gap-1">
+        <span class="text-xs sm:text-sm font-medium text-gray-700">Generations Used</span>
+        <span class="text-xl sm:text-2xl font-bold text-gray-900">
           {{ subscriptionStore.currentMonthUsage }} / {{ subscriptionStore.currentQuotaLimit }}
         </span>
       </div>
@@ -47,7 +47,7 @@
       </div>
 
       <!-- Percentage and Remaining Text -->
-      <div class="flex justify-between mt-2">
+      <div class="flex flex-col sm:flex-row sm:justify-between mt-2 gap-2">
         <span class="text-xs text-gray-600">{{ quotaPercentage }}% used</span>
         <span
           :class="[
@@ -65,19 +65,19 @@
     </div>
 
     <!-- Status Message -->
-    <div v-if="statusMessage" :class="['p-3 rounded-md mb-4', statusMessageClasses]">
-      <p class="text-sm font-medium">{{ statusMessage }}</p>
+    <div v-if="statusMessage" :class="['p-2 sm:p-3 rounded-md mb-4 text-xs sm:text-sm', statusMessageClasses]">
+      <p class="font-medium">{{ statusMessage }}</p>
     </div>
 
     <!-- Reset Date -->
-    <div class="bg-gray-50 rounded-md p-3 mb-4">
+    <div class="bg-gray-50 rounded-md p-2 sm:p-3 mb-4">
       <p class="text-xs text-gray-600">
         <span class="font-semibold">Quota resets:</span> {{ subscriptionStore.formattedResetDate }}
       </p>
     </div>
 
     <!-- Upgrade Button (for free tier only) -->
-    <div v-if="subscriptionStore.isFree">
+    <div v-if="subscriptionStore.isFree" class="mb-4">
       <PremiumUpgradeButton
         variant="primary"
         text="✨ Upgrade to Premium"
@@ -88,7 +88,7 @@
     </div>
 
     <!-- AI Features Note -->
-    <p class="text-xs text-gray-500 mt-4 text-center">
+    <p class="text-xs text-gray-500 mt-4 text-center leading-relaxed">
       Each AI generation uses 1 quota. Premium tier provides 10x more generations per month.
     </p>
   </div>

@@ -92,52 +92,126 @@
         </div>
 
         <!-- Executive Summary Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">📊 Executive Summary & Priority Tasks</h2>
+        <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg shadow-lg p-8 mt-8 border border-indigo-200">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-2">📊 Executive Summary & Priority Tasks</h2>
+              <p class="text-gray-600 text-sm">
+                AI-powered strategic analysis with 3-5 priority quick-win tasks customized for your project
+              </p>
+            </div>
             <button
               @click="generateExecutiveSummary"
               :disabled="isGeneratingSummary"
-              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium text-sm"
+              class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-bold text-base shadow-md hover:shadow-lg"
             >
               {{ isGeneratingSummary ? '⏳ Generating...' : '🎯 Generate Summary' }}
             </button>
           </div>
 
-          <p class="text-gray-600 text-sm mb-4">
-            Get an AI-powered executive summary with 3-5 priority quick-win tasks for your project.
-          </p>
+          <hr class="border-indigo-200 mb-6" />
 
           <div v-if="summaryError" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p class="text-sm text-red-800">{{ summaryError }}</p>
           </div>
 
-          <div v-if="executiveSummary" class="space-y-4">
+          <div v-if="executiveSummary" class="space-y-6">
             <!-- Executive Summary Card -->
-            <div class="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-4">
-              <h3 class="text-sm font-semibold text-gray-900 mb-2">📈 Project Status Summary</h3>
-              <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap text-sm">
+            <div class="bg-white rounded-lg shadow-md border-l-8 border-indigo-600 p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <span class="text-2xl mr-3">📈</span> Project Status Summary
+              </h3>
+              <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap text-base leading-relaxed">
                 {{ executiveSummary.summary }}
               </div>
             </div>
 
             <!-- Priority Tasks -->
             <div v-if="executiveSummary.tasks && executiveSummary.tasks.length > 0">
-              <h3 class="text-sm font-semibold text-gray-900 mb-3">🎯 Priority Quick-Win Tasks</h3>
-              <div class="space-y-3">
+              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <span class="text-2xl mr-3">🎯</span> Priority Quick-Win Tasks
+              </h3>
+              <p class="text-gray-600 text-sm mb-4">
+                {{ executiveSummary.tasks.length }} actionable tasks ranked by impact and effort
+              </p>
+              <div class="space-y-4">
                 <div
                   v-for="(task, idx) in executiveSummary.tasks"
                   :key="idx"
-                  class="bg-green-50 border border-green-200 rounded-lg p-4"
+                  class="bg-white border-2 border-green-200 rounded-lg p-5 hover:shadow-md transition"
                 >
-                  <div class="flex items-start justify-between mb-2">
-                    <h4 class="font-semibold text-gray-900">{{ idx + 1 }}. {{ task.title }}</h4>
-                    <span class="text-xs font-semibold px-2 py-1 bg-green-200 text-green-800 rounded">
-                      {{ task.impact }} Impact / {{ task.effort }} Effort
-                    </span>
+                  <!-- Task Header with Impact/Effort Indicators -->
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                      <h4 class="text-base font-bold text-gray-900">{{ idx + 1 }}. {{ task.title }}</h4>
+                    </div>
+                    <div class="flex gap-2 ml-3">
+                      <!-- Impact Badge -->
+                      <span
+                        :class="[
+                          'text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap',
+                          task.impact === 'High'
+                            ? 'bg-red-100 text-red-800'
+                            : task.impact === 'Medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-blue-100 text-blue-800'
+                        ]"
+                      >
+                        📊 {{ task.impact }} Impact
+                      </span>
+                      <!-- Effort Badge -->
+                      <span
+                        :class="[
+                          'text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap',
+                          task.effort === 'High'
+                            ? 'bg-orange-100 text-orange-800'
+                            : task.effort === 'Medium'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-green-100 text-green-800'
+                        ]"
+                      >
+                        ⚡ {{ task.effort }} Effort
+                      </span>
+                    </div>
                   </div>
-                  <p class="text-sm text-gray-700 mb-2"><strong>Why:</strong> {{ task.why }}</p>
-                  <p class="text-sm text-gray-700"><strong>Next Steps:</strong> {{ task.nextSteps }}</p>
+
+                  <!-- Task Details -->
+                  <div class="space-y-3 text-sm">
+                    <!-- Why Section -->
+                    <div v-if="task.why" class="bg-blue-50 rounded-md p-3 border-l-4 border-blue-400">
+                      <p class="font-semibold text-gray-800 mb-1">💡 Why This Matters</p>
+                      <p class="text-gray-700">{{ task.why }}</p>
+                    </div>
+
+                    <!-- Next Steps Section -->
+                    <div v-if="task.nextSteps" class="bg-green-50 rounded-md p-3 border-l-4 border-green-400">
+                      <p class="font-semibold text-gray-800 mb-1">✅ Next Steps</p>
+                      <p class="text-gray-700">{{ task.nextSteps }}</p>
+                    </div>
+                  </div>
+
+                  <!-- ROI Indicator -->
+                  <div class="mt-3 pt-3 border-t border-gray-200">
+                    <p class="text-xs text-gray-600">
+                      <strong>Expected Outcome:</strong>
+                      <span
+                        :class="{
+                          'text-green-600 font-semibold': task.impact === 'High' && task.effort === 'Low',
+                          'text-blue-600 font-semibold': task.impact !== 'High' || task.effort !== 'Low'
+                        }"
+                      >
+                        {{
+                          task.impact === 'High' && task.effort === 'Low'
+                            ? 'Quick Win - High ROI'
+                            : task.impact === 'High' && task.effort === 'Medium'
+                              ? 'Recommended Priority'
+                              : task.impact === 'High' && task.effort === 'High'
+                                ? 'Strategic Investment'
+                                : 'Lower Priority'
+                        }}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

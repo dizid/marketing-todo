@@ -139,11 +139,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { resetPassword } from '@/utils/supabase'
 
 const router = useRouter()
 
 const authStore = useAuthStore()
+const projectStore = useProjectStore()
 const isSignUp = ref(false)
 const email = ref('')
 const password = ref('')
@@ -171,6 +173,76 @@ const handleToggle = () => {
   clearErrors()
   email.value = ''
   password.value = ''
+}
+
+/**
+ * Check for wizard data after login and create project if data exists
+ */
+const handlePostLoginWizardData = async () => {
+  try {
+    // Check if there's wizard data in localStorage
+    const wizardDataRaw = localStorage.getItem('onboarding_wizard_data')
+    if (!wizardDataRaw) return
+
+    const savedData = JSON.parse(wizardDataRaw)
+    const wizardData = savedData.data
+
+    // Verify we have the minimum required data
+    if (!wizardData || !wizardData.productName || !wizardData.targetAudience) {
+      return
+    }
+
+    // Create project with wizard data
+    const projectName = wizardData.productName || 'My Product Launch'
+    const projectDescription = `
+${wizardData.productDescription || ''}
+Target Audience: ${wizardData.targetAudience}
+Goal: ${formatGoal(wizardData.mainGoal)}
+Timeline: ${formatTimeline(wizardData.timeline)}
+    `.trim()
+
+    const newProject = await projectStore.createProject(projectName, projectDescription)
+
+    // Save wizard data to project settings
+    if (newProject) {
+      await projectStore.updateProjectSettings({
+        productType: wizardData.productType,
+        targetAudience: wizardData.targetAudience,
+        mainGoal: wizardData.mainGoal,
+        timeline: wizardData.timeline,
+        budget: wizardData.budget,
+        teamSize: wizardData.teamSize,
+        currentStage: wizardData.currentStage
+      })
+    }
+
+    // Clear wizard data from localStorage
+    localStorage.removeItem('onboarding_wizard_data')
+  } catch (err) {
+    console.error('Error creating project from wizard data:', err)
+    // Don't block login if project creation fails
+  }
+}
+
+const formatGoal = (goal) => {
+  const goals = {
+    first_100: 'Make first $100',
+    '1k_mrr': 'Reach $1K MRR',
+    '10k_mrr': 'Reach $10K MRR',
+    audience: 'Build an audience',
+    validate: 'Validate idea'
+  }
+  return goals[goal] || goal
+}
+
+const formatTimeline = (timeline) => {
+  const timelines = {
+    '1_month': '1 month',
+    '3_months': '3 months',
+    '6_months': '6 months',
+    no_timeline: 'No specific timeline'
+  }
+  return timelines[timeline] || timeline
 }
 
 const handleSubmit = async () => {
@@ -204,7 +276,7 @@ const handleSubmit = async () => {
         message.value = '✅ ' + result.message
         setTimeout(() => {
           // Auto-redirect if email confirmation is disabled
-          router.push('/')
+          router.push('/app')
         }, 1500)
       }
 
@@ -217,10 +289,11 @@ const handleSubmit = async () => {
         error.value = result.error?.message || 'Invalid login credentials'
         return
       }
-      // Login successful - redirect to dashboard
+      // Login successful - check for wizard data
       message.value = '✅ Login successful! Redirecting...'
-      setTimeout(() => {
-        router.push('/')
+      setTimeout(async () => {
+        await handlePostLoginWizardData()
+        router.push('/app')
       }, 500)
     }
   } catch (err) {

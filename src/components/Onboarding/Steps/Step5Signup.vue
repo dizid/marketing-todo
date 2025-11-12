@@ -163,8 +163,18 @@ const handleSignup = async () => {
       throw new Error('Signup failed - no user returned')
     }
 
-    // 2. Wait for auth store to update
+    // 2. Get fresh session and update auth store
+    const { data: sessionData } = await supabase.auth.getSession()
+
+    if (!sessionData.session) {
+      throw new Error('Failed to establish session. Please try signing in.')
+    }
+
+    // Manually update auth store with session data
     await authStore.initializeAuth()
+
+    // Wait a moment to ensure session is fully propagated
+    await new Promise(resolve => setTimeout(resolve, 300))
 
     // 3. Create project with wizard data
     const wizardData = onboardingStore.wizardData
@@ -176,6 +186,11 @@ Target Audience: ${wizardData.targetAudience}
 Goal: ${formatGoal(wizardData.mainGoal)}
 Timeline: ${formatTimeline(wizardData.timeline)}
     `.trim()
+
+    // Verify auth state before creating project
+    if (!authStore.isAuthenticated) {
+      throw new Error('Authentication state not ready. Please refresh and try again.')
+    }
 
     const newProject = await projectStore.createProject(projectName, projectDescription)
 
@@ -198,7 +213,16 @@ Timeline: ${formatTimeline(wizardData.timeline)}
 
   } catch (error) {
     console.error('Signup error:', error)
-    errorMessage.value = error.message || 'Failed to create account. Please try again.'
+
+    // Provide specific error messages
+    if (error.message?.includes('not authenticated') || error.message?.includes('JWT')) {
+      errorMessage.value = 'Session expired. Please refresh the page and try again.'
+    } else if (error.message?.includes('already registered')) {
+      errorMessage.value = 'This email is already registered. Please sign in instead.'
+    } else {
+      errorMessage.value = error.message || 'Failed to create account. Please try again.'
+    }
+
     isSigningUp.value = false
   }
 }

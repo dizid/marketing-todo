@@ -116,6 +116,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 
 const props = defineProps({
   project: {
@@ -126,6 +127,7 @@ const props = defineProps({
 
 const emit = defineEmits(['updated', 'close'])
 const projectStore = useProjectStore()
+const onboardingStore = useOnboardingStore()
 
 /**
  * Extract target audience from project description
@@ -167,17 +169,17 @@ const form = ref({
 const isLoading = ref(false)
 const error = ref('')
 
-// Load settings from store
+// Load settings from store, with fallback to onboarding data
 watch(() => projectStore.currentProjectSettings, (settings) => {
   if (settings) {
     form.value = {
       name: props.project.name,
       description: props.project.description,
-      // Use stored settings or extract from description as fallback
-      targetAudience: settings.targetAudience || extractTargetAudienceFromDescription(props.project.description),
-      goals: settings.goals || '',
-      techStack: settings.techStack || '',
-      timeline: settings.timeline || ''
+      // Use stored settings, then onboarding data, then extract from description
+      targetAudience: settings.targetAudience || onboardingStore.wizardData.targetAudience || extractTargetAudienceFromDescription(props.project.description),
+      goals: settings.goals || onboardingStore.wizardData.mainGoal || '',
+      techStack: settings.techStack || (onboardingStore.wizardData.techStack?.join(', ') || ''),
+      timeline: settings.timeline || onboardingStore.wizardData.timeline || ''
     }
   }
 }, { immediate: true })

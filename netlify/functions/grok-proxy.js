@@ -7,12 +7,18 @@ import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client with service role for quota tracking
 // Note: These may be undefined - we check in trackAIUsage before using
-const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_URL
-  ? createClient(
+let supabase = null
+try {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_URL) {
+    supabase = createClient(
       process.env.VITE_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
-  : null
+  }
+} catch (err) {
+  console.warn('[grok-proxy] Failed to initialize Supabase:', err.message)
+  supabase = null
+}
 
 /**
  * Track AI usage in Supabase (server-side with service role)

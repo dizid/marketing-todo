@@ -12,12 +12,18 @@ import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client with service role for subscription creation
 // Note: These may be undefined - we check before using
-const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_URL
-  ? createClient(
+let supabase = null
+try {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_URL) {
+    supabase = createClient(
       process.env.VITE_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
-  : null
+  }
+} catch (err) {
+  console.warn('[PayPal] Failed to initialize Supabase:', err.message)
+  supabase = null
+}
 
 // PayPal OAuth token cache
 let paypalTokenCache = {

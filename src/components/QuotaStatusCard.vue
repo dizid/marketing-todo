@@ -1,19 +1,19 @@
 <template>
   <!-- AI Generation Quota Status Card -->
-  <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 w-full overflow-hidden">
+  <div class="card mb-6 w-full overflow-hidden animate-fade-in-up">
     <!-- Header with Tier Badge -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-2 pb-6 border-b border-border">
       <div class="flex-1">
-        <h3 class="text-base sm:text-lg font-semibold text-gray-900">AI Generation Quota</h3>
-        <p class="text-xs sm:text-sm text-gray-600 mt-1">Monthly limit for AI-powered features</p>
+        <h3 class="text-base sm:text-lg font-semibold font-display text-primary">AI Generation Quota</h3>
+        <p class="text-xs sm:text-sm text-secondary mt-1">Monthly limit for AI-powered features</p>
       </div>
       <!-- Tier Badge -->
       <span
         :class="[
-          'px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0',
+          'px-3 py-1 text-xs font-semibold whitespace-nowrap flex-shrink-0 badge',
           subscriptionStore.isPremium
-            ? 'bg-purple-100 text-purple-800'
-            : 'bg-blue-100 text-blue-800'
+            ? 'badge-highlight'
+            : 'badge-primary'
         ]"
       >
         {{ subscriptionStore.isPremium ? '✨ Premium' : 'Free' }}
@@ -21,42 +21,42 @@
     </div>
 
     <!-- Quota Display with Numbers -->
-    <div class="mb-4">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2 gap-1">
-        <span class="text-xs sm:text-sm font-medium text-gray-700">Generations Used</span>
-        <span class="text-xl sm:text-2xl font-bold text-gray-900">
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-3 gap-1">
+        <span class="text-xs sm:text-sm font-medium text-secondary">Generations Used</span>
+        <span class="text-xl sm:text-2xl font-bold font-display text-text">
           {{ subscriptionStore.currentMonthUsage }} / {{ subscriptionStore.currentQuotaLimit }}
         </span>
       </div>
 
       <!-- Progress Bar with Color Coding -->
-      <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div class="w-full bg-surface border border-border h-3 overflow-hidden">
         <div
           :class="[
-            'h-full transition-all duration-300 rounded-full',
+            'h-full transition-all duration-300',
             quotaPercentage <= 50
-              ? 'bg-green-500'
+              ? 'bg-primary'
               : quotaPercentage <= 80
-                ? 'bg-yellow-500'
+                ? 'bg-highlight'
                 : quotaPercentage >= 100
-                  ? 'bg-red-500'
-                  : 'bg-orange-500'
+                  ? 'bg-accent'
+                  : 'bg-primary'
           ]"
           :style="{ width: Math.min(quotaPercentage, 100) + '%' }"
         ></div>
       </div>
 
       <!-- Percentage and Remaining Text -->
-      <div class="flex flex-col sm:flex-row sm:justify-between mt-2 gap-2">
-        <span class="text-xs text-gray-600">{{ quotaPercentage }}% used</span>
+      <div class="flex flex-col sm:flex-row sm:justify-between mt-3 gap-2">
+        <span class="text-xs text-secondary">{{ quotaPercentage }}% used</span>
         <span
           :class="[
             'text-xs font-medium',
             quotaPercentage >= 100
-              ? 'text-red-600'
+              ? 'text-accent'
               : quotaPercentage >= 80
-                ? 'text-orange-600'
-                : 'text-green-600'
+                ? 'text-highlight'
+                : 'text-primary'
           ]"
         >
           {{ subscriptionStore.remainingQuota }} remaining
@@ -65,19 +65,19 @@
     </div>
 
     <!-- Status Message -->
-    <div v-if="statusMessage" :class="['p-2 sm:p-3 rounded-md mb-4 text-xs sm:text-sm', statusMessageClasses]">
+    <div v-if="statusMessage" :class="['p-2 sm:p-3 border mb-6 text-xs sm:text-sm', statusMessageClasses]">
       <p class="font-medium">{{ statusMessage }}</p>
     </div>
 
     <!-- Reset Date -->
-    <div class="bg-gray-50 rounded-md p-2 sm:p-3 mb-4">
-      <p class="text-xs text-gray-600">
+    <div class="bg-surface-light border border-border p-2 sm:p-3 mb-6">
+      <p class="text-xs text-secondary">
         <span class="font-semibold">Quota resets:</span> {{ subscriptionStore.formattedResetDate }}
       </p>
     </div>
 
     <!-- Upgrade Button (for free tier only) -->
-    <div v-if="subscriptionStore.isFree" class="mb-4">
+    <div v-if="subscriptionStore.isFree" class="mb-6">
       <PremiumUpgradeButton
         variant="primary"
         text="✨ Upgrade to Premium"
@@ -88,7 +88,7 @@
     </div>
 
     <!-- AI Features Note -->
-    <p class="text-xs text-gray-500 mt-4 text-center leading-relaxed">
+    <p class="text-xs text-muted mt-4 text-center leading-relaxed">
       Each AI generation uses 1 quota. Premium tier provides 10x more generations per month.
     </p>
   </div>
@@ -134,14 +134,14 @@ const statusMessage = computed(() => {
 
 const statusMessageClasses = computed(() => {
   if (subscriptionStore.remainingQuota === 0) {
-    return 'bg-red-50 border border-red-200'
+    return 'bg-accent/20 border border-accent text-accent'
   }
 
   if (subscriptionStore.remainingQuota <= 3) {
-    return 'bg-orange-50 border border-orange-200'
+    return 'bg-highlight/20 border border-highlight text-highlight'
   }
 
-  return 'bg-blue-50 border border-blue-200'
+  return 'bg-primary/20 border border-primary text-primary'
 })
 
 // Methods

@@ -570,7 +570,7 @@ export const communities = [
     postTemplates: [
       {
         quality: 'good',
-        title: 'After 200+ customer interviews, here's what I learned about [topic]',
+        title: 'After 200+ customer interviews, here\'s what I learned about [topic]',
         body: 'Over the past 6 months, I\'ve spoken to 200+ [target audience] about [problem].\n\nThree insights that surprised me:\n\n1. **[Insight 1]**\n[Specific percentage] said [specific finding]. This was counterintuitive because [reason].\n\n2. **[Insight 2]**\nThe biggest pain point wasn\'t [expected thing], it was [actual thing]. This led me to pivot our approach.\n\n3. **[Insight 3]**\n[Audience] are willing to pay [amount] for [outcome], but only if [condition].\n\nBased on these insights, we built [Product] to solve [specific problem].\n\nWhat surprised me most: [unexpected learning].\n\nIf you\'re in [industry], what\'s been your experience with [topic]?',
         why: 'Data-driven, positions as expert, shares genuine insights, natural product mention, asks for engagement'
       },

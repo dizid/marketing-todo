@@ -24,6 +24,7 @@ import { channelOptimizerTask } from './channelOptimizer.config'
 import { channelAnalyzerTask } from './channelAnalyzer.config'
 import { roiCalculatorTask } from './roiCalculator.config'
 import { paidAdsTask } from './paidAds.config'
+import { paidAdsOptimizeTask } from './paidAdsOptimize.config'
 
 export const defineAudienceTask = {
   id: 'define-audience',
@@ -1095,7 +1096,8 @@ export const unifiedTasksMap = {
   'analytics-2': channelOptimizerTask,
   'analytics-3': reviewROITask,
 
-  'advertising-1': paidAdsTask
+  'advertising-1': paidAdsTask,
+  'advertising-2': paidAdsOptimizeTask
 }
 
 // Export all tasks as array for iteration

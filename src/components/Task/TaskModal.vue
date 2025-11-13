@@ -111,6 +111,7 @@ import ChannelOptimizerMiniApp from '@/components/TaskMiniApps/ChannelOptimizerM
 import ChannelAnalyzerMiniApp from '@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'
 import RoiCalculatorMiniApp from '@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'
 import PaidAdsLaunchMiniApp from '@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'
+import PaidAdsOptimizeMiniApp from '@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue'
 
 // Map of custom component names to their imported components
 const customComponentMap = {
@@ -135,7 +136,8 @@ const customComponentMap = {
   'ChannelOptimizerMiniApp': ChannelOptimizerMiniApp,
   'ChannelAnalyzerMiniApp': ChannelAnalyzerMiniApp,
   'RoiCalculatorMiniApp': RoiCalculatorMiniApp,
-  'PaidAdsLaunchMiniApp': PaidAdsLaunchMiniApp
+  'PaidAdsLaunchMiniApp': PaidAdsLaunchMiniApp,
+  'PaidAdsOptimizeMiniApp': PaidAdsOptimizeMiniApp
 }
 
 // Props

@@ -113,11 +113,11 @@ export const offerBuilderTask = {
 Core Product: {core_product}
 Desired Outcome: {customer_outcome}
 Available Assets: {existing_assets}
-Target Price: ${target_price}
+Target Price: {target_price}
 Pricing Model: {pricing_flexibility}
 Guarantee Level: {guarantee_level}
 Audience Level: {target_audience_level}
-Competitor Price: ${competitors_price}
+Competitor Price: {competitors_price}
 
 Generate a complete offer package with the following components:
 

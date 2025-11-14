@@ -60,6 +60,7 @@
                 <option value="acquisition">User Acquisition & Engagement</option>
                 <option value="feedback">Feedback & Iteration</option>
                 <option value="analytics">Analytics & Optimization</option>
+                <option value="advertising">Paid Advertising</option>
               </select>
             </div>
 
@@ -461,6 +462,26 @@ const taskCategories = ref([
         description: 'Calculate cost-per-user and track ROI metrics. 5 key metrics to monitor.',
         miniAppId: 'roi-calculator',
         hasAI: false
+      }
+    ]
+  },
+  {
+    name: 'advertising',
+    label: 'Paid Advertising',
+    items: [
+      {
+        id: 'ads-1',
+        name: 'Launch Paid Ads',
+        description: 'Create and launch profitable paid advertising campaigns on Facebook, Google, and Instagram with AI-guided strategy.',
+        miniAppId: 'paid-ads-launch',
+        hasAI: true
+      },
+      {
+        id: 'ads-2',
+        name: 'Optimize Paid Ads',
+        description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
+        miniAppId: 'paid-ads-optimize',
+        hasAI: true
       }
     ]
   }

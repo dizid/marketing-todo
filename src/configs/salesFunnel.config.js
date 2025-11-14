@@ -95,7 +95,7 @@ export const funnelBlueprintTask = {
 Product: {product_description}
 Target Audience: {target_audience}
 Main Problem Solved: {main_problem}
-Price Point: ${price_point}
+Price Point: {price_point}
 Offer Structure: {offer_structure}
 Primary Goal: {sales_goal}
 Existing Assets: {existing_assets}

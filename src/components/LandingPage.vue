@@ -1,23 +1,32 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+  <div class="min-h-screen bg-cyberpunk-dark text-cyberpunk-text overflow-x-hidden">
+    <!-- Animated Background Grid -->
+    <div class="fixed inset-0 -z-20">
+      <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyberpunk-primary/30 to-transparent blur-3xl rounded-full"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-cyberpunk-accent/20 to-transparent blur-3xl rounded-full"></div>
+    </div>
+
     <!-- Navigation -->
-    <nav class="bg-gray-900 bg-opacity-90 backdrop-blur-md border-b border-gray-700 sticky top-0 z-50">
+    <nav class="relative z-40 bg-cyberpunk-dark/80 backdrop-blur-xl border-b border-cyberpunk-primary/30 sticky top-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
-            🚀 TaskMaster
+        <div class="flex items-center gap-3">
+          <span class="text-3xl font-black tracking-tighter">
+            <span class="bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
+              ⚡ SalesTaskMaster
+            </span>
           </span>
         </div>
         <div class="flex items-center gap-4">
           <button
             @click="goToAuth('login')"
-            class="px-4 py-2 text-gray-300 hover:text-white transition"
+            class="px-4 py-2 text-cyberpunk-text-secondary hover:text-cyberpunk-primary transition duration-300 font-semibold"
           >
             Sign In
           </button>
           <button
             @click="goToAuth('signup')"
-            class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-blue-700 transition"
+            class="px-6 py-2 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-bold rounded-none hover:shadow-lg hover:shadow-cyberpunk-primary/50 transition duration-300 border-2 border-cyberpunk-primary"
           >
             Get Started
           </button>
@@ -26,265 +35,326 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-      <div class="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 blur-3xl"></div>
+    <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
+      <div class="space-y-8 animate-fade-in-up">
+        <!-- Neon Badge -->
+        <div class="inline-block">
+          <span class="px-4 py-2 border-2 border-cyberpunk-primary text-cyberpunk-primary font-mono text-sm font-bold bg-cyberpunk-primary/10 rounded-none">
+            ⚡ The Future of Sales & Marketing Automation
+          </span>
+        </div>
 
-      <h1 class="text-5xl sm:text-6xl font-bold text-white mb-6">
-        AI-Powered Task <br />
-        <span class="bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
-          Management
-        </span>
-      </h1>
+        <!-- Hero Title -->
+        <h1 class="text-6xl sm:text-7xl font-black leading-tight tracking-tighter">
+          <span class="block text-cyberpunk-text">Make Money.</span>
+          <span class="block bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
+            Take Action. Win.
+          </span>
+        </h1>
 
-      <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-        Create better content faster with AI assistance. From social media posts to graphics, TaskMaster helps your
-        marketing team work smarter.
-      </p>
+        <!-- Hero Subtitle -->
+        <p class="text-xl sm:text-2xl text-cyberpunk-text-secondary max-w-3xl mx-auto leading-relaxed font-light">
+          Your personal AI sales & marketing command center. Turn ideas into revenue. Get motivated. Take action daily.
+          Watch your profits grow with AI-powered assistance at every step.
+        </p>
 
-      <div class="flex justify-center gap-4">
-        <button
-          @click="goToAuth('signup')"
-          class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-lg rounded-lg hover:from-indigo-700 hover:to-blue-700 transition transform hover:scale-105"
-        >
-          Start Free Today
-        </button>
-        <button
-          @click="scrollToSection('pricing')"
-          class="px-8 py-4 border-2 border-gray-500 text-white font-bold text-lg rounded-lg hover:border-gray-400 transition"
-        >
-          View Pricing
-        </button>
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center gap-6 pt-4">
+          <button
+            @click="goToAuth('signup')"
+            class="group px-10 py-4 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black text-lg rounded-none border-2 border-cyberpunk-primary hover:border-cyberpunk-accent hover:shadow-xl hover:shadow-cyberpunk-primary/60 transition duration-300 transform hover:scale-105 uppercase tracking-wider"
+          >
+            Launch Dashboard →
+          </button>
+          <button
+            @click="scrollToSection('features')"
+            class="px-10 py-4 border-2 border-cyberpunk-accent text-cyberpunk-accent font-black text-lg rounded-none hover:bg-cyberpunk-accent hover:text-cyberpunk-dark transition duration-300 uppercase tracking-wider"
+          >
+            Explore Features
+          </button>
+        </div>
+
+        <!-- Trust Badges -->
+        <p class="text-cyberpunk-text-secondary font-mono text-sm pt-4">
+          ✓ Free Forever Plan • ✓ 20 AI Generations/Month • ✓ No Credit Card
+        </p>
       </div>
-
-      <p class="mt-6 text-gray-400">✓ No credit card required • ✓ 20 free AI generations</p>
     </section>
 
     <!-- Features Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-700">
-      <h2 class="text-4xl font-bold text-white text-center mb-12">Powerful Features</h2>
+    <section ref="featuresSection" class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t-2 border-cyberpunk-primary/30">
+      <h2 class="text-5xl font-black text-center mb-4 tracking-tighter">
+        <span class="bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-highlight bg-clip-text text-transparent">
+          Supercharged Features
+        </span>
+      </h2>
+      <p class="text-center text-cyberpunk-text-secondary text-lg mb-16 max-w-2xl mx-auto">
+        Everything you need to dominate online sales & marketing
+      </p>
 
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-8 hover:border-indigo-500 transition">
-          <div class="text-4xl mb-4">✨</div>
-          <h3 class="text-xl font-bold text-white mb-3">AI Generation</h3>
-          <p class="text-gray-400">Generate social posts, captions, graphics, and more with advanced AI.</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature 1: AI Motivation Engine -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:shadow-2xl hover:shadow-cyberpunk-primary/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">🔥</div>
+          <h3 class="text-xl font-black text-cyberpunk-primary mb-3 uppercase tracking-wide">AI Motivation Engine</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            Get daily motivation, accountability check-ins, and action prompts. AI pushes you to do the work that drives revenue.
+          </p>
         </div>
 
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-8 hover:border-indigo-500 transition">
-          <div class="text-4xl mb-4">📊</div>
-          <h3 class="text-xl font-bold text-white mb-3">Task Management</h3>
-          <p class="text-gray-400">Organize your workflow with checklists, templates, and progress tracking.</p>
+        <!-- Feature 2: Task-Driven Revenue -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:shadow-2xl hover:shadow-cyberpunk-accent/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">💰</div>
+          <h3 class="text-xl font-black text-cyberpunk-accent mb-3 uppercase tracking-wide">Task-to-Revenue</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            Every task connects to money. Social posts → followers → customers. Guided workflows that directly impact your bottom line.
+          </p>
         </div>
 
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-8 hover:border-indigo-500 transition">
-          <div class="text-4xl mb-4">🚀</div>
-          <h3 class="text-xl font-bold text-white mb-3">Quota System</h3>
-          <p class="text-gray-400">Scale from 20 free generations/month to 200 with Premium.</p>
+        <!-- Feature 3: AI Content Assistant -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:shadow-2xl hover:shadow-cyberpunk-highlight/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">✨</div>
+          <h3 class="text-xl font-black text-cyberpunk-highlight mb-3 uppercase tracking-wide">AI Content Generator</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            Generate social posts, email sequences, landing pages. Let AI handle creation so you focus on selling.
+          </p>
+        </div>
+
+        <!-- Feature 4: Smart Task Management -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:shadow-2xl hover:shadow-cyberpunk-primary/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">📊</div>
+          <h3 class="text-xl font-black text-cyberpunk-primary mb-3 uppercase tracking-wide">Action Tracking</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            Never miss a revenue-generating task. Checklists, templates, deadlines. Do the work. Track progress. Get paid.
+          </p>
+        </div>
+
+        <!-- Feature 5: Quick Win Templates -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:shadow-2xl hover:shadow-cyberpunk-accent/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">⚡</div>
+          <h3 class="text-xl font-black text-cyberpunk-accent mb-3 uppercase tracking-wide">Quick-Win Strategies</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            Proven frameworks for social selling, email marketing, landing pages. Get to action in minutes, not days.
+          </p>
+        </div>
+
+        <!-- Feature 6: Progress Visualization -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:shadow-2xl hover:shadow-cyberpunk-highlight/30 transition duration-300 transform hover:-translate-y-2">
+          <div class="text-5xl mb-4 group-hover:animate-pulse">📈</div>
+          <h3 class="text-xl font-black text-cyberpunk-highlight mb-3 uppercase tracking-wide">Revenue Insights</h3>
+          <p class="text-cyberpunk-text-secondary leading-relaxed">
+            See which tasks make you money. Analytics dashboard shows ROI on every action. Double down on winners.
+          </p>
         </div>
       </div>
     </section>
 
     <!-- Pricing Section -->
-    <section ref="pricingSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-700">
-      <h2 class="text-4xl font-bold text-white text-center mb-12">Simple Pricing</h2>
+    <section ref="pricingSection" class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t-2 border-cyberpunk-primary/30">
+      <h2 class="text-5xl font-black text-center mb-4 tracking-tighter">
+        <span class="bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-highlight bg-clip-text text-transparent">
+          Pricing That Scales With You
+        </span>
+      </h2>
+      <p class="text-center text-cyberpunk-text-secondary text-lg mb-16 max-w-2xl mx-auto">
+        Start free. Upgrade when you're making money.
+      </p>
 
-      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <!-- Free Plan -->
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-8">
-          <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
-          <p class="text-gray-400 mb-6">Perfect for getting started</p>
-          <p class="text-4xl font-bold text-white mb-6">
-            $0
-            <span class="text-lg text-gray-400">/month</span>
-          </p>
+        <div class="bg-cyberpunk-surface border-2 border-cyberpunk-text-secondary/50 p-10 rounded-none hover:border-cyberpunk-primary transition duration-300">
+          <div class="mb-6">
+            <h3 class="text-3xl font-black text-cyberpunk-text uppercase tracking-wide">Starter</h3>
+            <p class="text-cyberpunk-text-secondary mt-2">Perfect for beginners</p>
+          </div>
 
-          <div class="mb-8 border-t border-gray-700 pt-8">
-            <ul class="space-y-4">
-              <li class="flex items-center gap-3 text-gray-300">
-                <span class="text-green-400">✓</span>
-                20 AI generations/month
+          <div class="mb-8">
+            <p class="text-5xl font-black text-cyberpunk-text">
+              $0<span class="text-xl text-cyberpunk-text-secondary">/month</span>
+            </p>
+          </div>
+
+          <div class="mb-10 border-t-2 border-cyberpunk-primary/30 pt-8">
+            <ul class="space-y-4 font-semibold">
+              <li class="flex items-center gap-3 text-cyberpunk-text">
+                <span class="text-cyberpunk-primary text-lg">⚡</span>
+                20 AI Generations/Month
               </li>
-              <li class="flex items-center gap-3 text-gray-300">
-                <span class="text-green-400">✓</span>
-                Basic task management
+              <li class="flex items-center gap-3 text-cyberpunk-text">
+                <span class="text-cyberpunk-primary text-lg">⚡</span>
+                AI Motivation Engine
               </li>
-              <li class="flex items-center gap-3 text-gray-300">
-                <span class="text-green-400">✓</span>
-                All core features
+              <li class="flex items-center gap-3 text-cyberpunk-text">
+                <span class="text-cyberpunk-primary text-lg">⚡</span>
+                Task Checklists & Templates
               </li>
-              <li class="flex items-center gap-3 text-gray-400">
-                <span class="text-gray-600">✗</span>
-                Priority support
+              <li class="flex items-center gap-3 text-cyberpunk-text">
+                <span class="text-cyberpunk-primary text-lg">⚡</span>
+                Content Generation Basics
               </li>
-              <li class="flex items-center gap-3 text-gray-400">
-                <span class="text-gray-600">✗</span>
-                Early access to new features
+              <li class="flex items-center gap-3 text-cyberpunk-text/50">
+                <span class="text-cyberpunk-text-secondary text-lg">✗</span>
+                Advanced Analytics
+              </li>
+              <li class="flex items-center gap-3 text-cyberpunk-text/50">
+                <span class="text-cyberpunk-text-secondary text-lg">✗</span>
+                Priority Support
               </li>
             </ul>
           </div>
 
           <button
             @click="goToAuth('signup')"
-            class="w-full px-6 py-3 border-2 border-indigo-600 text-indigo-400 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition"
+            class="w-full px-6 py-3 border-2 border-cyberpunk-primary text-cyberpunk-primary font-black uppercase tracking-wider rounded-none hover:bg-cyberpunk-primary hover:text-cyberpunk-dark transition duration-300"
           >
-            Get Started Free
+            Start Free
           </button>
         </div>
 
         <!-- Premium Plan -->
-        <div class="bg-gradient-to-br from-indigo-900 to-blue-900 border-2 border-indigo-500 rounded-lg p-8 relative overflow-hidden">
-          <div class="absolute -top-12 -right-12 w-32 h-32 bg-indigo-400 rounded-full opacity-20 blur-3xl"></div>
+        <div class="bg-gradient-to-br from-cyberpunk-primary/20 to-cyberpunk-accent/10 border-2 border-cyberpunk-primary p-10 rounded-none relative overflow-hidden hover:shadow-2xl hover:shadow-cyberpunk-primary/40 transition duration-300">
+          <div class="absolute -top-20 -right-20 w-64 h-64 bg-cyberpunk-primary/30 blur-3xl rounded-full"></div>
 
           <div class="relative z-10">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-2xl font-bold text-white">Premium</h3>
-              <span class="px-3 py-1 bg-indigo-500 text-white text-sm font-bold rounded-full">
-                POPULAR
+              <h3 class="text-3xl font-black text-cyberpunk-primary uppercase tracking-wide">Pro</h3>
+              <span class="px-3 py-1 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark text-xs font-black rounded-none uppercase tracking-wider">
+                Most Popular
               </span>
             </div>
-            <p class="text-indigo-200 mb-6">Best for growing teams</p>
-            <p class="text-5xl font-bold text-white mb-6">
-              $19
-              <span class="text-lg text-indigo-200">/month</span>
-            </p>
+            <p class="text-cyberpunk-primary font-semibold mb-8">For serious revenue makers</p>
 
-            <div class="mb-8 border-t border-indigo-700 pt-8">
-              <ul class="space-y-4">
-                <li class="flex items-center gap-3 text-white font-semibold">
-                  <span class="text-green-300">✓</span>
-                  200 AI generations/month
+            <div class="mb-8">
+              <p class="text-5xl font-black text-cyberpunk-primary">
+                $19<span class="text-xl text-cyberpunk-text-secondary">/month</span>
+              </p>
+            </div>
+
+            <div class="mb-10 border-t-2 border-cyberpunk-primary/30 pt-8">
+              <ul class="space-y-4 font-semibold">
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  200 AI Generations/Month
                 </li>
-                <li class="flex items-center gap-3 text-white font-semibold">
-                  <span class="text-green-300">✓</span>
-                  Advanced features
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  Advanced AI Motivation
                 </li>
-                <li class="flex items-center gap-3 text-white font-semibold">
-                  <span class="text-green-300">✓</span>
-                  All free features
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  Priority Template Library
                 </li>
-                <li class="flex items-center gap-3 text-white font-semibold">
-                  <span class="text-green-300">✓</span>
-                  Priority support
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  Revenue Analytics Dashboard
                 </li>
-                <li class="flex items-center gap-3 text-white font-semibold">
-                  <span class="text-green-300">✓</span>
-                  Early access to new features
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  24/7 Priority Support
+                </li>
+                <li class="flex items-center gap-3 text-cyberpunk-text">
+                  <span class="text-cyberpunk-accent text-lg">✨</span>
+                  Early Access to New Features
                 </li>
               </ul>
             </div>
 
             <button
               @click="goToAuth('signup')"
-              class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-blue-600 transition transform hover:scale-105"
+              class="w-full px-6 py-3 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black uppercase tracking-wider rounded-none hover:shadow-xl hover:shadow-cyberpunk-primary/60 transition duration-300 transform hover:scale-105 text-lg"
             >
-              Start Premium
+              Launch Pro →
             </button>
 
-            <p class="text-center text-indigo-200 text-sm mt-4">Cancel anytime • No hidden fees</p>
+            <p class="text-center text-cyberpunk-text-secondary text-sm mt-4 font-mono">Cancel anytime • No hidden fees</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Comparison Table -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-700">
-      <h2 class="text-4xl font-bold text-white text-center mb-12">Feature Comparison</h2>
-
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="border-b border-gray-700">
-              <th class="text-left py-4 px-4 text-gray-300 font-semibold">Feature</th>
-              <th class="text-center py-4 px-4 text-white font-semibold">Free</th>
-              <th class="text-center py-4 px-4 text-white font-semibold">Premium</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b border-gray-700">
-              <td class="py-4 px-4 text-gray-300">AI Generations/Month</td>
-              <td class="text-center py-4 px-4 text-gray-300">20</td>
-              <td class="text-center py-4 px-4 font-bold text-indigo-400">200</td>
-            </tr>
-            <tr class="border-b border-gray-700">
-              <td class="py-4 px-4 text-gray-300">AI Features</td>
-              <td class="text-center py-4 px-4">✓</td>
-              <td class="text-center py-4 px-4">✓</td>
-            </tr>
-            <tr class="border-b border-gray-700">
-              <td class="py-4 px-4 text-gray-300">Task Management</td>
-              <td class="text-center py-4 px-4">✓</td>
-              <td class="text-center py-4 px-4">✓</td>
-            </tr>
-            <tr class="border-b border-gray-700">
-              <td class="py-4 px-4 text-gray-300">Email Support</td>
-              <td class="text-center py-4 px-4 text-gray-600">✗</td>
-              <td class="text-center py-4 px-4 text-green-400">✓</td>
-            </tr>
-            <tr>
-              <td class="py-4 px-4 text-gray-300">Early Access Features</td>
-              <td class="text-center py-4 px-4 text-gray-600">✗</td>
-              <td class="text-center py-4 px-4 text-green-400">✓</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <!-- FAQ Section -->
-    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-700">
-      <h2 class="text-4xl font-bold text-white text-center mb-12">Frequently Asked Questions</h2>
-
-      <div class="space-y-6">
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-6">
-          <h3 class="text-lg font-bold text-white mb-3">Can I cancel anytime?</h3>
-          <p class="text-gray-400">
-            Yes! There are no long-term contracts. You can cancel your Premium subscription anytime from your account
-            settings.
-          </p>
-        </div>
-
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-6">
-          <h3 class="text-lg font-bold text-white mb-3">Do unused generations carry over?</h3>
-          <p class="text-gray-400">
-            No, your monthly quota resets on the 1st of each month. We recommend using your generations throughout the
-            month.
-          </p>
-        </div>
-
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-6">
-          <h3 class="text-lg font-bold text-white mb-3">What payment methods do you accept?</h3>
-          <p class="text-gray-400">
-            We accept all major credit cards and PayPal for secure, encrypted payments.
-          </p>
-        </div>
-
-        <div class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg p-6">
-          <h3 class="text-lg font-bold text-white mb-3">Is there a free trial for Premium?</h3>
-          <p class="text-gray-400">
-            Our Free plan gives you 20 AI generations per month to try the platform risk-free.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-700 text-center">
-      <h2 class="text-4xl font-bold text-white mb-6">Ready to get started?</h2>
-      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-        Join thousands of marketing teams using TaskMaster to create better content faster.
+    <section class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t-2 border-cyberpunk-primary/30">
+      <h2 class="text-5xl font-black text-center mb-4 tracking-tighter">
+        <span class="bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-highlight bg-clip-text text-transparent">
+          Questions? We've Got Answers
+        </span>
+      </h2>
+      <p class="text-center text-cyberpunk-text-secondary text-lg mb-16">
+        Everything you need to know to get started and dominate
       </p>
 
-      <button
-        @click="goToAuth('signup')"
-        class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-lg rounded-lg hover:from-indigo-700 hover:to-blue-700 transition transform hover:scale-105"
-      >
-        Start Free Today →
-      </button>
+      <div class="space-y-4">
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
+          <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I upgrade to Pro anytime?</h3>
+          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            Absolutely! Upgrade instantly anytime. You'll get immediate access to 200 generations/month and all Pro features. We'll prorate your payment based on the current billing cycle.
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
+          <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Do unused generations carry over?</h3>
+          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            No, your monthly AI generation quota resets on the 1st of each month. Use them throughout the month or they reset. Pro tip: Plan your content calendar to maximize your allocations!
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
+          <h3 class="text-lg font-black text-cyberpunk-highlight uppercase tracking-wide">What payment methods do you accept?</h3>
+          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            We accept all major credit cards (Visa, Mastercard, AmEx) and PayPal. All payments are encrypted and secure. You can manage your payment method in your account settings anytime.
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
+          <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I cancel Pro subscription?</h3>
+          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            Yes, cancel anytime with zero penalties. No long-term contracts. You'll revert to the Free plan at the end of your billing cycle. Your tasks and history remain accessible.
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
+          <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Is there a trial for Pro?</h3>
+          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            Your Free plan IS the trial! 20 AI generations/month + all core features. Try everything risk-free. When you're ready to scale, upgrade to Pro.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t-2 border-cyberpunk-primary/30 text-center">
+      <div class="relative z-10">
+        <h2 class="text-6xl sm:text-7xl font-black mb-6 tracking-tighter">
+          <span class="block text-cyberpunk-text mb-3">Ready to</span>
+          <span class="bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
+            Make Real Money?
+          </span>
+        </h2>
+        <p class="text-xl sm:text-2xl text-cyberpunk-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+          Stop dreaming. Start doing. Launch your SalesTaskMaster dashboard today and turn your sales & marketing into a revenue-generating machine.
+        </p>
+
+        <button
+          @click="goToAuth('signup')"
+          class="group px-12 py-5 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black text-xl rounded-none border-2 border-cyberpunk-primary hover:border-cyberpunk-highlight hover:shadow-2xl hover:shadow-cyberpunk-primary/60 transition duration-300 transform hover:scale-110 uppercase tracking-widest"
+        >
+          Launch Now →
+        </button>
+
+        <p class="text-cyberpunk-text-secondary font-mono text-sm mt-8">
+          No credit card • Free forever • Cancel anytime
+        </p>
+      </div>
     </section>
 
     <!-- Footer -->
-    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-700 text-center text-gray-500">
-      <p>&copy; 2025 TaskMaster. All rights reserved.</p>
+    <footer class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t-2 border-cyberpunk-primary/30 text-center">
+      <p class="text-cyberpunk-text-secondary font-mono">
+        &copy; 2025 SalesTaskMaster. Built for online revenue makers.
+      </p>
+      <p class="text-cyberpunk-text-secondary/60 text-sm mt-2 font-mono">
+        Make money. Take action. Win.
+      </p>
     </footer>
   </div>
 </template>
@@ -295,6 +365,7 @@ import { ref } from 'vue'
 
 const router = useRouter()
 const pricingSection = ref(null)
+const featuresSection = ref(null)
 
 const goToAuth = (mode) => {
   // Redirect signup to onboarding wizard, login to auth page
@@ -308,6 +379,8 @@ const goToAuth = (mode) => {
 const scrollToSection = (sectionId) => {
   if (sectionId === 'pricing' && pricingSection.value) {
     pricingSection.value.scrollIntoView({ behavior: 'smooth' })
+  } else if (sectionId === 'features' && featuresSection.value) {
+    featuresSection.value.scrollIntoView({ behavior: 'smooth' })
   }
 }
 </script>
@@ -316,5 +389,121 @@ const scrollToSection = (sectionId) => {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Cyberpunk Color Palette - CSS Variables */
+:root {
+  /* Primary neon cyan */
+  --cyberpunk-primary: #00d9ff;
+  /* Secondary neon magenta */
+  --cyberpunk-accent: #ff006e;
+  /* Highlight neon yellow */
+  --cyberpunk-highlight: #ffbe0b;
+  /* Dark background */
+  --cyberpunk-dark: #0a0e27;
+  /* Surface secondary */
+  --cyberpunk-surface: #151932;
+  /* Text primary */
+  --cyberpunk-text: #f0f3f5;
+  /* Text secondary */
+  --cyberpunk-text-secondary: #a8b5c6;
+}
+
+/* Apply cyberpunk colors */
+.bg-cyberpunk-dark {
+  background-color: var(--cyberpunk-dark);
+}
+
+.bg-cyberpunk-surface {
+  background-color: var(--cyberpunk-surface);
+}
+
+.text-cyberpunk-text {
+  color: var(--cyberpunk-text);
+}
+
+.text-cyberpunk-text-secondary {
+  color: var(--cyberpunk-text-secondary);
+}
+
+.text-cyberpunk-primary {
+  color: var(--cyberpunk-primary);
+}
+
+.text-cyberpunk-accent {
+  color: var(--cyberpunk-accent);
+}
+
+.text-cyberpunk-highlight {
+  color: var(--cyberpunk-highlight);
+}
+
+.border-cyberpunk-primary {
+  border-color: var(--cyberpunk-primary);
+}
+
+.border-cyberpunk-accent {
+  border-color: var(--cyberpunk-accent);
+}
+
+.border-cyberpunk-highlight {
+  border-color: var(--cyberpunk-highlight);
+}
+
+.border-cyberpunk-text-secondary {
+  border-color: var(--cyberpunk-text-secondary);
+}
+
+.bg-gradient-to-r.from-cyberpunk-primary {
+  background-image: linear-gradient(
+    to right,
+    var(--cyberpunk-primary),
+    var(--cyberpunk-accent),
+    var(--cyberpunk-highlight)
+  );
+}
+
+/* Grid pattern background */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(var(--cyberpunk-primary) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cyberpunk-primary) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Smooth transitions */
+button,
+a {
+  transition: all 0.3s ease;
 }
 </style>

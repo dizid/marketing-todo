@@ -3,15 +3,16 @@
        Accordion-style category container with expandable task items
        Features: Task list, checkboxes, notes, progress indicator
   -->
-  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="bg-surface rounded-0 overflow-hidden border border-border animate-fade-in-up">
     <!-- Category Header / Toggle -->
     <button
       @click="isExpanded = !isExpanded"
-      class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white transition"
+      class="w-full px-6 py-4 flex items-center justify-between bg-surface-light hover:bg-surface hover:border-l-4 hover:border-primary transition border-l-4 border-border"
+      style="border-bottom: 1px solid var(--cyberpunk-border)"
     >
       <div class="flex items-center gap-4">
         <svg
-          class="w-6 h-6 transition-transform"
+          class="w-6 h-6 transition-transform text-primary"
           :class="{ 'rotate-90': isExpanded }"
           fill="none"
           stroke="currentColor"
@@ -20,16 +21,17 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
         <div class="text-left">
-          <h3 class="font-semibold text-lg">{{ category.label }}</h3>
+          <h3 class="font-semibold text-lg font-display text-primary">{{ category.label }}</h3>
         </div>
       </div>
       <div class="text-right">
-        <span class="text-sm font-medium">
+        <span class="text-sm font-medium text-secondary">
           {{ categoryCompletedCount }}/{{ activeCategoryCount }}
         </span>
-        <div class="w-24 h-2 bg-indigo-400 rounded-full mt-2 overflow-hidden">
+        <div class="w-24 h-2 bg-surface border border-border rounded-0 mt-2 overflow-hidden">
           <div
-            class="h-full bg-white transition-all duration-300"
+            class="h-full transition-all duration-300"
+            style="background: linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-accent))"
             :style="{ width: categoryProgressPercentage + '%' }"
           ></div>
         </div>
@@ -37,7 +39,7 @@
     </button>
 
     <!-- Category Items (Expanded) -->
-    <div v-if="isExpanded" class="divide-y divide-gray-200">
+    <div v-if="isExpanded" class="divide-y" style="divide-color: var(--cyberpunk-border)">
       <ChecklistItem
         v-for="item in category.items.filter(i => !tasks[i.id]?.removed)"
         :key="item.id"
@@ -51,7 +53,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="isExpanded && category.items.length === 0" class="px-6 py-8 text-center text-gray-500">
+    <div v-if="isExpanded && category.items.length === 0" class="px-6 py-8 text-center text-muted">
       <p>No items to display</p>
     </div>
   </div>

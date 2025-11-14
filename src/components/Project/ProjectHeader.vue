@@ -1,15 +1,15 @@
 <template>
-  <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+  <header class="bg-dark border-b border-primary sticky top-0 z-40" style="background: var(--cyberpunk-dark); border-color: var(--cyberpunk-primary)">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <!-- Left: Project Selector -->
-        <div class="flex items-center gap-4">
-          <h1 class="text-2xl font-bold text-gray-900">GrokFather</h1>
+      <div class="flex justify-between items-center h-16 gap-2 sm:gap-4">
+        <!-- Left: Logo & Project Selector -->
+        <div class="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          <h1 class="text-lg sm:text-2xl font-bold font-display text-primary whitespace-nowrap">SalesTaskMaster</h1>
 
           <select
             v-model="selectedProjectId"
             @change="handleProjectChange"
-            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+            class="hidden sm:block text-sm flex-1 min-w-0"
             :disabled="isLoading"
           >
             <option value="" disabled>Select a project...</option>
@@ -20,18 +20,18 @@
 
           <button
             @click="showNewProjectForm = true"
-            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
+            class="hidden sm:inline-block btn-primary text-xs sm:text-sm whitespace-nowrap"
           >
             + New Project
           </button>
         </div>
 
-        <!-- Right: Actions -->
-        <div class="flex items-center gap-4">
+        <!-- Right: Desktop Actions (hidden on mobile) -->
+        <div class="hidden md:flex items-center gap-2">
           <button
             v-if="projectStore.currentProject"
             @click="showAddTasksModal = true"
-            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition font-medium text-sm"
+            class="btn-highlight text-xs sm:text-sm"
             title="Add previously removed tasks back to the project"
           >
             + Add Tasks
@@ -40,7 +40,7 @@
           <button
             v-if="projectStore.currentProject"
             @click="showProjectForm = true"
-            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition font-medium text-sm"
+            class="btn-ghost text-xs sm:text-sm"
             title="Edit project details"
           >
             Edit
@@ -48,7 +48,7 @@
 
           <button
             @click="goToSubscription"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition text-sm font-medium"
+            class="btn-accent text-xs sm:text-sm"
             title="View subscription and billing"
           >
             💳 Subscription
@@ -56,7 +56,80 @@
 
           <button
             @click="handleSignOut"
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-sm font-medium"
+            class="btn-accent text-xs sm:text-sm"
+          >
+            Sign Out
+          </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden inline-flex items-center justify-center p-2 hover:bg-surface transition"
+          title="Toggle menu"
+        >
+          <svg v-if="!mobileMenuOpen" class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg v-else class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div v-if="mobileMenuOpen" class="md:hidden border-t border-primary bg-dark-secondary" style="background: var(--cyberpunk-dark-secondary); border-color: var(--cyberpunk-primary)">
+        <div class="px-4 py-3 space-y-2">
+          <!-- Mobile Project Selector -->
+          <div class="mb-3">
+            <label class="block text-xs font-semibold text-secondary mb-1">Project</label>
+            <select
+              v-model="selectedProjectId"
+              @change="handleProjectChange"
+              class="w-full text-sm"
+              :disabled="isLoading"
+            >
+              <option value="" disabled>Select a project...</option>
+              <option v-for="project in projectStore.projects" :key="project.id" :value="project.id">
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Mobile Action Buttons -->
+          <button
+            @click="openAndCloseMobileMenu(showNewProjectForm = true)"
+            class="w-full btn-primary text-sm"
+          >
+            + New Project
+          </button>
+
+          <button
+            v-if="projectStore.currentProject"
+            @click="openAndCloseMobileMenu(showAddTasksModal = true)"
+            class="w-full btn-highlight text-sm"
+          >
+            + Add Tasks
+          </button>
+
+          <button
+            v-if="projectStore.currentProject"
+            @click="openAndCloseMobileMenu(showProjectForm = true)"
+            class="w-full btn-ghost text-sm"
+          >
+            Edit Project
+          </button>
+
+          <button
+            @click="goToSubscriptionAndCloseMobileMenu"
+            class="w-full btn-accent text-sm"
+          >
+            💳 Subscription
+          </button>
+
+          <button
+            @click="handleSignOut"
+            class="w-full btn-accent text-sm"
           >
             Sign Out
           </button>
@@ -76,6 +149,7 @@
       v-if="showProjectForm && projectStore.currentProject"
       :project="projectStore.currentProject"
       @updated="handleProjectUpdated"
+      @deleted="handleProjectDeleted"
       @close="showProjectForm = false"
     />
 
@@ -106,6 +180,7 @@ const showNewProjectForm = ref(false)
 const showProjectForm = ref(false)
 const showAddTasksModal = ref(false)
 const isLoading = ref(false)
+const mobileMenuOpen = ref(false)
 
 // Watch current project and update selector
 watch(() => projectStore.currentProjectId, (newId) => {
@@ -123,21 +198,45 @@ const handleProjectChange = async (event) => {
     isLoading.value = true
     await projectStore.selectProject(projectId)
     isLoading.value = false
+    // Close mobile menu after selection
+    mobileMenuOpen.value = false
   }
 }
 
 const handleProjectCreated = async (project) => {
   showNewProjectForm.value = false
+  mobileMenuOpen.value = false
   // Project store already updated
 }
 
 const handleProjectUpdated = async (project) => {
   showProjectForm.value = false
+  mobileMenuOpen.value = false
   // Project store already updated
+}
+
+const handleProjectDeleted = async () => {
+  showProjectForm.value = false
+  mobileMenuOpen.value = false
+  // Project store already updated and switched to another project
+  // If no projects remain, redirect to dashboard or create new project prompt
+  if (projectStore.projects.length === 0) {
+    router.push('/app/welcome')
+  }
+}
+
+// Helper to close mobile menu when opening modals
+const openAndCloseMobileMenu = (action) => {
+  mobileMenuOpen.value = false
 }
 
 const goToSubscription = () => {
   router.push('/app/subscription')
+}
+
+const goToSubscriptionAndCloseMobileMenu = () => {
+  mobileMenuOpen.value = false
+  goToSubscription()
 }
 
 const handleSignOut = async () => {

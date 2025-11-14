@@ -470,14 +470,14 @@ const taskCategories = ref([
     label: 'Paid Advertising',
     items: [
       {
-        id: 'ads-1',
+        id: 'advertising-1',
         name: 'Launch Paid Ads',
         description: 'Create and launch profitable paid advertising campaigns on Facebook, Google, and Instagram with AI-guided strategy.',
         miniAppId: 'paid-ads-launch',
         hasAI: true
       },
       {
-        id: 'ads-2',
+        id: 'advertising-2',
         name: 'Optimize Paid Ads',
         description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
         miniAppId: 'paid-ads-optimize',

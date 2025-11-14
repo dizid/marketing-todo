@@ -47,8 +47,8 @@ const taskComponentMap = {
   'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'),
 
   // Paid Advertising
-  'ads-1': () => import('@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'),
-  'ads-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue')
+  'advertising-1': () => import('@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'),
+  'advertising-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue')
 }
 
 /**
@@ -256,7 +256,7 @@ const taskMetadata = {
     miniAppId: 'roi-calculator',
     fields: ['items']
   },
-  'ads-1': {
+  'advertising-1': {
     name: 'Launch Paid Ads',
     type: 'miniapp',
     category: 'advertising',
@@ -266,7 +266,7 @@ const taskMetadata = {
     miniAppId: 'paid-ads-launch',
     fields: ['campaign_name', 'platform', 'budget', 'audience', 'ad_copy', 'landing_page']
   },
-  'ads-2': {
+  'advertising-2': {
     name: 'Optimize Paid Ads',
     type: 'miniapp',
     category: 'advertising',

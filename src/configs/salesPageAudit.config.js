@@ -92,7 +92,7 @@ export const salesPageAuditTask = {
 Page URL: {page_url}
 Current Conversion Rate: {current_conversion_rate}%
 Traffic Sources: {traffic_sources}
-Price Point: ${price_point}
+Price Point: {price_point}
 Main Objections: {main_objections}
 Existing Sections: {page_sections}
 
@@ -116,7 +116,7 @@ Generate a comprehensive sales page audit:
 
 **Conversion Rate Analysis:**
 - Current: {current_conversion_rate}%
-- Industry Benchmark: [X]% for ${price_point} products
+- Industry Benchmark: [X]% for {price_point} products
 - Potential After Fixes: [X]% (estimated)
 - Revenue Impact: [Calculate potential $ increase]
 
@@ -175,7 +175,7 @@ Supporting Text: "[Guarantee reminder]"
 
 ## 4. TRUST ELEMENT ADDITIONS
 
-Based on ${price_point} price point, you need strong trust signals.
+Based on {price_point} price point, you need strong trust signals.
 
 **Missing Trust Elements to Add:**
 
@@ -354,7 +354,7 @@ If you have heatmap data, look for:
 
 ## 11. PAGE STRUCTURE RECOMMENDATION
 
-**Optimized Flow for ${price_point} Product:**
+**Optimized Flow for {price_point} Product:**
 
 1. **Hero Section:**
    - Headline + Subheadline

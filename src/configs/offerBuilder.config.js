@@ -148,7 +148,7 @@ What makes this different/better than alternatives?
 
 ## 3. OFFER COMPONENTS & VALUE STACK
 
-**Core Product:** ${target_price}
+**Core Product:** {target_price}
 [Describe what's included in the main offer]
 
 **Bonus 1:** [Value: $XXX]
@@ -161,18 +161,18 @@ What makes this different/better than alternatives?
 [Urgency-driven bonus - early bird only]
 
 **Total Value:** $[Add up all values]
-**Your Investment Today:** ${target_price}
+**Your Investment Today:** {target_price}
 **Savings:** $[Total - Price]
 
 ## 4. PRICING PSYCHOLOGY STRATEGY
 
 **Price Anchoring:**
-- Show total value ($X,XXX) vs actual price (${target_price})
+- Show total value ($X,XXX) vs actual price ({target_price})
 - Compare to cost of NOT solving the problem
 - Reference competitor pricing if higher
 
 **Framing Tactics:**
-- Daily cost breakdown: "Just ${target_price}/365} per day"
+- Daily cost breakdown: "Just {target_price}/day"
 - ROI framing: "This pays for itself when you [specific result]"
 - Comparison: "Less than [relatable expense] but delivers [outcome]"
 

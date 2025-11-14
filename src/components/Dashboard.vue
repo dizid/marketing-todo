@@ -61,6 +61,8 @@
                 <option value="feedback">Feedback & Iteration</option>
                 <option value="analytics">Analytics & Optimization</option>
                 <option value="advertising">Paid Advertising</option>
+                <option value="sales">Sales Optimization</option>
+                <option value="growth">Growth Strategy</option>
               </select>
             </div>
 
@@ -481,6 +483,88 @@ const taskCategories = ref([
         name: 'Optimize Paid Ads',
         description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
         miniAppId: 'paid-ads-optimize',
+        hasAI: true
+      }
+    ]
+  },
+  {
+    name: 'sales',
+    label: 'Sales Optimization',
+    items: [
+      {
+        id: 'sales-1',
+        name: 'Sales Funnel Blueprint',
+        description: 'Design your complete sales funnel with proven conversion stages and psychology tactics.',
+        miniAppId: 'funnel-blueprint',
+        hasAI: true
+      },
+      {
+        id: 'sales-2',
+        name: 'High-Converting Offer Builder',
+        description: 'Build a compelling offer including bonuses, guarantee, positioning, and pricing psychology.',
+        miniAppId: 'offer-builder',
+        hasAI: true
+      },
+      {
+        id: 'sales-3',
+        name: 'Objection Handling',
+        description: 'Create powerful responses to every objection. Pre-emptively address common buyer hesitations.',
+        miniAppId: 'objection-handling',
+        hasAI: true
+      },
+      {
+        id: 'sales-4',
+        name: 'Email Sequence Designer',
+        description: 'Write an automated email funnel that nurtures leads and drives conversions.',
+        miniAppId: 'email-sequence',
+        hasAI: true
+      },
+      {
+        id: 'sales-5',
+        name: 'Sales Page Audit',
+        description: 'Get a conversion-focused audit of your sales page with specific optimization recommendations.',
+        miniAppId: 'sales-page-audit',
+        hasAI: true
+      }
+    ]
+  },
+  {
+    name: 'growth',
+    label: 'Growth Strategy',
+    items: [
+      {
+        id: 'growth-1',
+        name: 'Lead Magnet Builder',
+        description: 'Create an irresistible lead magnet to build your email list 10x faster.',
+        miniAppId: 'lead-magnet',
+        hasAI: true
+      },
+      {
+        id: 'growth-2',
+        name: 'Cold Outreach Campaigns',
+        description: 'Design personalized cold outreach campaigns that get responses and build relationships.',
+        miniAppId: 'cold-outreach',
+        hasAI: true
+      },
+      {
+        id: 'growth-3',
+        name: 'Competitor Analysis',
+        description: 'Analyze competitors\' strategies, positioning, and vulnerabilities to find your competitive edge.',
+        miniAppId: 'competitor-analysis',
+        hasAI: true
+      },
+      {
+        id: 'growth-4',
+        name: 'A/B Testing Ideas',
+        description: 'Generate powerful testing hypotheses to improve every metric that matters.',
+        miniAppId: 'ab-test-ideas',
+        hasAI: true
+      },
+      {
+        id: 'growth-5',
+        name: 'Positioning Map',
+        description: 'Map your unique position in the market and craft positioning statements that stand out.',
+        miniAppId: 'positioning-map',
         hasAI: true
       }
     ]

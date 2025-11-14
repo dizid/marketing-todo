@@ -48,7 +48,21 @@ const taskComponentMap = {
 
   // Paid Advertising
   'advertising-1': () => import('@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'),
-  'advertising-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue')
+  'advertising-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue'),
+
+  // Sales Optimization
+  'sales-1': () => import('@/components/TaskMiniApps/SalesFunnelMiniApp.vue'),
+  'sales-2': () => import('@/components/TaskMiniApps/OfferBuilderMiniApp.vue'),
+  'sales-3': () => import('@/components/TaskMiniApps/ObjectionHandlingMiniApp.vue'),
+  'sales-4': () => import('@/components/TaskMiniApps/EmailSequenceMiniApp.vue'),
+  'sales-5': () => import('@/components/TaskMiniApps/SalesPageAuditMiniApp.vue'),
+
+  // Growth Strategy
+  'growth-1': () => import('@/components/TaskMiniApps/LeadMagnetMiniApp.vue'),
+  'growth-2': () => import('@/components/TaskMiniApps/ColdOutreachMiniApp.vue'),
+  'growth-3': () => import('@/components/TaskMiniApps/CompetitorAnalysisMiniApp.vue'),
+  'growth-4': () => import('@/components/TaskMiniApps/ABTestIdeasMiniApp.vue'),
+  'growth-5': () => import('@/components/TaskMiniApps/PositioningMapMiniApp.vue')
 }
 
 /**
@@ -275,6 +289,110 @@ const taskMetadata = {
     hasAI: true,
     miniAppId: 'paid-ads-optimize',
     fields: ['campaigns', 'metrics', 'optimization_strategy', 'budget_allocation']
+  },
+
+  // Sales Optimization
+  'sales-1': {
+    name: 'Sales Funnel Blueprint',
+    type: 'miniapp',
+    category: 'sales',
+    icon: '🔗',
+    description: 'Design your complete sales funnel with proven conversion stages and psychology tactics.',
+    hasAI: true,
+    miniAppId: 'funnel-blueprint',
+    fields: ['current_funnel', 'conversion_rate', 'traffic_sources', 'main_objections']
+  },
+  'sales-2': {
+    name: 'High-Converting Offer Builder',
+    type: 'miniapp',
+    category: 'sales',
+    icon: '🎁',
+    description: 'Build a compelling offer including bonuses, guarantee, positioning, and pricing psychology.',
+    hasAI: true,
+    miniAppId: 'offer-builder',
+    fields: ['core_product', 'customer_outcome', 'existing_assets', 'target_price', 'pricing_flexibility', 'guarantee_level', 'target_audience_level', 'competitors_price']
+  },
+  'sales-3': {
+    name: 'Objection Handling',
+    type: 'miniapp',
+    category: 'sales',
+    icon: '🛡️',
+    description: 'Create powerful responses to every objection. Pre-emptively address common buyer hesitations.',
+    hasAI: true,
+    miniAppId: 'objection-handling',
+    fields: ['product_description', 'objections', 'target_audience', 'price_point']
+  },
+  'sales-4': {
+    name: 'Email Sequence Designer',
+    type: 'miniapp',
+    category: 'sales',
+    icon: '✉️',
+    description: 'Write an automated email funnel that nurtures leads and drives conversions.',
+    hasAI: true,
+    miniAppId: 'email-sequence',
+    fields: ['funnel_goal', 'audience', 'main_benefit', 'cta', 'email_count']
+  },
+  'sales-5': {
+    name: 'Sales Page Audit',
+    type: 'miniapp',
+    category: 'sales',
+    icon: '📋',
+    description: 'Get a conversion-focused audit of your sales page with specific optimization recommendations.',
+    hasAI: true,
+    miniAppId: 'sales-page-audit',
+    fields: ['page_url', 'current_conversion_rate', 'traffic_sources', 'main_objections', 'page_sections', 'price_point']
+  },
+
+  // Growth Strategy
+  'growth-1': {
+    name: 'Lead Magnet Builder',
+    type: 'miniapp',
+    category: 'growth',
+    icon: '🧲',
+    description: 'Create an irresistible lead magnet to build your email list 10x faster.',
+    hasAI: true,
+    miniAppId: 'lead-magnet',
+    fields: ['target_audience', 'pain_points', 'lead_magnet_type', 'content_format', 'main_benefit']
+  },
+  'growth-2': {
+    name: 'Cold Outreach Campaigns',
+    type: 'miniapp',
+    category: 'growth',
+    icon: '📞',
+    description: 'Design personalized cold outreach campaigns that get responses and build relationships.',
+    hasAI: true,
+    miniAppId: 'cold-outreach',
+    fields: ['target_profile', 'value_prop', 'channel', 'campaign_goal', 'budget']
+  },
+  'growth-3': {
+    name: 'Competitor Analysis',
+    type: 'miniapp',
+    category: 'growth',
+    icon: '🔍',
+    description: 'Analyze competitors\' strategies, positioning, and vulnerabilities to find your competitive edge.',
+    hasAI: true,
+    miniAppId: 'competitor-analysis',
+    fields: ['competitors', 'product_description', 'target_market', 'your_advantages']
+  },
+  'growth-4': {
+    name: 'A/B Testing Ideas',
+    type: 'miniapp',
+    category: 'growth',
+    icon: '🧪',
+    description: 'Generate powerful testing hypotheses to improve every metric that matters.',
+    hasAI: true,
+    miniAppId: 'ab-test-ideas',
+    fields: ['metric_to_improve', 'current_approach', 'target_audience', 'testing_duration']
+  },
+  'growth-5': {
+    name: 'Positioning Map',
+    type: 'miniapp',
+    category: 'growth',
+    icon: '🗺️',
+    description: 'Map your unique position in the market and craft positioning statements that stand out.',
+    hasAI: true,
+    miniAppId: 'positioning-map',
+    fields: ['company_description', 'target_audience', 'competitors', 'unique_strengths']
   }
 }
 

@@ -25,6 +25,16 @@ import { channelAnalyzerTask } from './channelAnalyzer.config'
 import { roiCalculatorTask } from './roiCalculator.config'
 import { paidAdsTask } from './paidAds.config'
 import { paidAdsOptimizeTask } from './paidAdsOptimize.config'
+import { funnelBlueprintTask } from './salesFunnel.config'
+import { offerBuilderTask } from './offerBuilder.config'
+import { objectionHandlingTask } from './objectionHandling.config'
+import { emailSequenceTask } from './emailSequence.config'
+import { salesPageAuditTask } from './salesPageAudit.config'
+import { leadMagnetTask } from './leadMagnet.config'
+import { coldOutreachTask } from './coldOutreach.config'
+import { competitorAnalysisTask } from './competitorAnalysis.config'
+import { abTestIdeasTask } from './abTestIdeas.config'
+import { positioningMapTask } from './positioningMap.config'
 
 export const defineAudienceTask = {
   id: 'define-audience',
@@ -1097,7 +1107,19 @@ export const unifiedTasksMap = {
   'analytics-3': reviewROITask,
 
   'advertising-1': paidAdsTask,
-  'advertising-2': paidAdsOptimizeTask
+  'advertising-2': paidAdsOptimizeTask,
+
+  'sales-1': funnelBlueprintTask,
+  'sales-2': offerBuilderTask,
+  'sales-3': objectionHandlingTask,
+  'sales-4': emailSequenceTask,
+  'sales-5': salesPageAuditTask,
+
+  'growth-1': leadMagnetTask,
+  'growth-2': coldOutreachTask,
+  'growth-3': competitorAnalysisTask,
+  'growth-4': abTestIdeasTask,
+  'growth-5': positioningMapTask
 }
 
 // Export all tasks as array for iteration

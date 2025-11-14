@@ -242,19 +242,10 @@ const handleSubmit = async () => {
 
 const handleDelete = async () => {
   const confirmDelete = confirm(
-    `⚠️ Warning!\n\nYou are about to permanently delete the project "${props.project.name}" and all its associated data.\n\nThis action CANNOT be undone. Are you sure?`
+    `⚠️ Delete "${props.project.name}"?\n\nThis will permanently delete the project and all its data. This cannot be undone.`
   )
 
   if (!confirmDelete) {
-    return
-  }
-
-  // Second confirmation for extra safety
-  const confirmAgain = confirm(
-    `This is your last chance!\n\nDelete "${props.project.name}"?\n\n✓ YES, DELETE IT\n✗ NO, KEEP IT`
-  )
-
-  if (!confirmAgain) {
     return
   }
 

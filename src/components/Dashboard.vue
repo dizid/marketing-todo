@@ -25,7 +25,7 @@
           <div class="w-full bg-surface-light h-2 overflow-hidden border border-border">
             <div
               class="h-full transition-all duration-500"
-              style="background: linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-accent)); width: {{ progressPercentage }}%"
+              :style="{ background: 'linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-accent))', width: progressPercentage + '%' }"
             ></div>
           </div>
           <p class="text-sm text-secondary mt-4">
@@ -154,7 +154,7 @@
                               : 'badge-primary'
                         ]"
                       >
-                        📊 {{ task.impact }}
+                        📊 Impact: {{ task.impact }}
                       </span>
                       <!-- Effort Badge -->
                       <span
@@ -167,7 +167,7 @@
                               : 'badge-primary'
                         ]"
                       >
-                        ⚡ {{ task.effort }}
+                        ⚡ Effort: {{ task.effort }}
                       </span>
                     </div>
                   </div>

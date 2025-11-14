@@ -149,6 +149,7 @@
       v-if="showProjectForm && projectStore.currentProject"
       :project="projectStore.currentProject"
       @updated="handleProjectUpdated"
+      @deleted="handleProjectDeleted"
       @close="showProjectForm = false"
     />
 
@@ -212,6 +213,16 @@ const handleProjectUpdated = async (project) => {
   showProjectForm.value = false
   mobileMenuOpen.value = false
   // Project store already updated
+}
+
+const handleProjectDeleted = async () => {
+  showProjectForm.value = false
+  mobileMenuOpen.value = false
+  // Project store already updated and switched to another project
+  // If no projects remain, redirect to dashboard or create new project prompt
+  if (projectStore.projects.length === 0) {
+    router.push('/app/welcome')
+  }
 }
 
 // Helper to close mobile menu when opening modals

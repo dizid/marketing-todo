@@ -92,21 +92,31 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3 justify-end pt-6 border-t border-gray-200">
+        <div class="flex gap-3 justify-between pt-6 border-t border-gray-200">
           <button
             type="button"
-            @click="$emit('close')"
-            class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
+            @click="handleDelete"
             :disabled="isLoading"
-            class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium"
+            class="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition font-medium"
           >
-            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+            {{ isLoading ? 'Deleting...' : 'Delete Project' }}
           </button>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              @click="$emit('close')"
+              class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="isLoading"
+              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium"
+            >
+              {{ isLoading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -125,7 +135,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['updated', 'close'])
+const emit = defineEmits(['updated', 'deleted', 'close'])
 const projectStore = useProjectStore()
 const onboardingStore = useOnboardingStore()
 
@@ -225,6 +235,38 @@ const handleSubmit = async () => {
   } catch (err) {
     error.value = err.message || 'Failed to save project'
     console.error('Error saving project:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleDelete = async () => {
+  const confirmDelete = confirm(
+    `⚠️ Warning!\n\nYou are about to permanently delete the project "${props.project.name}" and all its associated data.\n\nThis action CANNOT be undone. Are you sure?`
+  )
+
+  if (!confirmDelete) {
+    return
+  }
+
+  // Second confirmation for extra safety
+  const confirmAgain = confirm(
+    `This is your last chance!\n\nDelete "${props.project.name}"?\n\n✓ YES, DELETE IT\n✗ NO, KEEP IT`
+  )
+
+  if (!confirmAgain) {
+    return
+  }
+
+  isLoading.value = true
+  error.value = ''
+
+  try {
+    await projectStore.deleteProject(props.project.id)
+    emit('deleted')
+  } catch (err) {
+    error.value = err.message || 'Failed to delete project'
+    console.error('Error deleting project:', err)
   } finally {
     isLoading.value = false
   }

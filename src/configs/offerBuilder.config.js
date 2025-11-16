@@ -83,7 +83,7 @@ export const offerBuilderTask = {
         { value: 'strong', label: 'Strong: 60-90 days + keep all bonuses' },
         { value: 'extreme', label: 'Extreme: Results guarantee or double refund' },
         { value: 'suggest', label: 'Not sure - help me choose' }
-      },
+      ],
       required: true,
       description: 'Stronger guarantees = higher conversions. The risk is on you, not them.'
     },

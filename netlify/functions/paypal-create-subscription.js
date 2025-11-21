@@ -210,10 +210,17 @@ async function createPayPalSubscription(accessToken, params) {
  * Main handler
  */
 export async function handler(event) {
+  // CORS headers for all responses
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  }
+
   // Only POST allowed
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method not allowed' })
     }
   }
@@ -225,6 +232,7 @@ export async function handler(event) {
   } catch (err) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Invalid JSON' })
     }
   }
@@ -235,6 +243,7 @@ export async function handler(event) {
   if (!userId || !userEmail || !planId) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Missing required fields: userId, userEmail, planId' })
     }
   }
@@ -243,6 +252,7 @@ export async function handler(event) {
     console.error('[PayPal] Missing PayPal credentials in environment')
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'PayPal not configured' })
     }
   }
@@ -281,7 +291,8 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...corsHeaders
       },
       body: JSON.stringify({
         success: true,
@@ -295,7 +306,8 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...corsHeaders
       },
       body: JSON.stringify({
         success: false,

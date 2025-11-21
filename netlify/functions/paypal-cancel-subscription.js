@@ -178,10 +178,28 @@ async function updateSubscriptionRecord(userId, reason = null) {
  * Main handler
  */
 export async function handler(event) {
-  // Only POST allowed
+  // CORS headers for all responses
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Max-Age': '86400'
+  }
+
+  // Handle CORS preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: ''
+    }
+  }
+
+  // Only POST allowed for actual requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method not allowed' })
     }
   }
@@ -193,6 +211,7 @@ export async function handler(event) {
   } catch (err) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Invalid JSON' })
     }
   }
@@ -203,6 +222,7 @@ export async function handler(event) {
   if (!userId || !paypalSubscriptionId) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Missing required fields: userId, paypalSubscriptionId' })
     }
   }
@@ -211,6 +231,7 @@ export async function handler(event) {
     console.error('[PayPal] Missing PayPal credentials in environment')
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'PayPal not configured' })
     }
   }
@@ -236,7 +257,8 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...corsHeaders
       },
       body: JSON.stringify({
         success: true,
@@ -250,7 +272,8 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...corsHeaders
       },
       body: JSON.stringify({
         success: false,

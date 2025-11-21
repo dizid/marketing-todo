@@ -213,10 +213,21 @@ export async function handler(event) {
   // CORS headers for all responses
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Max-Age': '86400'
   }
 
-  // Only POST allowed
+  // Handle CORS preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: ''
+    }
+  }
+
+  // Only POST allowed for actual requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,

@@ -122,7 +122,7 @@ Target Price: {target_price}
 Pricing Flexibility: {pricing_flexibility}
 Guarantee Level: {guarantee_level}
 Audience Experience: {target_audience_level}
-Competitor Pricing: ${competitors_price}
+Competitor Pricing: {competitors_price}
 
 CRITICAL OUTPUT REQUIREMENTS:
 - Provide SPECIFIC copy, not generic templates
@@ -201,7 +201,7 @@ Your product name should promise an outcome, not describe features.
 "Unlike [typical solutions/competitors] that [what they do wrong], [Product Name] [what you do differently] which means [benefit to customer]."
 
 **YOUR DIFFERENTIATION:**
-[Write based on ${competitors_price} and their unique approach]
+[Write based on {competitors_price} and their unique approach]
 
 ---
 
@@ -301,7 +301,7 @@ That's [X]% off the total value - but only if you act now."
 **Anchoring Tactics:**
 1. Show total value ($[X]) first, then reveal price ({target_price})
 2. Compare to cost of NOT solving problem: "Staying stuck costs you $[X] per month"
-3. [If competitors_price provided] Compare to competitor pricing: "Others charge ${competitors_price} for similar"
+3. [If competitors_price provided] Compare to competitor pricing: "Others charge {competitors_price} for similar"
 
 ---
 
@@ -376,7 +376,7 @@ The risk is entirely on us. All you have to do is show up and implement.
 
 **COUNTDOWN TIMER:**
 "[Product Name] at {target_price} ends in: [Timer]
-After that, it's ${target_price * 1.3} forever."
+After that, it's {target_price * 1.3} forever."
 
 **ENROLLMENT CAP:**
 "[X/Y] spots filled. Only [Y-X] remaining before we close enrollment."

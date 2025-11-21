@@ -1,9 +1,9 @@
 # Application Status Report
 
 **Project**: Marketing To-Do App / Sales & Marketing Task Manager
-**Version**: 0.5
-**Last Updated**: October 30, 2025
-**Status**: Production Ready with Active Development
+**Version**: 0.6
+**Last Updated**: November 21, 2025
+**Status**: Production Ready with PayPal Integration & Premium Features
 
 ---
 
@@ -20,6 +20,7 @@ A modern, full-featured Vue 3 web application for managing comprehensive marketi
 | Frontend (Vue 3) | ✅ Healthy | Latest version, fully functional |
 | Backend (Supabase) | ✅ Healthy | PostgreSQL DB, Auth, RLS configured |
 | AI Integration (Grok) | ✅ Healthy | API proxy via Netlify Functions |
+| PayPal Integration | ✅ Healthy | Subscriptions, CORS, mock mode for dev |
 | Build System (Vite) | ✅ Healthy | Fast dev server, optimized builds |
 | Styling (Tailwind) | ✅ Healthy | Full responsive design, mobile-optimized |
 | Deployment (Netlify) | ✅ Healthy | Serverless functions, auto-deploy |
@@ -186,7 +187,38 @@ GROK_API_KEY=your-grok-api-key
 
 ---
 
-## Recent Updates (v0.5)
+## Recent Updates (v0.6 - November 21, 2025)
+
+### Latest Fixes & Improvements
+1. **PayPal Integration Fixes**
+   - Fixed CORS headers on all PayPal functions (create-subscription, cancel-subscription)
+   - Added OPTIONS preflight request handling for browser compatibility
+   - Corrected API endpoint paths to include `/.netlify/functions/` prefix
+   - Implemented mock mode for development/testing
+
+2. **Modal Styling Fixes**
+   - Fixed PayPal upgrade modal overflow on small screens
+   - Added proper scrolling and centering for better UX
+   - Modal buttons now visible on all viewport sizes
+
+3. **Template Variable Syntax Fixes**
+   - Corrected all `${variable}` to `{variable}` in AI prompt templates
+   - Fixed template variable errors in offerBuilder.config.js and salesFunnel.config.js
+   - Prevents ReferenceError when generating AI content
+
+4. **Environment Configuration**
+   - Updated VITE_APP_URL to correct port (localhost:3001)
+   - Configured PayPal endpoints for local development
+   - Proper environment variable isolation
+
+### Branch Consolidation
+- Merged all feature branches (phase-1-projects, plan-mode, tone-down-pink-buttons) into main
+- Resolved merge conflicts with strategic resolution
+- All changes pushed to remote repository
+
+---
+
+## Previous Updates (v0.5)
 
 1. **Landing Page Creator**
    - Full-screen, responsive builder interface

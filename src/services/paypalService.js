@@ -17,7 +17,7 @@ import { useAuthStore } from '@/stores/authStore'
 const PAYPAL_PLAN_ID = import.meta.env.VITE_PAYPAL_PLAN_ID || 'P-PREMIUM-MONTHLY-19USD'
 
 // PayPal API endpoint
-const PAYPAL_API_BASE = import.meta.env.VITE_PAYPAL_API_URL || '/.netlify/functions'
+const PAYPAL_API_BASE = (import.meta.env.VITE_PAYPAL_API_URL || '') + '/.netlify/functions'
 
 // Subscription status enum
 export const SUBSCRIPTION_STATUS = {

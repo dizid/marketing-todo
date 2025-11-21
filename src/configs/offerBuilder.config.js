@@ -118,7 +118,7 @@ INPUTS:
 Core Product: {core_product}
 Customer Outcome: {customer_outcome}
 Available Bonus Assets: {existing_assets}
-Target Price: ${target_price}
+Target Price: {target_price}
 Pricing Flexibility: {pricing_flexibility}
 Guarantee Level: {guarantee_level}
 Audience Experience: {target_audience_level}
@@ -205,11 +205,11 @@ Your product name should promise an outcome, not describe features.
 
 ---
 
-## 4. VALUE STACK (Make ${target_price} Feel Like a Steal)
+## 4. VALUE STACK (Make {target_price} Feel Like a Steal)
 
 ### The Formula: Core + Bonuses = 5-10x Your Price
 
-**CORE OFFER:** ${target_price} Value
+**CORE OFFER:** {target_price} Value
 [Describe what's included in {core_product}]
 
 Based on your available assets ({existing_assets}), here are your best bonuses:
@@ -239,26 +239,26 @@ Based on your available assets ({existing_assets}), here are your best bonuses:
 - **Urgency angle:** "Lifetime access locked at this price"
 
 ### VALUE STACK MATH:
-- Core Product: ${target_price}
+- Core Product: {target_price}
 - Bonus 1: $[X]
 - Bonus 2: $[X]
 - Bonus 3: $[X]
 - Bonus 4: $[X]
 - **TOTAL VALUE: $[Sum it up]**
 
-**YOUR INVESTMENT TODAY: ${target_price}**
+**YOUR INVESTMENT TODAY: {target_price}**
 **YOU SAVE: $[Total - Price]**
 
 ### HOW TO PRESENT THIS:
 "When you invest in [Product Name] today, you get:
 
-✓ [Core product] (Value: ${target_price})
+✓ [Core product] (Value: {target_price})
 ✓ [Bonus 1 name] (Value: $X)
 ✓ [Bonus 2 name] (Value: $X)
 ✓ [Bonus 3 name] (Value: $X)
 
 **Total Value: $[X]**
-**Your Investment: ${target_price}**
+**Your Investment: {target_price}**
 
 That's [X]% off the total value - but only if you act now."
 
@@ -266,7 +266,7 @@ That's [X]% off the total value - but only if you act now."
 
 ## 5. PRICING PSYCHOLOGY TACTICS
 
-### For ${target_price} Products:
+### For {target_price} Products:
 [Provide specific tactics based on their price point]
 
 **IF PRICE < $100:** Volume play, impulse buy
@@ -299,7 +299,7 @@ That's [X]% off the total value - but only if you act now."
 [Recommend specific payment structure based on their selection]
 
 **Anchoring Tactics:**
-1. Show total value ($[X]) first, then reveal price (${target_price})
+1. Show total value ($[X]) first, then reveal price ({target_price})
 2. Compare to cost of NOT solving problem: "Staying stuck costs you $[X] per month"
 3. [If competitors_price provided] Compare to competitor pricing: "Others charge ${competitors_price} for similar"
 
@@ -331,7 +331,7 @@ That's [X]% off the total value - but only if you act now."
 **WARNING:** Only use if you have proof this works for most people. This is a bold claim.
 
 **IF SUGGEST:**
-For ${target_price} products targeting {target_audience_level} audience, we recommend: [STRONG guarantee]
+For {target_price} products targeting {target_audience_level} audience, we recommend: [STRONG guarantee]
 
 ### HOW TO PRESENT YOUR GUARANTEE:
 
@@ -375,7 +375,7 @@ The risk is entirely on us. All you have to do is show up and implement.
 ### Urgency Copy Examples:
 
 **COUNTDOWN TIMER:**
-"[Product Name] at ${target_price} ends in: [Timer]
+"[Product Name] at {target_price} ends in: [Timer]
 After that, it's ${target_price * 1.3} forever."
 
 **ENROLLMENT CAP:**
@@ -393,14 +393,14 @@ After that, it's ${target_price * 1.3} forever."
 
 Address these BEFORE they ask:
 
-### "Is this worth ${target_price}?"
+### "Is this worth {target_price}?"
 **PRE-HANDLE ON SALES PAGE:**
-- Show value stack (total value $[X] vs price ${target_price})
+- Show value stack (total value $[X] vs price {target_price})
 - Include ROI calculator or case study
 - Testimonial about "best investment I made"
 
 **COPY:**
-"Is [Product Name] worth ${target_price}? Here's the math: [Quick ROI calculation based on {customer_outcome}]. This pays for itself when you [specific first win]."
+"Is [Product Name] worth {target_price}? Here's the math: [Quick ROI calculation based on {customer_outcome}]. This pays for itself when you [specific first win]."
 
 ### "Will this actually work for me?"
 **PRE-HANDLE:**
@@ -427,7 +427,7 @@ Address these BEFORE they ask:
 - Value time vs money
 
 **COPY:**
-"Could you figure this out yourself? Maybe. In [X months/years]. Or you could [get result] in [your timeframe] with a proven system. Your time is worth more than ${target_price}."
+"Could you figure this out yourself? Maybe. In [X months/years]. Or you could [get result] in [your timeframe] with a proven system. Your time is worth more than {target_price}."
 
 ### "I'm worried about [specific concern]"
 **PRE-HANDLE:**
@@ -484,7 +484,7 @@ Address these BEFORE they ask:
 - "When you join today, you get:"
 - [List core + all bonuses with values]
 - "Total Value: $[X]"
-- "Your Investment: ${target_price}"
+- "Your Investment: {target_price}"
 - **BIG CTA BUTTON**
 
 **SCROLL SECTION 6: Guarantee (65-75%)**
@@ -520,7 +520,7 @@ Address these BEFORE they ask:
 
 **URGENCY-DRIVEN:**
 ✓ "Claim My Spot Before [Deadline]!"
-✓ "Lock In ${target_price} Pricing Now"
+✓ "Lock In {target_price} Pricing Now"
 ✓ "Get [Bonus] Before It's Gone"
 
 **RISK-REVERSAL:**
@@ -624,7 +624,7 @@ Test these in ads, emails, and landing pages:
 - Expected: 20% of sales
 
 **TIER 2: "PROFESSIONAL" (MOST POPULAR)**
-- Price: ${target_price} ← Your target price
+- Price: {target_price} ← Your target price
 - What's included: Core + Bonuses 1-2
 - Best for: Serious buyers who want full value
 - Expected: 60% of sales
@@ -646,8 +646,8 @@ Test these in ads, emails, and landing pages:
 
 ### Revenue Impact:
 With 100 customers:
-- All buy Tier 2: 100 × ${target_price} = $[X]
-- 20/60/20 split: (20 × $[Tier 1]) + (60 × ${target_price}) + (20 × $[Tier 3]) = $[X]
+- All buy Tier 2: 100 × {target_price} = $[X]
+- 20/60/20 split: (20 × $[Tier 1]) + (60 × {target_price}) + (20 × $[Tier 3]) = $[X]
 - **Potential increase: [X]%** just from offering tiers!
 
 ---
@@ -664,13 +664,13 @@ Use this to build your offer:
 
 **STEP 2: VALUE STACK (1 hour)**
 - [ ] List everything in core product
-- [ ] Assign value to core (${target_price})
+- [ ] Assign value to core ({target_price})
 - [ ] Choose 3-4 bonuses from available assets
 - [ ] Assign credible values to bonuses
 - [ ] Calculate total value (aim for 5-10x price)
 
 **STEP 3: PRICING & GUARANTEE (30 minutes)**
-- [ ] Set final price (${target_price})
+- [ ] Set final price ({target_price})
 - [ ] Decide on payment options
 - [ ] Write guarantee copy
 - [ ] Calculate payment plan options if applicable
@@ -704,7 +704,7 @@ Use this to build your offer:
 
 Set these targets:
 
-**For ${target_price} Products:**
+**For {target_price} Products:**
 
 **Cold Traffic (From Ads):**
 - Landing page opt-in: 20-40%
@@ -737,7 +737,7 @@ Set these targets:
 
 ## 💡 PRO TIPS FOR YOUR OFFER
 
-**For ${target_price} Price Point:**
+**For {target_price} Price Point:**
 [Specific advice based on their price - e.g., under $100 = volume game, over $1000 = high-touch]
 
 **For {target_audience_level} Audience:**

@@ -91,7 +91,7 @@
         <!-- Close/Later Button -->
         <button
           @click="handleClose"
-          class="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium rounded-lg transition"
+          class="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold rounded-lg transition text-sm"
         >
           Wait for Reset ({{ subscriptionStore.formattedResetDate }})
         </button>

@@ -7,10 +7,10 @@
       @click="handleUpgradeClick"
       :disabled="isLoading || isSuccess"
       :class="[
-        'w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-4 py-3 sm:py-2 font-semibold transition text-sm sm:text-base',
+        'w-full inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold transition text-sm rounded-lg',
         variant === 'primary'
-          ? 'btn-primary'
-          : 'btn-accent'
+          ? 'bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-indigo-400'
+          : 'bg-pink-600 hover:bg-pink-700 text-white disabled:bg-pink-400'
       ]"
     >
       <span v-if="!isLoading">✨ {{ buttonText }}</span>
@@ -24,17 +24,17 @@
     </button>
 
     <!-- Success Message -->
-    <div v-if="isSuccess" class="w-full flex flex-col sm:flex-row sm:items-center sm:gap-2 px-4 sm:px-4 py-3 sm:py-2 bg-primary/20 text-primary border border-primary rounded-0 font-semibold text-sm sm:text-base">
+    <div v-if="isSuccess" class="w-full flex flex-col sm:flex-row sm:items-center sm:gap-2 px-4 sm:px-4 py-3 sm:py-2 bg-green-100 text-green-800 border border-green-300 rounded-lg font-semibold text-sm sm:text-base">
       <span>✅ Upgrade Initiated</span>
-      <span class="text-xs sm:text-sm text-secondary">(Redirecting to PayPal...)</span>
+      <span class="text-xs sm:text-sm text-green-600">(Redirecting to PayPal...)</span>
     </div>
 
     <!-- Error Message -->
-    <div v-if="errorMessage" class="w-full mt-2 p-3 sm:p-4 bg-accent/20 border border-accent rounded-0">
-      <p class="text-sm sm:text-base text-accent font-medium">❌ {{ errorMessage }}</p>
-      <p class="text-xs sm:text-sm text-secondary mt-2">
+    <div v-if="errorMessage" class="w-full mt-2 p-3 sm:p-4 bg-red-100 border border-red-300 rounded-lg">
+      <p class="text-sm sm:text-base text-red-800 font-medium">❌ {{ errorMessage }}</p>
+      <p class="text-xs sm:text-sm text-red-600 mt-2">
         Please try again or
-        <a href="mailto:support@example.com" class="underline hover:text-accent">contact support</a>
+        <a href="mailto:support@example.com" class="underline hover:text-red-700">contact support</a>
       </p>
     </div>
 

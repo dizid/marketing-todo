@@ -40,8 +40,8 @@
 
     <!-- Loading Modal (shows PayPal redirect happening) -->
     <Teleport to="body" v-if="isLoading">
-      <div class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-        <div class="bg-surface rounded-0 shadow-2xl p-6 sm:p-8 text-center w-full max-w-sm border-2 border-primary">
+      <div class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-auto">
+        <div class="bg-surface rounded-0 shadow-2xl p-6 sm:p-8 text-center w-full max-w-sm border-2 border-primary my-auto">
           <div class="mb-4">
             <svg class="animate-spin w-10 sm:w-12 h-10 sm:h-12 mx-auto text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

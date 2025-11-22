@@ -180,7 +180,7 @@ const handler = async (event) => {
       messages = [{ role: 'user', content: summaryPrompt }]
       model = model || 'grok-2'
       temperature = temperature !== undefined ? temperature : 0.5
-      max_tokens = max_tokens || 2500
+      max_tokens = max_tokens || 1500
     } else {
       // Default behavior for other request types
       if (!model) {
@@ -235,7 +235,7 @@ const handler = async (event) => {
           model: model || 'grok-2',
           messages: messages,
           temperature: temperature || 0.7,
-          max_tokens: max_tokens || 2000
+          max_tokens: max_tokens || 1500
         }),
         signal: controller.signal
       })

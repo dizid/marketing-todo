@@ -232,7 +232,7 @@ Make the code understandable, logical and maintainable. Use modular code.
 Give me clean code, all with clear comments.
 
 Also, give me clear instruction on which parts i have to integrate in my app, like adding stuff to app.vue, router.js, import modules, .env etc.
-When adding features or making chanches, leave current, wortking code as much as possible intact.
+When adding features or making chanches, leave current, working code as much as possible intact.
 Use clear naming
 
 ---

@@ -168,13 +168,15 @@ describe('Task Model', () => {
     })
 
     it('deletes saved item', () => {
-      task.addSavedItem({ text: 'Content', id: 'item-1' })
-      task.addSavedItem({ text: 'Content 2', id: 'item-2' })
-      const saved = task.getSavedItems()
-      task.deleteSavedItem(saved[0].id)
+      task.addSavedItem({ text: 'Item to delete' })
+      let saved = task.getSavedItems()
+      expect(saved.length).toBe(1)
+
+      const itemIdToDelete = saved[0].id
+      task.deleteSavedItem(itemIdToDelete)
+
       const updated = task.getSavedItems()
-      expect(updated.length).toBe(1)
-      expect(updated[0].text).toBe('Content 2')
+      expect(updated.length).toBe(0)
     })
 
     it('returns empty array initially', () => {

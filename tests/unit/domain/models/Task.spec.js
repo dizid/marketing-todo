@@ -59,9 +59,11 @@ describe('Task Model', () => {
     })
 
     it('returns correct status label', () => {
-      expect(task.getStatusLabel()).toBe('pending')
+      expect(task.getStatusLabel()).toBe('To-do')
       task.complete()
-      expect(task.getStatusLabel()).toBe('completed')
+      expect(task.getStatusLabel()).toBe('Done')
+      task.remove()
+      expect(task.getStatusLabel()).toBe('Hidden')
     })
   })
 
@@ -89,7 +91,7 @@ describe('Task Model', () => {
 
   describe('AI Configuration', () => {
     it('identifies task with AI capability', () => {
-      const aiTask = new Task('id', 'name', { aiPrompt: 'test' })
+      const aiTask = new Task('id', 'name', { aiConfig: { prompt: 'test' } })
       expect(aiTask.hasAI()).toBe(true)
     })
 
@@ -99,8 +101,10 @@ describe('Task Model', () => {
     })
 
     it('returns AI config when available', () => {
-      const config = task.getAIConfig()
-      expect(config.aiPrompt).toBe('Setup instructions')
+      const aiConfig = { prompt: 'Setup instructions' }
+      const aiTask = new Task('id', 'name', { aiConfig })
+      const config = aiTask.getAIConfig()
+      expect(config).toEqual(aiConfig)
     })
   })
 
@@ -135,7 +139,7 @@ describe('Task Model', () => {
       task.addAIOutput('content')
       const after = Date.now()
       const output = task.getAIOutputs()[0]
-      const timestamp = new Date(output.timestamp).getTime()
+      const timestamp = new Date(output.createdAt).getTime()
       expect(timestamp).toBeGreaterThanOrEqual(before)
       expect(timestamp).toBeLessThanOrEqual(after)
     })
@@ -157,20 +161,20 @@ describe('Task Model', () => {
 
   describe('Saved Items Management', () => {
     it('adds saved item', () => {
-      task.addSavedItem('item-1', 'Saved Content')
+      task.addSavedItem({ text: 'Saved Content' })
       const saved = task.getSavedItems()
       expect(saved.length).toBe(1)
-      expect(saved[0].id).toBe('item-1')
-      expect(saved[0].content).toBe('Saved Content')
+      expect(saved[0].text).toBe('Saved Content')
     })
 
     it('deletes saved item', () => {
-      task.addSavedItem('item-1', 'Content')
-      task.addSavedItem('item-2', 'Content 2')
-      task.deleteSavedItem('item-1')
+      task.addSavedItem({ text: 'Content', id: 'item-1' })
+      task.addSavedItem({ text: 'Content 2', id: 'item-2' })
       const saved = task.getSavedItems()
-      expect(saved.length).toBe(1)
-      expect(saved[0].id).toBe('item-2')
+      task.deleteSavedItem(saved[0].id)
+      const updated = task.getSavedItems()
+      expect(updated.length).toBe(1)
+      expect(updated[0].text).toBe('Content 2')
     })
 
     it('returns empty array initially', () => {

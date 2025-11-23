@@ -35,5 +35,11 @@
     "vite": "^7.1.11",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.13",
+    "@vitest/ui": "^4.0.13",
+    "jsdom": "^27.2.0",
+    "vitest": "^4.0.13"
   }
 }

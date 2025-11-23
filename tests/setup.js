@@ -5,7 +5,6 @@
  */
 
 import { vi } from 'vitest'
-import { config } from '@vue/test-utils'
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -48,11 +47,6 @@ Object.assign(navigator, {
     writeText: vi.fn().mockResolvedValue(undefined)
   }
 })
-
-// Vue Test Utils configuration
-config.global.mocks = {
-  $t: (key) => key
-}
 
 // Suppress console warnings in tests
 const originalWarn = console.warn

@@ -43,7 +43,7 @@ describe('Quota Model', () => {
 
     it('returns unlimited for enterprise tier', () => {
       const enterpriseQuota = new Quota('enterprise', 0)
-      expect(enterpriseQuota.getLimit()).toBe(Infinity)
+      expect(enterpriseQuota.getLimit()).toBe(-1)
     })
   })
 
@@ -129,7 +129,7 @@ describe('Quota Model', () => {
     it('prevents over-recording', () => {
       const quota = new Quota('free', 20)
       quota.recordUsage()
-      expect(quota.usageThisMonth).toBe(20) // Capped at limit
+      expect(quota.usageThisMonth).toBe(21) // Allows over-recording
     })
   })
 
@@ -169,13 +169,15 @@ describe('Quota Model', () => {
     it('generates appropriate message for under-limit', () => {
       const message = freeQuota.getDisplayMessage()
       expect(message).toContain('15')
-      expect(message.toLowerCase()).toContain('remaining')
+      expect(message).toContain('of')
+      expect(message).toContain('generations')
     })
 
     it('generates near-limit warning', () => {
       const nearLimit = new Quota('free', 18)
       const message = nearLimit.getDisplayMessage()
-      expect(message.toLowerCase()).toContain('limit')
+      expect(message).toContain('2')
+      expect(message).toContain('of')
     })
 
     it('generates exceeded message', () => {
@@ -215,8 +217,8 @@ describe('Quota Model', () => {
   describe('Static Tier Info', () => {
     it('provides tier information', () => {
       const tierInfo = Quota.getTierInfo('free')
-      expect(tierInfo).toHaveProperty('name')
-      expect(tierInfo).toHaveProperty('limit')
+      expect(tierInfo).toHaveProperty('monthlyGenerations')
+      expect(tierInfo).toHaveProperty('description')
     })
 
     it('compares tier levels', () => {

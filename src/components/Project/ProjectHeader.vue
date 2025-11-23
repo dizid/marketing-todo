@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center h-16 gap-2 sm:gap-4">
         <!-- Left: Logo & Project Selector -->
         <div class="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-          <h1 class="text-lg sm:text-2xl font-bold font-display text-primary whitespace-nowrap">SalesTaskMaster</h1>
+          <h1 class="text-lg sm:text-2xl font-bold font-display text-primary whitespace-nowrap">Launchpilot</h1>
 
           <select
             v-model="selectedProjectId"

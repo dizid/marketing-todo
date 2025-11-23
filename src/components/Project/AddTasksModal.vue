@@ -5,7 +5,7 @@
       <!-- Modal Header -->
       <div class="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
         <h3 class="text-lg font-semibold text-gray-900">
-          Add Tasks Back to Project
+          {{ modalTitle }}
         </h3>
         <button
           @click="$emit('close')"
@@ -84,6 +84,10 @@ const props = defineProps({
   isOpen: {
     type: Boolean,
     default: false
+  },
+  categoryName: {
+    type: String,
+    default: null
   }
 })
 
@@ -299,16 +303,43 @@ const allTaskCategories = [
 ]
 
 // Computed properties
+const modalTitle = computed(() => {
+  if (props.categoryName) {
+    const category = allTaskCategories.find(c => c.name === props.categoryName)
+    return category ? `Add Tasks to ${category.label}` : 'Add Tasks Back to Project'
+  }
+  return 'Add Tasks Back to Project'
+})
+
 const removedTasks = computed(() => {
-  return allTaskCategories
+  const filtered = allTaskCategories
     .flatMap(cat =>
       cat.items
         .filter(item => projectStore.currentProjectTasks[item.id]?.removed)
         .map(item => ({ ...item, categoryName: cat.name }))
     )
+
+  // If categoryName prop is provided, filter to that category only
+  if (props.categoryName) {
+    return filtered.filter(item => item.categoryName === props.categoryName)
+  }
+  return filtered
 })
 
 const removedTasksByCategory = computed(() => {
+  // If categoryName is provided, show only that category
+  if (props.categoryName) {
+    const category = allTaskCategories.find(c => c.name === props.categoryName)
+    if (!category) return []
+
+    return [{
+      name: category.name,
+      label: category.label,
+      removedItems: category.items.filter(item => projectStore.currentProjectTasks[item.id]?.removed)
+    }].filter(cat => cat.removedItems.length > 0)
+  }
+
+  // Otherwise show all categories with removed items
   return allTaskCategories
     .map(cat => ({
       name: cat.name,

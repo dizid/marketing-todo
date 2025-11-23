@@ -41,20 +41,32 @@
     <!-- Category Items (Expanded) -->
     <div v-if="isExpanded" class="divide-y" style="divide-color: var(--cyberpunk-border)">
       <ChecklistItem
-        v-for="item in category.items.filter(i => !tasks[i.id]?.removed)"
+        v-for="item in visibleItems"
         :key="item.id"
         :item="item"
         :task-data="tasks[item.id] || {}"
         @task-checked="(updates) => updateTask(item.id, updates)"
         @notes-updated="(updates) => updateTask(item.id, updates)"
-        @task-removed="(data) => removeTask(item.id)"
+        @task-removed="removeTask(item.id)"
         @task-opened="(data) => emit('task-opened', data)"
       />
     </div>
 
-    <!-- Empty State -->
-    <div v-if="isExpanded && category.items.length === 0" class="px-6 py-8 text-center text-muted">
-      <p>No items to display</p>
+    <!-- Empty State with Add Tasks Button -->
+    <div v-if="isExpanded && visibleItems.length === 0" class="px-6 py-8 text-center">
+      <div v-if="hasOnlyRemovedTasks">
+        <p class="text-sm text-muted mb-4">All tasks in this category have been removed.</p>
+        <button
+          @click="emit('show-add-tasks', { categoryLabel: category.label, categoryName: category.name })"
+          class="btn-highlight text-xs sm:text-sm"
+          title="Add previously removed tasks back to this category"
+        >
+          + Add Tasks
+        </button>
+      </div>
+      <div v-else class="text-muted">
+        <p>No items to display</p>
+      </div>
     </div>
   </div>
 </template>
@@ -86,7 +98,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened', 'show-add-tasks'])
 
 // State
 const isExpanded = ref(false)
@@ -116,6 +128,27 @@ const updateTask = (taskId, updates) => {
 const removeTask = (taskId) => {
   emit('task-removed', { taskId })
 }
+
+/**
+ * Computed: Visible items (not removed)
+ */
+const visibleItems = computed(() => {
+  return props.category.items.filter(item => !props.tasks[item.id]?.removed)
+})
+
+/**
+ * Computed: Removed items in this category
+ */
+const removedItems = computed(() => {
+  return props.category.items.filter(item => props.tasks[item.id]?.removed)
+})
+
+/**
+ * Computed: Should show "+Add Tasks" button (no visible items but has removed items)
+ */
+const hasOnlyRemovedTasks = computed(() => {
+  return visibleItems.value.length === 0 && removedItems.value.length > 0
+})
 
 /**
  * Computed: Count of completed tasks in this category (excluding removed)

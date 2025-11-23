@@ -8,6 +8,7 @@
       @task-checked="$emit('task-checked', $event)"
       @task-removed="$emit('task-removed', $event)"
       @task-opened="$emit('task-opened', $event)"
+      @show-add-tasks="$emit('show-add-tasks', $event)"
     />
   </div>
 </template>
@@ -33,5 +34,5 @@ defineProps({
   }
 })
 
-defineEmits(['task-checked', 'task-removed', 'task-opened'])
+defineEmits(['task-checked', 'task-removed', 'task-opened', 'show-add-tasks'])
 </script>

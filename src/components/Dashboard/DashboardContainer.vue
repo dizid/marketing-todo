@@ -39,6 +39,7 @@
           @task-checked="handleTaskUpdate"
           @task-removed="handleTaskRemoved"
           @task-opened="handleTaskOpened"
+          @show-add-tasks="handleShowAddTasks"
         />
 
         <!-- Executive Summary Section -->
@@ -62,6 +63,13 @@
       :is-open="showTaskModal"
       :task-id="selectedTaskId"
       @close="handleTaskModalClosed"
+    />
+
+    <!-- Add Tasks Modal (for empty categories) -->
+    <AddTasksModal
+      :is-open="showAddTasksModal"
+      :category-name="selectedCategoryName"
+      @close="showAddTasksModal = false"
     />
   </div>
 </template>
@@ -95,6 +103,7 @@ import TaskChecklistView from './TaskChecklistView.vue'
 import ExecutiveSummarySection from './ExecutiveSummarySection.vue'
 import ActionButtonsSection from './ActionButtonsSection.vue'
 import TaskModal from '../Task/TaskModal.vue'
+import AddTasksModal from '../Project/AddTasksModal.vue'
 
 // Stores
 const projectStore = useProjectStore()
@@ -113,6 +122,10 @@ const summaryError = ref('')
 // STATE - Task Modal
 const showTaskModal = ref(false)
 const selectedTaskId = ref(null)
+
+// STATE - Add Tasks Modal
+const showAddTasksModal = ref(false)
+const selectedCategoryName = ref(null)
 
 // Task categories data (global template - applies to all projects)
 const taskCategories = ref([
@@ -488,6 +501,14 @@ const handleTaskOpened = (data) => {
 const handleTaskModalClosed = () => {
   showTaskModal.value = false
   selectedTaskId.value = null
+}
+
+/**
+ * Handle show add tasks for category
+ */
+const handleShowAddTasks = (data) => {
+  selectedCategoryName.value = data.categoryName
+  showAddTasksModal.value = true
 }
 
 /**

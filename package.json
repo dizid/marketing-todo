@@ -31,6 +31,7 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "axios": "^1.12.2",
     "pinia": "^3.0.3",
+    "stripe": "^20.0.0",
     "tailwindcss": "^4.1.15",
     "vite": "^7.1.11",
     "vue": "^3.5.22",

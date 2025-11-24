@@ -15,13 +15,13 @@ export const SUBSCRIPTION_TIERS = {
 
 export const QUOTA_CONFIG = {
   [SUBSCRIPTION_TIERS.FREE]: {
-    monthlyGenerations: 20,
+    monthlyGenerations: 40,
     maxTasksPerGeneration: 5,
     maxTokensPerGeneration: 1500,
     description: 'Free plan with limited AI generations'
   },
   [SUBSCRIPTION_TIERS.PREMIUM]: {
-    monthlyGenerations: 200,
+    monthlyGenerations: 400,
     maxTasksPerGeneration: 50,
     maxTokensPerGeneration: 2000,
     description: 'Premium plan with high AI usage'
@@ -44,7 +44,7 @@ export const PREMIUM_TIER_QUOTA = QUOTA_CONFIG[SUBSCRIPTION_TIERS.PREMIUM].month
 
 export const FEATURES = {
   AI_GENERATION: true,
-  PAYPAL_INTEGRATION: true,
+  STRIPE_INTEGRATION: true,
   ANALYTICS: true,
   EXPORT_TO_HTML: true,
   TASK_RECOMMENDATIONS: false, // Coming soon
@@ -93,8 +93,10 @@ export const GROK_CONFIG = {
 
 export const NETLIFY_FUNCTIONS = {
   GROK_PROXY: '/.netlify/functions/grok-proxy',
-  PAYPAL_CREATE: '/.netlify/functions/paypal-create-subscription',
-  PAYPAL_CANCEL: '/.netlify/functions/paypal-cancel-subscription'
+  STRIPE_CREATE: '/.netlify/functions/stripe-create-subscription',
+  STRIPE_CANCEL: '/.netlify/functions/stripe-cancel-subscription',
+  STRIPE_WEBHOOK: '/.netlify/functions/stripe-webhook',
+  STRIPE_PORTAL: '/.netlify/functions/stripe-portal-session'
 }
 
 // ============================================================================

@@ -119,7 +119,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
   // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
-  // This is critical for PayPal redirect flows where user is already logged in
+  // This is critical for payment redirect flows where user is already logged in
   if (authStore.isLoading) {
     // Wait for auth to finish loading
     await new Promise(resolve => {

@@ -76,7 +76,7 @@
 
         <!-- Trust Badges -->
         <p class="text-cyberpunk-text-secondary font-mono text-sm pt-4">
-          ✓ Free Forever Plan • ✓ 20 AI Generations/Month • ✓ No Credit Card
+          ✓ Free Forever Plan • ✓ 40 AI Generations/Month • ✓ No Credit Card
         </p>
       </div>
     </section>
@@ -178,7 +178,7 @@
             <ul class="space-y-4 font-semibold">
               <li class="flex items-center gap-3 text-cyberpunk-text">
                 <span class="text-cyberpunk-primary text-lg">⚡</span>
-                20 AI Generations/Month
+                40 AI Generations/Month
               </li>
               <li class="flex items-center gap-3 text-cyberpunk-text">
                 <span class="text-cyberpunk-primary text-lg">⚡</span>
@@ -234,7 +234,7 @@
               <ul class="space-y-4 font-semibold">
                 <li class="flex items-center gap-3 text-cyberpunk-text">
                   <span class="text-cyberpunk-accent text-lg">✨</span>
-                  200 AI Generations/Month
+                  400 AI Generations/Month
                 </li>
                 <li class="flex items-center gap-3 text-cyberpunk-text">
                   <span class="text-cyberpunk-accent text-lg">✨</span>
@@ -287,7 +287,7 @@
         <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
           <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I upgrade to Pro anytime?</h3>
           <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
-            Absolutely! Upgrade instantly anytime. You'll get immediate access to 200 generations/month and all Pro features. We'll prorate your payment based on the current billing cycle.
+            Absolutely! Upgrade instantly anytime. You'll get immediate access to 400 generations/month and all Pro features. Billing resets on the 1st of each month.
           </p>
         </div>
 
@@ -301,7 +301,7 @@
         <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
           <h3 class="text-lg font-black text-cyberpunk-highlight uppercase tracking-wide">What payment methods do you accept?</h3>
           <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
-            We accept all major credit cards (Visa, Mastercard, AmEx) and PayPal. All payments are encrypted and secure. You can manage your payment method in your account settings anytime.
+            We accept all major credit cards (Visa, Mastercard, AmEx), PayPal, Apple Pay, and Google Pay through Stripe. All payments are encrypted and secure. You can manage your payment method anytime.
           </p>
         </div>
 
@@ -315,7 +315,7 @@
         <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
           <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Is there a trial for Pro?</h3>
           <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
-            Your Free plan IS the trial! 20 AI generations/month + all core features. Try everything risk-free. When you're ready to scale, upgrade to Pro.
+            Your Free plan IS the trial! 40 AI generations/month + all core features. Try everything risk-free. When you're ready to scale, upgrade to Pro.
           </p>
         </div>
       </div>

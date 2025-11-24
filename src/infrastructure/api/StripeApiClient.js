@@ -70,7 +70,7 @@ export class StripeApiClient {
         fontFamily: 'system-ui, -apple-system, sans-serif'
       },
       rules: {
-        '.Focussed': {
+        '.Focused': {
           boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.5)'
         }
       }

@@ -1,7 +1,7 @@
 # Architecture Documentation
 
-**Marketing To-Do App v0.5**
-**System Design and Technical Architecture**
+**Sales & Marketing Task Manager v0.6**
+**Clean Architecture with SOLID Principles & Enterprise-Grade Design**
 
 ---
 
@@ -25,14 +25,51 @@ npm run dev
 
 ## System Overview
 
-### Architecture Diagram
+### 4-Layer Clean Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│   Presentation Layer                                │
+│   (Vue 3 Components, Composables)                   │
+│   Dashboard, Auth, Task Runners                     │
+└────────────────────┬────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────┐
+│   Application Layer                                 │
+│   (State Stores, Use Cases, Orchestration)          │
+│   projectStore, taskStore, quotaStore               │
+│   GenerateAIContentUseCase, CreateProjectUseCase    │
+└────────────────────┬────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────┐
+│   Domain Layer                                      │
+│   (Business Logic, Models, Repositories)            │
+│   Task, Project, Quota Models                       │
+│   ProjectRepository, TaskRepository, QuotaRepository│
+└────────────────────┬────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────┐
+│   Infrastructure Layer                              │
+│   (External Services, APIs)                         │
+│   GrokApiClient, Supabase, Netlify Functions        │
+│   PayPal Integration, Email Services                │
+└─────────────────────────────────────────────────────┘
+```
+
+### External Services Integration
 
 ```
 Browser (Vue 3 App)
         │
-        ├─→ Netlify Functions (Grok API Proxy)
+        ├─→ Netlify Functions
+        │   ├─→ grok-proxy (Grok AI API)
+        │   ├─→ paypal-create-subscription
+        │   └─→ paypal-cancel-subscription
         │
         └─→ Supabase (PostgreSQL + Auth)
+            ├─→ Authentication
+            ├─→ Database (projects, project_data, etc)
+            └─→ Real-time subscriptions
 ```
 
 ---
@@ -48,50 +85,141 @@ Browser (Vue 3 App)
 - **Axios** (1.12.2) - HTTP client
 
 ### Backend & Services
-- **Supabase** - PostgreSQL database + Authentication
-- **Netlify Functions** - Serverless backend
-- **Grok API** (xAI) - AI content generation
+- **Supabase** - PostgreSQL database + Authentication + RLS
+- **Netlify Functions** - Serverless backend (CommonJS)
+- **Grok API** (xAI) - AI content generation with 3x retry & 30s timeout
+- **PayPal API** - Subscription management (Premium tier)
+- **Vitest** - Unit & Integration testing (130+ tests, 97% coverage)
 
 ---
 
 ## Directory Structure
 
+### Organized by Clean Architecture Layers
+
 ```
 src/
-├── main.js                        # Entry point
-├── App.vue                        # Root component
-├── components/                    # Vue components (60 files)
-│   ├── Dashboard.vue              # Main dashboard
-│   ├── AuthForm.vue               # Login/signup
-│   ├── ProjectHeader.vue          # Navigation
-│   ├── MiniAppShell.vue           # Task orchestrator
-│   ├── FormBuilder.vue            # Dynamic forms
-│   ├── AIPanel.vue                # AI generation
-│   ├── OutputSection.vue          # Results display
-│   ├── MiniApps/                  # Task implementations (22+ files)
-│   └── Task/                      # Legacy components (deprecated)
-├── services/                      # Business logic (6 files)
-│   ├── aiGeneration.js
-│   ├── projectService.js
-│   ├── taskRegistry.js
-│   ├── db.js
-│   ├── grok.js
-│   └── landingPageExporter.js
-├── stores/                        # Pinia state (2 files)
-│   ├── authStore.js
-│   └── projectStore.js
-├── router/                        # Vue Router
-│   └── index.js
-├── configs/                       # Task configurations (18+ files)
-│   └── unifiedTasks.js
-├── utils/                         # Utilities (2 files)
-│   ├── supabase.js
-│   └── formValidation.js
-└── assets/                        # Static resources
+├── main.js                              # Application entry point
+├── App.vue                              # Root component
+│
+├── presentation/                        # PRESENTATION LAYER
+│   ├── components/
+│   │   ├── Dashboard/
+│   │   │   ├── DashboardContainer.vue   # Main orchestrator
+│   │   │   ├── ProgressCard.vue
+│   │   │   ├── SearchFilterBar.vue
+│   │   │   ├── TaskChecklistView.vue
+│   │   │   ├── ExecutiveSummarySection.vue
+│   │   │   ├── PriorityTaskCard.vue
+│   │   │   ├── ActionButtonsSection.vue
+│   │   │   └── index.js
+│   │   ├── AuthForm.vue                 # Login/signup
+│   │   ├── ProjectHeader.vue            # Navigation
+│   │   ├── ProjectSetup.vue
+│   │   ├── MiniAppShell.vue             # Task orchestrator
+│   │   ├── FormBuilder.vue              # Dynamic forms
+│   │   ├── AIPanel.vue                  # AI generation
+│   │   ├── OutputSection.vue            # Results display
+│   │   └── (50+ additional components)
+│   │
+│   └── composables/                     # COMPOSABLES LAYER (Hooks)
+│       ├── useProjectManagement.js      # Project CRUD operations
+│       ├── useTaskManagement.js         # Task operations
+│       ├── useQuotaManagement.js        # Quota tracking
+│       ├── useAIGeneration.js           # AI generation wrapper
+│       ├── useValidation.js             # Form validation
+│       ├── useAsync.js                  # Async operations
+│       ├── useLoadingState.js           # Loading state management
+│       ├── useModalState.js             # Modal state management
+│       └── index.js                     # Barrel export
+│
+├── application/                         # APPLICATION LAYER
+│   ├── stores/
+│   │   ├── projectStore.js              # Project CRUD state
+│   │   ├── taskStore.js                 # Task state management
+│   │   ├── quotaStore.js                # Quota/subscription state
+│   │   └── index.js                     # Barrel export
+│   │
+│   └── usecases/
+│       ├── GenerateAIContentUseCase.js  # AI generation orchestration
+│       ├── CreateProjectUseCase.js      # Project creation
+│       ├── UpdateTaskStatusUseCase.js   # Task updates
+│       └── index.js                     # Barrel export
+│
+├── domain/                              # DOMAIN LAYER
+│   ├── models/
+│   │   ├── Task.js                      # Pure task model (20+ methods)
+│   │   ├── Project.js                   # Pure project model
+│   │   ├── Quota.js                     # Tier/usage model
+│   │   └── index.js                     # Barrel export
+│   │
+│   └── repositories/
+│       ├── ProjectRepository.js         # Project data access
+│       ├── TaskRepository.js            # Task data access
+│       ├── QuotaRepository.js           # Quota data access
+│       └── index.js                     # Barrel export
+│
+├── infrastructure/                      # INFRASTRUCTURE LAYER
+│   └── api/
+│       ├── GrokApiClient.js             # Grok API (3x retry, 30s timeout)
+│       ├── PayPalApiClient.js           # PayPal subscriptions
+│       └── index.js                     # Barrel export
+│
+├── shared/                              # SHARED UTILITIES
+│   ├── utils/
+│   │   ├── errors.js                    # 10 custom error classes
+│   │   ├── logger.js                    # Structured logging
+│   │   ├── validators.js                # Validation rules
+│   │   ├── formatters.js                # UI formatters
+│   │   └── index.js                     # Barrel export
+│   │
+│   └── config/
+│       ├── constants.js                 # Quotas, features, API config
+│       └── index.js
+│
+├── router/                              # ROUTING
+│   └── index.js                         # Vue Router configuration
+│
+├── utils/                               # LEGACY UTILITIES
+│   ├── supabase.js                      # Supabase client
+│   └── formValidation.js                # Form validation
+│
+├── assets/                              # STATIC RESOURCES
+│   └── (CSS, images, fonts)
+│
+├── configs/                             # TASK CONFIGURATIONS
+│   └── (18+ task config files)
+│
+└── services/                            # LEGACY SERVICES (being phased out)
+    ├── projectService.js
+    ├── aiGeneration.js
+    └── (others)
 
 netlify/
 └── functions/
-    └── grok-proxy.js              # Grok API proxy
+    ├── grok-proxy.js                    # Grok API proxy
+    ├── paypal-create-subscription.js    # PayPal subscription creation
+    ├── paypal-cancel-subscription.js    # PayPal subscription cancellation
+    └── (other serverless functions)
+
+tests/
+├── unit/
+│   ├── domain/
+│   │   ├── models/
+│   │   │   ├── Task.spec.js             # 50+ tests
+│   │   │   └── Quota.spec.js            # 40+ tests
+│   │   └── (repository tests)
+│   └── application/
+│       └── usecases/
+│           └── GenerateAIContentUseCase.spec.js  # 35+ tests
+│
+├── integration/
+│   └── stores/
+│       └── quotaStore.spec.js           # 25+ tests
+│
+├── setup.js                             # Global test configuration
+└── utils/
+    └── testHelpers.js                   # 900+ LOC of utilities
 ```
 
 ---
@@ -622,19 +750,71 @@ npm run build
 
 ---
 
+## Key Architectural Patterns
+
+### 1. Clean Architecture (4 Layers)
+Strict separation of concerns with dependencies flowing inward (toward domain):
+- **Presentation**: Vue components, composables
+- **Application**: Stores, use cases, orchestration
+- **Domain**: Pure business logic, models, repositories
+- **Infrastructure**: External APIs, databases
+
+### 2. Dependency Injection
+All dependencies injected, enabling easy testing with mocks:
+```javascript
+// Constructor injection in use cases
+constructor(grokApiClient, quotaRepository, taskRepository, logger)
+```
+
+### 3. Repository Pattern
+Data access abstraction enabling easy backend switching:
+```javascript
+ProjectRepository.getAll(userId)
+ProjectRepository.create(userId, name, description)
+```
+
+### 4. Domain-Driven Design
+Pure business logic models independent of framework:
+```javascript
+const task = new Task(id, name, config)
+task.complete()
+task.hasProgress()
+```
+
+### 5. Composables for Component Integration
+Vue 3 hooks providing clean access to stores and services:
+```javascript
+const { projects, loading } = useProjectManagement()
+const { generateContent } = useAIGeneration(useCase)
+```
+
 ## Conclusion
 
-The Marketing To-Do App uses a modern, scalable architecture with:
-- **Configuration-driven UI** for easy task management
-- **Layered architecture** for separation of concerns
-- **Pinia stores** for centralized state
-- **Service layer** for business logic
-- **Supabase backend** for data and auth
-- **Security-first** with RLS and validation
+The Sales & Marketing Task Manager v0.6 uses a modern, enterprise-grade clean architecture with:
 
-The design makes it easy to extend with new features while maintaining code quality and performance.
+- **4-Layer Architecture** for strict separation of concerns
+- **SOLID Principles** applied throughout the codebase
+- **Dependency Injection** enabling testable, mockable components
+- **Domain-Driven Design** with pure business logic models
+- **Repository Pattern** for data access abstraction
+- **Pinia Stores** for centralized, focused state management
+- **Composables** for clean Vue 3 component integration
+- **Supabase Backend** for PostgreSQL, auth, and RLS
+- **Netlify Functions** for serverless API proxies
+- **Security-First** design with server-side quota verification
+- **Comprehensive Testing** (130+ tests, 97% coverage)
+
+The design makes it easy to extend with new features while maintaining code quality, testability, and performance.
+
+### File Organization Key
+- **domain/** - Pure business logic (testable without mocks)
+- **application/** - State & orchestration (glue between layers)
+- **presentation/** - Vue components & composables (UI layer)
+- **infrastructure/** - External services (APIs, databases)
+- **shared/** - Constants, errors, validators (reusable utilities)
 
 For more details, see:
-- `APPLICATION_STATUS.md` - Current status and health
-- `FEATURES.md` - Complete feature documentation
-- `FEATURES_SHORT.md` - Quick feature overview
+- [APPLICATION_STATUS.md](APPLICATION_STATUS.md) - Current status and health
+- [FEATURES.md](FEATURES.md) - Complete feature documentation
+- [TEST_GUIDE.md](TEST_GUIDE.md) - Testing infrastructure and guides
+- [README.md](README.md) - Quick start guide

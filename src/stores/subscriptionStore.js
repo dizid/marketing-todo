@@ -26,8 +26,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   // Constants
   const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
-  const FREE_TIER_QUOTA = 20 // 20 AI generations per month
-  const PREMIUM_TIER_QUOTA = 200 // 200 AI generations per month
+  const FREE_TIER_QUOTA = 40 // 40 AI generations per month
+  const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
 
   // Computed properties
   const tier = computed(() => subscription.value?.tier || 'free')
@@ -239,7 +239,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   /**
    * Upgrade subscription to premium
-   * Note: Subscription is created server-side by paypal-create-subscription function
+   * Note: Subscription is created server-side by stripe-create-subscription function
    * This just fetches the subscription to verify it was created
    */
   const upgradeToPresentation = async () => {
@@ -251,7 +251,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      // Fetch the subscription - server should have already created it during PayPal flow
+      // Fetch the subscription - server should have already created it during Stripe flow
       const { data: fetchData, error: fetchError } = await supabase
         .from('subscriptions')
         .select('*')

@@ -25,8 +25,8 @@
 
     <!-- Success Message -->
     <div v-if="isSuccess" class="w-full flex flex-col sm:flex-row sm:items-center sm:gap-2 px-4 sm:px-4 py-3 sm:py-2 bg-green-100 text-green-800 border border-green-300 rounded-lg font-semibold text-sm sm:text-base">
-      <span>✅ Upgrade Initiated</span>
-      <span class="text-xs sm:text-sm text-green-600">(Redirecting to PayPal...)</span>
+      <span>✅ Redirecting to Payment</span>
+      <span class="text-xs sm:text-sm text-green-600">(Loading payment options...)</span>
     </div>
 
     <!-- Error Message -->
@@ -38,7 +38,7 @@
       </p>
     </div>
 
-    <!-- Loading Modal (shows PayPal redirect happening) -->
+    <!-- Loading Modal (shows redirect happening) -->
     <Teleport to="body" v-if="isLoading">
       <div class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-auto">
         <div class="bg-surface rounded-0 shadow-2xl p-6 sm:p-8 text-center w-full max-w-sm border-2 border-primary my-auto">
@@ -49,7 +49,7 @@
             </svg>
           </div>
           <h3 class="text-base sm:text-lg font-semibold font-display text-primary mb-2">Upgrading to Premium</h3>
-          <p class="text-sm sm:text-base text-secondary mb-4">Redirecting to PayPal for payment...</p>
+          <p class="text-sm sm:text-base text-secondary mb-4">Preparing payment options...</p>
           <p class="text-xs text-muted">Please wait and do not close this window</p>
         </div>
       </div>
@@ -61,7 +61,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
-import { createSubscription, getPlanInfo } from '@/services/paypalService'
 
 // Props
 const props = defineProps({
@@ -109,78 +108,20 @@ const handleUpgradeClick = async () => {
   emit('loading')
 
   try {
-    console.log('[PremiumUpgradeButton] Starting upgrade flow')
-
-    // Create PayPal subscription
-    const approvalUrl = await createSubscription({
-      returnUrl: `${window.location.origin}/app?upgrade=success`,
-      cancelUrl: `${window.location.origin}/app?upgrade=cancelled`
-    })
-
-    if (!approvalUrl) {
-      throw new Error('No approval URL received from PayPal')
-    }
-
-    console.log('[PremiumUpgradeButton] Redirecting to PayPal:', approvalUrl)
+    console.log('[PremiumUpgradeButton] Redirecting to subscription management page')
     isSuccess.value = true
     emit('success')
 
-    // Redirect to PayPal after a brief delay (show success message)
+    // Redirect to subscription page (shows Stripe payment modal)
     await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Redirect to PayPal approval
-    window.location.href = approvalUrl
+    router.push('/app/subscription')
   } catch (err) {
-    console.error('[PremiumUpgradeButton] Upgrade failed:', err)
+    console.error('[PremiumUpgradeButton] Redirect failed:', err)
     isLoading.value = false
-    errorMessage.value = err.message || 'Failed to start upgrade. Please try again.'
+    errorMessage.value = err.message || 'Failed to redirect. Please try again.'
     emit('error', err)
   }
 }
-
-// Handle PayPal return
-const handlePayPalReturn = async () => {
-  const params = new URLSearchParams(window.location.search)
-
-  if (params.get('upgrade') === 'success') {
-    console.log('[PremiumUpgradeButton] PayPal return detected - success')
-
-    // Get subscription ID and payer ID from query params
-    // Support both real PayPal format (subscription_id, payer_id) and mock format (subscription, payer)
-    const subscriptionId = params.get('subscription_id') || params.get('subscription')
-    const payerId = params.get('payer_id') || params.get('payer')
-
-    if (subscriptionId && payerId) {
-      try {
-        // Verify subscription was created
-        await subscriptionStore.upgradeToPresentation()
-        console.log('[PremiumUpgradeButton] Subscription verified successfully')
-
-        // Clear URL params
-        window.history.replaceState({}, document.title, '/app')
-
-        // Show success notification
-        emit('success')
-      } catch (err) {
-        console.error('[PremiumUpgradeButton] Failed to activate:', err)
-        emit('error', err)
-      }
-    }
-  } else if (params.get('upgrade') === 'cancelled') {
-    console.log('[PremiumUpgradeButton] User cancelled PayPal flow')
-    window.history.replaceState({}, document.title, '/app')
-  }
-}
-
-// Initialize on mount to check for PayPal return
-const checkForPayPalReturn = () => {
-  const params = new URLSearchParams(window.location.search)
-  if (params.has('upgrade') || params.has('subscription_id')) {
-    handlePayPalReturn()
-  }
-}
-
-checkForPayPalReturn()
 </script>
 
 <style scoped>

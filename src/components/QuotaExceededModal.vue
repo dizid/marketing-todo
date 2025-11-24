@@ -16,7 +16,7 @@
           <div v-if="subscriptionStore.isFree" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p class="text-sm font-semibold text-blue-900 mb-2">🎯 Free Tier Limit Reached</p>
             <p class="text-sm text-blue-800">
-              You have used your 20 free AI generations this month. Your quota resets on
+              You have used your 40 free AI generations this month. Your quota resets on
               <span class="font-semibold">{{ subscriptionStore.formattedResetDate }}</span>
               , or upgrade to Premium now to continue.
             </p>
@@ -24,7 +24,7 @@
           <div v-else class="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <p class="text-sm font-semibold text-purple-900 mb-2">⭐ Premium Tier Limit Reached</p>
             <p class="text-sm text-purple-800">
-              You have used your 200 premium AI generations this month. Your quota resets on
+              You have used your 400 premium AI generations this month. Your quota resets on
               <span class="font-semibold">{{ subscriptionStore.formattedResetDate }}</span>
               .
             </p>
@@ -53,7 +53,7 @@
           <ul class="space-y-2">
             <li class="flex items-center gap-2 text-sm text-gray-700">
               <span class="text-lg">📈</span>
-              <span><span class="font-semibold">10x more generations</span> - 200 per month</span>
+              <span><span class="font-semibold">10x more generations</span> - 400 per month</span>
             </li>
             <li class="flex items-center gap-2 text-sm text-gray-700">
               <span class="text-lg">⚡</span>
@@ -139,7 +139,7 @@ const remainingDays = computed(() => {
 const handleUpgradeSuccess = () => {
   console.log('[QuotaExceededModal] Upgrade successful')
   emit('upgrade-success')
-  // Modal will stay open while PayPal processes
+  // Modal will stay open while payment processes
 }
 
 const handleUpgradeError = (err) => {

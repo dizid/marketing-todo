@@ -150,7 +150,7 @@
             <ul class="space-y-3">
               <li class="flex items-center gap-3">
                 <span class="text-gray-400">✓</span>
-                <span class="text-gray-700">20 AI generations/month</span>
+                <span class="text-gray-700">40 AI generations/month</span>
               </li>
               <li class="flex items-center gap-3">
                 <span class="text-gray-400">✓</span>
@@ -177,7 +177,7 @@
             <ul class="space-y-3">
               <li class="flex items-center gap-3">
                 <span class="text-green-500">✓</span>
-                <span class="font-semibold text-gray-900">200 AI generations/month</span>
+                <span class="font-semibold text-gray-900">400 AI generations/month</span>
               </li>
               <li class="flex items-center gap-3">
                 <span class="text-green-500">✓</span>
@@ -235,7 +235,7 @@
         </div>
 
         <p class="text-xs text-red-700 mt-4">
-          ⚠️ After cancellation, you'll revert to the Free plan (20 AI generations/month)
+          ⚠️ After cancellation, you'll revert to the Free plan (40 AI generations/month)
         </p>
       </div>
 
@@ -248,6 +248,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Stripe Payment Modal -->
+    <StripePaymentModal
+      :is-open="showPaymentModal"
+      :user-id="authStore.user?.id || ''"
+      @close="handlePaymentClose"
+      @success="handlePaymentSuccess"
+      @error="handlePaymentError"
+    />
 
     <!-- Error Toast -->
     <transition name="fade">
@@ -275,13 +284,17 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
-import { createSubscription, cancelSubscription } from '@/services/paypalService'
+import { useAuthStore } from '@/stores/authStore'
+import { StripeService } from '@/services/stripeService'
+import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
+import StripePaymentModal from '@/components/StripePaymentModal.vue'
 
 // Router
 const router = useRouter()
 
-// Store
+// Stores
 const subscriptionStore = useSubscriptionStore()
+const authStore = useAuthStore()
 
 // State
 const isLoading = ref(false)
@@ -289,9 +302,19 @@ const isCancelling = ref(false)
 const showCancelConfirm = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const showPaymentModal = ref(false)
+
+// Stripe service
+let stripeService = null
 
 // Lifecycle
 onMounted(async () => {
+  // Initialize Stripe service
+  const stripeApiClient = new StripeApiClient(
+    import.meta.env.VITE_STRIPE_PUBLIC_KEY
+  )
+  stripeService = new StripeService(stripeApiClient)
+
   // Ensure subscription data is loaded
   await subscriptionStore.fetchSubscriptionStatus(true)
 })
@@ -302,21 +325,30 @@ const goBack = () => {
 }
 
 const handleUpgrade = async () => {
-  isLoading.value = true
-  errorMessage.value = ''
+  // Show payment modal instead of redirecting
+  showPaymentModal.value = true
+}
 
-  try {
-    const approvalUrl = await createSubscription({
-      returnUrl: `${window.location.origin}/app?upgrade=success`,
-      cancelUrl: `${window.location.origin}/app/subscription`
-    })
+const handlePaymentSuccess = async (details) => {
+  successMessage.value = 'Payment successful! Your premium plan is now active.'
+  showPaymentModal.value = false
 
-    // Redirect to PayPal
-    window.location.href = approvalUrl
-  } catch (err) {
-    errorMessage.value = err.message || 'Failed to start upgrade. Please try again.'
-    isLoading.value = false
-  }
+  // Refresh subscription data
+  await subscriptionStore.fetchSubscriptionStatus(true)
+
+  // Clear message after 3 seconds
+  setTimeout(() => {
+    successMessage.value = ''
+  }, 3000)
+}
+
+const handlePaymentError = (error) => {
+  console.error('Payment error:', error)
+  errorMessage.value = error.message || 'Payment failed. Please try again.'
+}
+
+const handlePaymentClose = () => {
+  showPaymentModal.value = false
 }
 
 const handleCancel = () => {
@@ -328,7 +360,22 @@ const confirmCancel = async () => {
   errorMessage.value = ''
 
   try {
-    await cancelSubscription('User requested cancellation')
+    if (!subscriptionStore.subscription?.stripe_subscription_id) {
+      throw new Error('No active Stripe subscription found')
+    }
+
+    // Get current user ID from store or auth
+    const userId = subscriptionStore.subscription?.user_id
+    if (!userId) {
+      throw new Error('User not authenticated')
+    }
+
+    // Cancel subscription via Stripe service
+    await stripeService.cancelSubscription(
+      userId,
+      subscriptionStore.subscription.stripe_subscription_id
+    )
+
     successMessage.value = 'Subscription cancelled successfully'
     showCancelConfirm.value = false
 

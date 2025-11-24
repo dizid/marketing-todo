@@ -146,7 +146,7 @@ const statusMessageClasses = computed(() => {
 
 // Methods
 const handleUpgradeSuccess = () => {
-  console.log('[QuotaStatusCard] Upgrade successful, redirecting to PayPal')
+  console.log('[QuotaStatusCard] Upgrade successful, redirecting to subscription page')
   // PremiumUpgradeButton handles the actual redirect
 }
 

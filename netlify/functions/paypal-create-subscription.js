@@ -7,8 +7,8 @@
  * Auth: User must be authenticated (verified by JWT in headers)
  */
 
-import axios from 'axios'
-import { createClient } from '@supabase/supabase-js'
+const axios = require('axios')
+const { createClient } = require('@supabase/supabase-js')
 
 // Initialize Supabase client with service role for subscription creation
 // Note: These may be undefined - we check before using
@@ -209,7 +209,7 @@ async function createPayPalSubscription(accessToken, params) {
 /**
  * Main handler
  */
-export async function handler(event) {
+exports.handler = async function(event) {
   // CORS headers for all responses
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',

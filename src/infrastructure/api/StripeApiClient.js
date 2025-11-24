@@ -101,6 +101,33 @@ export class StripeApiClient {
   }
 
   /**
+   * Submit payment element (must be called before confirmPayment)
+   * @returns {Object} Submission result with error if any
+   */
+  async submitPayment() {
+    if (!this.elements) {
+      throw new Error('Payment elements not initialized')
+    }
+
+    const { error } = await this.elements.submit()
+
+    if (error) {
+      return {
+        success: false,
+        error: {
+          message: error.message,
+          code: error.code,
+          type: error.type
+        }
+      }
+    }
+
+    return {
+      success: true
+    }
+  }
+
+  /**
    * Confirm payment for subscription
    * @param {string} clientSecret - Payment intent client secret
    * @param {string} returnUrl - URL to return to after payment

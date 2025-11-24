@@ -183,6 +183,12 @@ async function handlePayment() {
     isProcessing.value = true
     errorMessage.value = ''
 
+    // IMPORTANT: Must call submitPayment() first before confirmPayment()
+    // This is a Stripe Payment Element requirement
+    console.log('[StripePaymentModal] Submitting payment element...')
+    await stripeService.submitPayment()
+
+    console.log('[StripePaymentModal] Payment element submitted, confirming payment...')
     const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
 
     // Confirm payment with Stripe

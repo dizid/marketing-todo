@@ -172,6 +172,29 @@ export class StripeService {
   }
 
   /**
+   * Submit payment element (required before confirmPayment)
+   * @returns {Object} Submission result
+   */
+  async submitPayment() {
+    try {
+      const result = await this.stripeApiClient.submitPayment()
+
+      if (!result.success) {
+        throw new Error(result.error.message)
+      }
+
+      return result
+    } catch (error) {
+      console.error('Error submitting payment:', error)
+      throw {
+        message: error.message || 'Failed to submit payment',
+        code: 'PAYMENT_SUBMIT_ERROR',
+        isRetryable: true
+      }
+    }
+  }
+
+  /**
    * Confirm and process payment
    * @param {string} clientSecret - Payment intent client secret
    * @returns {Object} Payment confirmation result

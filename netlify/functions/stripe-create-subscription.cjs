@@ -225,7 +225,9 @@ async function getOrCreateStripeCustomer(userId) {
     return customer
   } catch (error) {
     // If customer not found, create new one
-    if (error.code === 'resource_missing') {
+    // Also handle Supabase auth errors (e.g., invalid UUID format)
+    if (error.code === 'resource_missing' || error.message?.includes('Expected parameter to be UUID')) {
+      console.log('[stripe-create-subscription] Creating new customer without email (auth lookup failed):', error.message)
       const customer = await stripe.customers.create({
         metadata: {
           userId

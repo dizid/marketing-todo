@@ -3,7 +3,7 @@
 // Handles authentication and LLM-style API communication securely
 // Also tracks AI usage to Supabase for quota management
 
-import { createClient } from '@supabase/supabase-js'
+const { createClient } = require('@supabase/supabase-js')
 
 // Initialize Supabase client with service role for quota tracking
 // Note: These may be undefined - we check in trackAIUsage before using
@@ -119,7 +119,7 @@ IMPORTANT: Prioritize tasks that:
 Provide actionable, specific recommendations tailored to this project.`
 }
 
-const handler = async (event) => {
+exports.handler = async (event) => {
   console.log('[grok-proxy] Function invoked at:', new Date().toISOString())
   console.log('[grok-proxy] HTTP Method:', event.httpMethod)
 
@@ -338,4 +338,3 @@ const handler = async (event) => {
   }
 }
 
-export { handler }

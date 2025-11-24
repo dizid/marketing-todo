@@ -14,9 +14,9 @@
  * - PAYMENT.CAPTURE.FAILED
  */
 
-import axios from 'axios'
-import crypto from 'crypto'
-import { createClient } from '@supabase/supabase-js'
+const axios = require('axios')
+const crypto = require('crypto')
+const { createClient } = require('@supabase/supabase-js')
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -239,7 +239,7 @@ async function handlePaymentFailed(event) {
 /**
  * Main handler
  */
-export async function handler(event) {
+exports.handler = async function(event) {
   // Only POST allowed
   if (event.httpMethod !== 'POST') {
     return {

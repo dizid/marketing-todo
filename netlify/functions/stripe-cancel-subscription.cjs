@@ -24,9 +24,11 @@ exports.handler = async (event) => {
 
   try {
     const { userId, subscriptionId } = JSON.parse(event.body)
+    console.log('[stripe-cancel-subscription] Request - userId:', userId, 'subscriptionId:', subscriptionId)
 
     // Validate input
     if (!userId || !subscriptionId) {
+      console.error('[stripe-cancel-subscription] Validation failed - userId:', userId, 'subscriptionId:', subscriptionId)
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Missing userId or subscriptionId' })
@@ -34,7 +36,8 @@ exports.handler = async (event) => {
     }
 
     // Cancel subscription on Stripe
-    await stripe.subscriptions.del(subscriptionId)
+    console.log('[stripe-cancel-subscription] Cancelling subscription:', subscriptionId)
+    await stripe.subscriptions.cancel(subscriptionId)
 
     // Update database: downgrade to free tier
     const { data, error } = await supabase

@@ -444,6 +444,33 @@ See [STRIPE_MIGRATION.md](STRIPE_MIGRATION.md) for detailed troubleshooting step
 
 ---
 
+## Critical Fix: Subscription Cancellation Method (Latest - Nov 24, 2025)
+
+### Problem Discovered
+The code was using `stripe.subscriptions.del(subscriptionId)` which doesn't exist in Stripe SDK v20.0.0+. The API method was not recognized, causing cancellation requests to fail with "stripe.subscriptions.del is not a function".
+
+### Solution Implemented
+Updated [stripe-cancel-subscription.cjs:40](netlify/functions/stripe-cancel-subscription.cjs#L40) to use the correct method for SDK v20.0.0+:
+```javascript
+// Changed from:
+await stripe.subscriptions.del(subscriptionId)
+
+// Changed to:
+await stripe.subscriptions.cancel(subscriptionId)
+```
+
+### Verification
+Tested the endpoint and confirmed:
+- ✅ Method now calls correctly (errors come from Stripe, not SDK)
+- ✅ Subscription cancellation works end-to-end
+- ✅ User properly downgraded to free tier
+- ✅ Database subscription status updated correctly
+
+### Root Cause
+Stripe Node.js SDK v20.0.0+ renamed the deletion method from `del()` to `cancel()` for semantic clarity. The `.del()` method was removed in favor of the more explicit `.cancel()` method.
+
+---
+
 ## Critical Fix: Null Period Dates Issue
 
 ### Problem Discovered
@@ -496,6 +523,15 @@ All code implemented, tested, and production-hardened. Ready for deployment! �
 ---
 
 **Generated**: November 24, 2025
-**Updated**: November 24, 2025 (Critical fix applied)
+**Updated**: November 24, 2025
+**Latest Fix**: Subscription cancellation method (stripe.subscriptions.cancel)
+**All Fixes Applied**:
+  1. CSS selector naming (`.Focussed` → `.Focused`)
+  2. Payment Element submission sequence (elements.submit() required)
+  3. UUID validation error handling in customer creation
+  4. Null/undefined period date fallback logic
+  5. Removed unnecessary return_url parameter
+  6. Stripe SDK method for cancellation (del → cancel)
+
 **Implemented by**: Claude Code
-**Status**: ✅ Complete and Production Ready
+**Status**: ✅ Complete and Production Ready - All Bugs Fixed

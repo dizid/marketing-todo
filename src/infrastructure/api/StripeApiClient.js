@@ -141,8 +141,7 @@ export class StripeApiClient {
     const { error, paymentIntent } = await this.stripe.confirmPayment({
       elements: this.elements,
       clientSecret,
-      redirect: 'if_required',
-      return_url: returnUrl
+      redirect: 'if_required'
     })
 
     if (error) {

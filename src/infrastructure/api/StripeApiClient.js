@@ -75,6 +75,9 @@ export class StripeApiClient {
         },
         '.Label': {
           display: 'none'
+        },
+        '.Text-muted': {
+          display: 'none'
         }
       }
     }

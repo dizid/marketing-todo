@@ -145,26 +145,63 @@ exports.handler = async (event) => {
 
     let clientSecret = null
     try {
-      // Get the invoice amount to know how much to collect
-      const invoice = await stripe.invoices.retrieve(subscription.latest_invoice.id)
-      console.log('[stripe-create-subscription] Invoice amount:', invoice.amount_due)
+      let invoice = null
 
-      // Create a PaymentIntent for the invoice amount
-      // When the customer confirms this, we'll attach it to the subscription
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: invoice.amount_due,
-        currency: invoice.currency,
-        customer: customer.id,
-        payment_method_types: ['card'],
-        metadata: {
-          subscriptionId: subscription.id,
-          invoiceId: invoice.id,
-          userId: userId
+      // Try to get invoice from subscription
+      if (subscription.latest_invoice?.id) {
+        invoice = await stripe.invoices.retrieve(subscription.latest_invoice.id)
+        console.log('[stripe-create-subscription] Retrieved invoice from subscription:', invoice.id, 'amount:', invoice.amount_due)
+      } else {
+        // If latest_invoice is null, list invoices for this subscription
+        console.log('[stripe-create-subscription] latest_invoice was null, listing invoices for subscription...')
+        const invoices = await stripe.invoices.list({
+          subscription: subscription.id,
+          limit: 1
+        })
+
+        if (invoices.data?.length > 0) {
+          invoice = invoices.data[0]
+          console.log('[stripe-create-subscription] Found invoice from list:', invoice.id, 'amount:', invoice.amount_due)
+        } else {
+          // If no invoice found, create PaymentIntent with price amount
+          // Get price details to know the amount
+          const price = await stripe.prices.retrieve(priceId)
+          console.log('[stripe-create-subscription] No invoice found, using price amount:', price.unit_amount)
+
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: price.unit_amount,
+            currency: price.currency || 'usd',
+            customer: customer.id,
+            payment_method_types: ['card'],
+            metadata: {
+              subscriptionId: subscription.id,
+              userId: userId,
+              priceId: priceId
+            }
+          })
+
+          clientSecret = paymentIntent.client_secret
+          console.log('[stripe-create-subscription] Created PaymentIntent from price:', paymentIntent.id)
         }
-      })
+      }
 
-      clientSecret = paymentIntent.client_secret
-      console.log('[stripe-create-subscription] Created PaymentIntent:', paymentIntent.id, 'with client_secret')
+      // If we have an invoice, create PaymentIntent for it
+      if (invoice && !clientSecret) {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: invoice.amount_due,
+          currency: invoice.currency || 'usd',
+          customer: customer.id,
+          payment_method_types: ['card'],
+          metadata: {
+            subscriptionId: subscription.id,
+            invoiceId: invoice.id,
+            userId: userId
+          }
+        })
+
+        clientSecret = paymentIntent.client_secret
+        console.log('[stripe-create-subscription] Created PaymentIntent:', paymentIntent.id, 'with client_secret')
+      }
     } catch (error) {
       console.error('[stripe-create-subscription] Failed to create PaymentIntent:', error.message)
       throw new Error(`Failed to create payment intent: ${error.message}`)

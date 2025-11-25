@@ -2,15 +2,15 @@
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Header -->
     <div class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="flex items-center justify-between">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Subscription & Billing</h1>
-            <p class="mt-1 text-gray-600">Manage your account and billing settings</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Subscription & Billing</h1>
+            <p class="mt-1 text-sm sm:text-base text-gray-600">Manage your account and billing settings</p>
           </div>
           <button
             @click="goBack"
-            class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition"
+            class="w-full sm:w-auto inline-flex items-center justify-center sm:justify-start px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition text-sm"
           >
             ← Back to Dashboard
           </button>
@@ -21,14 +21,14 @@
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Subscription Status Card -->
-      <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-        <div class="flex items-center justify-between mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8">
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Current Plan</h2>
-            <div class="flex items-center gap-3">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Current Plan</h2>
+            <div class="flex items-center gap-2 flex-wrap">
               <span
                 :class="[
-                  'px-3 py-1 rounded-full text-sm font-semibold',
+                  'px-3 py-1 rounded-full text-xs sm:text-sm font-semibold',
                   subscriptionStore.isPremium
                     ? 'bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800'
                     : 'bg-gray-100 text-gray-800'
@@ -38,35 +38,35 @@
               </span>
               <span
                 v-if="subscriptionStore.isActive"
-                class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"
+                class="px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-green-100 text-green-800"
               >
                 ✓ Active
               </span>
               <span
                 v-else
-                class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800"
+                class="px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-red-100 text-red-800"
               >
                 ✗ Inactive
               </span>
             </div>
           </div>
 
-          <!-- Upgrade Button -->
-          <div v-if="subscriptionStore.isFree" class="text-right">
-            <p class="text-sm text-gray-600 mb-3">Ready for more?</p>
+          <!-- Upgrade Button (Mobile: full width, Desktop: right-aligned) -->
+          <div v-if="subscriptionStore.isFree" class="w-full sm:w-auto sm:text-right">
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Ready for more?</p>
             <button
               @click="handleUpgrade"
               :disabled="isLoading"
-              class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-blue-700 transition disabled:opacity-50"
+              class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-blue-700 transition disabled:opacity-50 text-sm sm:text-base"
             >
-              <span v-if="!isLoading">✨ Upgrade to Premium - $19/month</span>
+              <span v-if="!isLoading">✨ Upgrade - $19/month</span>
               <span v-else>Processing...</span>
             </button>
           </div>
         </div>
 
         <!-- Subscription Details Grid -->
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <!-- Monthly Quota -->
           <div class="border-l-4 border-indigo-500 pl-4">
             <p class="text-sm text-gray-600 mb-1">Monthly Quota</p>
@@ -141,9 +141,9 @@
       </div>
 
       <!-- Plans Comparison -->
-      <div v-if="subscriptionStore.isFree" class="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Why Upgrade?</h2>
-        <div class="grid grid-cols-2 gap-8">
+      <div v-if="subscriptionStore.isFree" class="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Why Upgrade?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
           <!-- Free Plan -->
           <div class="border border-gray-200 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Free Plan</h3>
@@ -199,37 +199,37 @@
       <!-- Danger Zone -->
       <div
         v-if="subscriptionStore.isPremium && subscriptionStore.isActive"
-        class="bg-red-50 border-2 border-red-200 rounded-lg p-8"
+        class="bg-red-50 border-2 border-red-200 rounded-lg p-6 sm:p-8"
       >
-        <h2 class="text-2xl font-bold text-red-900 mb-2">Manage Premium Subscription</h2>
-        <p class="text-red-800 mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-red-900 mb-2">Manage Premium Subscription</h2>
+        <p class="text-sm sm:text-base text-red-800 mb-6">
           You can cancel your subscription anytime. No hidden fees or long-term contracts.
         </p>
 
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <button
             @click="handleCancel"
             :disabled="isLoading || isCancelling"
-            class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50 text-sm"
           >
-            <span v-if="!isCancelling">Cancel Premium Subscription</span>
+            <span v-if="!isCancelling">Cancel Subscription</span>
             <span v-else>Cancelling...</span>
           </button>
 
-          <div v-if="showCancelConfirm" class="flex items-center gap-2 ml-4">
-            <span class="text-red-900 font-semibold">Are you sure?</span>
+          <div v-if="showCancelConfirm" class="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <span class="text-red-900 font-semibold text-sm">Sure?</span>
             <button
               @click="confirmCancel"
               :disabled="isLoading || isCancelling"
-              class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition disabled:opacity-50"
+              class="px-3 py-2 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded hover:bg-red-700 transition disabled:opacity-50"
             >
               Yes, Cancel
             </button>
             <button
               @click="showCancelConfirm = false"
-              class="px-4 py-2 bg-gray-300 text-gray-900 text-sm font-semibold rounded hover:bg-gray-400 transition"
+              class="px-3 py-2 bg-gray-300 text-gray-900 text-xs sm:text-sm font-semibold rounded hover:bg-gray-400 transition"
             >
-              No, Keep
+              Keep
             </button>
           </div>
         </div>
@@ -240,11 +240,11 @@
       </div>
 
       <!-- Billing History (Placeholder) -->
-      <div class="mt-8 bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Billing History</h2>
+      <div class="mt-8 bg-white rounded-lg shadow-md p-6 sm:p-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Billing History</h2>
         <div class="text-center py-12">
-          <p class="text-gray-500 mb-2">📋 No billing history yet</p>
-          <p class="text-sm text-gray-500">Your invoices will appear here after your first payment</p>
+          <p class="text-sm text-gray-500 mb-2">📋 No billing history yet</p>
+          <p class="text-xs text-gray-500">Your invoices will appear here after your first payment</p>
         </div>
       </div>
     </div>
@@ -262,7 +262,7 @@
     <transition name="fade">
       <div
         v-if="errorMessage"
-        class="fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg"
+        class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 bg-red-600 text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 text-sm sm:text-base max-w-sm"
       >
         {{ errorMessage }}
       </div>
@@ -272,7 +272,7 @@
     <transition name="fade">
       <div
         v-if="successMessage"
-        class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg"
+        class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 bg-green-600 text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 text-sm sm:text-base max-w-sm"
       >
         {{ successMessage }}
       </div>

@@ -81,7 +81,20 @@ export class StripeApiClient {
       appearance: { ...defaultAppearance, ...appearance }
     })
 
-    this.paymentElement = this.elements.create('payment')
+    // Create payment element with card-only mode (disable Link)
+    this.paymentElement = this.elements.create('payment', {
+      wallets: {
+        googlePay: 'never',
+        applePay: 'never'
+      },
+      fields: {
+        billingDetails: {
+          address: {
+            country: 'never'
+          }
+        }
+      }
+    })
     return this.paymentElement
   }
 

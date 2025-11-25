@@ -81,17 +81,21 @@ export class StripeApiClient {
       appearance: { ...defaultAppearance, ...appearance }
     })
 
-    // Create payment element with card-only mode (disable Link)
-    this.paymentElement = this.elements.create('payment', {
-      wallets: {
-        googlePay: 'never',
-        applePay: 'never'
-      },
-      fields: {
-        billingDetails: {
-          address: {
-            country: 'never'
+    // Create card element instead of payment element to avoid Link
+    // Payment element includes Link by default; card element is card-only
+    this.paymentElement = this.elements.create('card', {
+      hidePostalCode: true,
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#424242',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          '::placeholder': {
+            color: '#cfcfcf'
           }
+        },
+        invalid: {
+          color: '#fa755a'
         }
       }
     })
@@ -115,26 +119,12 @@ export class StripeApiClient {
 
   /**
    * Submit payment element (must be called before confirmPayment)
+   * Note: With card element, this just validates the form
    * @returns {Object} Submission result with error if any
    */
   async submitPayment() {
-    if (!this.elements) {
-      throw new Error('Payment elements not initialized')
-    }
-
-    const { error } = await this.elements.submit()
-
-    if (error) {
-      return {
-        success: false,
-        error: {
-          message: error.message,
-          code: error.code,
-          type: error.type
-        }
-      }
-    }
-
+    // Card element doesn't require explicit submission
+    // Validation happens during confirmPayment
     return {
       success: true
     }

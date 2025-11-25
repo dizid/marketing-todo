@@ -72,12 +72,6 @@ export class StripeApiClient {
       rules: {
         '.Focused': {
           boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.5)'
-        },
-        '.Label': {
-          display: 'none'
-        },
-        '.Text-muted': {
-          display: 'none'
         }
       }
     }

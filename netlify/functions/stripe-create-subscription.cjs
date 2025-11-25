@@ -189,15 +189,15 @@ exports.handler = async (event) => {
           throw updateError
         }
       } else {
-        // Insert new record - mark as 'active' only if we can, webhook will manage status
-        // This handles initial subscription creation
-        console.log('[stripe-create-subscription] Creating new subscription record')
+        // Insert new record - mark as 'pending' until payment is confirmed by webhook
+        // Status will be set to 'active' by handlePaymentSucceeded webhook
+        console.log('[stripe-create-subscription] Creating new subscription record with status: pending')
         const { error: insertError } = await supabase
           .from('subscriptions')
           .insert([{
             user_id: userId,
             tier: 'premium',
-            status: 'active',
+            status: 'pending',
             stripe_customer_id: customer.id,
             stripe_subscription_id: subscription.id,
             current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),

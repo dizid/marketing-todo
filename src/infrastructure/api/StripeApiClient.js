@@ -51,8 +51,9 @@ export class StripeApiClient {
 
   /**
    * Initialize Payment Element for subscription creation
+   * Uses Card Element instead of Payment Element to avoid showing Stripe Link
    * @param {string} clientSecret - Payment intent client secret from server
-   * @returns {HTMLElement} Payment element DOM element
+   * @returns {HTMLElement} Card element DOM element
    */
   async initializePaymentElement(clientSecret, appearance = {}) {
     if (!this.stripe) {
@@ -81,8 +82,9 @@ export class StripeApiClient {
       appearance: { ...defaultAppearance, ...appearance }
     })
 
-    // Create card element instead of payment element to avoid Link
-    // Payment element includes Link by default; card element is card-only
+    // Use Card Element for card-only payments, no Link/wallets
+    // Payment Element automatically includes Link which we don't want
+    // Card Element is simpler and avoids confusion between payment methods
     this.paymentElement = this.elements.create('card', {
       hidePostalCode: true,
       style: {

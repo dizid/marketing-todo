@@ -217,15 +217,13 @@ async function handlePayment() {
 
     const attemptPayment = async () => {
       try {
-        // IMPORTANT: Must call submitPayment() first before confirmPayment()
-        // This is a Stripe Payment Element requirement
-        console.log('[StripePaymentModal] Submitting payment element...')
-        await stripeService.submitPayment()
-
-        console.log('[StripePaymentModal] Payment element submitted, confirming payment...')
+        // Card Element doesn't require submitPayment() call
+        // Validation happens during confirmPayment()
+        console.log('[StripePaymentModal] Confirming payment with Card Element...')
         const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
 
-        // Confirm payment with Stripe
+        // Confirm payment directly with Stripe
+        // Card Element validates card input during this call
         const paymentStatus = await stripeService.confirmPayment(
           clientSecret,
           returnUrl

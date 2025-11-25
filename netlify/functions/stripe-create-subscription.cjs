@@ -193,6 +193,18 @@ exports.handler = async (event) => {
         // Note: Subscription created but payment confirmation happens via webhook
         // Webhook events from Stripe will confirm actual payment status
         console.log('[stripe-create-subscription] Creating new subscription record with status: active')
+
+        // Safely convert Stripe unix timestamps to ISO strings
+        // Stripe returns seconds since epoch, we need to multiply by 1000 for milliseconds
+        const periodStart = subscription.current_period_start
+          ? new Date(subscription.current_period_start * 1000).toISOString()
+          : new Date().toISOString()
+        const periodEnd = subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
+        console.log('[stripe-create-subscription] Period dates - start:', periodStart, 'end:', periodEnd)
+
         const { error: insertError } = await supabase
           .from('subscriptions')
           .insert([{
@@ -201,8 +213,8 @@ exports.handler = async (event) => {
             status: 'active',
             stripe_customer_id: customer.id,
             stripe_subscription_id: subscription.id,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
             payment_provider: 'stripe',
             updated_at: new Date().toISOString()
           }])

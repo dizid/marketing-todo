@@ -61,6 +61,8 @@ export class StripeApiClient {
     }
 
     // Create elements with appearance options
+    // NOTE: Do NOT pass clientSecret here - Card Element doesn't support it
+    // clientSecret is only used with confirmPayment() later
     const defaultAppearance = {
       theme: 'stripe',
       variables: {
@@ -78,7 +80,6 @@ export class StripeApiClient {
     }
 
     this.elements = this.stripe.elements({
-      clientSecret,
       appearance: { ...defaultAppearance, ...appearance }
     })
 

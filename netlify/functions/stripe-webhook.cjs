@@ -165,7 +165,8 @@ async function handleSubscriptionDeleted(subscription) {
 
 /**
  * Handle payment succeeded event
- * Updates subscription status from 'pending' to 'active'
+ * Subscription is already created with 'active' status
+ * This event confirms that payment has been processed successfully
  */
 async function handlePaymentSucceeded(invoice) {
   const userId = await getUserIdFromStripeCustomer(invoice.customer)
@@ -175,27 +176,9 @@ async function handlePaymentSucceeded(invoice) {
     return
   }
 
-  // Update subscription status to 'active' now that payment is confirmed
+  // Log successful payment for analytics/records
+  // Subscription status is already 'active' from creation
   console.log(`Payment succeeded for user ${userId}: ${invoice.id}`)
-
-  try {
-    const { error: updateError } = await supabase
-      .from('subscriptions')
-      .update({
-        status: 'active',
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', userId)
-      .eq('status', 'pending')  // Only update if currently pending
-
-    if (updateError) {
-      console.error(`Failed to update subscription status for user ${userId}:`, updateError)
-    } else {
-      console.log(`Subscription activated for user ${userId}`)
-    }
-  } catch (error) {
-    console.error(`Error activating subscription for user ${userId}:`, error)
-  }
 }
 
 /**

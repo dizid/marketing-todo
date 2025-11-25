@@ -37,15 +37,25 @@ export class StripeService {
 
       if (!response.ok) {
         let errorMessage = 'Failed to create subscription'
+        let errorDetails = {}
         try {
           const errorBody = await response.text()
-          console.log('[StripeService] Error response body:', errorBody)
-          const error = JSON.parse(errorBody)
-          errorMessage = error.message || error.error || errorMessage
+          console.log('[StripeService] Full error response:', response.status, errorBody)
+
+          if (errorBody && errorBody.trim()) {
+            const error = JSON.parse(errorBody)
+            errorMessage = error.message || error.error || errorMessage
+            errorDetails = error
+          } else {
+            // Empty response body - check response status
+            errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
+          }
         } catch (parseError) {
-          console.log('[StripeService] Could not parse error response:', response.statusText)
-          errorMessage = response.statusText || errorMessage
+          console.error('[StripeService] Error parsing response:', parseError)
+          errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
         }
+
+        console.error('[StripeService] API Error:', { status: response.status, message: errorMessage, details: errorDetails })
         throw new Error(errorMessage)
       }
 

@@ -130,9 +130,15 @@ watch(
   () => props.isOpen,
   async (newVal) => {
     if (newVal) {
+      console.log('[StripePaymentModal] Modal opened, initializing payment...')
       await initializePayment()
+    } else {
+      console.log('[StripePaymentModal] Modal closed, resetting state')
+      clientSecret = null
+      errorMessage.value = ''
     }
-  }
+  },
+  { immediate: false }
 )
 
 /**

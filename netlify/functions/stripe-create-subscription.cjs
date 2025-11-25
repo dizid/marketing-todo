@@ -221,11 +221,19 @@ exports.handler = async (event) => {
       })
     }
   } catch (error) {
-    console.error('Error creating subscription:', error)
+    console.error('[stripe-create-subscription] ERROR:', error)
+    console.error('[stripe-create-subscription] Stack:', error.stack)
+
+    // Ensure we always return proper JSON error response
     return {
-      statusCode: 400,
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        error: error.message || 'Failed to create subscription'
+        error: error.message || 'Failed to create subscription',
+        code: error.code || 'SUBSCRIPTION_ERROR',
+        details: error.raw?.message || null
       })
     }
   }

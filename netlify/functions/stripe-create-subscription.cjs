@@ -191,7 +191,7 @@ exports.handler = async (event) => {
     const subscriptionData = {
       user_id: userId,
       tier: 'premium',
-      status: 'active', // Set to active immediately - Stripe webhook will confirm/update
+      status: 'pending', // Set to pending - webhook will confirm to 'active' after payment
       stripe_customer_id: customer.id,
       stripe_subscription_id: subscription.id,
       current_period_start: periodStart,

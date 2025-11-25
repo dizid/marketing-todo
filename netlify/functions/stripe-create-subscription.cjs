@@ -152,80 +152,68 @@ exports.handler = async (event) => {
     console.log('[stripe-create-subscription] Retrieved subscription:', subscription.id)
     console.log('[stripe-create-subscription] After retrieve - Period dates - start:', subscription.current_period_start, 'end:', subscription.current_period_end)
 
-    // Store in database - update if exists, insert if not
-    // Convert Stripe unix timestamps (in seconds) to ISO strings
-    let periodStart, periodEnd
+    // Store basic subscription info in database ONLY if we're updating from a free tier
+    // The actual 'active' status will be set by the webhook after payment is confirmed
+    console.log('[stripe-create-subscription] Storing subscription mapping in database (not active yet)')
     try {
-      // Stripe subscriptions should have period dates, but with payment_behavior: 'default_incomplete'
-      // they might be null until payment is confirmed. Use current time as start if null.
-      const now = new Date()
-
-      if (typeof subscription.current_period_start === 'number') {
-        periodStart = new Date(subscription.current_period_start * 1000).toISOString()
-      } else if (subscription.current_period_start) {
-        periodStart = subscription.current_period_start
-      } else {
-        // Fallback: use current time if not provided
-        periodStart = now.toISOString()
-        console.log('[stripe-create-subscription] Using current time as period start (was null)')
-      }
-
-      if (typeof subscription.current_period_end === 'number') {
-        periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
-      } else if (subscription.current_period_end) {
-        periodEnd = subscription.current_period_end
-      } else {
-        // Fallback: calculate 1 month from now if not provided
-        const endDate = new Date(now)
-        endDate.setMonth(endDate.getMonth() + 1)
-        periodEnd = endDate.toISOString()
-        console.log('[stripe-create-subscription] Calculated period end (was null):', periodEnd)
-      }
-
-      console.log('[stripe-create-subscription] Converted dates - start:', periodStart, 'end:', periodEnd)
-    } catch (dateError) {
-      console.error('[stripe-create-subscription] Date conversion error:', dateError)
-      throw new Error(`Failed to convert subscription dates: ${dateError.message}`)
-    }
-
-    const subscriptionData = {
-      user_id: userId,
-      tier: 'premium',
-      status: 'pending', // Set to pending - webhook will confirm to 'active' after payment
-      stripe_customer_id: customer.id,
-      stripe_subscription_id: subscription.id,
-      current_period_start: periodStart,
-      current_period_end: periodEnd,
-      payment_provider: 'stripe',
-      updated_at: new Date().toISOString()
-    }
-
-    // Try to update existing subscription first
-    const { data: existingData, error: selectError } = await supabase
-      .from('subscriptions')
-      .select('id')
-      .eq('user_id', userId)
-      .single()
-
-    let dbError = null
-    if (existingData) {
-      // Update existing record
-      const { error } = await supabase
+      // Check if subscription record exists
+      const { data: existingData, error: selectError } = await supabase
         .from('subscriptions')
-        .update(subscriptionData)
+        .select('id, status')
         .eq('user_id', userId)
-      dbError = error
-    } else {
-      // Insert new record
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert([subscriptionData])
-      dbError = error
-    }
+        .single()
 
-    if (dbError) {
-      console.error('Database error:', dbError)
-      throw dbError
+      if (selectError && selectError.code !== 'PGRST116') {
+        console.error('[stripe-create-subscription] Database lookup error:', selectError)
+        throw selectError
+      }
+
+      // Only update the Stripe IDs - status will be updated by webhook after payment
+      const subscriptionUpdate = {
+        stripe_customer_id: customer.id,
+        stripe_subscription_id: subscription.id,
+        payment_provider: 'stripe',
+        updated_at: new Date().toISOString()
+      }
+
+      if (existingData?.id) {
+        // Update existing record with Stripe IDs (status stays as-is until webhook confirms)
+        console.log('[stripe-create-subscription] Updating existing subscription record with Stripe IDs')
+        const { error: updateError } = await supabase
+          .from('subscriptions')
+          .update(subscriptionUpdate)
+          .eq('user_id', userId)
+
+        if (updateError) {
+          console.error('[stripe-create-subscription] Database update error:', updateError)
+          throw updateError
+        }
+      } else {
+        // Insert new record - mark as 'active' only if we can, webhook will manage status
+        // This handles initial subscription creation
+        console.log('[stripe-create-subscription] Creating new subscription record')
+        const { error: insertError } = await supabase
+          .from('subscriptions')
+          .insert([{
+            user_id: userId,
+            tier: 'premium',
+            status: 'active',
+            stripe_customer_id: customer.id,
+            stripe_subscription_id: subscription.id,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            payment_provider: 'stripe',
+            updated_at: new Date().toISOString()
+          }])
+
+        if (insertError) {
+          console.error('[stripe-create-subscription] Database insert error:', insertError)
+          throw insertError
+        }
+      }
+    } catch (dbError) {
+      console.error('[stripe-create-subscription] Database operation error:', dbError)
+      throw new Error(`Failed to store subscription: ${dbError.message}`)
     }
 
     // Create a standalone PaymentIntent for the subscription payment

@@ -326,7 +326,15 @@ const goBack = () => {
 
 const handleUpgrade = async () => {
   // Show payment modal instead of redirecting
+  // Set loading optimistically to prevent double-clicks
+  isLoading.value = true
   showPaymentModal.value = true
+  // Reset loading when modal is closed
+  setTimeout(() => {
+    if (!showPaymentModal.value) {
+      isLoading.value = false
+    }
+  }, 100)
 }
 
 const handlePaymentSuccess = async (details) => {
@@ -352,7 +360,15 @@ const handlePaymentClose = () => {
 }
 
 const handleCancel = () => {
+  // Show confirmation - mark as in progress to prevent double-clicks
+  isCancelling.value = true
   showCancelConfirm.value = true
+  // Reset after confirmation dialog closes
+  setTimeout(() => {
+    if (!showCancelConfirm.value) {
+      isCancelling.value = false
+    }
+  }, 100)
 }
 
 const confirmCancel = async () => {
@@ -376,20 +392,26 @@ const confirmCancel = async () => {
       subscriptionStore.subscription.stripe_subscription_id
     )
 
-    successMessage.value = 'Subscription cancelled successfully'
+    successMessage.value = 'Subscription cancelled successfully. You are now on the free plan.'
     showCancelConfirm.value = false
 
     // Refresh subscription data
     await subscriptionStore.fetchSubscriptionStatus(true)
 
-    // Show success for 2 seconds then redirect
+    // Clear success message after 3 seconds (no redirect)
     setTimeout(() => {
-      router.push('/')
-    }, 2000)
+      successMessage.value = ''
+      isCancelling.value = false
+    }, 3000)
   } catch (err) {
     errorMessage.value = err.message || 'Failed to cancel subscription. Please try again.'
     isCancelling.value = false
     showCancelConfirm.value = false
+
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      errorMessage.value = ''
+    }, 5000)
   }
 }
 

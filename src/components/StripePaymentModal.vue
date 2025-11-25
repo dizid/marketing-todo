@@ -39,7 +39,14 @@
           v-if="errorMessage"
           class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
         >
-          {{ errorMessage }}
+          <div>{{ errorMessage }}</div>
+          <button
+            v-if="!isLoading && !isProcessing"
+            @click="initializePayment"
+            class="mt-2 text-xs font-semibold text-red-600 hover:text-red-700 underline"
+          >
+            Retry
+          </button>
         </div>
 
         <!-- Submit Button -->
@@ -131,15 +138,26 @@ watch(
   async (newVal) => {
     if (newVal) {
       console.log('[StripePaymentModal] Modal opened, initializing payment...')
+      isProcessing.value = false
+      errorMessage.value = ''
       await initializePayment()
     } else {
       console.log('[StripePaymentModal] Modal closed, resetting state')
-      clientSecret = null
-      errorMessage.value = ''
+      cleanup()
     }
   },
   { immediate: false }
 )
+
+/**
+ * Reset modal state completely
+ */
+function cleanup() {
+  clientSecret = null
+  errorMessage.value = ''
+  isProcessing.value = false
+  isLoading.value = false
+}
 
 /**
  * Initialize payment element
@@ -171,9 +189,15 @@ async function initializePayment() {
     console.log('[StripePaymentModal] Payment element mounted successfully')
   } catch (error) {
     console.error('Error initializing payment:', error)
-    errorMessage.value = error.message || 'Failed to load payment form'
+    const errorMsg = error.message || 'Failed to load payment form'
+    errorMessage.value = errorMsg
     isLoading.value = false
-    emit('error', error)
+
+    // Emit error but don't auto-close modal - let user see the error
+    emit('error', {
+      message: errorMsg,
+      code: error.code || 'PAYMENT_INIT_ERROR'
+    })
   }
 }
 
@@ -188,37 +212,57 @@ async function handlePayment() {
 
     isProcessing.value = true
     errorMessage.value = ''
+    let retries = 0
+    const maxRetries = 2
 
-    // IMPORTANT: Must call submitPayment() first before confirmPayment()
-    // This is a Stripe Payment Element requirement
-    console.log('[StripePaymentModal] Submitting payment element...')
-    await stripeService.submitPayment()
+    const attemptPayment = async () => {
+      try {
+        // IMPORTANT: Must call submitPayment() first before confirmPayment()
+        // This is a Stripe Payment Element requirement
+        console.log('[StripePaymentModal] Submitting payment element...')
+        await stripeService.submitPayment()
 
-    console.log('[StripePaymentModal] Payment element submitted, confirming payment...')
-    const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
+        console.log('[StripePaymentModal] Payment element submitted, confirming payment...')
+        const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
 
-    // Confirm payment with Stripe
-    const paymentStatus = await stripeService.confirmPayment(
-      clientSecret,
-      returnUrl
-    )
+        // Confirm payment with Stripe
+        const paymentStatus = await stripeService.confirmPayment(
+          clientSecret,
+          returnUrl
+        )
 
-    if (!paymentStatus.success) {
-      throw new Error(paymentStatus.error.message)
+        if (!paymentStatus.success) {
+          const error = paymentStatus.error
+          // Check if error is retryable
+          if (error.code && ['card_declined', 'processing_error', 'rate_limit'].includes(error.code) && retries < maxRetries) {
+            retries++
+            console.log(`[StripePaymentModal] Retryable error (${error.code}), attempt ${retries + 1}/${maxRetries + 1}`)
+            errorMessage.value = `${error.message}. Retrying... (${retries}/${maxRetries})`
+            // Wait 2 seconds before retrying
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            return attemptPayment()
+          }
+          throw new Error(error.message || 'Payment failed')
+        }
+
+        console.log('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
+
+        // Emit success
+        emit('success', {
+          paymentIntentId: paymentStatus.paymentIntent.id,
+          status: paymentStatus.paymentIntent.status
+        })
+
+        // Close modal after delay
+        setTimeout(() => {
+          emit('close')
+        }, 1500)
+      } catch (error) {
+        throw error
+      }
     }
 
-    console.log('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
-
-    // Emit success
-    emit('success', {
-      paymentIntentId: paymentStatus.paymentIntent.id,
-      status: paymentStatus.paymentIntent.status
-    })
-
-    // Close modal after delay
-    setTimeout(() => {
-      emit('close')
-    }, 1500)
+    await attemptPayment()
   } catch (error) {
     console.error('Error processing payment:', error)
     errorMessage.value = error.message || 'Payment failed. Please try again.'

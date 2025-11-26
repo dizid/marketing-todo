@@ -25,9 +25,11 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const error = ref(null)
 
   // Constants
-  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes for normal operations
+  const SHORT_CACHE_DURATION = 5 * 1000 // 5 seconds during payment flows (webhook needs time to process)
   const FREE_TIER_QUOTA = 40 // 40 AI generations per month
   const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
+  let shortCacheUntil = null // Tracks when to return to normal cache duration
 
   // Computed properties
   const tier = computed(() => subscription.value?.tier || 'free')
@@ -83,6 +85,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   /**
    * Fetch subscription status from Supabase
    * Uses cache to avoid excessive database queries
+   * During payment flows, uses shorter cache (5s) to reflect webhook updates quickly
    */
   const fetchSubscriptionStatus = async (force = false) => {
     if (!authStore.user) {
@@ -90,9 +93,19 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       return null
     }
 
-    // Check cache
+    // Check cache with dynamic duration
     const now = Date.now()
-    if (!force && lastFetched.value && now - lastFetched.value < CACHE_DURATION) {
+    let effectiveCacheDuration = CACHE_DURATION
+
+    // Use shorter cache if we're in payment flow window
+    if (shortCacheUntil && now < shortCacheUntil) {
+      effectiveCacheDuration = SHORT_CACHE_DURATION
+    } else if (shortCacheUntil) {
+      // Clear the flag if the window has passed
+      shortCacheUntil = null
+    }
+
+    if (!force && lastFetched.value && now - lastFetched.value < effectiveCacheDuration) {
       return subscription.value
     }
 
@@ -329,6 +342,27 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   }
 
   /**
+   * Enable short cache mode for payment flows
+   * This reduces cache duration from 5 minutes to 5 seconds
+   * Call this when payment flow starts, cache will auto-reset after window expires
+   * @param {number} durationMs - How long to keep short cache active (default 60 seconds)
+   */
+  const enablePaymentFlowMode = (durationMs = 60 * 1000) => {
+    const now = Date.now()
+    shortCacheUntil = now + durationMs
+    console.log('[subscriptionStore] Payment flow mode enabled, short cache active for', durationMs / 1000, 'seconds')
+  }
+
+  /**
+   * Manually invalidate cache - forces next fetch to hit database
+   * Used when we know data has changed (e.g., after payment confirmation)
+   */
+  const invalidateCache = () => {
+    lastFetched.value = null
+    console.log('[subscriptionStore] Cache invalidated, next fetch will hit database')
+  }
+
+  /**
    * Initialize subscription store on user login
    */
   const initialize = async () => {
@@ -377,6 +411,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     decrementQuota,
     upgradeToPresentation,
     cancelSubscription,
+    enablePaymentFlowMode,
+    invalidateCache,
     initialize,
     reset
   }

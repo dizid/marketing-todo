@@ -93,6 +93,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
 import { StripeService } from '@/services/stripeService'
+import { useSubscriptionStore } from '@/stores/subscriptionStore'
 
 const props = defineProps({
   isOpen: {
@@ -112,6 +113,9 @@ const isLoading = ref(false)
 const isProcessing = ref(false)
 const errorMessage = ref('')
 let clientSecret = null  // Store client secret for payment confirmation
+
+// Stores
+const subscriptionStore = useSubscriptionStore()
 
 // Stripe service
 let stripeService = null
@@ -173,6 +177,11 @@ async function initializePayment() {
   try {
     isLoading.value = true
     errorMessage.value = ''
+
+    // Enable short cache mode for the payment flow
+    // This ensures subscription status updates are fetched quickly after webhook confirms payment
+    subscriptionStore.enablePaymentFlowMode(60 * 1000) // 60 seconds
+    console.log('[StripePaymentModal] Payment flow mode enabled')
 
     // Create subscription and get client secret
     const response = await stripeService.createSubscription(
@@ -251,6 +260,15 @@ async function handlePayment() {
         }
 
         console.log('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
+
+        // Invalidate subscription cache to force fresh fetch after payment
+        // Webhook should have updated status to 'active' by now
+        subscriptionStore.invalidateCache()
+        console.log('[StripePaymentModal] Cache invalidated, subscription will refresh with webhook update')
+
+        // Fetch latest subscription status to confirm upgrade
+        await subscriptionStore.fetchSubscriptionStatus(true)
+        console.log('[StripePaymentModal] Subscription refreshed after payment, tier:', subscriptionStore.tier)
 
         // Emit success
         emit('success', {

@@ -189,10 +189,10 @@ exports.handler = async (event) => {
           throw updateError
         }
       } else {
-        // Insert new record - mark as 'active' (DB schema requires this)
-        // Note: Subscription created but payment confirmation happens via webhook
-        // Webhook events from Stripe will confirm actual payment status
-        console.log('[stripe-create-subscription] Creating new subscription record with status: active')
+        // Insert new record with 'pending' status
+        // Only webhook will change to 'active' after payment_succeeded event from Stripe
+        // This prevents race conditions where user sees premium before payment is confirmed
+        console.log('[stripe-create-subscription] Creating new subscription record with status: pending')
 
         // Safely convert Stripe unix timestamps to ISO strings
         // Stripe returns seconds since epoch, we need to multiply by 1000 for milliseconds
@@ -210,7 +210,7 @@ exports.handler = async (event) => {
           .insert([{
             user_id: userId,
             tier: 'premium',
-            status: 'active',
+            status: 'pending',
             stripe_customer_id: customer.id,
             stripe_subscription_id: subscription.id,
             current_period_start: periodStart,

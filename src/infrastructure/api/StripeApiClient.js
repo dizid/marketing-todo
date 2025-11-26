@@ -134,7 +134,8 @@ export class StripeApiClient {
   }
 
   /**
-   * Confirm payment for subscription
+   * Confirm payment for subscription with Card Element
+   * Uses confirmCardPayment instead of confirmPayment (which requires Payment Element)
    * @param {string} clientSecret - Payment intent client secret
    * @param {string} returnUrl - URL to return to after payment
    * @returns {Object} Confirmation result
@@ -144,10 +145,14 @@ export class StripeApiClient {
       throw new Error('Stripe not initialized')
     }
 
-    const { error, paymentIntent } = await this.stripe.confirmPayment({
-      elements: this.elements,
-      clientSecret,
-      redirect: 'if_required'
+    // Use confirmCardPayment for Card Element (not confirmPayment which needs Payment Element)
+    const { error, paymentIntent } = await this.stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: this.paymentElement,
+        billing_details: {
+          // Can add billing details here if needed
+        }
+      }
     })
 
     if (error) {

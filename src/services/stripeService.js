@@ -7,7 +7,7 @@
 export class StripeService {
   constructor(stripeApiClient) {
     this.stripeApiClient = stripeApiClient
-    this.functionsUrl = import.meta.env.VITE_FUNCTIONS_URL
+    this.functionsUrl = import.meta.env.VITE_FUNCTIONS_URL || '/.netlify/functions'
   }
 
   /**
@@ -246,7 +246,8 @@ export class StripeService {
    */
   async confirmPayment(clientSecret, userId) {
     try {
-      const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?session_id={CHECKOUT_SESSION_ID}`
+      const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
+      const returnUrl = `${appUrl}/app/subscription?session_id={CHECKOUT_SESSION_ID}`
 
       const result = await this.stripeApiClient.confirmPayment(
         clientSecret,

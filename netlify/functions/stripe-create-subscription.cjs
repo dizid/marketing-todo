@@ -169,9 +169,11 @@ exports.handler = async (event) => {
     console.log('[stripe-create-subscription] Retrieved subscription:', subscription.id)
     console.log('[stripe-create-subscription] After retrieve - Period dates - start:', subscription.current_period_start, 'end:', subscription.current_period_end)
 
-    // Store basic subscription info in database ONLY if we're updating from a free tier
-    // The actual 'active' status will be set by the webhook after payment is confirmed
-    console.log('[stripe-create-subscription] Storing subscription mapping in database (not active yet)')
+    // Store subscription info in database
+    // Status is set to 'active' on creation because there's no 'pending' status in the database
+    // Sync confirmation (stripe-confirm-payment) is the primary mechanism for updating subscription after payment
+    // The webhook (stripe-webhook) serves as a secondary fallback confirmation mechanism
+    console.log('[stripe-create-subscription] Storing subscription in database with status=active')
     try {
       // Check if subscription record exists
       const { data: existingData, error: selectError } = await supabase
@@ -206,10 +208,10 @@ exports.handler = async (event) => {
           throw updateError
         }
       } else {
-        // Insert new record with 'pending' status
-        // Only webhook will change to 'active' after payment_succeeded event from Stripe
-        // This prevents race conditions where user sees premium before payment is confirmed
-        console.log('[stripe-create-subscription] Creating new subscription record with status: pending')
+        // Insert new record with 'active' status
+        // Payment is confirmed synchronously via stripe-confirm-payment function after payment succeeds
+        // This prevents race conditions and ensures subscription status is updated immediately
+        console.log('[stripe-create-subscription] Creating new subscription record with status: active')
 
         // Safely convert Stripe unix timestamps to ISO strings
         // Stripe returns seconds since epoch, we need to multiply by 1000 for milliseconds
@@ -227,7 +229,7 @@ exports.handler = async (event) => {
           .insert([{
             user_id: userId,
             tier: 'premium',
-            status: 'pending',
+            status: 'active',
             stripe_customer_id: customer.id,
             stripe_subscription_id: subscription.id,
             current_period_start: periodStart,

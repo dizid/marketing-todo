@@ -226,7 +226,7 @@
               Yes, Cancel
             </button>
             <button
-              @click="showCancelConfirm = false"
+              @click="() => { showCancelConfirm = false; isCancelling = false }"
               class="px-3 py-2 bg-gray-300 text-gray-900 text-xs sm:text-sm font-semibold rounded hover:bg-gray-400 transition"
             >
               Keep
@@ -360,15 +360,8 @@ const handlePaymentClose = () => {
 }
 
 const handleCancel = () => {
-  // Show confirmation - mark as in progress to prevent double-clicks
-  isCancelling.value = true
+  // Show confirmation dialog
   showCancelConfirm.value = true
-  // Reset after confirmation dialog closes
-  setTimeout(() => {
-    if (!showCancelConfirm.value) {
-      isCancelling.value = false
-    }
-  }, 100)
 }
 
 const confirmCancel = async () => {
@@ -376,6 +369,8 @@ const confirmCancel = async () => {
   errorMessage.value = ''
 
   try {
+    console.log('[ManageSubscriptionPage] Starting cancellation process...')
+
     if (!subscriptionStore.subscription?.stripe_subscription_id) {
       throw new Error('No active Stripe subscription found')
     }
@@ -386,24 +381,33 @@ const confirmCancel = async () => {
       throw new Error('User not authenticated')
     }
 
+    console.log('[ManageSubscriptionPage] Cancelling subscription for user:', userId)
+
     // Cancel subscription via Stripe service
-    await stripeService.cancelSubscription(
+    const cancelResult = await stripeService.cancelSubscription(
       userId,
       subscriptionStore.subscription.stripe_subscription_id
     )
+    console.log('[ManageSubscriptionPage] Cancellation response:', cancelResult)
 
     successMessage.value = 'Subscription cancelled successfully. You are now on the free plan.'
     showCancelConfirm.value = false
+    isCancelling.value = false
 
-    // Refresh subscription data
+    console.log('[ManageSubscriptionPage] Invalidating cache and fetching fresh subscription status...')
+
+    // Invalidate cache and refresh subscription data
+    subscriptionStore.invalidateCache()
     await subscriptionStore.fetchSubscriptionStatus(true)
+
+    console.log('[ManageSubscriptionPage] Subscription status refreshed:', subscriptionStore.subscription)
 
     // Clear success message after 3 seconds (no redirect)
     setTimeout(() => {
       successMessage.value = ''
-      isCancelling.value = false
     }, 3000)
   } catch (err) {
+    console.error('[ManageSubscriptionPage] Cancellation error:', err)
     errorMessage.value = err.message || 'Failed to cancel subscription. Please try again.'
     isCancelling.value = false
     showCancelConfirm.value = false

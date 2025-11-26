@@ -87,6 +87,7 @@ export class StripeService {
    */
   async cancelSubscription(userId, subscriptionId) {
     try {
+      console.log('[StripeService] Cancelling subscription for user:', userId, 'subscriptionId:', subscriptionId)
       const response = await fetch(
         `${this.functionsUrl}/stripe-cancel-subscription`,
         {
@@ -101,12 +102,34 @@ export class StripeService {
         }
       )
 
+      console.log('[StripeService] Cancel response status:', response.status)
+
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to cancel subscription')
+        let errorMessage = 'Failed to cancel subscription'
+        let errorDetails = {}
+        try {
+          const errorBody = await response.text()
+          console.log('[StripeService] Full error response:', response.status, errorBody)
+
+          if (errorBody && errorBody.trim()) {
+            const error = JSON.parse(errorBody)
+            errorMessage = error.message || error.error || errorMessage
+            errorDetails = error
+          } else {
+            errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
+          }
+        } catch (parseError) {
+          console.error('[StripeService] Error parsing response:', parseError)
+          errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
+        }
+
+        console.error('[StripeService] API Error:', { status: response.status, message: errorMessage, details: errorDetails })
+        throw new Error(errorMessage)
       }
 
-      return await response.json()
+      const data = await response.json()
+      console.log('[StripeService] Subscription cancelled successfully:', data)
+      return data
     } catch (error) {
       console.error('Error cancelling subscription:', error)
       throw {

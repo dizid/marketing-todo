@@ -255,8 +255,8 @@ const handleSubmit = async () => {
         // Auto-confirmation enabled - user can login immediately
         message.value = '✅ ' + result.message
         setTimeout(() => {
-          // Auto-redirect if email confirmation is disabled
-          router.push('/app')
+          // Auto-redirect to landing page if email confirmation is disabled
+          router.push('/landing')
         }, 1500)
       }
 

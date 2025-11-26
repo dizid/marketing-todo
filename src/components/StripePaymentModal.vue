@@ -178,10 +178,9 @@ async function initializePayment() {
     isLoading.value = true
     errorMessage.value = ''
 
-    // Enable short cache mode for the payment flow
-    // This ensures subscription status updates are fetched quickly after webhook confirms payment
-    subscriptionStore.enablePaymentFlowMode(60 * 1000) // 60 seconds
-    console.log('[StripePaymentModal] Payment flow mode enabled')
+    // Invalidate cache to ensure fresh subscription status after payment
+    subscriptionStore.invalidateCache()
+    console.log('[StripePaymentModal] Cache invalidated for fresh status fetch after payment')
 
     // Create subscription and get client secret
     const response = await stripeService.createSubscription(

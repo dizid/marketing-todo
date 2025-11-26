@@ -195,7 +195,7 @@ async function handlePaymentSucceeded(invoice) {
     const { data, error } = await supabase.from('subscriptions').update({
       status: 'active',
       updated_at: new Date().toISOString()
-    }).eq('user_id', userId).eq('status', 'pending')
+    }).eq('user_id', userId)
 
     if (error) {
       console.error(`[stripe-webhook] Database update error for user ${userId}:`, error)

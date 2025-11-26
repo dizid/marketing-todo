@@ -34,7 +34,7 @@
           :key="time.value"
           @click="selectTimeline(time.value)"
           :class="[
-            'w-full p-3 border-2 rounded-lg text-left transition hover:border-indigo-400',
+            'w-full p-3 border-2 rounded-lg text-left transition hover:border-indigo-400 text-gray-900',
             wizardData.timeline === time.value
               ? 'border-indigo-600 bg-indigo-50'
               : 'border-gray-200 bg-white'

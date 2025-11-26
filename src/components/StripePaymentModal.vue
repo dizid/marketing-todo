@@ -73,8 +73,7 @@
       <!-- Cancel Button -->
       <button
         class="mt-3 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-        @click="emit('close')"
-        :disabled="isProcessing"
+        @click="handleCancel"
       >
         Cancel
       </button>
@@ -157,6 +156,14 @@ function cleanup() {
   errorMessage.value = ''
   isProcessing.value = false
   isLoading.value = false
+}
+
+/**
+ * Handle cancel button click
+ */
+function handleCancel() {
+  cleanup()
+  emit('close')
 }
 
 /**

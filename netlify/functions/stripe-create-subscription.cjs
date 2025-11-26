@@ -56,13 +56,14 @@ exports.handler = async (event) => {
     console.log('[stripe-create-subscription] Request received')
 
     // Parse request body safely
-    let userId, priceId
+    let userId, priceId, idempotencyKey
     try {
       console.log('[stripe-create-subscription] Request body:', event.body)
       const parsed = JSON.parse(event.body || '{}')
       userId = parsed.userId
       priceId = parsed.priceId
-      console.log('[stripe-create-subscription] Parsed - userId:', userId, 'priceId:', priceId)
+      idempotencyKey = parsed.idempotencyKey
+      console.log('[stripe-create-subscription] Parsed - userId:', userId, 'priceId:', priceId, 'hasIdempotencyKey:', !!idempotencyKey)
     } catch (parseError) {
       console.error('[stripe-create-subscription] Failed to parse request body:', parseError.message)
       return jsonResponse(400, {
@@ -70,6 +71,16 @@ exports.handler = async (event) => {
         code: 'INVALID_JSON',
         details: parseError.message
       })
+    }
+
+    // Generate idempotency key if not provided
+    // Stripe will return the same result for the same key within 24 hours
+    // This prevents duplicate charges if the user retries the request
+    if (!idempotencyKey) {
+      idempotencyKey = `${userId}-${priceId}-${Date.now()}`
+      console.log('[stripe-create-subscription] Generated idempotency key:', idempotencyKey)
+    } else {
+      console.log('[stripe-create-subscription] Using provided idempotency key')
     }
 
     // Validate input
@@ -118,15 +129,21 @@ exports.handler = async (event) => {
 
     // Create subscription with payment_behavior: 'default_incomplete'
     // This creates a subscription without payment, requiring client confirmation
-    console.log('[stripe-create-subscription] Creating subscription with:', { customerId: customer.id, priceId })
+    // Using idempotency key to ensure retries don't create duplicate subscriptions
+    console.log('[stripe-create-subscription] Creating subscription with:', { customerId: customer.id, priceId, idempotencyKey })
     let subscription
     try {
-      subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ price: priceId }],
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice', 'latest_invoice.payment_intent']
-      })
+      subscription = await stripe.subscriptions.create(
+        {
+          customer: customer.id,
+          items: [{ price: priceId }],
+          payment_behavior: 'default_incomplete',
+          expand: ['latest_invoice', 'latest_invoice.payment_intent']
+        },
+        {
+          idempotencyKey: idempotencyKey
+        }
+      )
       console.log('[stripe-create-subscription] Created subscription:', subscription.id)
     } catch (error) {
       console.error('[stripe-create-subscription] Failed to create subscription:', error.message, error.code)

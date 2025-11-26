@@ -18,7 +18,16 @@ export class StripeService {
    */
   async createSubscription(userId, priceId) {
     try {
-      console.log('[StripeService] Creating subscription for user:', userId, 'price:', priceId)
+      // Generate idempotency key to prevent duplicate subscriptions if user retries
+      // Stored in session storage so retries of same action use same key
+      const storageKey = `idempotency_${userId}_${priceId}`
+      let idempotencyKey = sessionStorage.getItem(storageKey)
+      if (!idempotencyKey) {
+        idempotencyKey = `${userId}-${priceId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        sessionStorage.setItem(storageKey, idempotencyKey)
+      }
+
+      console.log('[StripeService] Creating subscription for user:', userId, 'price:', priceId, 'idempotencyKey:', idempotencyKey)
       const response = await fetch(
         `${this.functionsUrl}/stripe-create-subscription`,
         {
@@ -28,7 +37,8 @@ export class StripeService {
           },
           body: JSON.stringify({
             userId,
-            priceId
+            priceId,
+            idempotencyKey
           })
         }
       )

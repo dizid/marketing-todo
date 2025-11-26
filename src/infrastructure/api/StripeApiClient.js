@@ -71,11 +71,6 @@ export class StripeApiClient {
         colorText: '#1f2937', // Tailwind gray-900
         borderRadius: '0.5rem',
         fontFamily: 'system-ui, -apple-system, sans-serif'
-      },
-      rules: {
-        '.Focused': {
-          boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.5)'
-        }
       }
     }
 

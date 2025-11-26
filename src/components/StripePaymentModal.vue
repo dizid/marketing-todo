@@ -261,14 +261,15 @@ async function handlePayment() {
 
         console.log('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
 
-        // Invalidate subscription cache to force fresh fetch after payment
-        // Webhook should have updated status to 'active' by now
+        // Emit success immediately - don't wait for webhook
+        // The webhook will update the subscription status in the background
+        // We invalidate cache so next fetch gets the updated status
         subscriptionStore.invalidateCache()
-        console.log('[StripePaymentModal] Cache invalidated, subscription will refresh with webhook update')
+        console.log('[StripePaymentModal] Cache invalidated, webhook will update subscription status in background')
 
-        // Fetch latest subscription status to confirm upgrade
-        await subscriptionStore.fetchSubscriptionStatus(true)
-        console.log('[StripePaymentModal] Subscription refreshed after payment, tier:', subscriptionStore.tier)
+        // Reset processing state
+        isProcessing.value = false
+        console.log('[StripePaymentModal] Payment processing complete, closing modal')
 
         // Emit success
         emit('success', {
@@ -276,14 +277,9 @@ async function handlePayment() {
           status: paymentStatus.paymentIntent.status
         })
 
-        // Reset processing state BEFORE closing modal
-        isProcessing.value = false
-        console.log('[StripePaymentModal] Payment processing complete, modal will close')
-
-        // Close modal after delay
-        setTimeout(() => {
-          emit('close')
-        }, 1500)
+        // Close modal immediately - don't wait for subscription status update
+        // The subscription store will fetch updated status on next access
+        emit('close')
       } catch (error) {
         throw error
       }

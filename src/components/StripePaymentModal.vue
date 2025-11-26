@@ -242,7 +242,7 @@ async function handlePayment() {
         // Card Element validates card input during this call
         const paymentStatus = await stripeService.confirmPayment(
           clientSecret,
-          returnUrl
+          props.userId
         )
 
         if (!paymentStatus.success) {

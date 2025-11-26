@@ -216,10 +216,12 @@ export class StripeService {
 
   /**
    * Confirm and process payment
+   * After successful payment, notify backend to update subscription status
    * @param {string} clientSecret - Payment intent client secret
+   * @param {string} userId - User ID for subscription update
    * @returns {Object} Payment confirmation result
    */
-  async confirmPayment(clientSecret) {
+  async confirmPayment(clientSecret, userId) {
     try {
       const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?session_id={CHECKOUT_SESSION_ID}`
 
@@ -230,6 +232,39 @@ export class StripeService {
 
       if (!result.success) {
         throw new Error(result.error.message)
+      }
+
+      console.log('[StripeService] Payment confirmed, notifying backend to update subscription')
+
+      // Notify backend to confirm payment and update subscription status
+      // This ensures the subscription status is updated even if webhook doesn't fire (e.g., during local dev)
+      try {
+        const confirmResponse = await fetch(
+          `${this.functionsUrl}/stripe-confirm-payment`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              userId,
+              paymentIntentId: result.paymentIntent.id
+            })
+          }
+        )
+
+        if (!confirmResponse.ok) {
+          console.warn('[StripeService] Backend confirmation failed, but payment succeeded in Stripe')
+          // Don't throw - payment was successful, just log the issue
+          // The webhook should still update the subscription eventually
+        } else {
+          const confirmData = await confirmResponse.json()
+          console.log('[StripeService] Backend confirmed payment and updated subscription:', confirmData)
+        }
+      } catch (confirmError) {
+        console.warn('[StripeService] Error notifying backend of payment:', confirmError)
+        // Don't throw - payment was successful, just log the issue
+        // The webhook should still update the subscription eventually
       }
 
       return result

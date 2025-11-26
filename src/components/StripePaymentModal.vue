@@ -276,6 +276,10 @@ async function handlePayment() {
           status: paymentStatus.paymentIntent.status
         })
 
+        // Reset processing state BEFORE closing modal
+        isProcessing.value = false
+        console.log('[StripePaymentModal] Payment processing complete, modal will close')
+
         // Close modal after delay
         setTimeout(() => {
           emit('close')

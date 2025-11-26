@@ -98,19 +98,38 @@ exports.handler = async (event) => {
 
     // Update subscription status to 'active'
     try {
-      const { error, data } = await supabase
+      // First, get the subscription to see its current state
+      const { data: subData, error: selectError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+      if (selectError) {
+        console.error('[stripe-confirm-payment] Failed to fetch subscription:', selectError)
+        return jsonResponse(500, {
+          error: 'Subscription not found',
+          code: 'SUBSCRIPTION_NOT_FOUND',
+          details: selectError.message
+        })
+      }
+
+      console.log('[stripe-confirm-payment] Found subscription with status:', subData?.status)
+
+      // Update to 'active' regardless of current status - payment succeeded in Stripe
+      const { error: updateError, data } = await supabase
         .from('subscriptions')
         .update({
           status: 'active',
+          tier: 'premium',
           updated_at: new Date().toISOString()
         })
         .eq('user_id', userId)
-        .eq('status', 'pending')
         .select()
 
-      if (error) {
-        console.error('[stripe-confirm-payment] Database update error:', error)
-        throw error
+      if (updateError) {
+        console.error('[stripe-confirm-payment] Database update error:', updateError)
+        throw updateError
       }
 
       console.log('[stripe-confirm-payment] Successfully updated subscription:', data)

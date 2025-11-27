@@ -137,9 +137,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { useProjectContext } from '@/composables/useProjectContext'
 
 const emit = defineEmits(['created', 'close'])
 const projectStore = useProjectStore()
+const { saveContext } = useProjectContext()
 
 const form = ref({
   name: '',
@@ -202,6 +204,19 @@ const handleSubmit = async () => {
     }
 
     await projectStore.updateProjectSettings(settings)
+
+    // Save to ProjectContext (canonical source of truth)
+    const userId = projectStore.currentUser?.id
+    if (userId && project?.id) {
+      await saveContext(project.id, userId, {
+        productName: form.value.name,
+        productDescription: form.value.description,
+        targetAudience: form.value.targetAudience,
+        primaryGoal: form.value.goals,
+        targetTimeline: form.value.timeline,
+        techStack: form.value.techStack
+      })
+    }
 
     emit('created', project)
   } catch (err) {

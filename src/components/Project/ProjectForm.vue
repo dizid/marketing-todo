@@ -127,6 +127,7 @@
 import { ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
 import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useProjectContext } from '@/composables/useProjectContext'
 
 const props = defineProps({
   project: {
@@ -138,6 +139,7 @@ const props = defineProps({
 const emit = defineEmits(['updated', 'deleted', 'close'])
 const projectStore = useProjectStore()
 const onboardingStore = useOnboardingStore()
+const { saveContext, context: projectContext } = useProjectContext()
 
 /**
  * Extract target audience from project description
@@ -230,6 +232,19 @@ const handleSubmit = async () => {
     }
 
     await projectStore.updateProjectSettings(settings)
+
+    // Save to ProjectContext (canonical source of truth)
+    const userId = projectStore.currentUser?.id
+    if (userId && props.project.id) {
+      await saveContext(props.project.id, userId, {
+        productName: form.value.name,
+        productDescription: form.value.description,
+        targetAudience: form.value.targetAudience,
+        primaryGoal: form.value.goals,
+        targetTimeline: form.value.timeline,
+        techStack: form.value.techStack
+      })
+    }
 
     emit('updated')
   } catch (err) {

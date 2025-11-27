@@ -25,9 +25,9 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   const error = ref(null)
 
   // Constants
-  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
-  const FREE_TIER_QUOTA = 20 // 20 AI generations per month
-  const PREMIUM_TIER_QUOTA = 200 // 200 AI generations per month
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes for normal operations
+  const FREE_TIER_QUOTA = 40 // 40 AI generations per month
+  const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
 
   // Computed properties
   const tier = computed(() => subscription.value?.tier || 'free')
@@ -83,6 +83,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   /**
    * Fetch subscription status from Supabase
    * Uses cache to avoid excessive database queries
+   * Pass force=true to bypass cache (e.g., after payment confirmation)
    */
   const fetchSubscriptionStatus = async (force = false) => {
     if (!authStore.user) {
@@ -90,9 +91,8 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       return null
     }
 
-    // Check cache
-    const now = Date.now()
-    if (!force && lastFetched.value && now - lastFetched.value < CACHE_DURATION) {
+    // Check cache unless force=true
+    if (!force && lastFetched.value && Date.now() - lastFetched.value < CACHE_DURATION) {
       return subscription.value
     }
 
@@ -120,12 +120,12 @@ export const useSubscriptionStore = defineStore('subscription', () => {
         subscription.value = data
       }
 
-      lastFetched.value = now
+      lastFetched.value = Date.now()
 
       // Also cache in localStorage for offline use (read-only)
       localStorage.setItem('subscription_cache', JSON.stringify({
         data: subscription.value,
-        cachedAt: now
+        cachedAt: Date.now()
       }))
 
       return subscription.value
@@ -239,7 +239,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
 
   /**
    * Upgrade subscription to premium
-   * Note: Subscription is created server-side by paypal-create-subscription function
+   * Note: Subscription is created server-side by stripe-create-subscription function
    * This just fetches the subscription to verify it was created
    */
   const upgradeToPresentation = async () => {
@@ -251,7 +251,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
       isLoading.value = true
       error.value = null
 
-      // Fetch the subscription - server should have already created it during PayPal flow
+      // Fetch the subscription - server should have already created it during Stripe flow
       const { data: fetchData, error: fetchError } = await supabase
         .from('subscriptions')
         .select('*')
@@ -329,6 +329,15 @@ export const useSubscriptionStore = defineStore('subscription', () => {
   }
 
   /**
+   * Manually invalidate cache - forces next fetch to hit database
+   * Used when we know data has changed (e.g., after payment confirmation)
+   */
+  const invalidateCache = () => {
+    lastFetched.value = null
+    console.log('[subscriptionStore] Cache invalidated, next fetch will hit database')
+  }
+
+  /**
    * Initialize subscription store on user login
    */
   const initialize = async () => {
@@ -377,6 +386,7 @@ export const useSubscriptionStore = defineStore('subscription', () => {
     decrementQuota,
     upgradeToPresentation,
     cancelSubscription,
+    invalidateCache,
     initialize,
     reset
   }

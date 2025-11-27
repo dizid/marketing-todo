@@ -98,7 +98,7 @@ INPUTS:
 Product: {product_description}
 Target Audience: {target_audience}
 Main Problem: {main_problem}
-Price: ${price_point}
+Price: {price_point}
 Payment Model: {offer_structure}
 Primary Goal: {sales_goal}
 Existing Assets: {existing_assets}
@@ -130,7 +130,7 @@ Generate this exact structure:
 - Revenue per customer: Expected $[X]
 
 **Why This Funnel Works for Your Price Point:**
-[Explain why ${price_point} products need this specific approach]
+[Explain why {price_point} products need this specific approach]
 
 ---
 
@@ -350,7 +350,7 @@ Generate this exact structure:
    - Bonus 1: $[value]
    - Bonus 2: $[value]
    - Total value: $[X]
-   - **Your price: ${price_point}**
+   - **Your price: {price_point}**
 
 6. **Guarantee** (65-70% scroll)
    - [Recommend specific guarantee based on {offer_structure}]
@@ -375,7 +375,7 @@ Generate this exact structure:
 - Secondary: "[Alternative framing]"
 - Final: "[Urgency-based CTA]"
 
-### Pricing Psychology for ${price_point}
+### Pricing Psychology for {price_point}
 [Specific tactics based on price point - anchoring, framing, payment options]
 
 ### Upsell/Downsell Strategy
@@ -442,7 +442,7 @@ Generate this exact structure:
 ### Upsell/Cross-Sell Opportunities
 **Ascension Ladder:**
 1. Entry: $[lower price point product]
-2. Core: ${price_point} ← You are here
+2. Core: {price_point} ← You are here
 3. Premium: $[higher price point upgrade]
 
 **Timing:** Upsell after [X days/milestones]
@@ -545,7 +545,7 @@ Track these weekly:
 
 **Your Target Funnel Math:**
 - 1,000 visitors → [X] leads → [X] customers
-- Revenue: [X] customers × ${price_point} = $[X]
+- Revenue: [X] customers × {price_point} = $[X]
 - Cost: 1,000 visitors × $[X] CPC = $[X]
 - Profit: $[Revenue - Cost]
 - ROI: [X]%
@@ -642,7 +642,7 @@ Track these weekly:
 
 ## 💡 PRO TIPS FOR YOUR FUNNEL
 
-**For ${price_point} Products:**
+**For {price_point} Products:**
 [Specific advice based on price point - e.g., high-ticket needs more trust-building, low-ticket needs volume]
 
 **For {offer_structure} Model:**

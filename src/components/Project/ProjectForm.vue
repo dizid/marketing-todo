@@ -92,21 +92,31 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3 justify-end pt-6 border-t border-gray-200">
+        <div class="flex gap-3 justify-between pt-6 border-t border-gray-200">
           <button
             type="button"
-            @click="$emit('close')"
-            class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
+            @click="handleDelete"
             :disabled="isLoading"
-            class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium"
+            class="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition font-medium"
           >
-            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+            {{ isLoading ? 'Deleting...' : 'Delete Project' }}
           </button>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              @click="$emit('close')"
+              class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="isLoading"
+              class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition font-medium"
+            >
+              {{ isLoading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -116,6 +126,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 
 const props = defineProps({
   project: {
@@ -124,8 +135,9 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['updated', 'close'])
+const emit = defineEmits(['updated', 'deleted', 'close'])
 const projectStore = useProjectStore()
+const onboardingStore = useOnboardingStore()
 
 /**
  * Extract target audience from project description
@@ -167,17 +179,17 @@ const form = ref({
 const isLoading = ref(false)
 const error = ref('')
 
-// Load settings from store
+// Load settings from store, with fallback to onboarding data
 watch(() => projectStore.currentProjectSettings, (settings) => {
   if (settings) {
     form.value = {
       name: props.project.name,
       description: props.project.description,
-      // Use stored settings or extract from description as fallback
-      targetAudience: settings.targetAudience || extractTargetAudienceFromDescription(props.project.description),
-      goals: settings.goals || '',
-      techStack: settings.techStack || '',
-      timeline: settings.timeline || ''
+      // Use stored settings, then onboarding data, then extract from description
+      targetAudience: settings.targetAudience || onboardingStore.wizardData.targetAudience || extractTargetAudienceFromDescription(props.project.description),
+      goals: settings.goals || onboardingStore.wizardData.mainGoal || '',
+      techStack: settings.techStack || (onboardingStore.wizardData.techStack?.join(', ') || ''),
+      timeline: settings.timeline || onboardingStore.wizardData.timeline || ''
     }
   }
 }, { immediate: true })
@@ -223,6 +235,29 @@ const handleSubmit = async () => {
   } catch (err) {
     error.value = err.message || 'Failed to save project'
     console.error('Error saving project:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleDelete = async () => {
+  const confirmDelete = confirm(
+    `⚠️ Delete "${props.project.name}"?\n\nThis will permanently delete the project and all its data. This cannot be undone.`
+  )
+
+  if (!confirmDelete) {
+    return
+  }
+
+  isLoading.value = true
+  error.value = ''
+
+  try {
+    await projectStore.deleteProject(props.project.id)
+    emit('deleted')
+  } catch (err) {
+    error.value = err.message || 'Failed to delete project'
+    console.error('Error deleting project:', err)
   } finally {
     isLoading.value = false
   }

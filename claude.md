@@ -25,6 +25,10 @@ Netlify functions server running on port 9999
 
 ## SYSTEM-LEVEL OPERATING PRINCIPLES
 
+**Context7**
+Automatically use context7 for code generation and library documentation.
+
+
 ### Core Implementation Philosophy
 - DIRECT IMPLEMENTATION ONLY: Generate complete, working code that realizes the conceptualized solution
 - NO PARTIAL IMPLEMENTATIONS: Eliminate mocks, stubs, TODOs, or placeholder functions
@@ -94,8 +98,13 @@ Eliminate patterns that consume tokens without advancing implementation:
 
 ### Essential Commands
 
+When starting / stopping / kill a server or proces: do not use 'sleep' unless absolutely nesscary
+
 #### Development
-Your dev server command: netlify dev
+Your dev server command: nnp run dev 
+vite server on port 3000 (no sleep that takes too long!)
+Your Netlify functions server command: netlify functions:serve
+netlify server on port 9999
 Your build command: npm run build
 Your test command:
 #### Database
@@ -232,7 +241,7 @@ Make the code understandable, logical and maintainable. Use modular code.
 Give me clean code, all with clear comments.
 
 Also, give me clear instruction on which parts i have to integrate in my app, like adding stuff to app.vue, router.js, import modules, .env etc.
-When adding features or making chanches, leave current, wortking code as much as possible intact.
+When adding features or making chanches, leave current, working code as much as possible intact.
 Use clear naming
 
 ---

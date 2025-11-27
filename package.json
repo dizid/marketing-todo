@@ -8,7 +8,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest tests/unit",
+    "test:integration": "vitest tests/integration"
   },
   "keywords": [
     "marketing",
@@ -27,9 +31,16 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "axios": "^1.12.2",
     "pinia": "^3.0.3",
+    "stripe": "^20.0.0",
     "tailwindcss": "^4.1.15",
     "vite": "^7.1.11",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.13",
+    "@vitest/ui": "^4.0.13",
+    "jsdom": "^27.2.0",
+    "vitest": "^4.0.13"
   }
 }

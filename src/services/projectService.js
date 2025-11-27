@@ -193,6 +193,8 @@ export async function addProjectContent(projectId, contentType, content) {
 
 /**
  * Initialize project with default data (called when project is created)
+ * Sales Optimization and Growth Strategy tasks are marked as "removed" by default
+ * They appear in the "+ Add Tasks" modal instead of the main dashboard
  */
 export async function initializeProject(projectId) {
   const defaultSettings = {
@@ -203,7 +205,24 @@ export async function initializeProject(projectId) {
     description: ''
   }
 
-  const defaultTasks = {}
+  // Initialize all tasks with their default state
+  // Sales Optimization tasks (5) - marked as removed by default
+  // Growth Strategy tasks (5) - marked as removed by default
+  const defaultTasks = {
+    // Sales Optimization Category - removed by default
+    'sales-1': { checked: false, removed: true },   // Sales Funnel Blueprint
+    'sales-2': { checked: false, removed: true },   // High-Converting Offer Builder
+    'sales-3': { checked: false, removed: true },   // Objection Handling
+    'sales-4': { checked: false, removed: true },   // Email Sequence Designer
+    'sales-5': { checked: false, removed: true },   // Sales Page Audit
+
+    // Growth Strategy Category - removed by default
+    'growth-1': { checked: false, removed: true },  // Lead Magnet Builder
+    'growth-2': { checked: false, removed: true },  // Cold Outreach Campaigns
+    'growth-3': { checked: false, removed: true },  // Competitor Analysis
+    'growth-4': { checked: false, removed: true },  // A/B Testing Ideas
+    'growth-5': { checked: false, removed: true }   // Positioning Map
+  }
 
   await Promise.all([
     saveProjectSettings(projectId, defaultSettings),

@@ -28,7 +28,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import AuthForm from '@/components/AuthForm.vue'
-import Dashboard from '@/components/Dashboard.vue'
+import { DashboardContainer } from '@/components/Dashboard'
 import ResetPassword from '@/components/ResetPassword.vue'
 import OnboardingWizard from '@/components/Onboarding/OnboardingWizard.vue'
 import LandingPage from '@/components/LandingPage.vue'
@@ -84,7 +84,7 @@ const routes = [
   {
     path: '/app',
     name: 'Dashboard',
-    component: Dashboard,
+    component: DashboardContainer,
     meta: {
       requiresAuth: true,
       layout: 'default'
@@ -119,7 +119,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
   // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
-  // This is critical for PayPal redirect flows where user is already logged in
+  // This is critical for payment redirect flows where user is already logged in
   if (authStore.isLoading) {
     // Wait for auth to finish loading
     await new Promise(resolve => {

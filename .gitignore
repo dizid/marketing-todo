@@ -1,6 +1,6 @@
 .env
 *.txt
-
+dev.txt
 # Logs
 logs
 *.log

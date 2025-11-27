@@ -44,7 +44,11 @@ const taskComponentMap = {
   // Analytics & Optimization
   'analytics-1': () => import('@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'),
   'analytics-2': () => import('@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'),
-  'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue')
+  'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'),
+
+  // Paid Advertising
+  'advertising-1': () => import('@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'),
+  'advertising-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue')
 }
 
 /**
@@ -251,6 +255,26 @@ const taskMetadata = {
     hasAI: false,
     miniAppId: 'roi-calculator',
     fields: ['items']
+  },
+  'advertising-1': {
+    name: 'Launch Paid Ads',
+    type: 'miniapp',
+    category: 'advertising',
+    icon: '💰',
+    description: 'Create and launch profitable paid advertising campaigns on Facebook, Google, and Instagram with AI-guided strategy.',
+    hasAI: true,
+    miniAppId: 'paid-ads-launch',
+    fields: ['campaign_name', 'platform', 'budget', 'audience', 'ad_copy', 'landing_page']
+  },
+  'advertising-2': {
+    name: 'Optimize Paid Ads',
+    type: 'miniapp',
+    category: 'advertising',
+    icon: '📊',
+    description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
+    hasAI: true,
+    miniAppId: 'paid-ads-optimize',
+    fields: ['campaigns', 'metrics', 'optimization_strategy', 'budget_allocation']
   }
 }
 

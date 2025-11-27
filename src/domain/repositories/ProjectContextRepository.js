@@ -349,4 +349,359 @@ export class ProjectContextRepository {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     return uuidRegex.test(uuid)
   }
+
+  // ============================================================================
+  // Task-Level Field Override Methods (Phase 6)
+  // ============================================================================
+
+  /**
+   * Get all field overrides for a task
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @returns {Object} Map of field names to override values
+   */
+  async getTaskFieldOverrides(projectId, taskId) {
+    try {
+      this.logger.debug('Fetching task field overrides', { projectId, taskId })
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .select('field_name, field_value, field_type, source')
+        .eq('project_id', projectId)
+        .eq('task_id', taskId)
+
+      if (error) throw error
+
+      // Convert array of overrides to map: { field_name: value }
+      const overrides = {}
+      if (data) {
+        data.forEach((override) => {
+          overrides[override.field_name] = override.field_value
+        })
+      }
+
+      return overrides
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Get a specific field override for a task
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string} fieldName - Canonical field name
+   * @returns {*|null} Override value or null if not overridden
+   */
+  async getTaskFieldOverride(projectId, taskId, fieldName) {
+    try {
+      this.logger.debug('Fetching task field override', { projectId, taskId, fieldName })
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .select('field_value')
+        .eq('project_id', projectId)
+        .eq('task_id', taskId)
+        .eq('field_name', fieldName)
+        .single()
+
+      if (error && error.code !== 'PGRST116') throw error
+      if (!data) return null
+
+      return data.field_value
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId, fieldName })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Set a field override for a task
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string} userId - User UUID
+   * @param {string} fieldName - Canonical field name
+   * @param {*} value - Field value
+   * @param {string} fieldType - Field type hint (optional)
+   * @param {string} source - Override source (optional, default: 'ui')
+   * @returns {Object} Inserted/updated override record
+   */
+  async setTaskFieldOverride(projectId, taskId, userId, fieldName, value, fieldType = null, source = 'ui') {
+    try {
+      this.logger.debug('Setting task field override', { projectId, taskId, fieldName, source })
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .upsert(
+          {
+            project_id: projectId,
+            task_id: taskId,
+            user_id: userId,
+            field_name: fieldName,
+            field_value: value,
+            field_type: fieldType,
+            source: source,
+            overridden_at: new Date().toISOString()
+          },
+          { onConflict: 'project_id,task_id,field_name' }
+        )
+        .select()
+        .single()
+
+      if (error) throw error
+
+      this.logger.info('Task field override set', { projectId, taskId, fieldName })
+      return data
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId, fieldName })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Clear a field override for a task (revert to inherited value)
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string} fieldName - Canonical field name
+   * @returns {boolean} True if override was deleted
+   */
+  async clearTaskFieldOverride(projectId, taskId, fieldName) {
+    try {
+      this.logger.debug('Clearing task field override', { projectId, taskId, fieldName })
+
+      const { error } = await this.supabase
+        .from('task_field_overrides')
+        .delete()
+        .eq('project_id', projectId)
+        .eq('task_id', taskId)
+        .eq('field_name', fieldName)
+
+      if (error) throw error
+
+      this.logger.info('Task field override cleared', { projectId, taskId, fieldName })
+      return true
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId, fieldName })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Clear all field overrides for a task (revert to inherited values)
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @returns {number} Number of overrides deleted
+   */
+  async clearAllTaskFieldOverrides(projectId, taskId) {
+    try {
+      this.logger.debug('Clearing all task field overrides', { projectId, taskId })
+
+      const { count, error } = await this.supabase
+        .from('task_field_overrides')
+        .delete()
+        .eq('project_id', projectId)
+        .eq('task_id', taskId)
+
+      if (error) throw error
+
+      this.logger.info('All task field overrides cleared', { projectId, taskId, count })
+      return count || 0
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Get resolved field value with inheritance chain
+   * 1. Task-level override (if exists)
+   * 2. Project-level inherited value (if inheritable)
+   * 3. Null
+   *
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string} fieldName - Canonical field name
+   * @returns {Object} { value, source: 'override'|'inherited'|'default' }
+   */
+  async getTaskFieldResolved(projectId, taskId, fieldName) {
+    try {
+      this.logger.debug('Resolving task field value', { projectId, taskId, fieldName })
+
+      // Try to get override first
+      const override = await this.getTaskFieldOverride(projectId, taskId, fieldName)
+      if (override !== null && override !== undefined) {
+        return {
+          value: override,
+          source: 'override'
+        }
+      }
+
+      // Fall back to project context (inherited)
+      const context = await this.getByProjectId(projectId)
+      if (context) {
+        // Convert fieldName to camelCase property name (e.g., product_name → product_name)
+        const contextValue = context[fieldName] || context[this._toCamelCase(fieldName)]
+        if (contextValue !== null && contextValue !== undefined) {
+          return {
+            value: contextValue,
+            source: 'inherited'
+          }
+        }
+      }
+
+      // Default
+      return {
+        value: null,
+        source: 'default'
+      }
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId, fieldName })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Get multiple field values with resolution chain for a task
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string[]} fieldNames - Array of canonical field names
+   * @returns {Object} Map of field names to { value, source }
+   */
+  async getTaskFieldsResolved(projectId, taskId, fieldNames) {
+    try {
+      this.logger.debug('Resolving multiple task fields', { projectId, taskId, fieldCount: fieldNames.length })
+
+      const resolved = {}
+
+      for (const fieldName of fieldNames) {
+        resolved[fieldName] = await this.getTaskFieldResolved(projectId, taskId, fieldName)
+      }
+
+      return resolved
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId, fieldCount: fieldNames.length })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Batch set multiple field overrides for a task
+   * @param {string} projectId - Project UUID
+   * @param {string} taskId - Task UUID
+   * @param {string} userId - User UUID
+   * @param {Object} overrides - Map of fieldName -> value
+   * @param {string} source - Override source (default: 'ui')
+   * @returns {Object[]} Array of inserted/updated overrides
+   */
+  async setTaskFieldOverridesBatch(projectId, taskId, userId, overrides, source = 'ui') {
+    try {
+      this.logger.debug('Batch setting task field overrides', { projectId, taskId, fieldCount: Object.keys(overrides).length })
+
+      const rows = Object.entries(overrides).map(([fieldName, value]) => ({
+        project_id: projectId,
+        task_id: taskId,
+        user_id: userId,
+        field_name: fieldName,
+        field_value: value,
+        source: source,
+        overridden_at: new Date().toISOString()
+      }))
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .upsert(rows, { onConflict: 'project_id,task_id,field_name' })
+        .select()
+
+      if (error) throw error
+
+      this.logger.info('Task field overrides batch set', { projectId, taskId, count: data?.length || 0 })
+      return data || []
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId, taskId })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Get all tasks with overrides for a project
+   * @param {string} projectId - Project UUID
+   * @returns {string[]} Array of task IDs with at least one override
+   */
+  async getTasksWithOverrides(projectId) {
+    try {
+      this.logger.debug('Fetching tasks with overrides', { projectId })
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .select('task_id')
+        .eq('project_id', projectId)
+        .distinct()
+
+      if (error) throw error
+
+      const taskIds = (data || []).map(row => row.task_id)
+      return taskIds
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Get override statistics for a project
+   * @param {string} projectId - Project UUID
+   * @returns {Object} Stats including total overrides, by field, by task
+   */
+  async getOverrideStatistics(projectId) {
+    try {
+      this.logger.debug('Calculating override statistics', { projectId })
+
+      const { data, error } = await this.supabase
+        .from('task_field_overrides')
+        .select('task_id, field_name')
+        .eq('project_id', projectId)
+
+      if (error) throw error
+
+      // Calculate statistics
+      const stats = {
+        totalOverrides: data?.length || 0,
+        uniqueTasks: new Set(data?.map(row => row.task_id) || []).size,
+        uniqueFields: new Set(data?.map(row => row.field_name) || []).size,
+        byField: {},
+        byTask: {}
+      }
+
+      if (data) {
+        data.forEach(row => {
+          stats.byField[row.field_name] = (stats.byField[row.field_name] || 0) + 1
+          stats.byTask[row.task_id] = (stats.byTask[row.task_id] || 0) + 1
+        })
+      }
+
+      return stats
+    } catch (error) {
+      const wrappedError = wrapError(error, DatabaseError, { projectId })
+      this.logger.logError(wrappedError)
+      throw wrappedError
+    }
+  }
+
+  /**
+   * Convert snake_case to camelCase
+   * @private
+   */
+  _toCamelCase(str) {
+    return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+  }
 }

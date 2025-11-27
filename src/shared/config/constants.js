@@ -201,6 +201,7 @@ export const SUPABASE_CONFIG = {
   TABLES: {
     PROJECTS: 'projects',
     PROJECT_DATA: 'project_data',
+    PROJECT_CONTEXTS: 'project_contexts',
     USER_PROFILES: 'user_profiles',
     SUBSCRIPTIONS: 'subscriptions',
     AI_USAGE: 'ai_usage',

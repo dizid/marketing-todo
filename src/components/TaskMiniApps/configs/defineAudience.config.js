@@ -16,6 +16,19 @@ export const defineAudienceConfig = {
   why: 'Understanding your audience is the foundation for all successful marketing. Without clear personas, you waste time and money on irrelevant channels and miss growth opportunities.',
   how: 'Answer 5 key questions about your target audience, then use AI to generate detailed personas. Refine them based on your product knowledge and market research.',
 
+  // Field inheritance mappings (mini-app field ID -> canonical ProjectContext field)
+  fieldMappings: {
+    'audience_overview': 'targetAudience',
+    'industry': null,
+    'company_size': null,
+    'job_titles': null,
+    'pain_points': null,
+    'budget_range': null,
+    'target_users_30d': null,
+    'market_size': null,
+    'notes': null
+  },
+
   // Form configuration
   formTitle: 'Audience Information',
   formFields: [

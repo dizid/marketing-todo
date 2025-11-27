@@ -16,6 +16,16 @@ export const outreachConfig = {
   why: 'Cold outreach is one of the most effective growth channels for B2B products. Personalization increases response rates by 2-3x compared to generic emails.',
   how: 'Select a target persona, channel, and tone, then let AI generate message variants. Review for accuracy, personalize further if needed, then send to your leads.',
 
+  // Field inheritance mappings (mini-app field ID -> canonical ProjectContext field)
+  fieldMappings: {
+    'recipient_segment': 'targetAudience',
+    'channel': null,
+    'tone': null,
+    'call_to_action': null,
+    'additional_details': null,
+    'notes': null
+  },
+
   // Form configuration
   formTitle: 'Outreach Message Settings',
   formFields: [

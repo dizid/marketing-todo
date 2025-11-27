@@ -47,11 +47,14 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { generateAIContent } from '../../../services/aiGeneration.js'
+import { useMiniAppFieldsWithInheritance } from '../../../composables/useMiniAppFieldsWithInheritance'
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
 import OutputSection from '../shared/OutputSection.vue'
+import { useProjectStore } from '@/stores/projectStore'
 
 const props = defineProps({
   taskConfig: {
@@ -66,9 +69,42 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'output'])
 
+const projectStore = useProjectStore()
+const route = useRoute()
+
 // State
 const formBuilder = ref(null)
 const formData = ref({ ...props.taskData.formData || {} })
+const inheritanceMetadata = ref({})
+
+// Initialize field inheritance if fieldMappings are configured
+const initializeInheritance = async () => {
+  if (!props.taskConfig.fieldMappings) return
+
+  const projectId = projectStore.currentProject?.id
+  const taskId = route.params.taskId
+
+  if (!projectId || !taskId) return
+
+  try {
+    const { getInitialFormData, getInheritanceMetadata } = useMiniAppFieldsWithInheritance(
+      projectId,
+      taskId,
+      props.taskConfig.fieldMappings
+    )
+
+    // Merge inherited values with current form data (current values take precedence)
+    const currentData = formData.value
+    const inheritedData = getInitialFormData(currentData, true)
+    formData.value = inheritedData
+
+    // Store inheritance metadata for UI indicators
+    inheritanceMetadata.value = getInheritanceMetadata()
+  } catch (err) {
+    console.error('[MiniAppShell] Error initializing field inheritance:', err)
+    // Silently fail - inheritance is optional enhancement
+  }
+}
 const aiOutput = ref(null)
 const savedItems = ref([...(props.taskData.savedItems || [])])
 
@@ -77,6 +113,19 @@ const isFormValid = computed(() => {
   if (!formBuilder.value) return true
   return formBuilder.value.validate()
 })
+
+// Initialize inheritance on mount
+onMounted(() => {
+  initializeInheritance()
+})
+
+// Watch for changes to taskConfig fieldMappings
+watch(
+  () => props.taskConfig?.fieldMappings,
+  () => {
+    initializeInheritance()
+  }
+)
 
 // Watch form data changes
 watch(
@@ -170,7 +219,8 @@ defineExpose({
   formData,
   aiOutput,
   savedItems,
-  isFormValid
+  isFormValid,
+  inheritanceMetadata
 })
 </script>
 

@@ -16,6 +16,18 @@ export const generatePostsConfig = {
   why: 'Consistent social media presence drives brand awareness and engagement. Without a steady stream of content, your audience forgets you. AI helps you create more, faster.',
   how: 'Select platforms and describe your content, then generate 3-5 post variants. Review quality, pick your favorites, and schedule them to post at optimal times for maximum engagement.',
 
+  // Field inheritance mappings (mini-app field ID -> canonical ProjectContext field)
+  fieldMappings: {
+    'platforms': null,
+    'tone': null,
+    'cta': null,
+    'post_count': null,
+    'content_focus': 'productDescription',
+    'keywords': null,
+    'audience_context': 'targetAudience',
+    'notes': null
+  },
+
   // Form configuration
   formTitle: 'Post Generation Settings',
   formFields: [

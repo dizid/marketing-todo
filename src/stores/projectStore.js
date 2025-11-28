@@ -3,6 +3,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useAuthStore } from './authStore'
 import {
   getProjects,
   getProject,
@@ -25,11 +26,64 @@ export const useProjectStore = defineStore('project', () => {
   const isLoading = ref(false)
   const error = ref(null)
 
+  // Get auth store for user info
+  const authStore = useAuthStore()
+
   // Computed
   const currentProjectSettings = computed(() => projectData.value?.settings || {})
   const currentProjectTasks = computed(() => projectData.value?.tasks || {})
   const currentProjectContent = computed(() => projectData.value?.content || [])
   const currentProjectTaskData = computed(() => projectData.value?.taskData || {})
+
+  // Expose current user from auth store
+  const currentUser = computed(() => authStore.user)
+
+  // ProjectContext canonical field computed properties (with fallback to projectData.settings)
+  const projectName = computed(() =>
+    currentProjectSettings.value?.productName ||
+    currentProjectSettings.value?.name ||
+    currentProject.value?.name ||
+    ''
+  )
+
+  const productDescription = computed(() =>
+    currentProjectSettings.value?.productDescription ||
+    currentProjectSettings.value?.description ||
+    currentProject.value?.description ||
+    ''
+  )
+
+  const targetAudience = computed(() =>
+    currentProjectSettings.value?.targetAudience ||
+    ''
+  )
+
+  const primaryGoal = computed(() =>
+    currentProjectSettings.value?.primaryGoal ||
+    currentProjectSettings.value?.goals ||
+    ''
+  )
+
+  const targetTimeline = computed(() =>
+    currentProjectSettings.value?.targetTimeline ||
+    currentProjectSettings.value?.timeline ||
+    ''
+  )
+
+  const techStack = computed(() =>
+    currentProjectSettings.value?.techStack ||
+    ''
+  )
+
+  const marketingBudget = computed(() =>
+    currentProjectSettings.value?.marketingBudget ||
+    ''
+  )
+
+  const teamSize = computed(() =>
+    currentProjectSettings.value?.teamSize ||
+    ''
+  )
 
   /**
    * Fetch all projects for current user
@@ -297,6 +351,15 @@ export const useProjectStore = defineStore('project', () => {
     currentProjectTasks,
     currentProjectContent,
     currentProjectTaskData,
+    currentUser,
+    projectName,
+    productDescription,
+    targetAudience,
+    primaryGoal,
+    targetTimeline,
+    techStack,
+    marketingBudget,
+    teamSize,
 
     // Actions
     fetchProjects,

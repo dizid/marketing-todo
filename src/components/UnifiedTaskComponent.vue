@@ -8,6 +8,13 @@
       </p>
     </div>
 
+    <!-- Help Panel -->
+    <HelpPanel
+      v-if="taskConfig.help"
+      :help="taskConfig.help"
+      :task-id="taskConfig.id"
+    />
+
     <!-- Form Section -->
     <div v-if="taskConfig.form && taskConfig.form.length" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
       <h4 class="font-semibold text-gray-900 mb-4">Configuration</h4>
@@ -20,7 +27,7 @@
         >
           <!-- Text Input -->
           <div v-if="field.type === 'text'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -31,13 +38,12 @@
               @input="updateField(field.id, $event.target.value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
             />
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Number Input -->
           <div v-else-if="field.type === 'number'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -53,13 +59,12 @@
               />
               <span v-if="field.suffix" class="text-sm text-gray-600">{{ field.suffix }}</span>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Textarea -->
           <div v-else-if="field.type === 'textarea'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -70,13 +75,12 @@
               @input="updateField(field.id, $event.target.value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical"
             ></textarea>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Select -->
           <div v-else-if="field.type === 'select'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -90,13 +94,12 @@
                 {{ option.label }}
               </option>
             </select>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Checkboxes -->
           <div v-else-if="field.type === 'checkboxes'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -116,13 +119,12 @@
                 <span class="text-sm text-gray-700">{{ option.label }}</span>
               </label>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Radio -->
           <div v-else-if="field.type === 'radio'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -142,7 +144,6 @@
                 <span class="text-sm text-gray-700">{{ option.label }}</span>
               </label>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
         </div>
@@ -327,6 +328,7 @@
 import { ref, computed, watch } from 'vue'
 import { useProjectStore } from '../stores/projectStore'
 import { generateAIContent } from '@/services/aiGeneration'
+import HelpPanel from '@/components/TaskMiniApps/shared/HelpPanel.vue'
 
 const props = defineProps({
   taskId: {

@@ -6,6 +6,15 @@
       <p v-if="taskConfig.description" class="text-sm text-gray-600 mt-1">{{ taskConfig.description }}</p>
     </div>
 
+    <!-- Help Panel -->
+    <HelpPanel
+      v-if="taskConfig.help"
+      :help="taskConfig.help"
+      :taskId="taskConfig.id"
+      @help-viewed="handleHelpViewed"
+      @feedback="handleHelpFeedback"
+    />
+
     <!-- Form Section -->
     <FormBuilder
       v-if="taskConfig.formFields"
@@ -54,6 +63,7 @@ import { useMiniAppFieldsWithInheritance } from '../../../composables/useMiniApp
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
 import OutputSection from '../shared/OutputSection.vue'
+import HelpPanel from '../shared/HelpPanel.vue'
 import { useProjectStore } from '@/stores/projectStore'
 
 const props = defineProps({
@@ -212,6 +222,16 @@ const handleClear = () => {
     aiOutput: aiOutput.value,
     savedItems: savedItems.value
   })
+}
+
+// Handle help panel viewed event
+const handleHelpViewed = (data) => {
+  console.log(`[MiniAppShell] Help panel viewed for task: ${data.taskId}`)
+}
+
+// Handle help feedback event
+const handleHelpFeedback = (data) => {
+  console.log(`[MiniAppShell] Help feedback received for task: ${data.taskId}, helpful: ${data.helpful}`)
 }
 
 // Expose methods

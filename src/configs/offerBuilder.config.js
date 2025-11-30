@@ -805,5 +805,28 @@ Set these targets:
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Building offer for $297 online course',
+        input: { core_product: '8-week course with 24 video lessons on email marketing', customer_outcome: 'Build email list from 0 to 1000 subscribers and make first $5K', target_price: 297, existing_assets: ['templates', 'community', 'content'], pricing_flexibility: 'payment-plan', guarantee_level: 'strong' },
+        output: 'Complete offer package: product naming options ("Email Growth Blueprint"), value stack totaling $1,847 (course $297 + email templates $497 + private community $997/year + swipe file $197), 3-pay option at $99/month, 60-day guarantee with bonus retention, urgency via founding member pricing deadline, sales page structure with 9 sections, and 5 CTA variations tested for conversion.'
+      },
+      {
+        scenario: 'Packaging consulting offer with tiered pricing',
+        input: { core_product: 'Monthly marketing consulting for B2B SaaS', customer_outcome: 'Generate 50 qualified leads per month', target_price: 3000, pricing_flexibility: 'tiered', guarantee_level: 'basic' },
+        output: 'Good/Better/Best tier structure: Starter $1,800 (monthly calls only), Professional $3,000 (calls + strategy docs + implementation), Premium $5,400 (full-service + priority support). Value stacking showing $8K+ monthly value at Professional tier, positioning statement for each audience segment, guarantee copy for B2B context, objection pre-handling for FAQ section, and ROI calculator showing breakeven after 2 clients.'
+      }
+    ],
+    commonMistakes: [
+      'Weak value stacking - core product $500, one mediocre bonus worth $50, total "value" $550. Stack should be 5-10x your price with genuinely valuable bonuses that support the main offer.',
+      'Generic product naming - calling it "Marketing Course" instead of outcome-focused "90-Day List Building System." Name should promise the transformation, not describe the format.',
+      'Wimpy guarantees - no guarantee or weak "15-day money back." Strong guarantees (60-90 days, keep bonuses) dramatically increase conversion and rarely increase refunds.',
+      'No strategic pricing - picking random numbers. Use psychology: $997 converts better than $1000, payment plans increase sales 30-50%, tiered pricing captures more buyer types.',
+      'Buried CTAs - one "buy now" button at the bottom. Include minimum 3 CTAs: above fold, after value stack, and final section. Each additional CTA increases conversion 5-10%.',
+      'Not testing urgency - evergreen offers with no deadline or scarcity underperform. Add real deadlines (enrollment closes Friday), limited spots (30 per cohort), or price increases (early bird ends).'
+    ]
   }
 }

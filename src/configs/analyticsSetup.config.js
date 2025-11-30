@@ -131,5 +131,28 @@ Use emojis sparingly (only for section headers: 📋 ✅ 📊 🎯).`,
     editable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'New SaaS product needs basic tracking',
+        input: { platform: 'ga4', productType: 'saas', productName: 'TaskFlow', mainGoal: 'signups' },
+        output: 'Custom tracking plan with 5 essential events (page_view, sign_up, feature_click, upgrade_click, first_task_created), recommended metrics dashboard tracking weekly active users and signup conversion rate, plus 30-day goals including reaching 100 signups and 20% activation rate.'
+      },
+      {
+        scenario: 'E-commerce store launching analytics for the first time',
+        input: { platform: 'ga4', productType: 'ecommerce', productName: 'Handmade Goods Shop', mainGoal: 'sales' },
+        output: 'E-commerce-specific tracking plan including product_view, add_to_cart, begin_checkout, purchase events. Dashboard metrics: cart abandonment rate, average order value, conversion funnel. Goals: track 50 purchases in first month, reduce cart abandonment below 70%.'
+      }
+    ],
+    commonMistakes: [
+      'Tracking everything instead of what matters - new users install analytics and track 50+ events. Start with 3-5 essential events that directly tie to your business goals. You can always add more later.',
+      'Not testing if tracking actually works - installing the code and assuming it works. Always test by triggering events yourself and verifying they show up in your analytics dashboard within 24 hours.',
+      'Forgetting to track the full funnel - tracking signups but not activation, or tracking purchases but not cart additions. Map your entire user journey and track each critical step.',
+      'Installing multiple tracking codes incorrectly - adding GA4, Mixpanel, and Facebook Pixel without checking for conflicts. Test one platform at a time and verify each works before adding another.',
+      'Not setting up conversion goals - having analytics installed but no defined goals means you can\'t measure success. Set up at least one conversion goal (signup, purchase, etc.) on day one.',
+      'Ignoring data for months - installing analytics is not enough. Schedule weekly check-ins to review metrics, identify trends, and make data-driven decisions based on what you see.'
+    ]
   }
 }

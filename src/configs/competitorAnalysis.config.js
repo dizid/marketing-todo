@@ -413,5 +413,28 @@ Format with specific, actionable insights and monitoring tactics.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'New SaaS product entering crowded project management space',
+        input: { main_competitors: ['Asana, Monday.com, ClickUp'], your_positioning: 'Simplified PM for non-technical teams', competitive_advantages: ['ease of use', 'price'], pricing_comparison: 'lower' },
+        output: 'SWOT analysis highlighting your simplicity advantage vs competitors\' feature bloat, messaging differentiation strategy positioning as "project management without the learning curve," comparison pages showing feature parity on essentials at 40% lower price, and defensive moat via user-friendly onboarding and community.'
+      },
+      {
+        scenario: 'E-commerce brand competing with established players',
+        input: { main_competitors: ['Nike, Adidas, Under Armour'], your_positioning: 'Sustainable athletic wear for conscious consumers', competitive_advantages: ['sustainability', 'niche'], pricing_comparison: 'premium' },
+        output: 'Market positioning map placing you in "eco-friendly premium" quadrant away from mass-market competitors, messaging angles emphasizing environmental impact over just product features, premium price justification tied to sustainable materials and ethical manufacturing, offensive strategies targeting competitors\' customers who value sustainability.'
+      }
+    ],
+    commonMistakes: [
+      'Copying what competitors do - if they do paid ads, you do paid ads. Instead, find white space opportunities where competitors are NOT competing and dominate there.',
+      'Obsessing over competitors instead of customers - spending more time analyzing competitors than talking to users. Competitive intelligence is useful, but customer insights drive growth.',
+      'Competing on price alone - racing to the bottom by being cheapest. Price is the easiest thing for competitors to copy. Build defensible advantages through quality, service, or specialization.',
+      'Not monitoring competitors consistently - checking once and forgetting. Set up quarterly competitive reviews with alerts for pricing changes, new features, and market moves.',
+      'Assuming you need feature parity - trying to match every competitor feature results in bloated products. Focus on your core differentiation and do those things exceptionally well.',
+      'Bashing competitors publicly - creating comparison content that trashes competitors damages your credibility. Elevate your strengths professionally without mudslinging.'
+    ]
   }
 }

@@ -312,6 +312,30 @@ TIP: Record the conversation (with permission) so you can review it later.`
     }
   ],
 
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'Product feature validation',
+        input: { research_goal: 'Validate if customers want dark mode', target_audience: 'Active Pro plan users', survey_type: 'feature_requests' },
+        output: 'NPS-style survey targeting 15 users, 2-week timeline, with follow-up interviews for detractors to understand objections'
+      },
+      {
+        scenario: 'Onboarding pain point discovery',
+        input: { research_goal: 'Understand why 40% of signups drop', target_audience: 'Users who abandoned signup', survey_type: 'problem_discovery' },
+        output: 'Interview guide with 5 key questions, email campaign to gather 10+ responses, analysis to identify top 3 friction points'
+      }
+    ],
+    commonMistakes: [
+      'Asking leading questions - "Don\'t you think dark mode is essential?" will get "yes". Ask neutral: "What features would improve your experience?"',
+      'Too many questions - People abandon long surveys. 5 questions = 80% completion, 20 questions = 20% completion.',
+      'Only asking happy customers - Selection bias kills insights. Survey both happy and churned customers.',
+      'Not following up on verbatim - "It\'s expensive" is different from "It\'s $5 more than my budget". Get specific.',
+      'No incentive, no responses - People are busy. $5 gift card or 10-min free consulting lifts response rate 3-5x.',
+      'Analysis paralysis - Don\'t wait for 100 responses. Analyze after 10-15 and spot patterns. Can always do more.'
+    ]
+  },
+
   // Tool Setup Tutorials
   toolTutorials: [
     {

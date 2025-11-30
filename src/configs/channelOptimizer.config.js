@@ -871,5 +871,28 @@ export const channelOptimizerTask = {
 
   output: {
     enabled: false
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Improving paid search campaigns with low Quality Score',
+        input: { channel: 'paid_search', issue: 'high CPC, low quality score' },
+        output: 'Step-by-step playbook to group keywords into tight ad groups (5-10 per group), write specific ad copy matching each group, improve landing page relevance with keyword in headline, and strategies to increase CTR. Expected 20-40% lower CPC within 2-3 weeks.'
+      },
+      {
+        scenario: 'Boosting email open rates and reducing unsubscribes',
+        input: { channel: 'email', issue: 'low open rates, high unsubscribe rate' },
+        output: 'Optimization checklist including A/B testing subject lines, reducing send frequency from daily to 2-4x per month, segmenting list by behavior and interests, personalizing beyond first name, and cleaning list quarterly. Benchmarks: target 30%+ open rate, under 0.3% unsubscribe rate.'
+      }
+    ],
+    commonMistakes: [
+      'Trying to optimize all channels at once - spreading effort across 6 channels means slow progress everywhere. Pick ONE channel, optimize it to profitability, then move to the next.',
+      'Copying best practices blindly - what works for competitors might not work for you. Test everything. Your audience, offer, and market position are unique.',
+      'Not giving optimizations enough time - changing your email strategy and checking results after 2 days. Most optimizations need 2-4 weeks to show meaningful results.',
+      'Optimizing for the wrong metric - improving click-through rate but not tracking if clicks convert to sales. Always optimize for REVENUE or CONVERSIONS, not vanity metrics.',
+      'Ignoring the 80/20 rule - spending time optimizing channels that drive 5% of revenue. Focus optimization efforts on your top 1-2 revenue-driving channels first.',
+      'Not using the recommended tools - trying to manually track everything in spreadsheets when specialized tools exist. Invest in proper channel-specific tools for better insights and automation.'
+    ]
   }
 }

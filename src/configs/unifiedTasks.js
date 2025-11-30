@@ -51,8 +51,12 @@ export const defineAudienceTask = {
       id: 'audience_overview',
       type: 'textarea',
       label: 'Target Audience Overview',
-      placeholder: 'Describe your target audience in 2-3 sentences. Who are they? What are their pain points?',
+      
+      tooltip: 'Be specific: who are they (job title, company size)? What problem do they have?',
+      example: 'e.g., specific example here',placeholder: 'Describe your target audience in 2-3 sentences. Who are they? What are their pain points?',
       description: 'A brief overview of who you\'re targeting and why',
+      tooltip: 'Be specific: who are they (job title, company size)? What problem do they have?',
+      example: 'CTOs at Series A fintech startups struggling with payment infrastructure',
       required: true,
       rows: 3
     },
@@ -60,7 +64,9 @@ export const defineAudienceTask = {
       id: 'industry',
       type: 'text',
       label: 'Industry',
-      placeholder: 'e.g., SaaS, E-commerce, Healthcare',
+      
+      tooltip: 'The primary industry or vertical (e.g., SaaS, Healthcare, E-commerce)',
+      example: 'e.g., specific example here',placeholder: 'e.g., SaaS, E-commerce, Healthcare',
       description: 'The primary industry your audience works in',
       required: true
     },
@@ -68,7 +74,9 @@ export const defineAudienceTask = {
       id: 'company_size',
       type: 'select',
       label: 'Typical Company Size',
-      options: [
+      
+      tooltip: 'Typical company size of your target audience',
+      example: 'e.g., specific example here',options: [
         { value: 'startup', label: 'Startup (1-20 employees)' },
         { value: 'small', label: 'Small Business (21-100 employees)' },
         { value: 'medium', label: 'Medium Business (101-500 employees)' },
@@ -79,14 +87,18 @@ export const defineAudienceTask = {
       id: 'job_titles',
       type: 'text',
       label: 'Primary Job Titles',
-      placeholder: 'e.g., CTO, Marketing Manager, Product Manager',
+      
+      tooltip: 'Comma-separated list of people who would use your product',
+      example: 'e.g., specific example here',placeholder: 'e.g., CTO, Marketing Manager, Product Manager',
       description: 'Comma-separated list of typical job titles'
     },
     {
       id: 'pain_points',
       type: 'textarea',
       label: 'Main Pain Points',
-      placeholder: 'What problems does your audience face?',
+      
+      tooltip: 'What specific problems does your audience face? What keeps them up at night?',
+      example: 'e.g., specific example here',placeholder: 'What problems does your audience face?',
       description: 'The key challenges and pain points your solution addresses',
       rows: 3
     },
@@ -94,14 +106,18 @@ export const defineAudienceTask = {
       id: 'budget_range',
       type: 'text',
       label: 'Budget Range',
-      placeholder: 'e.g., $5K-$25K annually',
+      
+      tooltip: 'How much are they willing to spend on a solution like yours?',
+      example: 'e.g., specific example here',placeholder: 'e.g., $5K-$25K annually',
       description: 'The typical budget your audience has for solutions like yours'
     },
     {
       id: 'target_users_30d',
       type: 'number',
       label: 'Target Users (30-day goal)',
-      placeholder: '150',
+      
+      tooltip: 'How many customers do you want to acquire in the next 30 days?',
+      example: 'e.g., specific example here',placeholder: '150',
       suffix: 'users to acquire',
       min: 1
     },
@@ -109,7 +125,9 @@ export const defineAudienceTask = {
       id: 'market_size',
       type: 'textarea',
       label: 'Estimated Market Size',
-      placeholder: 'TAM, SAM, SOM estimates',
+      
+      tooltip: 'TAM (Total), SAM (Serviceable), SOM (Obtainable) market estimates',
+      example: 'e.g., specific example here',placeholder: 'TAM, SAM, SOM estimates',
       description: 'Total Addressable Market, Serviceable Available Market, Serviceable Obtainable Market',
       rows: 3
     },
@@ -117,7 +135,9 @@ export const defineAudienceTask = {
       id: 'notes',
       type: 'textarea',
       label: 'Additional Notes',
-      placeholder: 'Any other insights about your audience...',
+      
+      tooltip: 'Any other relevant context about your audience or market',
+      example: 'e.g., specific example here',placeholder: 'Any other insights about your audience...',
       rows: 2
     }
   ],
@@ -170,6 +190,29 @@ Format your response clearly with section headers.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS targeting CTOs at fintech startups',
+        input: { audience_overview: 'CTOs at Series A fintech startups needing payment infrastructure', industry: 'FinTech', company_size: 'startup', job_titles: 'CTO, Engineering Lead' },
+        output: 'Persona: Alex, 28, CTO at early-stage fintech. Struggles with payment infrastructure. Budget: $50K-100K/year. Decision maker. Values scalability and reliability.'
+      },
+      {
+        scenario: 'E-commerce targeting online sellers struggling with inventory',
+        input: { audience_overview: 'Amazon/Shopify sellers overwhelmed by inventory management', industry: 'E-commerce', company_size: 'small', job_titles: 'Shop Owner, Operations Manager', pain_points: 'Manual inventory tracking, overselling, lost sales' },
+        output: 'Persona: Sarah, 35, runs 3 Shopify stores. Spending 15 hrs/week on inventory. Budget: $100-300/month. Wants automation and real-time sync.'
+      }
+    ],
+    commonMistakes: [
+      'Being too vague - "everyone" is not an audience. Be specific: job title + company size + industry.',
+      'Forgetting pain points - companies care about what problems you solve, not just demographics.',
+      'Not considering budget - understanding their budget helps position your price correctly.',
+      'Ignoring industry context - same problem in different industries often requires different solutions.',
+      'Describing activities instead of problems - focus on what keeps them up at night, not daily tasks.',
+      'Making it up - research real people, talk to customers, don\'t guess.'
+    ]
   }
 }
 
@@ -188,7 +231,9 @@ export const generatePostsTask = {
       id: 'platforms',
       type: 'checkboxes',
       label: 'Select Platforms',
-      options: [
+      
+      tooltip: 'Information about Select Platforms',
+      example: 'e.g., specific example here',options: [
         { value: 'twitter', label: 'X / Twitter (280 char limit)' },
         { value: 'linkedin', label: 'LinkedIn (professional tone)' },
         { value: 'instagram', label: 'Instagram (visual-focused)' },
@@ -201,7 +246,9 @@ export const generatePostsTask = {
       id: 'tone',
       type: 'select',
       label: 'Tone / Style',
-      options: [
+      
+      tooltip: 'Information about Tone / Style',
+      example: 'e.g., specific example here',options: [
         { value: 'professional', label: 'Professional & Authoritative' },
         { value: 'casual', label: 'Casual & Friendly' },
         { value: 'technical', label: 'Technical & Detailed' },
@@ -214,7 +261,9 @@ export const generatePostsTask = {
       id: 'cta',
       type: 'select',
       label: 'Call-to-Action',
-      options: [
+      
+      tooltip: 'Information about Call-to-Action',
+      example: 'e.g., specific example here',options: [
         { value: 'signup', label: 'Sign Up / Register' },
         { value: 'learn_more', label: 'Learn More' },
         { value: 'join', label: 'Join Community' },
@@ -227,7 +276,9 @@ export const generatePostsTask = {
       id: 'post_count',
       type: 'number',
       label: 'Number of Posts',
-      min: 1,
+      
+      tooltip: 'Information about Number of Posts',
+      example: 'e.g., specific example here',min: 1,
       max: 10,
       placeholder: '3',
       suffix: 'per platform'
@@ -236,7 +287,9 @@ export const generatePostsTask = {
       id: 'content_focus',
       type: 'textarea',
       label: 'Content Focus / Topic',
-      placeholder: 'What should these posts be about? (e.g., new feature launch, educational content, company milestone)',
+      
+      tooltip: 'Information about Content Focus / Topic',
+      example: 'e.g., specific example here',placeholder: 'What should these posts be about? (e.g., new feature launch, educational content, company milestone)',
       description: 'The main theme or topic for these posts',
       rows: 3,
       required: true
@@ -245,14 +298,18 @@ export const generatePostsTask = {
       id: 'keywords',
       type: 'text',
       label: 'Keywords to Include',
-      placeholder: 'e.g., AI, automation, productivity (comma-separated)',
+      
+      tooltip: 'Information about Keywords to Include',
+      example: 'e.g., specific example here',placeholder: 'e.g., AI, automation, productivity (comma-separated)',
       description: 'Keywords or hashtags to naturally include'
     },
     {
       id: 'audience_context',
       type: 'textarea',
       label: 'Audience Context',
-      placeholder: 'Who is your target audience for these posts?',
+      
+      tooltip: 'Information about Audience Context',
+      example: 'e.g., specific example here',placeholder: 'Who is your target audience for these posts?',
       description: 'Brief description of who should see and engage with these posts',
       rows: 2
     },
@@ -260,7 +317,9 @@ export const generatePostsTask = {
       id: 'notes',
       type: 'textarea',
       label: 'Additional Notes',
-      placeholder: 'Any special requirements or context...',
+      
+      tooltip: 'Any other relevant context about your audience or market',
+      example: 'e.g., specific example here',placeholder: 'Any special requirements or context...',
       rows: 2
     }
   ],
@@ -378,6 +437,36 @@ Start each post on a new line after the separator.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "LinkedIn thought leadership",
+              "input": {
+                  "post_type": "LinkedIn",
+                  "topic": "AI automation",
+                  "tone": "professional"
+              },
+              "output": "5 LinkedIn posts about AI automation benefits for business leaders"
+          },
+          {
+              "scenario": "Twitter thread about a product feature",
+              "input": {
+                  "post_type": "Twitter",
+                  "topic": "New feature launch",
+                  "tone": "casual"
+              },
+              "output": "A 7-tweet thread explaining the feature and why users should care"
+          }
+      ],
+      "commonMistakes": [
+          "Writing too long for the platform - Twitter has character limits, LinkedIn works better with shorter paragraphs.",
+          "Using too much jargon - make it understandable to your target audience, not just experts.",
+          "Forgetting the CTA (call to action) - what do you want readers to do? Comment? Share? Visit link?",
+          "All promotion, no value - lead with value/insight first, then mention your product.",
+          "Same tone everywhere - LinkedIn and Twitter have different audiences and tones. Adapt accordingly."
+      ]
   }
 }
 
@@ -400,7 +489,9 @@ export const defineGoalsTask = {
       id: 'goal_what',
       type: 'text',
       label: '📍 Goal: What (Specific)',
-      placeholder: 'e.g., Acquire new users through organic channels',
+      
+      tooltip: 'Information about 📍 Goal: What (Specific)',
+      example: 'e.g., specific example here',placeholder: 'e.g., Acquire new users through organic channels',
       description: 'Be specific about what you want to achieve',
       required: true
     },
@@ -408,7 +499,9 @@ export const defineGoalsTask = {
       id: 'goal_metric',
       type: 'number',
       label: '📊 Metric (Measurable)',
-      placeholder: '150',
+      
+      tooltip: 'Information about 📊 Metric (Measurable)',
+      example: 'e.g., specific example here',placeholder: '150',
       suffix: 'units',
       min: 1,
       required: true
@@ -417,28 +510,36 @@ export const defineGoalsTask = {
       id: 'goal_unit',
       type: 'text',
       label: 'Unit of Measure',
-      placeholder: 'e.g., users, signups, visits, revenue',
+      
+      tooltip: 'Information about Unit of Measure',
+      example: 'e.g., specific example here',placeholder: 'e.g., users, signups, visits, revenue',
       required: true
     },
     {
       id: 'goal_strategy',
       type: 'textarea',
       label: '✅ Strategy (How to Achieve)',
-      placeholder: 'What is your strategy? (e.g., content marketing, paid ads, partnerships)',
+      
+      tooltip: 'Information about ✅ Strategy (How to Achieve)',
+      example: 'e.g., specific example here',placeholder: 'What is your strategy? (e.g., content marketing, paid ads, partnerships)',
       rows: 3
     },
     {
       id: 'goal_why',
       type: 'textarea',
       label: '🎯 Why (Relevant)',
-      placeholder: 'Why is this goal important for your business?',
+      
+      tooltip: 'Information about 🎯 Why (Relevant)',
+      example: 'e.g., specific example here',placeholder: 'Why is this goal important for your business?',
       rows: 3
     },
     {
       id: 'goal_deadline',
       type: 'text',
       label: '⏰ Deadline (Time-bound)',
-      placeholder: 'e.g., 30 days, Q1 2024, By March 31',
+      
+      tooltip: 'Information about ⏰ Deadline (Time-bound)',
+      example: 'e.g., specific example here',placeholder: 'e.g., 30 days, Q1 2024, By March 31',
       required: true
     }
   ],
@@ -447,6 +548,24 @@ export const defineGoalsTask = {
 
   output: {
     enabled: false
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -484,7 +603,9 @@ export const generateGiveawayTask = {
       id: 'giveaway_prize',
       type: 'textarea',
       label: 'Prize Description',
-      placeholder: 'What are you giving away? (be specific)',
+      
+      tooltip: 'Information about Prize Description',
+      example: 'e.g., specific example here',placeholder: 'What are you giving away? (be specific)',
       required: true,
       rows: 2
     },
@@ -492,7 +613,9 @@ export const generateGiveawayTask = {
       id: 'giveaway_entry_requirement',
       type: 'select',
       label: 'How to Enter?',
-      options: [
+      
+      tooltip: 'Information about How to Enter?',
+      example: 'e.g., specific example here',options: [
         { value: 'follow', label: 'Follow Account' },
         { value: 'like_share', label: 'Like & Share' },
         { value: 'tag_friend', label: 'Tag a Friend' },
@@ -504,14 +627,18 @@ export const generateGiveawayTask = {
       id: 'giveaway_duration',
       type: 'text',
       label: 'Duration',
-      placeholder: 'e.g., 7 days, 2 weeks, 30 days',
+      
+      tooltip: 'Information about Duration',
+      example: 'e.g., specific example here',placeholder: 'e.g., 7 days, 2 weeks, 30 days',
       required: true
     },
     {
       id: 'giveaway_target_growth',
       type: 'number',
       label: 'Target New Followers',
-      placeholder: '1000',
+      
+      tooltip: 'Information about Target New Followers',
+      example: 'e.g., specific example here',placeholder: '1000',
       min: 10,
       suffix: 'new followers'
     }
@@ -539,6 +666,24 @@ Generate:
     enabled: true,
     exportFilename: 'giveaway-campaign',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -553,21 +698,27 @@ export const generateBlogTask = {
       id: 'blog_topic',
       type: 'text',
       label: 'Blog Topic / Title',
-      placeholder: 'e.g., 10 Ways to Improve Your Productivity',
+      
+      tooltip: 'Information about Blog Topic / Title',
+      example: 'e.g., specific example here',placeholder: 'e.g., 10 Ways to Improve Your Productivity',
       required: true
     },
     {
       id: 'blog_audience',
       type: 'text',
       label: 'Target Audience',
-      placeholder: 'e.g., Startup founders, SaaS users, developers',
+      
+      tooltip: 'Information about Target Audience',
+      example: 'e.g., specific example here',placeholder: 'e.g., Startup founders, SaaS users, developers',
       required: true
     },
     {
       id: 'blog_style',
       type: 'select',
       label: 'Writing Style',
-      options: [
+      
+      tooltip: 'Information about Writing Style',
+      example: 'e.g., specific example here',options: [
         { value: 'educational', label: 'Educational / How-to' },
         { value: 'narrative', label: 'Narrative / Storytelling' },
         { value: 'opinion', label: 'Opinion / Thought Leadership' },
@@ -580,7 +731,9 @@ export const generateBlogTask = {
       id: 'blog_length',
       type: 'select',
       label: 'Word Count Target',
-      options: [
+      
+      tooltip: 'Information about Word Count Target',
+      example: 'e.g., specific example here',options: [
         { value: 'short', label: 'Short (500-800 words)' },
         { value: 'medium', label: 'Medium (1000-1500 words)' },
         { value: 'long', label: 'Long (2000-3000 words)' },
@@ -591,7 +744,9 @@ export const generateBlogTask = {
       id: 'blog_seo_keywords',
       type: 'text',
       label: 'SEO Keywords',
-      placeholder: 'e.g., productivity tips, time management (comma-separated)',
+      
+      tooltip: 'Information about SEO Keywords',
+      example: 'e.g., specific example here',placeholder: 'e.g., productivity tips, time management (comma-separated)',
       description: 'Keywords to optimize for'
     }
   ],
@@ -621,6 +776,24 @@ Format as markdown with proper headings.`,
     enabled: true,
     exportFilename: 'blog-post',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -635,14 +808,18 @@ export const generateVideoTask = {
       id: 'video_topic',
       type: 'text',
       label: 'Video Topic',
-      placeholder: 'e.g., Product Demo, Tutorial, Customer Testimonial',
+      
+      tooltip: 'Information about Video Topic',
+      example: 'e.g., specific example here',placeholder: 'e.g., Product Demo, Tutorial, Customer Testimonial',
       required: true
     },
     {
       id: 'video_duration',
       type: 'select',
       label: 'Video Duration',
-      options: [
+      
+      tooltip: 'Information about Video Duration',
+      example: 'e.g., specific example here',options: [
         { value: '30sec', label: '30 seconds (short form)' },
         { value: '1min', label: '1-2 minutes (standard)' },
         { value: '3min', label: '3-5 minutes (educational)' },
@@ -653,7 +830,9 @@ export const generateVideoTask = {
       id: 'video_type',
       type: 'select',
       label: 'Video Type',
-      options: [
+      
+      tooltip: 'Information about Video Type',
+      example: 'e.g., specific example here',options: [
         { value: 'demo', label: 'Product Demo' },
         { value: 'tutorial', label: 'Tutorial / How-to' },
         { value: 'testimonial', label: 'Customer Testimonial' },
@@ -665,7 +844,9 @@ export const generateVideoTask = {
       id: 'video_tone',
       type: 'select',
       label: 'Tone',
-      options: [
+      
+      tooltip: 'Information about Tone',
+      example: 'e.g., specific example here',options: [
         { value: 'professional', label: 'Professional' },
         { value: 'friendly', label: 'Friendly & Casual' },
         { value: 'humorous', label: 'Humorous' },
@@ -676,7 +857,9 @@ export const generateVideoTask = {
       id: 'video_cta',
       type: 'text',
       label: 'Call-to-Action',
-      placeholder: 'e.g., Subscribe, Learn more, Sign up'
+      
+      tooltip: 'Information about Call-to-Action',
+      example: 'e.g., specific example here',placeholder: 'e.g., Subscribe, Learn more, Sign up'
     }
   ],
 
@@ -707,6 +890,24 @@ Format with timestamps and visual descriptions.`,
     enabled: true,
     exportFilename: 'video-script',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -721,7 +922,9 @@ export const generateGraphicsTask = {
       id: 'graphics_type',
       type: 'select',
       label: 'Graphics Type',
-      options: [
+      
+      tooltip: 'Information about Graphics Type',
+      example: 'e.g., specific example here',options: [
         { value: 'quote', label: 'Quote Graphic' },
         { value: 'infographic', label: 'Infographic' },
         { value: 'carousel', label: 'Carousel Post' },
@@ -733,14 +936,18 @@ export const generateGraphicsTask = {
       id: 'graphics_topic',
       type: 'text',
       label: 'Topic / Message',
-      placeholder: 'What is the main message?',
+      
+      tooltip: 'Information about Topic / Message',
+      example: 'e.g., specific example here',placeholder: 'What is the main message?',
       required: true
     },
     {
       id: 'graphics_platform',
       type: 'select',
       label: 'Platform',
-      options: [
+      
+      tooltip: 'Information about Platform',
+      example: 'e.g., specific example here',options: [
         { value: 'instagram', label: 'Instagram (1080x1350)' },
         { value: 'twitter', label: 'Twitter / X (1200x675)' },
         { value: 'linkedin', label: 'LinkedIn (1200x627)' },
@@ -751,7 +958,9 @@ export const generateGraphicsTask = {
       id: 'graphics_style',
       type: 'select',
       label: 'Visual Style',
-      options: [
+      
+      tooltip: 'Information about Visual Style',
+      example: 'e.g., specific example here',options: [
         { value: 'minimal', label: 'Minimal & Clean' },
         { value: 'bold', label: 'Bold & Vibrant' },
         { value: 'data', label: 'Data-driven' },
@@ -785,6 +994,24 @@ Generate:
     enabled: true,
     exportFilename: 'graphics-brief',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -799,21 +1026,27 @@ export const generateWebinarTask = {
       id: 'webinar_topic',
       type: 'text',
       label: 'Webinar Topic',
-      placeholder: 'e.g., How to Scale Your SaaS from 0 to $1M ARR',
+      
+      tooltip: 'Information about Webinar Topic',
+      example: 'e.g., specific example here',placeholder: 'e.g., How to Scale Your SaaS from 0 to $1M ARR',
       required: true
     },
     {
       id: 'webinar_audience',
       type: 'text',
       label: 'Target Audience',
-      placeholder: 'e.g., SaaS founders, Startup CTOs',
+      
+      tooltip: 'Information about Target Audience',
+      example: 'e.g., specific example here',placeholder: 'e.g., SaaS founders, Startup CTOs',
       required: true
     },
     {
       id: 'webinar_duration',
       type: 'select',
       label: 'Duration',
-      options: [
+      
+      tooltip: 'Information about Duration',
+      example: 'e.g., specific example here',options: [
         { value: '30min', label: '30 minutes' },
         { value: '45min', label: '45 minutes' },
         { value: '60min', label: '60 minutes (standard)' },
@@ -824,7 +1057,9 @@ export const generateWebinarTask = {
       id: 'webinar_format',
       type: 'select',
       label: 'Format',
-      options: [
+      
+      tooltip: 'Information about Format',
+      example: 'e.g., specific example here',options: [
         { value: 'presentation', label: 'Presentation + Q&A' },
         { value: 'panel', label: 'Panel Discussion' },
         { value: 'workshop', label: 'Interactive Workshop' },
@@ -858,6 +1093,24 @@ Generate:
     enabled: true,
     exportFilename: 'webinar-plan',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -878,7 +1131,25 @@ export const publishUpdatesTask = {
   customComponent: 'PublishUpdatesMiniApp',
   miniAppId: 'publish-updates',
   type: 'miniapp',
-  hasAI: false
+  hasAI: false,
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
+  }
 }
 
 export const iterateFeaturesTask = {
@@ -889,7 +1160,25 @@ export const iterateFeaturesTask = {
   customComponent: 'IterateFeaturesMiniApp',
   miniAppId: 'iterate-features',
   type: 'miniapp',
-  hasAI: false
+  hasAI: false,
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
+  }
 }
 
 export const setupAnalyticsTask = {
@@ -903,7 +1192,9 @@ export const setupAnalyticsTask = {
       id: 'analytics_platform',
       type: 'select',
       label: 'Analytics Platform',
-      options: [
+      
+      tooltip: 'Information about Analytics Platform',
+      example: 'e.g., specific example here',options: [
         { value: 'google', label: 'Google Analytics' },
         { value: 'mixpanel', label: 'Mixpanel' },
         { value: 'amplitude', label: 'Amplitude' },
@@ -914,7 +1205,9 @@ export const setupAnalyticsTask = {
       id: 'analytics_metrics',
       type: 'checkboxes',
       label: 'Key Metrics to Track',
-      options: [
+      
+      tooltip: 'Information about Key Metrics to Track',
+      example: 'e.g., specific example here',options: [
         { value: 'pageviews', label: 'Page Views' },
         { value: 'visitors', label: 'Unique Visitors' },
         { value: 'conversion', label: 'Conversion Rate' },
@@ -927,7 +1220,9 @@ export const setupAnalyticsTask = {
       id: 'analytics_goals',
       type: 'textarea',
       label: 'Analytics Goals',
-      placeholder: 'What do you want to measure? (e.g., user acquisition, retention, revenue)',
+      
+      tooltip: 'Information about Analytics Goals',
+      example: 'e.g., specific example here',placeholder: 'What do you want to measure? (e.g., user acquisition, retention, revenue)',
       rows: 2
     }
   ],
@@ -936,6 +1231,24 @@ export const setupAnalyticsTask = {
 
   output: {
     enabled: false
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -953,7 +1266,9 @@ export const reviewROITask = {
       id: 'roi_period',
       type: 'select',
       label: 'Review Period',
-      options: [
+      
+      tooltip: 'Information about Review Period',
+      example: 'e.g., specific example here',options: [
         { value: 'week', label: 'Last Week' },
         { value: 'month', label: 'Last Month' },
         { value: 'quarter', label: 'Last Quarter' },
@@ -964,21 +1279,27 @@ export const reviewROITask = {
       id: 'roi_revenue',
       type: 'number',
       label: 'Revenue Generated',
-      placeholder: '50000',
+      
+      tooltip: 'Information about Revenue Generated',
+      example: 'e.g., specific example here',placeholder: '50000',
       suffix: 'USD'
     },
     {
       id: 'roi_spending',
       type: 'number',
       label: 'Marketing Spend',
-      placeholder: '10000',
+      
+      tooltip: 'Information about Marketing Spend',
+      example: 'e.g., specific example here',placeholder: '10000',
       suffix: 'USD'
     },
     {
       id: 'roi_issues',
       type: 'textarea',
       label: 'Challenges / Concerns',
-      placeholder: 'What challenges did you face?',
+      
+      tooltip: 'Information about Challenges / Concerns',
+      example: 'e.g., specific example here',placeholder: 'What challenges did you face?',
       rows: 2
     }
   ],
@@ -1008,6 +1329,24 @@ Generate:
     enabled: true,
     exportFilename: 'roi-analysis',
     displayFormat: 'text'
+  },
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
   }
 }
 
@@ -1070,7 +1409,25 @@ Please suggest:
 
   // Custom UI flag
   customComponent: 'LandingPageCreatorAssistant',
-  useWizard: true
+  useWizard: true,
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
+  }
 }
 
 
@@ -1119,7 +1476,25 @@ export const unifiedTasksMap = {
   'growth-2': coldOutreachTask,
   'growth-3': competitorAnalysisTask,
   'growth-4': abTestIdeasTask,
-  'growth-5': positioningMapTask
+  'growth-5': positioningMapTask,
+
+  help:   {
+      "examples": [
+          {
+              "scenario": "Example scenario",
+              "input": {
+                  "example": "sample input"
+              },
+              "output": "Sample output from AI"
+          }
+      ],
+      "commonMistakes": [
+          "Being too vague or generic",
+          "Not providing enough context",
+          "Forgetting key details",
+          "Not being specific about goals"
+      ]
+  }
 }
 
 // Export all tasks as array for iteration

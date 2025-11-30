@@ -461,5 +461,28 @@ Format with specific copy examples and actionable fixes, not just theory.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS sales page converting at 2% wants to hit 5%',
+        input: { page_url: 'https://example.com/pricing', current_conversion: 2, monthly_visitors: 1000, product_price: 99 },
+        output: 'Comprehensive audit identifying 12 conversion killers: weak headline (generic "Pricing" instead of benefit-driven), no social proof above fold, buried CTA (first CTA at 60% scroll), unclear value prop, no guarantee, poor mobile experience (16% of layout), vague feature descriptions, missing FAQ section, no urgency/scarcity, slow page load (4.2s), missing trust badges. Prioritized action plan: 1) Rewrite headline (potential +30% lift), 2) Add guarantee (potential +20%), 3) Move CTA above fold (potential +15%). Expected new conversion rate: 3.9-4.5%.'
+      },
+      {
+        scenario: 'Course sales page with high traffic but low sales',
+        input: { page_url: 'https://example.com/course', current_conversion: 1, monthly_visitors: 5000, product_price: 497 },
+        output: 'Audit reveals traffic quality mismatch and offer positioning issues: High bounce rate (78%) suggests wrong audience or unclear value prop, long page (4000 words) likely overwhelming visitors, price seems high without justification (no value stack or ROI calculator), testimonials are generic without specific results, no payment plan offered for $497 price point. Recommendations ranked by impact: 1) Add value stack showing $2500+ total value, 2) Offer 3-pay option ($177/mo), 3) Include 3 result-specific testimonials with numbers, 4) Add "results not typical" case study showing realistic outcomes, 5) Shorten page 30% focusing on transformation.'
+      }
+    ],
+    commonMistakes: [
+      'Auditing without traffic data - analyzing page in isolation without knowing where visitors drop off. Install heatmaps (Hotjar) and scroll tracking before auditing to identify real vs imagined problems.',
+      'Changing everything at once - implementing all 15 recommendations simultaneously and not knowing what worked. Test top 3 highest-impact changes first, measure results, then iterate.',
+      'Focusing on design over copy - making page "prettier" while ignoring that headline is feature-focused instead of benefit-focused. Copy improvements typically drive 3-5x more lift than design tweaks.',
+      'Not checking mobile - auditing only desktop when 60% of traffic is mobile. Always audit mobile experience separately - different pain points emerge.',
+      'Comparing to wrong benchmarks - expecting 10% conversion on a $5K product when 2-3% is excellent for high-ticket. Know your industry benchmarks before setting goals.',
+      'Ignoring page speed - beautiful page that takes 5+ seconds to load loses 40% of visitors before they see anything. Run PageSpeed Insights first - speed improvements often have highest ROI.'
+    ]
   }
 }

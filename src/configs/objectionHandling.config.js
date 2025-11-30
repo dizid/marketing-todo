@@ -243,5 +243,28 @@ Format as ready-to-use scripts with specific wording, not just frameworks.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Handling price objection for $2K coaching program',
+        input: { product_type: 'service', price_range: '2000-10000', common_objections: ['too expensive', 'need to check with spouse'], sales_method: 'calls' },
+        output: 'Objection handling playbook with 10 scripts including "too expensive" (3 response variations focusing on ROI, cost of inaction, payment plans), "need to think about it" (isolating real objection, offering to think through together), competitor comparisons, timing concerns. Includes prevention strategies for sales copy, guarantee positioning scripts, and closing techniques specific to high-ticket coaching.'
+      },
+      {
+        scenario: 'Overcoming trust objections for new SaaS product',
+        input: { product_type: 'digital-product', price_range: '100-500', common_objections: ['never heard of you', 'will it work for me?', 'already tried similar tools'], sales_method: 'sales-page' },
+        output: 'Objection scripts for sales page and email: social proof positioning ("Join 500+ companies"), differentiation from competitors (unique mechanism explanation), "will it work for me" (case studies for different use cases), trust-building FAQ section, refund guarantee copy that builds confidence, and A/B test suggestions for addressing skepticism before it arises.'
+      }
+    ],
+    commonMistakes: [
+      'Getting defensive about objections - arguing or taking it personally when someone says "too expensive." Objections are buying signals, not rejections. Stay curious and empathetic.',
+      'Immediately offering discounts - prospect says "expensive" and you instantly drop price 20%. This trains buyers to object and devalues your offering. First, demonstrate value and ROI.',
+      'Not isolating the real objection - accepting "I need to think about it" at face value. Ask: "Just curious, what specifically do you need to think about?" to uncover the true concern.',
+      'Talking too much in response - giving 5-minute monologues addressing objections. Keep responses concise (30-60 seconds), then ask a question to continue dialogue.',
+      'Not addressing objections proactively - waiting for prospects to raise concerns. Build objection handling into sales copy and pitches to address doubts before they\'re voiced.',
+      'Having no structure - winging objection responses differently each time. Document your best responses, practice them, refine based on what works. Consistency improves close rates.'
+    ]
   }
 }

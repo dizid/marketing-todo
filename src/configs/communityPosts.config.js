@@ -963,5 +963,28 @@ export const communityPostsTask = {
   communities: communities,
   schedulingTools: schedulingTools,
   customComponent: 'CommunityPostsMiniApp',
-  output: { enabled: false }
+  output: { enabled: false },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Launching SaaS product on Product Hunt and Reddit',
+        input: { communities: ['Product Hunt', 'Reddit r/SideProject'], product: 'Project management tool for remote teams' },
+        output: 'Product Hunt: Step-by-step launch guide including 2-3 week preparation timeline, compelling tagline formula, maker comment template, network mobilization strategy, and day-of engagement tactics. Reddit: Value-first post template for r/SideProject, community participation guidelines, timing recommendations (Tuesday 8am ET), and authentic engagement examples.'
+      },
+      {
+        scenario: 'Developer sharing new open-source library on Hacker News and Dev.to',
+        input: { communities: ['Hacker News', 'Dev.to'], product: 'React component library for data visualization' },
+        output: 'Hacker News: "Show HN" post structure with technical depth, implementation details, trade-off explanations, and defensible positioning to avoid negative feedback. Dev.to: Tutorial-style post teaching how you built it, code examples, lessons learned, natural library mentions, and community engagement strategy.'
+      }
+    ],
+    commonMistakes: [
+      'Posting immediately after joining - dropping your product link in a new community on day one looks like spam and gets you banned. Spend 1-2 weeks participating authentically first.',
+      'Using the same post across all communities - each community has unique culture and norms. Reddit expects casual authenticity, LinkedIn wants professional insights, Hacker News demands technical depth. Customize for each.',
+      'Leading with promotion instead of value - starting with "Check out my product" gets ignored. Lead with a problem you solved, lessons you learned, or genuine question for feedback.',
+      'Forgetting to engage after posting - post and disappear. The algorithm rewards engagement, so reply to EVERY comment within the first 2 hours. This dramatically boosts visibility.',
+      'Ignoring community rules - every community has different promotion policies. Read pinned posts and rules carefully. Many have specific days for self-promotion like "Share Saturday" threads.',
+      'Posting at the wrong time - sharing on Reddit at 3am on Sunday when engagement is dead. Use optimal posting windows: Tuesday-Thursday mornings (6-10am ET) for most communities.'
+    ]
+  }
 }

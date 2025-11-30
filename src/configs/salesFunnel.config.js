@@ -731,5 +731,28 @@ A: [Advice on what's essential vs optional for {price_point}]
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS building funnel from cold traffic to paid customer',
+        input: { business_model: 'saas', product_price: 49, funnel_type: 'free-trial', traffic_sources: ['google-ads', 'content'] },
+        output: 'Complete 5-stage funnel: Awareness (blog posts + Google Ads driving 1000 visitors/month), Interest (lead magnet converting at 25% = 250 leads), Consideration (7-day email sequence + free trial, 40% start trial = 100 trials), Intent (in-app onboarding + upgrade prompts, 20% convert = 20 paid), Purchase (checkout flow with multiple payment options). Includes conversion benchmarks, bottleneck identification (biggest drop: trial-to-paid), and specific tactics to improve each stage.'
+      },
+      {
+        scenario: 'Course creator mapping funnel from webinar to course sale',
+        input: { business_model: 'info-product', product_price: 997, funnel_type: 'webinar', traffic_sources: ['social-organic', 'email'] },
+        output: 'Webinar funnel blueprint: Top of funnel (social posts + email promoting free webinar, 500 registrants), Webinar (60% show rate = 300 attendees, 90-min training), Pitch (last 20 mins, introducing $997 course with bonuses and 3-day deadline), Cart open (50 sales during webinar = 10% conversion, follow-up emails for non-buyers), Cart close (urgency sequence, additional 30 sales, total 80 sales = $79,760 revenue). Includes email sequences, webinar slide outline, and replay strategy.'
+      }
+    ],
+    commonMistakes: [
+      'Skipping stages - going straight from awareness to purchase without nurturing. Most buyers need 7-13 touchpoints before buying. Build the full funnel.',
+      'Not measuring each stage - knowing 1000 visitors turned into 10 customers but not knowing where the drop-off happens. Track conversion at EVERY stage to identify bottlenecks.',
+      'Optimizing wrong stage - focusing on traffic when the real problem is 1% trial-to-paid conversion. Fix the biggest leak first (usually middle/bottom of funnel), then drive more traffic.',
+      'One-size-fits-all funnel - treating cold traffic the same as warm leads. Segment funnels by traffic temperature: cold needs more nurturing, warm can go straight to offers.',
+      'No retargeting for drop-offs - losing 90% of visitors who don\'t convert and never following up. Set up retargeting ads and email sequences for people who exit at each stage.',
+      'Ignoring funnel velocity - optimizing for conversion rate but ignoring that funnel takes 90 days. Sometimes a faster, lower-converting funnel generates more revenue than a slow, high-converting one.'
+    ]
   }
 }

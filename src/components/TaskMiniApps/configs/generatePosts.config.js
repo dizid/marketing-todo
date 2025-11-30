@@ -1,9 +1,13 @@
 /**
  * Generate Social Posts Mini-App Configuration
  *
- * This config defines the form fields, AI generation prompt,
- * and output structure for generating social media content
+ * Demonstrates PromptBuilder integration for context extraction.
+ * Instead of 50+ lines of context code, uses 1 line: buildSocialMediaContext()
+ *
+ * Variables automatically extracted from tiers: 1, 2, 3, 5 (brand + audience + marketing)
  */
+
+import { usePromptBuilder } from '../../../services/promptBuilder.js'
 
 export const generatePostsConfig = {
   id: 'generate-posts',
@@ -114,21 +118,44 @@ export const generatePostsConfig = {
 
   // AI Generation configuration
   aiConfig: {
-    promptTemplate: `Generate exactly {post_count} social media posts for each of these platforms: {platforms_list}.
+    promptTemplate: `You are a social media content expert creating platform-optimized posts.
 
-Content Requirements:
+BRAND CONTEXT:
+- Company: {company_name}
+- Product/Service: {app_description}
+- Brand Personality: {brand_personality}
+- Tone of Voice: {brand_voice}
+- Core Keywords: {brand_keywords}
+
+TARGET AUDIENCE:
+- Primary Audience: {audience_description}
+- Pain Points: {audience_pain_points}
+- Aspirations: {audience_aspirations}
+
+CONTENT REQUIREMENTS:
 - Topic/Focus: {content_focus}
-- Tone: {tone}
+- Desired Tone: {tone}
 - Call-to-Action: {cta}
-- Keywords to include: {keywords}
-- Target Audience: {audience_context}
-- App/Product: {app_description}
+- Additional Keywords: {keywords}
+- Audience Notes: {audience_context}
+
+SUCCESSFUL PAST CAMPAIGNS (for inspiration):
+{past_campaigns}
 
 Platform-Specific Requirements:
-- X/Twitter: Max 280 characters, use hashtags, add relevant emojis
-- LinkedIn: Professional tone, industry insights, include company voice
-- Instagram: Visual-focused descriptions, 3-5 hashtags, call for engagement
-- Facebook: Community-focused, encourage comments and shares
+- X/Twitter: Max 280 characters, use brand voice, add relevant emojis, include hashtags
+- LinkedIn: Professional + thought leadership, showcase expertise, include company personality
+- Instagram: Visual-focused descriptions, 3-5 hashtags, call for engagement, use emojis naturally
+- Facebook: Community-focused, encourage discussion/shares, longer form allowed, personal tone
+
+Generate exactly {post_count} unique social media posts for each of these platforms: {platforms_list}.
+
+Each post should:
+1. Reflect the brand personality and voice
+2. Resonate with the target audience
+3. Include the call-to-action naturally
+4. Use the core keywords where appropriate
+5. Be platform-specific (not generic)
 
 Format your response EXACTLY like this:
 
@@ -146,21 +173,15 @@ Important: Use [PLATFORM: ...] headers and --- separators between posts.
 Start each post on a new line after the separator.`,
 
     temperature: 0.8,
-    maxTokens: 2500,
+    maxTokens: 3000,
 
-    // Get app description and platform names
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        const data = stored ? JSON.parse(stored) : {}
-        return {
-          app_description: data.appDescription || 'Your product/service',
-          company_name: data.companyName || ''
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-        return { app_description: 'Your product/service' }
-      }
+    // Use PromptBuilder for context extraction
+    // Automatically extracts: company_name, app_description, brand_personality,
+    // brand_voice, brand_keywords, audience_description, audience_pain_points,
+    // audience_aspirations, past_campaigns from tiers 1, 2, 3, 5
+    contextProvider: async () => {
+      const builder = usePromptBuilder()
+      return await builder.buildSocialMediaContext()
     },
 
     // Parse response into structured posts
@@ -200,5 +221,29 @@ Start each post on a new line after the separator.`,
 
   // Show output/results section
   showOutput: true,
-  exportFilename: 'social-posts'
+  exportFilename: 'social-posts',
+
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS product launch announcement',
+        input: { platforms: ['twitter', 'linkedin'], tone: 'professional', content_focus: 'New AI feature launched', cta: 'learn_more' },
+        output: 'Platform-specific posts: Twitter version highlights the key benefit in 280 chars with hashtags, LinkedIn version tells a longer story about solving developer problems'
+      },
+      {
+        scenario: 'Community engagement content',
+        input: { platforms: ['instagram', 'facebook'], tone: 'storytelling', content_focus: 'Customer success story', cta: 'join' },
+        output: 'Instagram posts focus on visual storytelling and community, Facebook posts encourage discussion and shares with the customer testimonial'
+      }
+    ],
+    commonMistakes: [
+      'Posting the same content everywhere - each platform has different norms. Twitter needs brevity + hashtags, LinkedIn needs thought leadership, Instagram needs visual hooks.',
+      'No call-to-action - people need to know what to do next. "Learn more", "Try it", "Join us" makes a difference.',
+      'Too salesy - people don\'t follow you to be pitched. Share value, insights, and stories first. Sell second.',
+      'Ignoring your audience - posting about B2B enterprise features to teenagers won\'t work. Know who uses each platform.',
+      'Inconsistent posting - one post every 2 months gets lost. Post consistently (3-5 times per week minimum).',
+      'Not engaging with replies - if people comment, ignore them at your peril. Reply within 24 hours to build community.'
+    ]
+  }
 }

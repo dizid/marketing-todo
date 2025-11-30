@@ -100,5 +100,28 @@ export const engageFollowersTask = {
 
   interactionTypes: interactionTypes,
   customComponent: 'EngageFollowersMiniApp',
-  output: { enabled: false }
+  output: { enabled: false },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Responding to positive feedback on social media',
+        input: { interaction_type: 'compliments', comment: 'This tool is amazing! Saved me so much time.' },
+        output: 'Template response: "Thank you so much! We\'re thrilled it\'s saving you time. Your feedback means everything to us. Let us know if you need anything!" Includes personalization tips to reference specific features they mentioned and invitation to join community or beta program.'
+      },
+      {
+        scenario: 'Handling feature requests from engaged users',
+        input: { interaction_type: 'feature-requests', comment: 'Would love to see dark mode added!' },
+        output: 'Template response: "Great suggestion! Dark mode is something we\'ve been thinking about. We track feature requests at [link] - upvote there so we can prioritize based on demand. What\'s your main use case for dark mode?" Acknowledges request, provides tracking mechanism, and asks follow-up to understand need better.'
+      }
+    ],
+    commonMistakes: [
+      'Using generic copy-paste responses - replying "Thanks for the feedback!" to everything feels robotic. Personalize each response by referencing something specific they said.',
+      'Responding too slowly - taking 2-3 days to reply to comments. Aim to respond within 2-4 hours, especially in the first 24 hours after posting when engagement signals matter most to algorithms.',
+      'Only responding to positive comments - ignoring questions or concerns and only thanking compliments. Engage with ALL comments, especially questions and constructive criticism.',
+      'Getting defensive about criticism - arguing with users who report bugs or suggest improvements. Always thank them for feedback and explain you\'re looking into it, even if you disagree.',
+      'Not asking follow-up questions - one-and-done replies that end conversations. Ask questions back to keep the conversation going and learn more about your users.',
+      'Forgetting to engage with other people\'s content - only replying to comments on your posts. Spend time commenting on followers\' posts too to build reciprocal relationships and community.'
+    ]
+  }
 }

@@ -267,5 +267,28 @@ export const designGraphicsTask = {
 
   output: {
     enabled: false
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Creating social media graphics for product launch',
+        input: { design_purpose: 'social-banner', design_style: 'modern-minimal', key_message: 'Launch Week - 50% Off' },
+        output: 'AI-generated design brief with composition guidelines (centered text with accent shape), color palette (primary blue #4A90E2, accent orange #F5A623, white background), typography recommendations (bold sans-serif 72pt for headline), and step-by-step Canva tutorial to create a 1200x628px launch banner with the promo message.'
+      },
+      {
+        scenario: 'Designing hero image for landing page',
+        input: { design_purpose: 'website-hero', design_style: 'tech', key_message: 'Build Faster with AI' },
+        output: 'Design brief for 1920x600px hero image with futuristic gradient background (dark blue to purple), AI-generated Midjourney prompt for tech-focused imagery, layout suggestions for overlaying text, and Figma step-by-step guide to position headline, add subtle geometric shapes, and export at 2x resolution.'
+      }
+    ],
+    commonMistakes: [
+      'Using too many fonts and colors - mixing 5 fonts and 8 colors creates visual chaos. Stick to 1-2 fonts and 2-3 colors maximum for cohesive, professional designs.',
+      'Making text too small - creating graphics with tiny text that\'s unreadable on mobile. Ensure headline text is at least 48pt, body text 24pt minimum for social media graphics.',
+      'Forgetting to check mobile preview - designing on desktop and never checking how it looks on a phone screen. Always preview graphics at actual size on mobile devices.',
+      'Not leaving breathing room - cramming every pixel with elements. Use white space generously - aim for 20-30% of your design to be empty space for visual clarity.',
+      'Using low-resolution images - downloading images at 72dpi or small sizes that pixelate when enlarged. Always export at 2x resolution (300dpi for print, high-res for web).',
+      'Ignoring brand consistency - creating each graphic with different styles. Maintain consistent colors, fonts, and visual style across all graphics to build brand recognition.'
+    ]
   }
 }

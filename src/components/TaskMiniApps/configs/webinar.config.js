@@ -237,6 +237,30 @@ Looking forward to seeing you at our next webinar!
     }
   },
 
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'Product feature demo webinar',
+        input: { webinar_title: 'Advanced Analytics Demo', target_audience: 'Existing customers', expected_attendees: 75 },
+        output: 'Live webinar showing new reporting features with real data, Q&A focused on implementation, post-webinar follow-up with template for feature documentation'
+      },
+      {
+        scenario: 'Community Q&A session',
+        input: { webinar_title: 'Best Practices Office Hours', target_audience: 'Free plan users', expected_attendees: 30 },
+        output: 'Casual AMA format, discussion starters ready for quiet moments, follow-up email with recording and FAQ document'
+      }
+    ],
+    commonMistakes: [
+      'No clear objective - "just chat" webinars waste everyone\'s time. Know what you want attendees to leave with.',
+      'Talking too fast - people need time to absorb. Pause between sections, repeat key points, leave room for questions.',
+      'No agenda shared - people hate surprises. Send the 30-min outline in the invite so they know what to expect.',
+      'Forgetting to test tech beforehand - 5 min before start, NOT 5 minutes late discovering audio is broken.',
+      'No follow-up plan - recording goes in the void. Send it within 24 hours with resources and next steps.',
+      'One-way broadcast - asking "Any questions?" at the end doesn\'t work. Use polls, breakouts, or chat throughout.'
+    ]
+  },
+
   // Tools recommendations
   toolSuggestions: [
     {

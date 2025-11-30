@@ -169,5 +169,28 @@ QUALITY STANDARDS:
         }
       }
     }
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Early-stage SaaS with 25% progress, strong user research',
+        input: { progress: '25%', completedTasks: '8/32', strongAreas: ['user research', 'landing page'], gaps: ['analytics', 'paid acquisition'] },
+        output: 'Executive summary highlighting strong foundation in understanding customer needs and clear value proposition, identifying critical gap in tracking user behavior and conversion metrics. Priority tasks: 1) Set up Google Analytics with conversion tracking (High Impact/Low Effort), 2) Create first paid ad campaign to test messaging (High Impact/Medium Effort), 3) Build email capture flow on landing page (High Impact/Low Effort).'
+      },
+      {
+        scenario: 'Launched product with 60% progress, low engagement',
+        input: { progress: '60%', completedTasks: '19/32', strongAreas: ['product', 'content'], gaps: ['user activation', 'retention'] },
+        output: 'Executive summary noting solid product-market fit foundation but concerning activation and retention metrics. Strategic priority shift from acquisition to engagement needed. Priority tasks: 1) Implement onboarding checklist to drive first action (High Impact/Low Effort), 2) Set up behavioral email triggers for inactive users (High Impact/Medium Effort), 3) Build feature usage dashboard to identify drop-off points (Medium Impact/Low Effort).'
+      }
+    ],
+    commonMistakes: [
+      'Taking recommendations as gospel - AI suggestions are starting points, not commandments. Evaluate each recommendation against your specific business context and constraints.',
+      'Ignoring your own intuition - AI says do X, but your gut says Y. Trust your domain knowledge. Use AI insights to challenge assumptions, not replace judgment.',
+      'Not customizing input data - leaving fields blank or using generic descriptions gives generic advice. Provide specific, detailed information for tailored recommendations.',
+      'Trying to tackle all priority tasks simultaneously - getting 5 priority tasks and starting all of them. Focus on completing 1-2 tasks fully before starting others.',
+      'Never regenerating - running this once at project start and never again. Regenerate monthly as your progress and situation changes for updated priorities.',
+      'Not tracking which recommendations worked - implementing suggestions but never measuring results. Track outcomes to learn which AI recommendations actually drive impact for your business.'
+    ]
   }
 }

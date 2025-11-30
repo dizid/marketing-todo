@@ -155,5 +155,29 @@ Format your response clearly with section headers.`,
 
   // Show output/results section
   showOutput: true,
-  exportFilename: 'audience-personas'
+  exportFilename: 'audience-personas',
+
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS targeting developers',
+        input: { audience_overview: 'Technical developers at startups', industry: 'SaaS', company_size: 'startup', job_titles: 'CTO, Lead Developer' },
+        output: 'Detailed personas for CTOs and lead developers at 1-20 person startups who value developer experience and integration capabilities'
+      },
+      {
+        scenario: 'E-commerce targeting marketing managers',
+        input: { audience_overview: 'Marketing managers at growth-stage e-commerce', industry: 'E-commerce', company_size: 'small' },
+        output: 'Personas for marketing managers at 20-100 person e-commerce companies focused on customer acquisition and retention ROI'
+      }
+    ],
+    commonMistakes: [
+      'Being too vague - "everyone" or "businesses" isn\'t an audience. Get specific about company size, role, and industry',
+      'Guessing about pain points - interview actual customers. What they tell you will surprise you',
+      'Ignoring budget - audiences with no budget aren\'t viable. Know their spending power and decision-making process',
+      'Forgetting about multiple personas - most products serve 2-4 different buyer personas. Identify all of them',
+      'Missing the decision-maker - you might reach someone, but are they the one who decides to buy?',
+      'Changing your persona weekly - lock it in for 30 days, validate with real customer conversations, then iterate'
+    ]
+  }
 }

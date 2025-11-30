@@ -231,6 +231,30 @@ Go/No-Go Decision:
 ☐ Reject/close`
   },
 
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'Prioritizing between dark mode and API integration',
+        input: { feature_name: 'Dark Mode', user_impact: 'high', implementation_effort: 'low', customer_requests: 25 },
+        output: 'Dark mode = Quick Win (high impact, low effort). Build it next. API integration = Major Project (high impact, high effort). Plan for Q2.'
+      },
+      {
+        scenario: 'Evaluating a niche feature request',
+        input: { feature_name: 'Japanese Language Support', user_impact: 'low', implementation_effort: 'high', customer_requests: 1 },
+        output: 'Low impact + high effort = TIME SINK. Skip it. Unless this expands into 1000 Japanese users, focus resources elsewhere.'
+      }
+    ],
+    commonMistakes: [
+      'Overestimating impact - "5 people asked for it" is NOT high impact. "50% of customers would pay extra for it" IS high impact.',
+      'Underestimating effort - Adding 1 language sounds easy, then you hit 20 hidden complexity issues. Always add 50% to effort estimates.',
+      'Ignoring the time sinks - "It\'s just a small feature" that takes 3 months. Say no to low-impact, high-effort work.',
+      'No customer validation - You think users want dark mode, but maybe they want performance. Ask 10 customers to rank 5 potential features.',
+      'Feature creep from one person - One vocal customer wants something. One person\'s opinion ≠ market demand. Look for patterns (5+ requests).',
+      'Not revisiting the roadmap - Priorities change every quarter. What was high-impact 6 months ago might be obsolete now.'
+    ]
+  },
+
   // Tool recommendations
   tools: [
     {

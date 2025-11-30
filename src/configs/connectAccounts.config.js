@@ -99,5 +99,28 @@ export const connectAccountsTask = {
   },
 
   customComponent: 'ConnectAccountsMiniApp',
-  platforms: platforms
+  platforms: platforms,
+
+  help: {
+    examples: [
+      {
+        scenario: 'Setting up email marketing and analytics for new SaaS',
+        input: { platforms: ['Mailchimp', 'Google Analytics'], goal: 'track signups and send welcome emails' },
+        output: 'Mailchimp: Step-by-step OAuth connection flow, API key generation guide with screenshots, explanation of permissions being granted, and test email verification. Google Analytics: Measurement ID location instructions, code snippet placement guide, conversion goal setup for tracking signups, real-time verification steps.'
+      },
+      {
+        scenario: 'Connecting payment processing and team notifications',
+        input: { platforms: ['Stripe', 'Slack'], goal: 'accept payments and get notified of new customers' },
+        output: 'Stripe: Publishable vs Secret key explanation, test mode setup instructions, webhook configuration for payment events, security best practices. Slack: Webhook URL generation, channel selection, notification formatting options, test message verification to ensure integration works.'
+      }
+    ],
+    commonMistakes: [
+      'Sharing secret keys publicly - pasting your Stripe Secret Key or API keys in public repos or screenshots. Treat secret keys like passwords - never share them publicly.',
+      'Not testing connections after setup - clicking connect and assuming it works. Always send a test email, trigger a test event, or verify data is flowing before moving on.',
+      'Granting too many permissions - giving full account access when you only need read permissions. Only grant the minimum permissions needed for the integration to work.',
+      'Using production keys for testing - testing payment flows with real Stripe keys and accidentally charging real cards. Use test mode keys for all development and testing.',
+      'Forgetting to revoke access - connecting a tool and never removing it. Periodically audit connected apps and revoke access to ones you no longer use for security.',
+      'Not reading what permissions you\'re granting - clicking "Allow All" on OAuth screens without reading. Always review exactly what access you\'re giving to avoid unexpected data sharing.'
+    ]
+  }
 }

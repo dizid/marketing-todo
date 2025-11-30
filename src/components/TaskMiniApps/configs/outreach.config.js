@@ -1,9 +1,11 @@
 /**
  * Personalized Outreach Mini-App Configuration
  *
- * This config defines the form fields, AI generation prompt,
- * and output structure for the Personalized Outreach task
+ * Demonstrates PromptBuilder integration for simpler context extraction.
+ * Variables automatically extracted from tiers: 1, 2, 3 (company + market + brand)
  */
+
+import { usePromptBuilder } from '../../../services/promptBuilder.js'
 
 export const outreachConfig = {
   id: 'outreach',
@@ -94,52 +96,46 @@ export const outreachConfig = {
 
   // AI Generation configuration
   aiConfig: {
-    promptTemplate: `You are helping generate a personalized outreach message.
+    promptTemplate: `You are a world-class personalized outreach expert. Generate compelling {channel} outreach messages.
 
-TARGET PERSONA: {recipient_segment}
-CHANNEL: {channel}
-TONE: {tone}
-
-COMPANY:
+SENDER COMPANY:
 - Name: {company_name}
-- Product/Service: {app_description}
+- What they do: {app_description}
+- Unique positioning: {market_positioning}
+- Brand voice: {brand_voice}
 
-OUTREACH DETAILS:
-- Desired Call-to-Action: {call_to_action}
-- Additional Details to Include: {additional_details}
-- Extra Notes: {notes}
+RECIPIENT:
+- Segment/Persona: {recipient_segment}
+- Pain points they likely face: {audience_pain_points}
 
-Generate a personalized {channel} outreach message that:
-1. Grabs attention and shows you know their situation
-2. Briefly explains how {app_description} helps
-3. Includes a personal touch using the additional details
-4. Has a clear CTA: {call_to_action}
-5. Uses a {tone} tone
-6. Is concise and authentic
+OUTREACH GOAL:
+- Call-to-Action: {call_to_action}
+- Tone: {tone}
+- Personal context: {additional_details}
+- Extra requirements: {notes}
+
+CRITICAL GUIDELINES FOR {channel}:
+${'{channel}' === 'email' ? '- Subject line must be compelling but not clickbaity (avoid all-caps, excessive punctuation)\n- Opening line should reference something about them or their situation\n- Keep body to 3-4 short paragraphs max\n- Make the CTA clear and specific\n- Include a professional signature' : '- Keep message concise - respect their time\n- Start with something personal to them\n- Lead with value, not a pitch\n- Include a clear next step\n- Use authentic language, not templates'}
+
+Generate a highly personalized {channel} outreach message that:
+1. Shows genuine interest in their situation (not generic)
+2. Explains the specific value for their scenario
+3. Feels authentic, not like a template
+4. Includes the call-to-action naturally
+5. Uses the requested {tone} tone
+6. Reflects our brand voice: {brand_voice}
 
 Format:
 For email: Start with "SUBJECT: [subject]" on first line, blank line, then message body
 For other channels: Just the message content`,
 
     temperature: 0.8,
-    maxTokens: 1500,
+    maxTokens: 1800,
 
-    // Get context from local storage (similar to generatePosts)
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        const data = stored ? JSON.parse(stored) : {}
-        return {
-          app_description: data.appDescription || 'Your product/service',
-          company_name: data.companyName || 'Your Company'
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-        return {
-          app_description: 'Your product/service',
-          company_name: 'Your Company'
-        }
-      }
+    // Use PromptBuilder for context extraction
+    contextProvider: async () => {
+      const builder = usePromptBuilder()
+      return await builder.buildOutreachContext()
     },
 
     // Parse response - handle email format with subject line

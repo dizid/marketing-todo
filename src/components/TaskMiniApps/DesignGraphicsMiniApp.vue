@@ -156,10 +156,38 @@
         </div>
       </div>
 
+      <!-- Canva Templates Section -->
+      <div class="canva-section">
+        <h3 class="section-title">💡 Quick Start: Pre-Made Canva Templates</h3>
+        <p class="section-description">No design skills needed. Start with a professional template that matches your style. Click any template below to edit in Canva with your colors and message—takes 5 minutes!</p>
+
+        <div class="templates-grid">
+          <a
+            v-for="template in suggestedTemplates"
+            :key="template.id"
+            :href="template.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="template-card"
+          >
+            <div class="template-icon">🎨</div>
+            <h4 class="template-name">{{ template.name }}</h4>
+            <p class="template-desc">{{ template.description }}</p>
+            <p class="template-size">{{ template.dimensions }}</p>
+            <span class="template-cta">Edit in Canva →</span>
+          </a>
+        </div>
+
+        <div class="canva-tip">
+          <span class="tip-emoji">💡</span>
+          <p class="tip-text"><strong>Pro Tip:</strong> Click any template above. In Canva, you can customize colors, fonts, and text instantly. No design experience needed!</p>
+        </div>
+      </div>
+
       <!-- Guide Selection -->
       <div class="guide-selection-section">
-        <h3 class="section-title">Step 2: Choose Your Tool</h3>
-        <p class="section-description">Select which tool you'd like to use to create this design. We'll provide step-by-step instructions.</p>
+        <h3 class="section-title">Step 2: Or Build From Scratch</h3>
+        <p class="section-description">Want more control? Select a tool and we'll provide step-by-step instructions for creating from scratch using the design brief above.</p>
 
         <div class="guide-buttons">
           <button
@@ -295,6 +323,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { designGraphicsTask, designPurposes, designStyles, diyGuides } from '@/configs/designGraphics.config'
+import { canvaTemplates, filterTemplatesByStyle, getTemplatesForPurpose } from '@/configs/canvaTemplates.config'
 import { generateAIContent } from '@/services/aiGeneration'
 
 // Props
@@ -357,6 +386,23 @@ const currentGuide = computed(() => {
 
 const isChecklistComplete = computed(() => {
   return checklist.value.every(item => item.checked)
+})
+
+const suggestedTemplates = computed(() => {
+  if (!formData.value.purpose || !formData.value.style) {
+    return []
+  }
+
+  // First try to get templates matching both purpose and style
+  let templates = filterTemplatesByStyle(formData.value.purpose, formData.value.style)
+
+  // If no exact match, get all templates for the purpose
+  if (templates.length === 0) {
+    templates = getTemplatesForPurpose(formData.value.purpose)
+  }
+
+  // Return up to 4 templates
+  return templates.slice(0, 4)
 })
 
 // Methods
@@ -973,6 +1019,117 @@ watch(
 .tips-list li::before {
   content: '💡 ';
   margin-right: 8px;
+}
+
+/* Canva Templates Section */
+.canva-section {
+  margin-top: 40px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.template-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.template-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transform: scaleX(0);
+  transition: transform 0.2s;
+  transform-origin: left;
+}
+
+.template-card:hover {
+  border-color: #6366f1;
+  background: #f9f9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.template-card:hover::before {
+  transform: scaleX(1);
+}
+
+.template-icon {
+  font-size: 1.8rem;
+}
+
+.template-name {
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.template-desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.template-size {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
+  font-weight: 500;
+}
+
+.template-cta {
+  color: #6366f1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.canva-tip {
+  background: white;
+  border-left: 4px solid #6366f1;
+  padding: 12px 16px;
+  border-radius: 6px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.tip-emoji {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Guide Selection */

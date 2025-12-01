@@ -223,15 +223,15 @@ export const diyGuides = {
 
 export const designGraphicsTask = {
   id: 'content-3',
-  name: 'Design Graphics',
-  description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
+  name: 'Design Graphics Brief Generator',
+  description: 'Create professional graphics with AI-guided design briefs and Canva templates',
   category: 'content',
 
   // Freemium model - Premium tier task
   tier: 'premium',
-  what: 'Get AI-guided design briefs and step-by-step tutorials for creating graphics (hero images, social assets, infographics). No design skills required—just follow the guidance.',
-  why: 'Great graphics drive engagement (5-10x more shares). Consistent visual style builds brand recognition. Most people don\'t have access to a designer—AI fills this gap.',
-  how: 'Describe what you want to create, then get AI-generated design brief with composition, colors, typography, and style tips. Use Canva or Figma to execute following the brief.',
+  what: 'Get AI-guided design briefs and direct links to Canva templates to create professional graphics (hero images, social assets, infographics). Choose from 20+ pre-designed templates optimized for each design purpose.',
+  why: 'Great graphics drive engagement (5-10x more shares). Consistent visual style builds brand recognition. Canva templates eliminate blank-canvas paralysis and get you creating in seconds.',
+  how: 'Describe what you want to create, then get an AI-generated design brief AND curated Canva templates matching your design purpose and style. Click a template, customize with your colors/message, download. Done in 5 minutes.',
 
   form: [
     {

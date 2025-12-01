@@ -3,6 +3,13 @@
  *
  * All tasks defined using the unified schema.
  * Each task can be rendered by UnifiedTaskComponent without any custom Vue components.
+ *
+ * ARCHITECTURE NOTE (Phase 2B Consolidation):
+ * These task definitions exist for backwards compatibility and unified task list rendering.
+ * Modern implementation uses mini-apps via TaskMiniApps component for better UX.
+ * - webinarTask, outreachTask, emailSequenceTask → Also have mini-app implementations
+ * - When consolidating configs (Phase 2B), these can reference mini-app configs directly
+ * - See: src/components/TaskMiniApps/configs/ for authoritative mini-app definitions
  */
 
 import { connectAccountsTask } from './connectAccounts.config'

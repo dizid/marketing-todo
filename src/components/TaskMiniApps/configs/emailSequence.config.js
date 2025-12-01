@@ -162,6 +162,12 @@ ${'{sequence_length}' >= '5' ? 'Email 4: DIFFERENTIATION - Explain how we solve 
 ${'{sequence_length}' >= '7' ? 'Email 6: OBJECTION - Proactively address the biggest objection\\nEmail 7: FINAL_PITCH - Clear CTA with value recap' : ''}
 ${'{sequence_length}' >= '10' ? 'Email 8: SOCIAL_PROOF - Customer success story\\nEmail 9: SPECIAL_OFFER - Limited-time value add\\nEmail 10: LAST_CHANCE - Final opportunity with clear CTA' : ''}
 
+SUBJECT LINE FORMULAS TO USE:
+- Curiosity-Driven: "The [X] mistake costing you [outcome]", "[Surprising fact] about [topic]", "What nobody tells you about [topic]"
+- Benefit-Driven: "How to [achieve result] in [timeframe]", "[Number] ways to [solve problem]", "Get [outcome] without [pain point]"
+- Urgency-Driven: "Last chance: [Offer] ends [when]", "Only [X] spots left for [thing]", "[Time-sensitive opportunity]"
+- Story-Driven: "How I [achieved result]", "My biggest mistake with [topic]", "This almost ruined [outcome]..."
+
 CRITICAL GUIDELINES FOR ALL EMAILS:
 - Subject lines must be compelling but never clickbait (avoid all-caps, excessive punctuation)
 - Each email should feel personal and relevant to {audience_description}
@@ -170,6 +176,30 @@ CRITICAL GUIDELINES FOR ALL EMAILS:
 - Include one clear CTA per email (but vary the ask across sequence)
 - Respect {audience_description}'s time - emails should take <2 min to read
 - Signature: Professional, includes company info
+- Use P.S. lines strategically: reinforce CTA, add urgency, tease next email, provide social proof, or remove objections
+- Avoid spam triggers: Don't use FREE, !!!, ALL CAPS, $$$
+- Keep links to 2-3 per email maximum
+- Ask questions to encourage replies - boost engagement metrics
+- Include specific performance metrics where relevant (not generic claims)
+
+PREVIEW TEXT OPTIMIZATION:
+- Preview text is the second-most important factor after subject lines
+- If subject asks a question, preview answers it partially
+- If subject makes a promise, preview expands on it
+- Generate preview text that complements the subject line
+
+A/B TESTING RECOMMENDATIONS:
+- Test Priority 1: Subject Lines (expected 10-30% open rate improvement)
+- Test Priority 2: CTA Placement (expected 5-15% click rate improvement)
+- Test Priority 3: Email Length vs Depth (short vs long formats)
+- Test Priority 4: Urgency Framing (scarcity vs time-based urgency)
+
+SEGMENTATION TRIGGERS:
+- Opened but didn't click → Send alternative angle
+- Clicked but didn't buy → Send objection handling email
+- Didn't open 3+ emails → Send re-engagement or remove
+- Clicked pricing page → Send urgency/bonus email
+- Visited sales page 2+ times → Send personal outreach
 
 Generate exactly {sequence_length} unique emails for this sequence.
 
@@ -177,16 +207,21 @@ Format your response EXACTLY like this:
 
 [EMAIL 1: HOOK]
 Subject: [compelling subject line]
+Preview: [50-character preview text]
 Body:
 [email body here - 150-250 words]
+P.S.: [relevant P.S. line]
 
 [EMAIL 2: VALUE]
 Subject: [compelling subject line]
+Preview: [50-character preview text]
 Body:
 [email body here]
+P.S.: [relevant P.S. line]
 
-Important: Use [EMAIL N: PURPOSE] headers, clear Subject: lines, and Body: labels.
-Each email should be distinct in purpose and progression.`,
+Important: Use [EMAIL N: PURPOSE] headers, clear Subject: and Preview: lines, and Body: labels.
+Each email should be distinct in purpose and progression.
+Include P.S. lines for every email.`,
 
     temperature: 0.7,
     maxTokens: 4000,
@@ -197,7 +232,7 @@ Each email should be distinct in purpose and progression.`,
       return await builder.buildContentContext()
     },
 
-    // Parse response into structured emails
+    // Parse response into structured emails (enhanced with preview & P.S.)
     parseResponse: (response) => {
       const emails = []
 
@@ -211,13 +246,17 @@ Each email should be distinct in purpose and progression.`,
 
         const emailType = headerMatch[1].trim()
         const subjectMatch = block.match(/Subject:\\s*(.+?)\\n/i)
-        const bodyMatch = block.match(/Body:\\s*([\\s\\S]+?)(?=\\n\\[|$)/i)
+        const previewMatch = block.match(/Preview:\\s*(.+?)\\n/i)
+        const bodyMatch = block.match(/Body:\\s*([\\s\\S]+?)(?=\\nP\\.S\\.|\\n\\[|$)/i)
+        const psMatch = block.match(/P\\.S\\.:\\s*(.+?)(?=\\n\\[|$)/i)
 
         if (subjectMatch && bodyMatch) {
           emails.push({
             type: emailType,
             subject: subjectMatch[1].trim(),
+            preview: previewMatch ? previewMatch[1].trim() : '',
             body: bodyMatch[1].trim(),
+            ps: psMatch ? psMatch[1].trim() : '',
             selected: true,
             generatedAt: new Date().toISOString()
           })

@@ -337,6 +337,37 @@ export const useProjectStore = defineStore('project', () => {
     return data
   }
 
+  /**
+   * Get next task recommendation based on user context and completed tasks
+   */
+  const getTaskRecommendation = async () => {
+    if (!currentProjectId.value) throw new Error('No project selected')
+
+    try {
+      const { getNextTaskRecommendation } = await import('@/services/taskRecommendationEngine.js')
+
+      // Get user context from settings
+      const userContext = {
+        productType: currentProjectSettings.value?.productType
+      }
+
+      // Get completed task IDs
+      const tasks = currentProjectTasks.value || {}
+      const completedTaskIds = Object.entries(tasks)
+        .filter(([_, task]) => task.completed && !task.removed)
+        .map(([id, _]) => id)
+
+      // Get recommendation
+      const recommendation = getNextTaskRecommendation(userContext, completedTaskIds)
+
+      return recommendation
+    } catch (err) {
+      error.value = err.message
+      console.error('Error getting task recommendation:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     projects,
@@ -374,6 +405,7 @@ export const useProjectStore = defineStore('project', () => {
     addTask,
     updateTaskData,
     getTaskData,
-    addContent
+    addContent,
+    getTaskRecommendation
   }
 })

@@ -15,6 +15,16 @@
 
       <!-- Project Content -->
       <template v-else>
+        <!-- Task Recommendation Card (Task DNA) -->
+        <NextTaskCard
+          v-if="showRecommendation && taskRecommendation"
+          :recommendation="taskRecommendation"
+          @start-task="handleStartRecommendedTask"
+          @view-roadmap="handleViewRoadmap"
+          @select-alternative="handleSelectAlternative"
+          @close="showRecommendation = false"
+        />
+
         <!-- Progress Card -->
         <ProgressCard
           :percentage="progressPercentage"
@@ -105,6 +115,7 @@ import ExecutiveSummarySection from './ExecutiveSummarySection.vue'
 import ActionButtonsSection from './ActionButtonsSection.vue'
 import TaskModal from '../Task/TaskModal.vue'
 import AddTasksModal from '../Project/AddTasksModal.vue'
+import NextTaskCard from '../TaskRecommendation/NextTaskCard.vue'
 
 // Stores
 const projectStore = useProjectStore()
@@ -128,6 +139,11 @@ const selectedTaskId = ref(null)
 // STATE - Add Tasks Modal
 const showAddTasksModal = ref(false)
 const selectedCategoryName = ref(null)
+
+// STATE - Task Recommendation (Task DNA)
+const showRecommendation = ref(false)
+const taskRecommendation = ref(null)
+const recommendationDismissTimer = ref(null)
 
 // Task categories data (global template - applies to all projects)
 const taskCategories = ref([
@@ -468,11 +484,26 @@ const progressPercentage = computed(() => {
 // EVENT HANDLERS
 
 /**
- * Handle task status update
+ * Handle task status update (with Task DNA recommendation)
  */
 const handleTaskUpdate = async (updatedTasks) => {
   try {
     await projectStore.updateProjectTasks(updatedTasks)
+
+    // Get task recommendation after update (Task DNA feature)
+    try {
+      const recommendation = await projectStore.getTaskRecommendation()
+      if (recommendation && recommendation.nextTask) {
+        taskRecommendation.value = recommendation
+        showRecommendation.value = true
+        // Recommendation stays visible indefinitely until user interacts or manually closes
+        // No auto-dismiss - this is a key guidance card users should see
+        clearTimeout(recommendationDismissTimer.value)
+      }
+    } catch (err) {
+      // Silently fail - recommendation is a nice-to-have feature
+      console.warn('Could not fetch task recommendation:', err)
+    }
   } catch (error) {
     console.error('Error updating tasks:', error)
   }
@@ -503,6 +534,38 @@ const handleTaskOpened = (data) => {
 const handleTaskModalClosed = () => {
   showTaskModal.value = false
   selectedTaskId.value = null
+  // Note: Don't dismiss recommendation here - let it stay visible or auto-dismiss naturally
+}
+
+/**
+ * Handle start recommended task
+ */
+const handleStartRecommendedTask = (task) => {
+  if (task && task.id) {
+    selectedTaskId.value = task.id
+    showTaskModal.value = true
+    // Cancel the auto-dismiss timer since user is actively engaging
+    clearTimeout(recommendationDismissTimer.value)
+  }
+}
+
+/**
+ * Handle view roadmap button
+ */
+const handleViewRoadmap = () => {
+  // TODO: Implement in v1.1 - for now just show a toast
+  console.log('[Task DNA] Roadmap view requested - implement in v1.1')
+  // Show toast: "Roadmap view coming in v1.1"
+}
+
+/**
+ * Handle select alternative task
+ */
+const handleSelectAlternative = (taskId) => {
+  if (taskId) {
+    selectedTaskId.value = taskId
+    showTaskModal.value = true
+  }
 }
 
 /**

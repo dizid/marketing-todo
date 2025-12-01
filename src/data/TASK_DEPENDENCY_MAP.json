@@ -1,0 +1,147 @@
+{
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Discovery",
+      "description": "Define your market position",
+      "tasks": [
+        {
+          "id": "growth-5",
+          "name": "Positioning & Messaging Map",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-intro-1",
+          "name": "Audience Research",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "growth-3",
+          "name": "Competitor Intelligence",
+          "businessModels": ["all"]
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Conversion",
+      "description": "Turn traffic into customers",
+      "tasks": [
+        {
+          "id": "growth-1",
+          "name": "Lead Magnet Ideas",
+          "businessModels": ["saas", "service", "info-product"]
+        },
+        {
+          "id": "premium-1",
+          "name": "High-Converting Offer Builder",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-2",
+          "name": "Sales Page Audit & Optimizer",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-4",
+          "name": "Email Sales Sequence Builder",
+          "businessModels": ["saas", "service", "info-product"]
+        },
+        {
+          "id": "premium-5",
+          "name": "Cold Outreach Templates",
+          "businessModels": ["saas", "service"]
+        },
+        {
+          "id": "premium-6",
+          "name": "Sales Objection Handler",
+          "businessModels": ["all"]
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Execution",
+      "description": "Create and distribute content",
+      "tasks": [
+        {
+          "id": "growth-2",
+          "name": "A/B Test Idea Generator",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "growth-4",
+          "name": "Blog Post Generator",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "growth-6",
+          "name": "Create Email Newsletter",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "growth-7",
+          "name": "Social Media Content Plan",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-7",
+          "name": "Webinar Planning Checklist",
+          "businessModels": ["saas", "service", "info-product"]
+        },
+        {
+          "id": "premium-8",
+          "name": "Community Engagement Strategy",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-9",
+          "name": "Paid Ads Strategy",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-10",
+          "name": "Landing Page Creator",
+          "businessModels": ["all"]
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Optimization",
+      "description": "Measure and improve results",
+      "tasks": [
+        {
+          "id": "premium-11",
+          "name": "A/B Test Results Analyzer",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-12",
+          "name": "Analytics Setup Guide",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-13",
+          "name": "Channel Performance Analyzer",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-14",
+          "name": "Conversion Rate Optimizer",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-15",
+          "name": "ROI Calculator & Forecaster",
+          "businessModels": ["all"]
+        },
+        {
+          "id": "premium-intro-3",
+          "name": "Annual Marketing Plan",
+          "businessModels": ["all"]
+        }
+      ]
+    }
+  ]
+}

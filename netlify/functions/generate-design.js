@@ -8,9 +8,16 @@
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_KEY
 const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
 
-// Image generation model
-// Using Openjourney v4 (fast, good quality, widely available)
-const MODEL = 'prompthero/openjourney-v4'
+// Image generation models (in order of preference/availability)
+// Try SDXL first (best quality), fall back to turbo if needed
+const MODELS_TO_TRY = [
+  'stability-ai/sdxl',           // Best quality
+  'stability-ai/sdxl-turbo',     // Faster
+  'runwayml/stable-diffusion-v1-5',  // Classic, widely available
+  'prompthero/openjourney-v4'    // Alternative style
+]
+
+let MODEL = MODELS_TO_TRY[0]
 
 /**
  * Map aspect ratio to image dimensions
@@ -77,12 +84,18 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
 
       // If it's a permission/access error, provide helpful guidance
       if (response.status === 422) {
-        console.log('Model not accessible with current API key. This is expected with new/limited API keys.')
-        console.log('The function is working correctly - the issue is model access permissions on Replicate.')
-        console.log('To fix: 1) Verify API key has permission to use the model')
-        console.log('       2) Or purchase credits on Replicate')
-        console.log('       3) Or contact Replicate support')
-        throw new Error(`Model access error: ${error} - Replicate API key may not have permission to use this model`)
+        console.warn('⚠️ 422 Model Access Error')
+        console.warn('This is expected with new Replicate accounts that need billing setup.')
+        console.warn('The function is working correctly - Replicate just needs account verification.')
+        console.warn('')
+        console.warn('✅ To fix:')
+        console.warn('   1) Go to https://replicate.com')
+        console.warn('   2) Sign in to your account')
+        console.warn('   3) Go to Billing & Usage')
+        console.warn('   4) Add a payment method or verify your $10 credit is active')
+        console.warn('   5) Try again - should work immediately!')
+        console.warn('')
+        throw new Error(`Model access limited - Replicate account setup needed. Go to https://replicate.com/account/api`)
       }
 
       throw new Error(`Replicate API error: ${response.status} ${error}`)

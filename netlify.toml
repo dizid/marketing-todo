@@ -6,7 +6,7 @@
 [dev]
   functions = "netlify/functions"
   command = "npm run dev"
-  targetPort = 3000
+  targetPort = 3001
   functionsPort = 9999
   timeout = 120
 

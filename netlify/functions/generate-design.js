@@ -1,7 +1,7 @@
 /**
  * Netlify Function: Generate Design Images via Replicate API
  *
- * Proxy endpoint for image generation using Replicate's SDXL Turbo model
+ * Proxy endpoint for image generation using Replicate's FLUX 1.1 Pro model
  * API Key stored in Netlify environment variables (REPLICATE_API_KEY)
  */
 
@@ -9,12 +9,12 @@ const REPLICATE_API_TOKEN = process.env.REPLICATE_API_KEY
 const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
 
 // Image generation models (in order of preference/availability)
-// Try SDXL first (best quality), fall back to turbo if needed
+// FLUX 1.1 Pro (best quality, 6x faster), fallback to alternatives if unavailable
 const MODELS_TO_TRY = [
-  'stability-ai/sdxl',           // Best quality
-  'stability-ai/sdxl-turbo',     // Faster
-  'runwayml/stable-diffusion-v1-5',  // Classic, widely available
-  'prompthero/openjourney-v4'    // Alternative style
+  'black-forest-labs/flux-1.1-pro',     // Best quality, 6x faster
+  'black-forest-labs/flux-dev',         // Free alternative
+  'stability-ai/sdxl-turbo',            // Reliable fallback
+  'runwayml/stable-diffusion-v1-5'      // Last resort
 ]
 
 let MODEL = MODELS_TO_TRY[0]
@@ -72,9 +72,8 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
           prompt: prompt,
           width: width,
           height: height,
-          num_inference_steps: 25, // Good balance of quality and speed
-          guidance_scale: 7.5,
-          seed: seed
+          seed: seed,
+          go_fast: true  // Optimize for speed (FLUX handles quality internally)
         }
       })
     })
@@ -207,7 +206,7 @@ export const handler = async (event) => {
           alt: prompt
         })),
         metadata: {
-          model: 'sdxl-turbo',
+          model: 'FLUX Pro',
           dimensions: { width, height },
           count: images.length
         }

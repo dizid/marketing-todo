@@ -80,7 +80,7 @@ export class ReplicateAdapter extends ImageGenerationAdapter {
         images: data.images || [],
         metadata: {
           provider: 'replicate',
-          model: 'openjourney-v4',
+          model: 'FLUX Pro',
           generatedAt: new Date().toISOString()
         }
       }

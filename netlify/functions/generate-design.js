@@ -126,7 +126,7 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
 /**
  * Netlify Function Handler
  */
-exports.handler = async (event) => {
+export const handler = async (event) => {
   // CORS headers
   const headers = {
     'Content-Type': 'application/json',

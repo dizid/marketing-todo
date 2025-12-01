@@ -1,46 +1,110 @@
 /**
- * Quota Store (Refactored)
+ * Quota Store (Consolidated)
  *
- * Focused responsibility: Subscription and AI quota management
- * Data: Subscription tier, usage tracking, quota limits
+ * Merged responsibility: Subscription and AI quota management
+ * Data: Subscription tier, usage tracking, quota limits, AI usage history
  * Does NOT: Projects, tasks, content (separate stores)
  *
- * Uses: QuotaRepository for data access
+ * This store consolidates the old subscriptionStore and new quotaStore patterns
+ * It's the single source of truth for subscription and quota information
+ *
+ * Uses: QuotaRepository for domain layer data access
  */
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
 import { QuotaRepository } from '@/domain/repositories'
 import { Quota } from '@/domain/models'
-import { getSupabaseClient } from '@/utils/supabase'
+import { supabase } from '@/utils/supabase'
 import { logger } from '@/shared/utils'
 
 const childLogger = logger.child('quotaStore')
 
 export const useQuotaStore = defineStore('quota', () => {
-  const supabaseClient = getSupabaseClient()
-  const quotaRepository = new QuotaRepository(supabaseClient, childLogger)
+  const authStore = useAuthStore()
+  const quotaRepository = new QuotaRepository(supabase, childLogger)
 
-  // STATE
+  // ===== STATE =====
   const subscription = ref(null) // { tier, status, created_at }
   const usage = ref(null) // { count, resetDate }
   const quotaModel = ref(null) // Quota domain model
+  const aiUsage = ref([]) // AI usage history (from subscriptionStore)
   const isLoading = ref(false)
   const error = ref(null)
+  const lastFetched = ref(null) // Cache timestamp for subscriptionStore compatibility
 
-  // COMPUTED
+  // Constants
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes for normal operations
+  const FREE_TIER_QUOTA = 40 // 40 AI generations per month
+  const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
+
+  // ===== COMPUTED PROPERTIES =====
+
+  // Tier information
   const tier = computed(() => subscription.value?.tier || 'free')
+  const isFree = computed(() => tier.value === 'free')
+  const isPremium = computed(() => tier.value === 'premium')
 
-  const canGenerate = computed(() => {
-    return quotaModel.value?.canGenerate() ?? true
+  // Subscription status
+  const subscriptionStatus = computed(() => subscription.value?.status || 'active')
+  const isActive = computed(() => subscriptionStatus.value === 'active')
+
+  // Quota calculations (from subscriptionStore)
+  const currentQuotaLimit = computed(() => {
+    return isPremium.value ? PREMIUM_TIER_QUOTA : FREE_TIER_QUOTA
+  })
+
+  const currentMonthUsage = computed(() => {
+    if (!aiUsage.value || aiUsage.value.length === 0) return 0
+
+    // Get current month's usage
+    const now = new Date()
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+    return aiUsage.value.filter(usage => {
+      const usageDate = new Date(usage.created_at)
+      return usageDate >= currentMonth
+    }).length
   })
 
   const remainingQuota = computed(() => {
-    return quotaModel.value?.getRemaining() ?? 0
+    const remaining = currentQuotaLimit.value - currentMonthUsage.value
+    return Math.max(0, remaining)
   })
 
   const quotaPercentage = computed(() => {
-    return quotaModel.value?.getPercentage() ?? 0
+    return Math.round((currentMonthUsage.value / currentQuotaLimit.value) * 100)
+  })
+
+  const hasQuotaRemaining = computed(() => remainingQuota.value > 0)
+
+  // Quota reset date
+  const quotaResetDate = computed(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  })
+
+  const formattedResetDate = computed(() => {
+    return quotaResetDate.value.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  })
+
+  // Can user generate AI?
+  const canGenerateAI = computed(() => {
+    // Premium users always can
+    if (isPremium.value) return true
+
+    // Free users need quota remaining
+    return hasQuotaRemaining.value
+  })
+
+  // Compatibility with new quotaStore pattern
+  const canGenerate = computed(() => {
+    return quotaModel.value?.canGenerate() ?? canGenerateAI.value
   })
 
   const quotaMessage = computed(() => {
@@ -51,10 +115,270 @@ export const useQuotaStore = defineStore('quota', () => {
     return quotaModel.value?.getStatus() ?? {}
   })
 
-  // ACTIONS
+  // ===== METHODS =====
 
   /**
-   * Initialize quota for user
+   * Fetch subscription status from Supabase
+   * Uses cache to avoid excessive database queries
+   * Pass force=true to bypass cache (e.g., after payment confirmation)
+   */
+  async function fetchSubscriptionStatus(force = false) {
+    if (!authStore.user) {
+      subscription.value = null
+      return null
+    }
+
+    // Check cache unless force=true
+    if (!force && lastFetched.value && Date.now() - lastFetched.value < CACHE_DURATION) {
+      return subscription.value
+    }
+
+    try {
+      isLoading.value = true
+      error.value = null
+
+      // Fetch subscription
+      const { data, error: fetchError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .single()
+
+      if (fetchError) {
+        // User might not have subscription yet, that's ok
+        if (fetchError.code !== 'PGRST116') {
+          throw fetchError
+        }
+        subscription.value = {
+          tier: 'free',
+          status: 'active'
+        }
+      } else {
+        subscription.value = data
+      }
+
+      lastFetched.value = Date.now()
+
+      // Also cache in localStorage for offline use (read-only)
+      localStorage.setItem('subscription_cache', JSON.stringify({
+        data: subscription.value,
+        cachedAt: Date.now()
+      }))
+
+      return subscription.value
+    } catch (err) {
+      console.error('Failed to fetch subscription:', err)
+      error.value = err.message
+
+      // Try to use localStorage fallback
+      const cached = localStorage.getItem('subscription_cache')
+      if (cached) {
+        try {
+          const { data } = JSON.parse(cached)
+          subscription.value = data
+        } catch {
+          subscription.value = { tier: 'free', status: 'active' }
+        }
+      } else {
+        subscription.value = { tier: 'free', status: 'active' }
+      }
+
+      return subscription.value
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Fetch AI usage for current user
+   */
+  async function fetchAIUsage() {
+    if (!authStore.user) {
+      aiUsage.value = []
+      return []
+    }
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('ai_usage')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .order('created_at', { ascending: false })
+
+      if (fetchError) throw fetchError
+
+      aiUsage.value = data || []
+      return aiUsage.value
+    } catch (err) {
+      console.error('Failed to fetch AI usage:', err)
+      aiUsage.value = []
+      return []
+    }
+  }
+
+  /**
+   * Track an AI generation (called after successful AI API call)
+   */
+  async function trackAIUsage(taskId, model, tokensInput, tokensOutput, costEstimate = 0) {
+    if (!authStore.user) {
+      console.error('Cannot track AI usage without authenticated user')
+      return null
+    }
+
+    try {
+      const { data, error: insertError } = await supabase
+        .from('ai_usage')
+        .insert([
+          {
+            user_id: authStore.user.id,
+            task_id: taskId,
+            model: model || 'grok-4-fast',
+            tokens_input: tokensInput || 0,
+            tokens_output: tokensOutput || 0,
+            cost_estimate: costEstimate || 0
+          }
+        ])
+        .select()
+
+      if (insertError) throw insertError
+
+      // Update local usage
+      await fetchAIUsage()
+
+      return data?.[0] || null
+    } catch (err) {
+      console.error('Failed to track AI usage:', err)
+      error.value = err.message
+      return null
+    }
+  }
+
+  /**
+   * Decrement quota (optimistic update)
+   */
+  function decrementQuota() {
+    if (remainingQuota.value > 0) {
+      // This is optimistic - actual decrement happens when usage is tracked
+      // Used for UI feedback
+    }
+  }
+
+  /**
+   * Upgrade subscription to premium
+   * Note: Subscription is created server-side by stripe-create-subscription function
+   * This just fetches the subscription to verify it was created
+   */
+  async function upgradeToPresentation() {
+    if (!authStore.user) {
+      throw new Error('User not authenticated')
+    }
+
+    try {
+      isLoading.value = true
+      error.value = null
+
+      // Fetch the subscription - server should have already created it during Stripe flow
+      const { data: fetchData, error: fetchError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .single()
+
+      if (fetchError) {
+        console.error('[quotaStore] Failed to fetch subscription after upgrade:', fetchError)
+        throw new Error(`Subscription upgrade failed: ${fetchError.message}`)
+      }
+
+      if (!fetchData) {
+        throw new Error('Subscription record not found after upgrade')
+      }
+
+      subscription.value = fetchData
+      lastFetched.value = Date.now()
+
+      console.log('[quotaStore] Subscription verified as premium successfully')
+      return fetchData
+    } catch (err) {
+      console.error('[quotaStore] Failed to upgrade subscription:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Cancel subscription
+   */
+  async function cancelSubscription(reason = null) {
+    if (!authStore.user) {
+      throw new Error('User not authenticated')
+    }
+
+    try {
+      isLoading.value = true
+      error.value = null
+
+      // Update subscription to cancelled status
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          status: 'cancelled',
+          tier: 'free', // Downgrade to free
+          cancelled_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', authStore.user.id)
+
+      if (updateError) throw updateError
+
+      // Fetch the updated subscription (avoid .single() errors)
+      const { data, error: fetchError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .single()
+
+      if (fetchError) throw fetchError
+
+      subscription.value = data
+      lastFetched.value = Date.now()
+
+      return data
+    } catch (err) {
+      console.error('Failed to cancel subscription:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Manually invalidate cache - forces next fetch to hit database
+   * Used when we know data has changed (e.g., after payment confirmation)
+   */
+  function invalidateCache() {
+    lastFetched.value = null
+    console.log('[quotaStore] Cache invalidated, next fetch will hit database')
+  }
+
+  /**
+   * Initialize quota store on user login
+   */
+  async function initialize() {
+    if (authStore.user) {
+      await fetchSubscriptionStatus(true)
+      await fetchAIUsage()
+    }
+  }
+
+  /**
+   * Refactored pattern methods (new quotaStore compatibility)
+   */
+
+  /**
+   * Initialize quota for user (refactored pattern)
    */
   async function initializeQuota(userId) {
     isLoading.value = true
@@ -83,7 +407,7 @@ export const useQuotaStore = defineStore('quota', () => {
   }
 
   /**
-   * Fetch current subscription status
+   * Fetch current subscription status (refactored pattern)
    */
   async function fetchSubscription(userId) {
     isLoading.value = true
@@ -103,7 +427,7 @@ export const useQuotaStore = defineStore('quota', () => {
   }
 
   /**
-   * Fetch monthly usage
+   * Fetch monthly usage (refactored pattern)
    */
   async function fetchUsage(userId) {
     isLoading.value = true
@@ -133,7 +457,7 @@ export const useQuotaStore = defineStore('quota', () => {
   }
 
   /**
-   * Record usage (called after successful AI generation)
+   * Record usage (called after successful AI generation) - refactored pattern
    */
   async function recordUsage(userId, taskId, tokens = 0) {
     try {
@@ -163,7 +487,7 @@ export const useQuotaStore = defineStore('quota', () => {
   }
 
   /**
-   * Upgrade subscription tier
+   * Upgrade subscription tier (refactored pattern)
    */
   async function upgradeToPremium(userId) {
     isLoading.value = true
@@ -224,6 +548,8 @@ export const useQuotaStore = defineStore('quota', () => {
     subscription.value = null
     usage.value = null
     quotaModel.value = null
+    aiUsage.value = []
+    lastFetched.value = null
     error.value = null
   }
 
@@ -232,18 +558,45 @@ export const useQuotaStore = defineStore('quota', () => {
     subscription,
     usage,
     quotaModel,
+    aiUsage,
     isLoading,
     error,
 
-    // Computed
+    // Computed - Tier information
     tier,
-    canGenerate,
+    isFree,
+    isPremium,
+
+    // Computed - Subscription status
+    subscriptionStatus,
+    isActive,
+
+    // Computed - Quota limits
+    currentQuotaLimit,
+    currentMonthUsage,
     remainingQuota,
     quotaPercentage,
+    hasQuotaRemaining,
+    quotaResetDate,
+    formattedResetDate,
+    canGenerateAI,
+
+    // Computed - Refactored pattern
+    canGenerate,
     quotaMessage,
     quotaStatus,
 
-    // Actions
+    // Methods - Subscription management (from old subscriptionStore)
+    fetchSubscriptionStatus,
+    fetchAIUsage,
+    trackAIUsage,
+    decrementQuota,
+    upgradeToPresentation,
+    cancelSubscription,
+    invalidateCache,
+    initialize,
+
+    // Methods - Refactored pattern (new quotaStore)
     initializeQuota,
     fetchSubscription,
     fetchUsage,
@@ -251,6 +604,8 @@ export const useQuotaStore = defineStore('quota', () => {
     upgradeToPremium,
     getUsageHistory,
     getUsageStats,
+
+    // Methods - Shared
     reset
   }
 })

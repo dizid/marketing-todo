@@ -9,6 +9,7 @@ const REPLICATE_API_TOKEN = process.env.REPLICATE_API_KEY
 const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
 
 // SDXL Turbo model - fast, high quality image generation
+// Using stability-ai model - Replicate will resolve to the latest version
 const MODEL = 'stability-ai/sdxl-turbo'
 
 /**

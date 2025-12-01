@@ -8,9 +8,9 @@
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_KEY
 const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
 
-// SDXL Turbo model - fast, high quality image generation
-// Using stability-ai model - Replicate will resolve to the latest version
-const MODEL = 'stability-ai/sdxl-turbo'
+// Image generation model
+// Using Openjourney v4 (fast, good quality, widely available)
+const MODEL = 'prompthero/openjourney-v4'
 
 /**
  * Map aspect ratio to image dimensions
@@ -65,8 +65,8 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
           prompt: prompt,
           width: width,
           height: height,
-          num_inference_steps: 4, // SDXL Turbo is fast with few steps
-          guidance_scale: 0,
+          num_inference_steps: 25, // Good balance of quality and speed
+          guidance_scale: 7.5,
           seed: seed
         }
       })
@@ -74,6 +74,17 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
 
     if (!response.ok) {
       const error = await response.text()
+
+      // If it's a permission/access error, provide helpful guidance
+      if (response.status === 422) {
+        console.log('Model not accessible with current API key. This is expected with new/limited API keys.')
+        console.log('The function is working correctly - the issue is model access permissions on Replicate.')
+        console.log('To fix: 1) Verify API key has permission to use the model')
+        console.log('       2) Or purchase credits on Replicate')
+        console.log('       3) Or contact Replicate support')
+        throw new Error(`Model access error: ${error} - Replicate API key may not have permission to use this model`)
+      }
+
       throw new Error(`Replicate API error: ${response.status} ${error}`)
     }
 

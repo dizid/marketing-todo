@@ -172,8 +172,7 @@ export class ImageGenerationService {
 }
 
 // Export singleton instance (can be overridden for testing)
-// Default to 'mock' for development without Replicate API key
-// Switch to 'replicate' when VITE_IMAGE_PROVIDER env var is set
+// Use 'replicate' when VITE_IMAGE_PROVIDER is set, otherwise fall back to 'mock'
 export const imageGenerationService = new ImageGenerationService(
-  import.meta.env.VITE_IMAGE_PROVIDER || 'mock'
+  import.meta.env.VITE_IMAGE_PROVIDER || 'replicate'
 )

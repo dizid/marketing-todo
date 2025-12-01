@@ -82,20 +82,12 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
     if (!response.ok) {
       const error = await response.text()
 
-      // If it's a permission/access error, provide helpful guidance
+      // If it's a permission/access error, throw a specific error
       if (response.status === 422) {
-        console.warn('⚠️ 422 Model Access Error')
-        console.warn('This is expected with new Replicate accounts that need billing setup.')
-        console.warn('The function is working correctly - Replicate just needs account verification.')
-        console.warn('')
-        console.warn('✅ To fix:')
-        console.warn('   1) Go to https://replicate.com')
-        console.warn('   2) Sign in to your account')
-        console.warn('   3) Go to Billing & Usage')
-        console.warn('   4) Add a payment method or verify your $10 credit is active')
-        console.warn('   5) Try again - should work immediately!')
-        console.warn('')
-        throw new Error(`Model access limited - Replicate account setup needed. Go to https://replicate.com/account/api`)
+        console.warn('⚠️ 422 Model Access Error - Replicate account needs verification')
+        const err = new Error('Model access limited - Replicate account needs billing verification')
+        err.status = 422
+        throw err
       }
 
       throw new Error(`Replicate API error: ${response.status} ${error}`)
@@ -223,6 +215,20 @@ export const handler = async (event) => {
     }
   } catch (error) {
     console.error('Image generation error:', error)
+
+    // Handle 422 model access error with proper status code
+    if (error.status === 422) {
+      return {
+        statusCode: 422,
+        headers,
+        body: JSON.stringify({
+          success: false,
+          error: error.message || 'Model access limited',
+          status: 422,
+          message: 'Replicate account needs billing verification. Visit https://replicate.com/account/api'
+        })
+      }
+    }
 
     return {
       statusCode: 500,

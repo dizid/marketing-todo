@@ -171,6 +171,13 @@ const handleSubmit = () => {
   font-size: 0.95rem;
   font-family: inherit;
   transition: border-color 0.2s;
+  color: #1f2937;
+  background-color: white;
+}
+
+.form-select::placeholder,
+.form-input::placeholder {
+  color: #d1d5db;
 }
 
 .form-select:focus,
@@ -186,17 +193,19 @@ const handleSubmit = () => {
 
 .form-select {
   cursor: pointer;
-  background-color: white;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
   background-position: right 0.75rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
+  background-color: white;
   padding-right: 2.5rem;
-  option {
-    color: #1f2937;
-    background: white;
-  }
+}
+
+.form-select option {
+  color: #1f2937;
+  background-color: white;
+  padding: 0.5rem;
 }
 
 .form-help {

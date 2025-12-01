@@ -12,7 +12,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3001,
+    port: process.env.VITE_PORT || 3000,
     open: false,
     proxy: {
       '/.netlify/functions': {

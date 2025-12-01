@@ -10,7 +10,7 @@ import { usePromptBuilder } from '../../../services/promptBuilder.js'
 export const outreachConfig = {
   id: 'outreach',
   title: 'Personalized Outreach',
-  description: 'Generate personalized outreach messages tailored to specific audience segments with AI assistance.',
+  description: 'Requires: Company info (product name & description), target audience & pain points, and brand voice. Set these in Setup first, then fill in channel, tone, and CTA below to generate personalized outreach.',
 
   // Freemium model fields
   tier: 'free',
@@ -41,7 +41,8 @@ export const outreachConfig = {
       // Options will be populated dynamically by wrapper component
       options: [
         { value: 'general', label: 'General Audience' }
-      ]
+      ],
+      globalFieldName: 'targetAudience'
     },
     {
       id: 'channel',

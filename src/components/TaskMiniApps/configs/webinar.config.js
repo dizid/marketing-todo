@@ -27,7 +27,8 @@ export const webinarConfig = {
       label: 'Target Audience',
       placeholder: 'Describe who should attend (e.g., "Existing customers", "People interested in AI", "Newbies")',
       rows: 3,
-      description: 'Who is this webinar for?'
+      description: 'Who is this webinar for?',
+      globalFieldName: 'targetAudience'
     },
     {
       id: 'webinar_date',

@@ -8,7 +8,7 @@
 export const defineAudienceConfig = {
   id: 'define-audience',
   title: 'Define Target Audience',
-  description: 'Create detailed buyer personas and define your target market with AI assistance.',
+  description: 'Answer 5 questions about your audience and let AI generate detailed buyer personas to guide your marketing strategy.',
 
   // Freemium model fields
   tier: 'free',
@@ -38,7 +38,8 @@ export const defineAudienceConfig = {
       label: 'Target Audience Overview',
       placeholder: 'Describe your target audience in 2-3 sentences. Who are they? What are their pain points?',
       description: 'A brief overview of who you\'re targeting and why',
-      rows: 3
+      rows: 3,
+      globalFieldName: 'targetAudience'
     },
     {
       id: 'industry',
@@ -106,7 +107,7 @@ export const defineAudienceConfig = {
 
   // AI Generation configuration
   aiConfig: {
-    promptTemplate: `Based on the following audience information, generate a detailed buyer persona and market analysis:
+    promptTemplate: `Based on the following audience information, generate a detailed buyer persona and market analysis using MARKDOWN formatting.
 
 Audience Overview: {audience_overview}
 Industry: {industry}
@@ -116,14 +117,33 @@ Pain Points: {pain_points}
 Budget Range: {budget_range}
 Market Size Notes: {market_size}
 
-Please generate:
-1. A detailed buyer persona (include name, role, goals, pain points, and how they buy)
-2. Key success metrics for reaching this audience
-3. Top 3 channels to reach them
-4. Messaging strategy that resonates with them
-5. Potential objections and how to overcome them
+Please generate the following in MARKDOWN format (use ## for section headers, **bold** for emphasis, and bullet points for lists):
 
-Format your response clearly with section headers.`,
+## Buyer Persona
+Create a detailed persona including:
+- **Name & Role:** Example persona name and typical job title
+- **Goals:** What they want to achieve
+- **Pain Points:** Their main challenges
+- **How They Buy:** Their decision-making process
+- **Motivation:** What drives their purchasing decisions
+
+## Success Metrics
+- List key metrics for measuring success with this audience
+
+## Top Channels to Reach Them
+1. Channel 1 and why it works for this persona
+2. Channel 2 and why it works for this persona
+3. Channel 3 and why it works for this persona
+
+## Messaging Strategy
+- Core message for this audience
+- Key benefits to emphasize
+- Tone that resonates with them
+
+## Potential Objections & Responses
+- Common objection and how to overcome it
+- Common objection and how to overcome it
+- Common objection and how to overcome it`,
 
     temperature: 0.8,
     maxTokens: 1500,

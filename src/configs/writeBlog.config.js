@@ -7,7 +7,7 @@
 
 export const writeBlogTask = {
   id: 'content-1',
-  name: 'Write Blog Post',
+  name: 'Blog Post Outline & Structure Guide',
   description: 'Create a compelling blog post with AI-guided structure and research',
   category: 'content',
 
@@ -144,7 +144,12 @@ export const writeBlogTask = {
   },
 
   output: {
-    enabled: false
+    enabled: true,
+    exportFilename: 'blog-post-outline',
+    displayFormat: 'markdown',
+    editable: true,
+    copyable: true,
+    exportable: true
   },
 
   help: {

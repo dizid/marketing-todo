@@ -399,7 +399,7 @@
 
               <button
                 v-else
-                @click="createTest"
+                @click="handleCreateTest"
                 :disabled="isCreating"
                 class="px-6 py-2 bg-green-600 text-white font-medium hover:bg-green-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
@@ -538,7 +538,7 @@ const previousStep = () => {
 /**
  * Create the A/B test
  */
-const createTest = async () => {
+const handleCreateTest = async () => {
   isCreating.value = true
 
   try {

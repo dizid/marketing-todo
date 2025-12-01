@@ -91,6 +91,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 import { generateAIContent } from '@/services/aiGeneration.js'
 import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
 
@@ -108,6 +109,7 @@ import AddTasksModal from '../Project/AddTasksModal.vue'
 // Stores
 const projectStore = useProjectStore()
 const subscriptionStore = useSubscriptionStore()
+const onboardingStore = useOnboardingStore()
 
 // STATE - Filters
 const searchQuery = ref('')
@@ -618,6 +620,23 @@ const resetProjectTasks = () => {
 onMounted(async () => {
   if (projectStore.projects.length === 0) {
     await projectStore.fetchProjects()
+  }
+
+  // Hydrate onboarding store with current project settings (multi-device sync)
+  if (projectStore.currentProjectSettings && Object.keys(projectStore.currentProjectSettings).length > 0) {
+    onboardingStore.updateMultiple({
+      productType: projectStore.currentProjectSettings.productType,
+      productName: projectStore.currentProjectSettings.productName,
+      productDescription: projectStore.currentProjectSettings.productDescription,
+      targetAudience: projectStore.currentProjectSettings.targetAudience,
+      mainGoal: projectStore.currentProjectSettings.mainGoal,
+      timeline: projectStore.currentProjectSettings.timeline,
+      budget: projectStore.currentProjectSettings.budget,
+      teamSize: projectStore.currentProjectSettings.teamSize,
+      techStack: projectStore.currentProjectSettings.techStack,
+      currentStage: projectStore.currentProjectSettings.currentStage,
+      launchDate: projectStore.currentProjectSettings.launchDate
+    })
   }
 })
 </script>

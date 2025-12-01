@@ -1,0 +1,324 @@
+{
+  "version": "1.0",
+  "description": "Task Dependency Graph - Which tasks feed data into which other tasks",
+  "graph": {
+    "entry_points": [
+      {
+        "task_id": "setup-1",
+        "name": "Audience Research",
+        "tier": "free",
+        "provides": ["targetAudience", "industryContext", "painPoints"],
+        "description": "Foundational task - defines who you're selling to",
+        "is_entry_point": true,
+        "priority": 1
+      },
+      {
+        "task_id": "sales-2",
+        "name": "High-Converting Offer Builder",
+        "tier": "free",
+        "provides": ["productName", "productDescription", "valueProposition"],
+        "description": "Foundational task - defines your core offering",
+        "is_entry_point": true,
+        "priority": 2
+      }
+    ],
+    "task_dependencies": {
+      "growth-1": {
+        "name": "Paid Ads Strategy",
+        "depends_on": ["productName", "targetAudience", "primaryGoal", "marketingBudget"],
+        "tier": "free",
+        "sequence": 3,
+        "recommendation": "Complete after Offer Builder + Audience Research",
+        "reason": "Needs clear product positioning and audience definition"
+      },
+      "growth-3": {
+        "name": "Webinar Planning Checklist",
+        "depends_on": ["productName", "targetAudience", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 4,
+        "recommendation": "Complete after core positioning tasks",
+        "reason": "Needs product & audience clarity"
+      },
+      "sales-5": {
+        "name": "Sales Page Audit & Optimizer",
+        "depends_on": ["productDescription", "targetAudience"],
+        "tier": "premium",
+        "sequence": 5,
+        "recommendation": "Optimize after Offer Builder",
+        "reason": "Reviews sales messaging"
+      },
+      "sales-3": {
+        "name": "Cold Outreach Templates",
+        "depends_on": ["targetAudience", "productDescription", "primaryGoal"],
+        "tier": "free",
+        "sequence": 6,
+        "recommendation": "Create after defining offer",
+        "reason": "Needs clear value prop for outreach"
+      },
+      "sales-4": {
+        "name": "Email Sales Sequence Builder",
+        "depends_on": ["productDescription", "targetAudience", "primaryGoal"],
+        "tier": "free",
+        "sequence": 7,
+        "recommendation": "Build after Offer Builder",
+        "reason": "Needs product/audience clarity"
+      },
+      "setup-2": {
+        "name": "Landing Page Creator",
+        "depends_on": ["productName", "productDescription", "targetAudience", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 8,
+        "recommendation": "After Offer Builder + positioning locked",
+        "reason": "Needs complete messaging foundation"
+      },
+      "growth-2": {
+        "name": "Community Engagement Strategy",
+        "depends_on": ["targetAudience", "productDescription"],
+        "tier": "premium",
+        "sequence": 9,
+        "recommendation": "After audience + message clarity",
+        "reason": "Needs audience and positioning"
+      },
+      "growth-6": {
+        "name": "Lead Magnet Ideas",
+        "depends_on": ["targetAudience", "productName", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 10,
+        "recommendation": "After core positioning",
+        "reason": "Needs product + audience fit"
+      },
+      "growth-5": {
+        "name": "Positioning & Messaging Map",
+        "depends_on": ["productDescription", "targetAudience", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 11,
+        "recommendation": "Can run parallel with Offer Builder",
+        "reason": "Deepens messaging beyond offer"
+      },
+      "setup-3": {
+        "name": "Connect Accounts",
+        "depends_on": ["productName"],
+        "tier": "free",
+        "sequence": 12,
+        "recommendation": "After product is defined",
+        "reason": "Integrate with external platforms"
+      },
+      "setup-4": {
+        "name": "Prepare Assets",
+        "depends_on": ["productName", "productDescription"],
+        "tier": "free",
+        "sequence": 13,
+        "recommendation": "After offer is defined",
+        "reason": "Prepare marketing materials"
+      },
+      "setup-5": {
+        "name": "Tracking Sheet",
+        "depends_on": ["primaryGoal", "targetAudience"],
+        "tier": "free",
+        "sequence": 14,
+        "recommendation": "Setup early for measurement",
+        "reason": "Track campaign performance"
+      },
+      "social-1": {
+        "name": "Generate Social Media Posts",
+        "depends_on": ["productDescription", "targetAudience", "productName"],
+        "tier": "free",
+        "sequence": 15,
+        "recommendation": "After core positioning",
+        "reason": "Needs product & audience clarity for messaging"
+      },
+      "social-2": {
+        "name": "Engage Followers",
+        "depends_on": ["targetAudience", "productDescription"],
+        "tier": "premium",
+        "sequence": 16,
+        "recommendation": "After social strategy is set",
+        "reason": "Community engagement strategy"
+      },
+      "social-3": {
+        "name": "Generate Giveaway Campaign",
+        "depends_on": ["targetAudience", "productName"],
+        "tier": "free",
+        "sequence": 17,
+        "recommendation": "After audience & product defined",
+        "reason": "Needs clear value prop for giveaway"
+      },
+      "content-1": {
+        "name": "Write Blog Post",
+        "depends_on": ["productDescription", "targetAudience", "primaryGoal"],
+        "tier": "free",
+        "sequence": 18,
+        "recommendation": "After positioning locked",
+        "reason": "Blog content needs audience & messaging"
+      },
+      "content-2": {
+        "name": "Video Script",
+        "depends_on": ["productDescription", "targetAudience"],
+        "tier": "free",
+        "sequence": 19,
+        "recommendation": "After product messaging defined",
+        "reason": "Needs clear product positioning"
+      },
+      "content-3": {
+        "name": "Design Graphics",
+        "depends_on": ["productName", "productDescription"],
+        "tier": "free",
+        "sequence": 20,
+        "recommendation": "After visual identity established",
+        "reason": "Graphics represent product positioning"
+      },
+      "acq-1": {
+        "name": "Community Posts",
+        "depends_on": ["targetAudience", "productDescription"],
+        "tier": "premium",
+        "sequence": 21,
+        "recommendation": "After audience strategy locked",
+        "reason": "Needs audience engagement plan"
+      },
+      "acq-2": {
+        "name": "Outreach",
+        "depends_on": ["targetAudience", "productDescription", "primaryGoal"],
+        "tier": "free",
+        "sequence": 22,
+        "recommendation": "After positioning complete",
+        "reason": "Needs clear offer for outreach"
+      },
+      "acq-3": {
+        "name": "Webinar",
+        "depends_on": ["productDescription", "targetAudience", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 23,
+        "recommendation": "After offer builder complete",
+        "reason": "Needs product & audience clarity"
+      },
+      "feedback-1": {
+        "name": "Collect Feedback",
+        "depends_on": ["targetAudience"],
+        "tier": "free",
+        "sequence": 24,
+        "recommendation": "Ongoing throughout campaign",
+        "reason": "Always collecting customer feedback"
+      },
+      "feedback-2": {
+        "name": "Publish Updates",
+        "depends_on": ["productDescription"],
+        "tier": "free",
+        "sequence": 25,
+        "recommendation": "After product improvements",
+        "reason": "Announce product updates to customers"
+      },
+      "feedback-3": {
+        "name": "Iterate Features",
+        "depends_on": ["productDescription", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 26,
+        "recommendation": "After feedback collection",
+        "reason": "Prioritize features based on feedback"
+      },
+      "analytics-1": {
+        "name": "Setup Analytics",
+        "depends_on": ["primaryGoal"],
+        "tier": "free",
+        "sequence": 27,
+        "recommendation": "Setup early before campaigns",
+        "reason": "Need to track goal progress"
+      },
+      "analytics-2": {
+        "name": "Channel Optimizer",
+        "depends_on": ["marketingBudget", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 28,
+        "recommendation": "After initial campaign data",
+        "reason": "Optimize channels based on performance"
+      },
+      "analytics-3": {
+        "name": "Review ROI",
+        "depends_on": ["marketingBudget", "primaryGoal"],
+        "tier": "free",
+        "sequence": 29,
+        "recommendation": "Monthly/quarterly review",
+        "reason": "Measure campaign profitability"
+      },
+      "advertising-1": {
+        "name": "Paid Ads Strategy",
+        "depends_on": ["productName", "targetAudience", "primaryGoal", "marketingBudget"],
+        "tier": "free",
+        "sequence": 30,
+        "recommendation": "After positioning locked",
+        "reason": "Needs positioning & budget clarity"
+      },
+      "advertising-2": {
+        "name": "Optimize Paid Ads",
+        "depends_on": ["productDescription", "marketingBudget", "primaryGoal"],
+        "tier": "premium",
+        "sequence": 31,
+        "recommendation": "After ads campaign running",
+        "reason": "Optimize based on performance data"
+      },
+      "sales-1": {
+        "name": "Sales Funnel Blueprint",
+        "depends_on": ["productDescription", "targetAudience", "primaryGoal"],
+        "tier": "free",
+        "sequence": 32,
+        "recommendation": "After positioning complete",
+        "reason": "Funnel needs product & audience clarity"
+      }
+    },
+    "recommendation_logic": {
+      "rules": [
+        {
+          "rule": "entry_point_rule",
+          "description": "Always suggest entry-point tasks first",
+          "weight": 10
+        },
+        {
+          "rule": "data_completion_rule",
+          "description": "Suggest task if >70% of dependencies are filled",
+          "weight": 8
+        },
+        {
+          "rule": "sequence_rule",
+          "description": "Suggest in priority order when dependencies met",
+          "weight": 7
+        },
+        {
+          "rule": "free_tier_rule",
+          "description": "Prioritize free tasks for user growth",
+          "weight": 6
+        }
+      ]
+    },
+    "recommendations_by_scenario": {
+      "just_started": [
+        "setup-1 (Audience Research)",
+        "sales-2 (Offer Builder)"
+      ],
+      "positioning_locked": [
+        "growth-1 (Paid Ads)",
+        "sales-4 (Email Sequence)",
+        "sales-3 (Cold Outreach)"
+      ],
+      "sales_focused": [
+        "sales-5 (Sales Page Audit)",
+        "setup-2 (Landing Page)",
+        "growth-6 (Lead Magnet)"
+      ],
+      "growth_focused": [
+        "growth-5 (Positioning)",
+        "growth-2 (Community)",
+        "growth-3 (Webinar)"
+      ]
+    }
+  },
+  "implementation_notes": {
+    "phase_2_scope": "Build recommendation engine to suggest next tasks",
+    "phase_2_features": [
+      "Analyze current form completion",
+      "Calculate dependency satisfaction",
+      "Show 'Next Suggested Task' widget",
+      "Highlight which data is needed to unlock next task",
+      "Visual dependency graph (optional)"
+    ],
+    "estimated_implementation": "3-5 days"
+  }
+}

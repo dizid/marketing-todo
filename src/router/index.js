@@ -29,6 +29,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import AuthForm from '@/components/AuthForm.vue'
 import { DashboardContainer } from '@/components/Dashboard'
+import AnalyticsDashboardPage from '@/components/Dashboard/AnalyticsDashboardPage.vue'
 import ResetPassword from '@/components/ResetPassword.vue'
 import OnboardingWizard from '@/components/Onboarding/OnboardingWizard.vue'
 import LandingPage from '@/components/LandingPage.vue'
@@ -94,6 +95,15 @@ const routes = [
     path: '/app/subscription',
     name: 'ManageSubscription',
     component: ManageSubscriptionPage,
+    meta: {
+      requiresAuth: true,
+      layout: 'default'
+    }
+  },
+  {
+    path: '/app/analytics',
+    name: 'Analytics',
+    component: AnalyticsDashboardPage,
     meta: {
       requiresAuth: true,
       layout: 'default'

@@ -33,13 +33,14 @@ import { salesPageAuditTask } from './salesPageAudit.config'
 import { leadMagnetTask } from './leadMagnet.config'
 import { coldOutreachTask } from './coldOutreach.config'
 import { competitorAnalysisTask } from './competitorAnalysis.config'
+import { competitivePositioningBriefConfig } from './competitivePositioningBrief.config'
 import { abTestIdeasTask } from './abTestIdeas.config'
 import { positioningMapTask } from './positioningMap.config'
 
 export const defineAudienceTask = {
   id: 'define-audience',
   name: 'Define Target Audience',
-  description: 'Create detailed buyer personas and define your target market with AI assistance.',
+  description: 'Answer 5 questions about your audience and let AI generate detailed buyer personas to guide your marketing strategy.',
   category: 'research',
   tier: 'free',
   what: 'Create detailed buyer personas and define your target market. Input audience demographics, pain points, budget, and goals to generate comprehensive personas with messaging strategies.',
@@ -1477,6 +1478,8 @@ export const unifiedTasksMap = {
   'growth-3': competitorAnalysisTask,
   'growth-4': abTestIdeasTask,
   'growth-5': positioningMapTask,
+
+  'strategy-1': competitivePositioningBriefConfig,
 
   help:   {
       "examples": [

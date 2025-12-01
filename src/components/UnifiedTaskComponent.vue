@@ -347,11 +347,49 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'update'])
 
+// Load FIELD_INHERITANCE_MAP for automatic value population
+let inheritanceMap = null
+try {
+  inheritanceMap = require('@/config/FIELD_INHERITANCE_MAP.json')
+} catch (e) {
+  console.log('Field inheritance map not found - skipping auto-population')
+}
+
 const projectStore = useProjectStore()
 
 // Form State
 const formData = ref({ ...props.initialData?.formData || {} })
 const fieldErrors = ref({})
+
+// Auto-populate inherited fields from ProjectContext
+const populateInheritedFields = () => {
+  if (!inheritanceMap?.task_field_mappings) return
+
+  const taskMapping = inheritanceMap.task_field_mappings[props.taskId]
+  if (!taskMapping?.mappings) return
+
+  // For each mapped field, populate from ProjectContext if empty
+  Object.entries(taskMapping.mappings).forEach(([taskFieldId, canonicalField]) => {
+    if (!formData.value[taskFieldId] && canonicalField) {
+      const parts = canonicalField.split('.')
+      let value = projectStore.projectData
+      for (const part of parts) {
+        if (value && typeof value === 'object') {
+          value = value[part]
+        } else {
+          value = undefined
+          break
+        }
+      }
+      if (value !== undefined) {
+        formData.value[taskFieldId] = value
+      }
+    }
+  })
+}
+
+// Populate fields on mount
+populateInheritedFields()
 
 // AI State
 const aiOutput = ref(null)

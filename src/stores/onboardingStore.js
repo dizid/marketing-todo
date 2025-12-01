@@ -175,6 +175,38 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     }
   })
 
+  // Sync wizard data to Supabase (called on wizard completion)
+  const syncToSupabase = async (projectId) => {
+    try {
+      if (!projectId) throw new Error('No project ID provided')
+
+      // Import dynamically to avoid circular dependencies
+      const { useProjectStore } = await import('./projectStore.js')
+      const projectStore = useProjectStore()
+
+      // Map onboarding fields to project settings
+      const settingsToSync = {
+        productType: wizardData.value.productType,
+        productName: wizardData.value.productName,
+        productDescription: wizardData.value.productDescription,
+        targetAudience: wizardData.value.targetAudience,
+        mainGoal: wizardData.value.mainGoal,
+        timeline: wizardData.value.timeline,
+        budget: wizardData.value.budget,
+        teamSize: wizardData.value.teamSize,
+        techStack: wizardData.value.techStack,
+        currentStage: wizardData.value.currentStage,
+        launchDate: wizardData.value.launchDate
+      }
+
+      // Save to Supabase via project store
+      await projectStore.updateProjectSettings(settingsToSync)
+    } catch (e) {
+      console.error('Failed to sync wizard data to Supabase:', e)
+      throw e
+    }
+  }
+
   // Initialize on store creation
   loadFromStorage()
 
@@ -198,6 +230,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     updateMultiple,
     clearWizard,
     saveToStorage,
-    loadFromStorage
+    loadFromStorage,
+    syncToSupabase
   }
 })

@@ -20,39 +20,6 @@ export function validateEmail(email) {
 }
 
 /**
- * Validate password strength
- * Requirements: at least 8 characters, 1 uppercase, 1 lowercase, 1 number
- */
-export function validatePassword(password) {
-  if (!password || password.length < 8) {
-    throw new ValidationError('Password must be at least 8 characters', {
-      code: 'PASSWORD_TOO_SHORT',
-      context: { length: password?.length }
-    })
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    throw new ValidationError('Password must contain at least one uppercase letter', {
-      code: 'PASSWORD_NO_UPPERCASE'
-    })
-  }
-
-  if (!/[a-z]/.test(password)) {
-    throw new ValidationError('Password must contain at least one lowercase letter', {
-      code: 'PASSWORD_NO_LOWERCASE'
-    })
-  }
-
-  if (!/[0-9]/.test(password)) {
-    throw new ValidationError('Password must contain at least one number', {
-      code: 'PASSWORD_NO_NUMBER'
-    })
-  }
-
-  return true
-}
-
-/**
  * Validate project name (not empty, reasonable length)
  */
 export function validateProjectName(name) {
@@ -211,29 +178,3 @@ export function getValidationErrors(error) {
   return { general: 'An unexpected error occurred during validation' }
 }
 
-/**
- * Safely validate with fallback
- */
-export function tryValidate(validatorFn, ...args) {
-  try {
-    return validatorFn(...args)
-  } catch (error) {
-    // Return false or error object instead of throwing
-    return { valid: false, error }
-  }
-}
-
-/**
- * Create a custom validator function
- */
-export function createValidator(validateFn, errorMessage) {
-  return (value) => {
-    if (!validateFn(value)) {
-      throw new ValidationError(errorMessage, {
-        code: 'CUSTOM_VALIDATION_ERROR',
-        context: { value }
-      })
-    }
-    return true
-  }
-}

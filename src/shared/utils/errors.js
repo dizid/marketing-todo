@@ -54,30 +54,6 @@ export class ValidationError extends AppError {
 }
 
 /**
- * Authentication-related errors (login, token, session, etc.)
- */
-export class AuthenticationError extends AppError {
-  constructor(message, options = {}) {
-    super(message, {
-      code: options.code || 'AUTHENTICATION_ERROR',
-      ...options
-    })
-  }
-}
-
-/**
- * Authorization-related errors (insufficient permissions, access denied, etc.)
- */
-export class AuthorizationError extends AppError {
-  constructor(message, options = {}) {
-    super(message, {
-      code: options.code || 'AUTHORIZATION_ERROR',
-      ...options
-    })
-  }
-}
-
-/**
  * Resource not found errors (project, task, file, etc.)
  */
 export class NotFoundError extends AppError {
@@ -134,18 +110,6 @@ export class BusinessLogicError extends AppError {
   constructor(message, options = {}) {
     super(message, {
       code: options.code || 'BUSINESS_LOGIC_ERROR',
-      ...options
-    })
-  }
-}
-
-/**
- * Configuration/setup errors (missing env vars, invalid config, etc.)
- */
-export class ConfigurationError extends AppError {
-  constructor(message, options = {}) {
-    super(message, {
-      code: options.code || 'CONFIGURATION_ERROR',
       ...options
     })
   }

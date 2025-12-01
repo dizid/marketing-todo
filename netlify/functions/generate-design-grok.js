@@ -54,7 +54,6 @@ async function callGrokAPI(prompt, width, height, count = 1) {
         model: 'grok-2-image-1212',
         prompt: prompt,
         n: count,
-        size: `${width}x${height}`,
         response_format: 'url'
       })
     })

@@ -355,7 +355,7 @@ export const useProjectStore = defineStore('project', () => {
       // Get completed task IDs
       const tasks = currentProjectTasks.value || {}
       const completedTaskIds = Object.entries(tasks)
-        .filter(([_, task]) => task.completed && !task.removed)
+        .filter(([_, task]) => task.checked && !task.removed)
         .map(([id, _]) => id)
 
       // Get recommendation

@@ -237,3 +237,112 @@ export function createTestProject(overrides = {}) {
     ...overrides
   }
 }
+
+/**
+ * Create mock quotaStore for component tests
+ */
+export function createMockQuotaStore(overrides = {}) {
+  return {
+    // State
+    subscription: { tier: 'free', status: 'active' },
+    usage: { count: 0, resetDate: new Date() },
+    quotaModel: null,
+    aiUsage: [],
+    isLoading: false,
+    error: null,
+
+    // Computed
+    tier: 'free',
+    isFree: true,
+    isPremium: false,
+    subscriptionStatus: 'active',
+    isActive: true,
+    currentQuotaLimit: 40,
+    currentMonthUsage: 0,
+    remainingQuota: 40,
+    quotaPercentage: 0,
+    hasQuotaRemaining: true,
+    quotaResetDate: new Date(),
+    formattedResetDate: 'Jan 1, 2025',
+    canGenerateAI: true,
+    canGenerate: true,
+    quotaMessage: 'You have quota remaining',
+    quotaStatus: { tier: 'free', remaining: 40, limit: 40 },
+
+    // Methods
+    fetchSubscriptionStatus: vi.fn().mockResolvedValue(null),
+    fetchAIUsage: vi.fn().mockResolvedValue([]),
+    trackAIUsage: vi.fn().mockResolvedValue(null),
+    decrementQuota: vi.fn(),
+    upgradeToPresentation: vi.fn().mockResolvedValue(null),
+    cancelSubscription: vi.fn().mockResolvedValue(null),
+    invalidateCache: vi.fn(),
+    initialize: vi.fn().mockResolvedValue(null),
+    initializeQuota: vi.fn().mockResolvedValue(null),
+    fetchSubscription: vi.fn().mockResolvedValue(null),
+    fetchUsage: vi.fn().mockResolvedValue(null),
+    recordUsage: vi.fn().mockResolvedValue(null),
+    upgradeToPremium: vi.fn().mockResolvedValue(null),
+    getUsageHistory: vi.fn().mockResolvedValue([]),
+    getUsageStats: vi.fn().mockResolvedValue({}),
+    reset: vi.fn(),
+
+    ...overrides
+  }
+}
+
+/**
+ * Create mock authStore for component tests
+ */
+export function createMockAuthStore(overrides = {}) {
+  return {
+    // State
+    user: { id: 'user-1', email: 'test@example.com', name: 'Test User' },
+    isLoading: false,
+    error: null,
+
+    // Computed
+    isAuthenticated: true,
+    userName: 'Test User',
+    userEmail: 'test@example.com',
+
+    // Methods
+    login: vi.fn().mockResolvedValue(null),
+    logout: vi.fn().mockResolvedValue(null),
+    register: vi.fn().mockResolvedValue(null),
+    fetchUser: vi.fn().mockResolvedValue(null),
+
+    ...overrides
+  }
+}
+
+/**
+ * Create mock projectStore for component tests
+ */
+export function createMockProjectStore(overrides = {}) {
+  return {
+    // State
+    projects: [],
+    currentProject: null,
+    tasks: {},
+    isLoading: false,
+    error: null,
+
+    // Computed
+    currentProjectTasks: [],
+    hasProjects: false,
+
+    // Methods
+    fetchProjects: vi.fn().mockResolvedValue([]),
+    selectProject: vi.fn(),
+    createProject: vi.fn().mockResolvedValue(null),
+    updateProject: vi.fn().mockResolvedValue(null),
+    deleteProject: vi.fn().mockResolvedValue(null),
+    fetchTasks: vi.fn().mockResolvedValue([]),
+    completeTask: vi.fn().mockResolvedValue(null),
+    updateTaskData: vi.fn().mockResolvedValue(null),
+    reset: vi.fn(),
+
+    ...overrides
+  }
+}

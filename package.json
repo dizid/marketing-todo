@@ -38,8 +38,10 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@pinia/testing": "^1.0.3",
     "@vitest/coverage-v8": "^4.0.13",
     "@vitest/ui": "^4.0.13",
+    "@vue/test-utils": "^2.4.6",
     "jsdom": "^27.2.0",
     "vitest": "^4.0.13"
   }

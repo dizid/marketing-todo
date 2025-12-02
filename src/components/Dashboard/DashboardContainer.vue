@@ -100,7 +100,7 @@
 
 import { ref, computed, onMounted } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { useOnboardingStore } from '@/stores/onboardingStore'
 import { generateAIContent } from '@/services/aiGeneration.js'
 import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
@@ -119,7 +119,7 @@ import NextTaskCard from '../TaskRecommendation/NextTaskCard.vue'
 
 // Stores
 const projectStore = useProjectStore()
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 const onboardingStore = useOnboardingStore()
 
 // STATE - Filters

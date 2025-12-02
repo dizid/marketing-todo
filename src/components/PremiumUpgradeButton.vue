@@ -60,7 +60,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 
 // Props
 const props = defineProps({
@@ -86,7 +86,7 @@ const emit = defineEmits(['success', 'error', 'loading'])
 const router = useRouter()
 
 // Stores
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 
 // State
 const isLoading = ref(false)

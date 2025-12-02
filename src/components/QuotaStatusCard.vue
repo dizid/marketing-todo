@@ -11,12 +11,12 @@
       <span
         :class="[
           'px-3 py-1 text-xs font-semibold whitespace-nowrap flex-shrink-0 badge',
-          subscriptionStore.isPremium
+          quotaStore.isPremium
             ? 'badge-highlight'
             : 'badge-primary'
         ]"
       >
-        {{ subscriptionStore.isPremium ? '✨ Premium' : 'Free' }}
+        {{ quotaStore.isPremium ? '✨ Premium' : 'Free' }}
       </span>
     </div>
 
@@ -25,7 +25,7 @@
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-3 gap-1">
         <span class="text-xs sm:text-sm font-medium text-secondary">Generations Used</span>
         <span class="text-xl sm:text-2xl font-bold font-display text-text">
-          {{ subscriptionStore.currentMonthUsage }} / {{ subscriptionStore.currentQuotaLimit }}
+          {{ quotaStore.currentMonthUsage }} / {{ quotaStore.currentQuotaLimit }}
         </span>
       </div>
 
@@ -59,7 +59,7 @@
                 : 'text-primary'
           ]"
         >
-          {{ subscriptionStore.remainingQuota }} remaining
+          {{ quotaStore.remainingQuota }} remaining
         </span>
       </div>
     </div>
@@ -72,12 +72,12 @@
     <!-- Reset Date -->
     <div class="bg-surface-light border border-border p-2 sm:p-3 mb-6">
       <p class="text-xs text-secondary">
-        <span class="font-semibold">Quota resets:</span> {{ subscriptionStore.formattedResetDate }}
+        <span class="font-semibold">Quota resets:</span> {{ quotaStore.formattedResetDate }}
       </p>
     </div>
 
     <!-- Upgrade Button (for free tier only) -->
-    <div v-if="subscriptionStore.isFree" class="mb-6">
+    <div v-if="quotaStore.isFree" class="mb-6">
       <PremiumUpgradeButton
         variant="primary"
         text="✨ Upgrade to Premium"
@@ -96,31 +96,31 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import PremiumUpgradeButton from './PremiumUpgradeButton.vue'
 
 // Emit events
 const emit = defineEmits(['upgrade-clicked'])
 
 // Store
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 
 // Computed properties
 const quotaPercentage = computed(() => {
-  return subscriptionStore.quotaPercentage
+  return quotaStore.quotaPercentage
 })
 
 const statusMessage = computed(() => {
-  const remaining = subscriptionStore.remainingQuota
+  const remaining = quotaStore.remainingQuota
 
   if (remaining === 0) {
-    return subscriptionStore.isFree
+    return quotaStore.isFree
       ? '❌ Free tier quota exhausted. Upgrade to continue generating.'
       : '⚠️ Premium quota exhausted this month.'
   }
 
   if (remaining <= 3) {
-    return subscriptionStore.isFree
+    return quotaStore.isFree
       ? `⚠️ Only ${remaining} free generation${remaining !== 1 ? 's' : ''} remaining!`
       : `⚠️ Only ${remaining} generation${remaining !== 1 ? 's' : ''} remaining this month.`
   }
@@ -133,11 +133,11 @@ const statusMessage = computed(() => {
 })
 
 const statusMessageClasses = computed(() => {
-  if (subscriptionStore.remainingQuota === 0) {
+  if (quotaStore.remainingQuota === 0) {
     return 'bg-accent/20 border border-accent text-accent'
   }
 
-  if (subscriptionStore.remainingQuota <= 3) {
+  if (quotaStore.remainingQuota <= 3) {
     return 'bg-highlight/20 border border-highlight text-highlight'
   }
 

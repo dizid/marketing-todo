@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useQuotaStore } from '@/application/stores'
+import { useQuotaStore } from '@/stores/quotaStore'
 
 // Mock QuotaRepository
 vi.mock('@/domain/repositories', () => ({

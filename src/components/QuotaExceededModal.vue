@@ -13,11 +13,11 @@
       <div class="px-6 py-6">
         <!-- Tier-Specific Message -->
         <div class="mb-6">
-          <div v-if="subscriptionStore.isFree" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div v-if="quotaStore.isFree" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p class="text-sm font-semibold text-blue-900 mb-2">🎯 Free Tier Limit Reached</p>
             <p class="text-sm text-blue-800">
               You have used your 40 free AI generations this month. Your quota resets on
-              <span class="font-semibold">{{ subscriptionStore.formattedResetDate }}</span>
+              <span class="font-semibold">{{ quotaStore.formattedResetDate }}</span>
               , or upgrade to Premium now to continue.
             </p>
           </div>
@@ -25,7 +25,7 @@
             <p class="text-sm font-semibold text-purple-900 mb-2">⭐ Premium Tier Limit Reached</p>
             <p class="text-sm text-purple-800">
               You have used your 400 premium AI generations this month. Your quota resets on
-              <span class="font-semibold">{{ subscriptionStore.formattedResetDate }}</span>
+              <span class="font-semibold">{{ quotaStore.formattedResetDate }}</span>
               .
             </p>
           </div>
@@ -36,19 +36,19 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-medium text-gray-700">Your Usage</span>
             <span class="text-lg font-bold text-gray-900">
-              {{ subscriptionStore.currentMonthUsage }} / {{ subscriptionStore.currentQuotaLimit }}
+              {{ quotaStore.currentMonthUsage }} / {{ quotaStore.currentQuotaLimit }}
             </span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
             <div class="bg-red-500 h-full rounded-full" style="width: 100%"></div>
           </div>
           <p class="text-xs text-gray-600 mt-2">
-            You have {{ subscriptionStore.remainingQuota }} generations remaining
+            You have {{ quotaStore.remainingQuota }} generations remaining
           </p>
         </div>
 
         <!-- Benefits Comparison -->
-        <div v-if="subscriptionStore.isFree" class="mb-6">
+        <div v-if="quotaStore.isFree" class="mb-6">
           <p class="text-sm font-semibold text-gray-900 mb-3">✨ Upgrade to Premium & Get:</p>
           <ul class="space-y-2">
             <li class="flex items-center gap-2 text-sm text-gray-700">
@@ -93,7 +93,7 @@
           @click="handleClose"
           class="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold rounded-lg transition text-sm"
         >
-          Wait for Reset ({{ subscriptionStore.formattedResetDate }})
+          Wait for Reset ({{ quotaStore.formattedResetDate }})
         </button>
       </div>
 
@@ -109,7 +109,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import PremiumUpgradeButton from './PremiumUpgradeButton.vue'
 
 // Props
@@ -124,7 +124,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'upgrade', 'upgrade-success', 'upgrade-error'])
 
 // Store
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 
 // Computed
 const remainingDays = computed(() => {

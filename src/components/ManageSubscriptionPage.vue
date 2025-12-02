@@ -29,15 +29,15 @@
               <span
                 :class="[
                   'px-3 py-1 rounded-full text-xs sm:text-sm font-semibold',
-                  subscriptionStore.isPremium
+                  quotaStore.isPremium
                     ? 'bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800'
                     : 'bg-gray-100 text-gray-800'
                 ]"
               >
-                {{ subscriptionStore.tier === 'premium' ? '⭐ Premium' : 'Free' }}
+                {{ quotaStore.tier === 'premium' ? '⭐ Premium' : 'Free' }}
               </span>
               <span
-                v-if="subscriptionStore.isActive"
+                v-if="quotaStore.isActive"
                 class="px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-green-100 text-green-800"
               >
                 ✓ Active
@@ -52,7 +52,7 @@
           </div>
 
           <!-- Upgrade Button (Mobile: full width, Desktop: right-aligned) -->
-          <div v-if="subscriptionStore.isFree" class="w-full sm:w-auto sm:text-right">
+          <div v-if="quotaStore.isFree" class="w-full sm:w-auto sm:text-right">
             <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Ready for more?</p>
             <button
               @click="handleUpgrade"
@@ -71,8 +71,8 @@
           <div class="border-l-4 border-indigo-500 pl-4">
             <p class="text-sm text-gray-600 mb-1">Monthly Quota</p>
             <p class="text-2xl font-bold text-gray-900">
-              {{ subscriptionStore.currentMonthUsage }} /
-              {{ subscriptionStore.currentQuotaLimit }}
+              {{ quotaStore.currentMonthUsage }} /
+              {{ quotaStore.currentQuotaLimit }}
             </p>
             <p class="text-xs text-gray-500 mt-1">AI generations used this month</p>
           </div>
@@ -83,12 +83,12 @@
             <p
               :class="[
                 'text-2xl font-bold',
-                subscriptionStore.remainingQuota > 0
+                quotaStore.remainingQuota > 0
                   ? 'text-green-600'
                   : 'text-red-600'
               ]"
             >
-              {{ subscriptionStore.remainingQuota }}
+              {{ quotaStore.remainingQuota }}
             </p>
             <p class="text-xs text-gray-500 mt-1">generations left</p>
           </div>
@@ -98,8 +98,8 @@
             <p class="text-sm text-gray-600 mb-1">Current Period</p>
             <p class="text-sm font-semibold text-gray-900">
               {{
-                subscriptionStore.subscription?.current_period_start
-                  ? formatDate(subscriptionStore.subscription.current_period_start)
+                quotaStore.subscription?.current_period_start
+                  ? formatDate(quotaStore.subscription.current_period_start)
                   : 'N/A'
               }}
             </p>
@@ -110,7 +110,7 @@
           <div class="border-l-4 border-orange-500 pl-4">
             <p class="text-sm text-gray-600 mb-1">Next Reset</p>
             <p class="text-sm font-semibold text-gray-900">
-              {{ subscriptionStore.formattedResetDate }}
+              {{ quotaStore.formattedResetDate }}
             </p>
             <p class="text-xs text-gray-500 mt-1">monthly quota resets</p>
           </div>
@@ -121,27 +121,27 @@
           <p class="text-sm font-semibold text-gray-900 mb-3">Quota Usage</p>
           <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div
-              :style="{ width: subscriptionStore.quotaPercentage + '%' }"
+              :style="{ width: quotaStore.quotaPercentage + '%' }"
               :class="[
                 'h-full transition-all duration-300',
-                subscriptionStore.quotaPercentage < 50
+                quotaStore.quotaPercentage < 50
                   ? 'bg-green-500'
-                  : subscriptionStore.quotaPercentage < 75
+                  : quotaStore.quotaPercentage < 75
                   ? 'bg-yellow-500'
-                  : subscriptionStore.quotaPercentage < 90
+                  : quotaStore.quotaPercentage < 90
                   ? 'bg-orange-500'
                   : 'bg-red-500'
               ]"
             ></div>
           </div>
           <p class="mt-2 text-xs text-gray-600 text-right">
-            {{ subscriptionStore.quotaPercentage }}% used
+            {{ quotaStore.quotaPercentage }}% used
           </p>
         </div>
       </div>
 
       <!-- Plans Comparison -->
-      <div v-if="subscriptionStore.isFree" class="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
+      <div v-if="quotaStore.isFree" class="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
         <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Why Upgrade?</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
           <!-- Free Plan -->
@@ -198,7 +198,7 @@
 
       <!-- Danger Zone -->
       <div
-        v-if="subscriptionStore.isPremium && subscriptionStore.isActive"
+        v-if="quotaStore.isPremium && quotaStore.isActive"
         class="bg-red-50 border-2 border-red-200 rounded-lg p-6 sm:p-8"
       >
         <h2 class="text-xl sm:text-2xl font-bold text-red-900 mb-2">Manage Premium Subscription</h2>
@@ -283,7 +283,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { useAuthStore } from '@/stores/authStore'
 import { StripeService } from '@/services/stripeService'
 import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
@@ -293,7 +293,7 @@ import StripePaymentModal from '@/components/StripePaymentModal.vue'
 const router = useRouter()
 
 // Stores
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 const authStore = useAuthStore()
 
 // State
@@ -316,7 +316,7 @@ onMounted(async () => {
   stripeService = new StripeService(stripeApiClient)
 
   // Ensure subscription data is loaded
-  await subscriptionStore.fetchSubscriptionStatus(true)
+  await quotaStore.fetchSubscriptionStatus(true)
 })
 
 // Methods
@@ -342,7 +342,7 @@ const handlePaymentSuccess = async (details) => {
   showPaymentModal.value = false
 
   // Refresh subscription data
-  await subscriptionStore.fetchSubscriptionStatus(true)
+  await quotaStore.fetchSubscriptionStatus(true)
 
   // Clear message after 3 seconds
   setTimeout(() => {
@@ -371,12 +371,12 @@ const confirmCancel = async () => {
   try {
     console.log('[ManageSubscriptionPage] Starting cancellation process...')
 
-    if (!subscriptionStore.subscription?.stripe_subscription_id) {
+    if (!quotaStore.subscription?.stripe_subscription_id) {
       throw new Error('No active Stripe subscription found')
     }
 
     // Get current user ID from store or auth
-    const userId = subscriptionStore.subscription?.user_id
+    const userId = quotaStore.subscription?.user_id
     if (!userId) {
       throw new Error('User not authenticated')
     }
@@ -386,7 +386,7 @@ const confirmCancel = async () => {
     // Cancel subscription via Stripe service
     const cancelResult = await stripeService.cancelSubscription(
       userId,
-      subscriptionStore.subscription.stripe_subscription_id
+      quotaStore.subscription.stripe_subscription_id
     )
     console.log('[ManageSubscriptionPage] Cancellation response:', cancelResult)
 
@@ -397,10 +397,10 @@ const confirmCancel = async () => {
     console.log('[ManageSubscriptionPage] Invalidating cache and fetching fresh subscription status...')
 
     // Invalidate cache and refresh subscription data
-    subscriptionStore.invalidateCache()
-    await subscriptionStore.fetchSubscriptionStatus(true)
+    quotaStore.invalidateCache()
+    await quotaStore.fetchSubscriptionStatus(true)
 
-    console.log('[ManageSubscriptionPage] Subscription status refreshed:', subscriptionStore.subscription)
+    console.log('[ManageSubscriptionPage] Subscription status refreshed:', quotaStore.subscription)
 
     // Clear success message after 3 seconds (no redirect)
     setTimeout(() => {

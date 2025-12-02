@@ -93,7 +93,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
 import { StripeService } from '@/services/stripeService'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 
 const props = defineProps({
   isOpen: {
@@ -115,7 +115,7 @@ const errorMessage = ref('')
 let clientSecret = null  // Store client secret for payment confirmation
 
 // Stores
-const subscriptionStore = useSubscriptionStore()
+const quotaStore = useQuotaStore()
 
 // Stripe service
 let stripeService = null
@@ -179,7 +179,7 @@ async function initializePayment() {
     errorMessage.value = ''
 
     // Invalidate cache to ensure fresh subscription status after payment
-    subscriptionStore.invalidateCache()
+    quotaStore.invalidateCache()
     console.log('[StripePaymentModal] Cache invalidated for fresh status fetch after payment')
 
     // Create subscription and get client secret
@@ -263,7 +263,7 @@ async function handlePayment() {
         // Emit success immediately - don't wait for webhook
         // The webhook will update the subscription status in the background
         // We invalidate cache so next fetch gets the updated status
-        subscriptionStore.invalidateCache()
+        quotaStore.invalidateCache()
         console.log('[StripePaymentModal] Cache invalidated, webhook will update subscription status in background')
 
         // Reset processing state

@@ -6,7 +6,7 @@
  */
 
 import { computed } from 'vue'
-import { useQuotaStore } from '@/application/stores'
+import { useQuotaStore } from '@/stores'
 import { logger } from '@/shared/utils'
 
 const childLogger = logger.child('useQuotaManagement')

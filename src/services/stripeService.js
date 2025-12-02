@@ -4,6 +4,8 @@
  * Handles communication with Stripe Netlify functions
  */
 
+import { logger } from '@/utils/logger'
+
 export class StripeService {
   constructor(stripeApiClient) {
     this.stripeApiClient = stripeApiClient
@@ -27,7 +29,7 @@ export class StripeService {
         sessionStorage.setItem(storageKey, idempotencyKey)
       }
 
-      console.log('[StripeService] Creating subscription for user:', userId, 'price:', priceId, 'idempotencyKey:', idempotencyKey)
+      logger.debug('[StripeService] Creating subscription for user:', { userId, priceId })
       const response = await fetch(
         `${this.functionsUrl}/stripe-create-subscription`,
         {
@@ -43,14 +45,14 @@ export class StripeService {
         }
       )
 
-      console.log('[StripeService] Response status:', response.status)
+      logger.debug('[StripeService] Response status:', response.status)
 
       if (!response.ok) {
         let errorMessage = 'Failed to create subscription'
         let errorDetails = {}
         try {
           const errorBody = await response.text()
-          console.log('[StripeService] Full error response:', response.status, errorBody)
+          logger.debug('[StripeService] Full error response:', { status: response.status, body: errorBody })
 
           if (errorBody && errorBody.trim()) {
             const error = JSON.parse(errorBody)
@@ -61,17 +63,17 @@ export class StripeService {
             errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
           }
         } catch (parseError) {
-          console.error('[StripeService] Error parsing response:', parseError)
+          logger.error('[StripeService] Error parsing response', parseError)
           errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
         }
 
-        console.error('[StripeService] API Error:', { status: response.status, message: errorMessage, details: errorDetails })
+        logger.error('[StripeService] API Error', { status: response.status, message: errorMessage, details: errorDetails })
         throw new Error(errorMessage)
       }
 
       return await response.json()
     } catch (error) {
-      console.error('Error creating subscription:', error)
+      logger.error('Error creating subscription', error)
       throw {
         message: error.message || 'Failed to create subscription',
         code: 'SUBSCRIPTION_CREATE_ERROR'
@@ -87,7 +89,7 @@ export class StripeService {
    */
   async cancelSubscription(userId, subscriptionId) {
     try {
-      console.log('[StripeService] Cancelling subscription for user:', userId, 'subscriptionId:', subscriptionId)
+      logger.debug('[StripeService] Cancelling subscription for user:', { userId, subscriptionId })
       const response = await fetch(
         `${this.functionsUrl}/stripe-cancel-subscription`,
         {
@@ -102,14 +104,14 @@ export class StripeService {
         }
       )
 
-      console.log('[StripeService] Cancel response status:', response.status)
+      logger.debug('[StripeService] Cancel response status:', response.status)
 
       if (!response.ok) {
         let errorMessage = 'Failed to cancel subscription'
         let errorDetails = {}
         try {
           const errorBody = await response.text()
-          console.log('[StripeService] Full error response:', response.status, errorBody)
+          logger.debug('[StripeService] Full error response:', { status: response.status, body: errorBody })
 
           if (errorBody && errorBody.trim()) {
             const error = JSON.parse(errorBody)
@@ -119,19 +121,19 @@ export class StripeService {
             errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
           }
         } catch (parseError) {
-          console.error('[StripeService] Error parsing response:', parseError)
+          logger.error('[StripeService] Error parsing response', parseError)
           errorMessage = `HTTP ${response.status}: ${response.statusText || 'Unknown error'}`
         }
 
-        console.error('[StripeService] API Error:', { status: response.status, message: errorMessage, details: errorDetails })
+        logger.error('[StripeService] API Error', { status: response.status, message: errorMessage, details: errorDetails })
         throw new Error(errorMessage)
       }
 
       const data = await response.json()
-      console.log('[StripeService] Subscription cancelled successfully:', data)
+      logger.debug('[StripeService] Subscription cancelled successfully:', data)
       return data
     } catch (error) {
-      console.error('Error cancelling subscription:', error)
+      logger.error('Error cancelling subscription', error)
       throw {
         message: error.message || 'Failed to cancel subscription',
         code: 'SUBSCRIPTION_CANCEL_ERROR'
@@ -180,7 +182,7 @@ export class StripeService {
 
       return await response.json()
     } catch (error) {
-      console.error('Error creating billing portal session:', error)
+      logger.error('Error creating billing portal session', error)
       throw {
         message: error.message || 'Failed to create billing portal session',
         code: 'BILLING_PORTAL_ERROR'
@@ -206,7 +208,7 @@ export class StripeService {
 
       return paymentElement
     } catch (error) {
-      console.error('Error initializing payment:', error)
+      logger.error('Error initializing payment', error)
       throw {
         message: error.message || 'Failed to initialize payment',
         code: 'PAYMENT_INIT_ERROR'
@@ -228,7 +230,7 @@ export class StripeService {
 
       return result
     } catch (error) {
-      console.error('Error submitting payment:', error)
+      logger.error('Error submitting payment', error)
       throw {
         message: error.message || 'Failed to submit payment',
         code: 'PAYMENT_SUBMIT_ERROR',
@@ -258,7 +260,7 @@ export class StripeService {
         throw new Error(result.error.message)
       }
 
-      console.log('[StripeService] Payment confirmed, notifying backend to update subscription')
+      logger.debug('[StripeService] Payment confirmed, notifying backend to update subscription')
 
       // Notify backend to confirm payment and update subscription status
       // This ensures the subscription status is updated even if webhook doesn't fire (e.g., during local dev)
@@ -278,22 +280,22 @@ export class StripeService {
         )
 
         if (!confirmResponse.ok) {
-          console.warn('[StripeService] Backend confirmation failed, but payment succeeded in Stripe')
+          logger.warn('[StripeService] Backend confirmation failed, but payment succeeded in Stripe')
           // Don't throw - payment was successful, just log the issue
           // The webhook should still update the subscription eventually
         } else {
           const confirmData = await confirmResponse.json()
-          console.log('[StripeService] Backend confirmed payment and updated subscription:', confirmData)
+          logger.debug('[StripeService] Backend confirmed payment and updated subscription:', confirmData)
         }
       } catch (confirmError) {
-        console.warn('[StripeService] Error notifying backend of payment:', confirmError)
+        logger.warn('[StripeService] Error notifying backend of payment', confirmError)
         // Don't throw - payment was successful, just log the issue
         // The webhook should still update the subscription eventually
       }
 
       return result
     } catch (error) {
-      console.error('Error confirming payment:', error)
+      logger.error('Error confirming payment', error)
       throw {
         message: error.message || 'Failed to process payment',
         code: 'PAYMENT_CONFIRM_ERROR',
@@ -311,7 +313,7 @@ export class StripeService {
     try {
       return await this.stripeApiClient.retrievePaymentIntent(clientSecret)
     } catch (error) {
-      console.error('Error retrieving payment status:', error)
+      logger.error('Error retrieving payment status', error)
       throw {
         message: error.message || 'Failed to retrieve payment status',
         code: 'PAYMENT_STATUS_ERROR'

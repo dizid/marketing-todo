@@ -8,6 +8,7 @@
  * NOTE: Usage tracking now happens server-side in grok-proxy function (with service role permissions)
  */
 
+import { logger } from '@/utils/logger'
 import { checkQuotaBeforeGeneration } from './aiQuotaService'
 import { useAuthStore } from '@/stores/authStore'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
@@ -53,7 +54,7 @@ export async function generateAIContent(config, formData, options = {}) {
     const subscriptionStore = useSubscriptionStore()
     await subscriptionStore.fetchAIUsage()
   } catch (err) {
-    console.warn('[AIGeneration] Failed to refresh quota after generation:', err)
+    logger.warn('[AIGeneration] Failed to refresh quota after generation')
     // Don't throw - quota refresh is non-critical
   }
 
@@ -96,7 +97,7 @@ function buildPrompt(template, formData, contextProvider) {
         prompt = prompt.replace(new RegExp(placeholder, 'g'), value || '')
       }
     } catch (err) {
-      console.warn('[AIGeneration] Error calling contextProvider:', err)
+      logger.warn('[AIGeneration] Error calling contextProvider')
       // Continue anyway - context provider is optional
     }
   }
@@ -139,7 +140,7 @@ function processFormData(formData) {
  */
 async function callGrokAPI(prompt, aiConfig, taskId, userId) {
   try {
-    console.log('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
+    logger.debug('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
 
     const messages = [
       {
@@ -163,11 +164,11 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       })
     })
 
-    console.log('[AIGeneration] API response status:', response.status)
+    logger.debug('[AIGeneration] API response status:', response.status)
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('[AIGeneration] API error response:', errorData)
+      logger.error('[AIGeneration] API error response', errorData)
 
       // Provide helpful error messages
       if (response.status === 500 && errorData.error?.includes('API key')) {
@@ -182,7 +183,7 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
     }
 
     const data = await response.json()
-    console.log('[AIGeneration] API response received, parsing...')
+    logger.debug('[AIGeneration] API response received, parsing...')
 
     const responseText = data.choices?.[0]?.message?.content
 
@@ -194,8 +195,8 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
     const tokensInput = data.usage?.prompt_tokens || prompt.length / 4 // Rough estimate if not provided
     const tokensOutput = data.usage?.completion_tokens || responseText.length / 4 // Rough estimate if not provided
 
-    console.log('[AIGeneration] Response text obtained, length:', responseText.length)
-    console.log(`[AIGeneration] Token usage - Input: ${tokensInput}, Output: ${tokensOutput}`)
+    logger.debug('[AIGeneration] Response text obtained, length:', responseText.length)
+    logger.debug('[AIGeneration] Token usage', { input: tokensInput, output: tokensOutput })
 
     return {
       responseText,
@@ -203,7 +204,7 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       tokensOutput
     }
   } catch (err) {
-    console.error('[AIGeneration] AI generation error:', err)
+    logger.error('[AIGeneration] AI generation error', err)
     throw err
   }
 }

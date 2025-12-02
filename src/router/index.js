@@ -27,6 +27,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { logger } from '@/utils/logger'
 import AuthForm from '@/components/AuthForm.vue'
 import { DashboardContainer } from '@/components/Dashboard'
 import AnalyticsDashboardPage from '@/components/Dashboard/AnalyticsDashboardPage.vue'
@@ -131,14 +132,29 @@ router.beforeEach(async (to, from, next) => {
   // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
   // This is critical for payment redirect flows where user is already logged in
   if (authStore.isLoading) {
-    // Wait for auth to finish loading
-    await new Promise(resolve => {
-      const checkInterval = setInterval(() => {
+    // Wait for auth to finish loading with timeout
+    await new Promise((resolve, reject) => {
+      const startTime = Date.now()
+      const timeoutMs = 5000 // 5 second timeout
+
+      const checkAuth = () => {
         if (!authStore.isLoading) {
-          clearInterval(checkInterval)
           resolve()
+          return
         }
-      }, 50)
+
+        if (Date.now() - startTime > timeoutMs) {
+          reject(new Error('Auth initialization timeout after 5s'))
+          return
+        }
+
+        // Check every 100ms instead of 50ms for better performance
+        setTimeout(checkAuth, 100)
+      }
+
+      checkAuth()
+    }).catch(err => {
+      logger.warn(`Auth loading timeout: ${err.message}`)
     })
   } else if (!authStore.session) {
     // Only initialize if we don't have a session yet

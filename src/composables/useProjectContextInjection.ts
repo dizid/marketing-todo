@@ -1,5 +1,23 @@
 /**
  * useProjectContextInjection Composable
+ *
+ * ⚠️ DEPRECATED - Phase 4 Consolidation
+ * This composable has been consolidated into useFormFieldInheritance.
+ * Please migrate to the new composable for bug fixes and improvements.
+ *
+ * Migration path:
+ * OLD: import { useProjectContextInjection } from '@/composables/useProjectContextInjection'
+ * NEW: import { useFormFieldInheritance } from '@/composables/useFormFieldInheritance'
+ *
+ * The new composable provides the same functionality with better architecture:
+ * - Cleaner API
+ * - Better integration with Vue 3 Composition API
+ * - Improved validation support
+ *
+ * This file will be removed in a future release.
+ * Deprecation period: 2 releases (until Q2 2024)
+ *
+ * ===== ORIGINAL DESCRIPTION =====
  * Injects ProjectContext canonical values into task forms
  * Manages field inheritance and overrides
  *

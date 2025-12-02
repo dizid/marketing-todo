@@ -1,6 +1,22 @@
 /**
  * Mini-App Inherited Fields Composable
  *
+ * ⚠️ DEPRECATED - Phase 4 Consolidation
+ * This composable has been consolidated into useFormFieldInheritance.
+ * Please migrate to the new composable for bug fixes and improvements.
+ *
+ * Migration path:
+ * OLD: import { useMiniAppInheritedFields } from '@/composables/useMiniAppInheritedFields'
+ * NEW: import { useFormFieldInheritance } from '@/composables/useFormFieldInheritance'
+ *
+ * The new composable has the same API with better architecture:
+ * - Better field mapping support
+ * - Improved validation integration
+ * - Cleaner core composable design
+ *
+ * This file will be removed in a future release.
+ * Deprecation period: 2 releases (until Q2 2024)
+ *
  * Specialized composable for mini-app integration with ProjectContext field inheritance.
  * Simplifies field access for mini-apps that need to inherit project-level context.
  *

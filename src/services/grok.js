@@ -1,6 +1,8 @@
 // src/services/grok.js
 // Service for fetching Grok advice through Netlify proxy
 
+import { logger } from '@/utils/logger'
+
 /**
  * Get Grok advice based on user data
  * @param {object} userData - User data for context
@@ -8,7 +10,7 @@
  */
 export async function getGrokAdvice(userData) {
   try {
-    console.log('Fetching Grok advice with userData:', JSON.stringify(userData))
+    logger.debug('Fetching Grok advice with userData:', userData)
     const functionUrl = import.meta.env.VITE_FUNCTIONS_URL || '/.netlify/functions'
     const response = await fetch(`${functionUrl}/grok-proxy`, {
       method: 'POST',
@@ -19,13 +21,13 @@ export async function getGrokAdvice(userData) {
       throw new Error(`HTTP error: ${response.status}`)
     }
     const data = await response.json()
-    console.log('Grok response data:', JSON.stringify(data))
+    logger.debug('Grok response data:', data)
     if (data.error) {
       throw new Error(data.error)
     }
     return data.advice || 'No advice received.'
   } catch (error) {
-    console.error('Error fetching Grok advice:', error)
+    logger.error('Error fetching Grok advice', error)
     throw error
   }
 }
@@ -51,7 +53,7 @@ export async function getMindfulnessTip(triggers) {
     }
     return data.response || 'No tip received.'
   } catch (error) {
-    console.error('Error fetching mindfulness tip:', error)
+    logger.error('Error fetching mindfulness tip', error)
     throw error
   }
 }
@@ -63,7 +65,7 @@ export async function getMindfulnessTip(triggers) {
  */
 export async function getExecutiveSummaryAndTasks(projectData) {
   try {
-    console.log('Fetching executive summary with projectData:', JSON.stringify(projectData, null, 2))
+    logger.debug('Fetching executive summary with projectData:', projectData)
     const functionUrl = import.meta.env.VITE_FUNCTIONS_URL || '/.netlify/functions'
     const response = await fetch(`${functionUrl}/grok-proxy`, {
       method: 'POST',
@@ -79,16 +81,16 @@ export async function getExecutiveSummaryAndTasks(projectData) {
       throw new Error(`HTTP error: ${response.status}`)
     }
     const data = await response.json()
-    console.log('Executive summary response:', JSON.stringify(data, null, 2))
+    logger.debug('Executive summary response:', data)
     if (data.error) {
       throw new Error(data.error)
     }
     // Extract the text content from OpenAI-format response
     const content = data.choices?.[0]?.message?.content || ''
-    console.log('Extracted content:', content)
+    logger.debug('Extracted content:', content)
     return { responseText: content }
   } catch (error) {
-    console.error('Error fetching executive summary:', error)
+    logger.error('Error fetching executive summary', error)
     throw error
   }
 }

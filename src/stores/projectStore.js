@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useAuthStore } from './authStore'
+import { logger } from '@/utils/logger'
 import {
   getProjects,
   getProject,
@@ -121,18 +122,18 @@ export const useProjectStore = defineStore('project', () => {
       currentProject.value = project
 
       // Load all project data
-      const allData = await getAllProjectData(projectId)
+      let allData = await getAllProjectData(projectId)
       projectData.value = allData
 
       // Initialize if first time
       if (!allData.settings) {
         await initializeProject(projectId)
-        const allData = await getAllProjectData(projectId)
+        allData = await getAllProjectData(projectId)
         projectData.value = allData
       }
     } catch (err) {
       error.value = err.message
-      console.error('Error selecting project:', err)
+      logger.error('Error selecting project', err)
     } finally {
       isLoading.value = false
     }

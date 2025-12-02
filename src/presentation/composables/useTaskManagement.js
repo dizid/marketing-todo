@@ -6,7 +6,7 @@
  */
 
 import { computed } from 'vue'
-import { useTaskStore } from '@/application/stores'
+import { useTaskStore } from '@/stores'
 import { logger } from '@/shared/utils'
 
 const childLogger = logger.child('useTaskManagement')

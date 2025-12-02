@@ -7,7 +7,7 @@
  */
 
 import { computed } from 'vue'
-import { useProjectStore } from '@/application/stores'
+import { useProjectStore } from '@/stores'
 import { logger } from '@/shared/utils'
 
 const childLogger = logger.child('useProjectManagement')

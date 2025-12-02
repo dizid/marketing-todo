@@ -1,6 +1,23 @@
 /**
  * useMiniAppFieldsWithInheritance
  *
+ * ⚠️ DEPRECATED - Phase 4 Consolidation
+ * This composable is being consolidated into useFormFieldInheritance.
+ * Currently this is the only one in production use (MiniAppShell.vue).
+ *
+ * Migration path:
+ * OLD: import { useMiniAppFieldsWithInheritance } from '@/composables/useMiniAppFieldsWithInheritance'
+ * NEW: import { useFormFieldInheritance } from '@/composables/useFormFieldInheritance'
+ *
+ * The new composable provides enhanced functionality:
+ * - Better field mapping support
+ * - Built-in validation
+ * - Improved error handling
+ * - Consistent API across all field inheritance use cases
+ *
+ * Migration will happen in 2-3 releases.
+ *
+ * ===== ORIGINAL DESCRIPTION =====
  * Composable for mini-apps to access fields with ProjectContext inheritance.
  * Provides inherited values as initial form data while allowing user overrides.
  *

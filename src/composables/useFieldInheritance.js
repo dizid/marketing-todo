@@ -11,13 +11,24 @@
  * 4. Override management (set/clear overrides)
  * 5. Inheritance chain inspection and debugging
  * 6. Batch field operations
+ * 7. Field mapping support (miniApp field → canonical field mapping)
+ * 8. Required fields tracking and validation
+ * 9. Field-specific validation with validateField() and validateRequired()
  *
- * Usage:
+ * Usage (single field):
  * const { fieldValue, hasOverride, setOverride, clearOverride, getSource } = useFieldInheritance(
  *   projectId,
  *   taskId,
  *   fieldName,
  *   logger
+ * )
+ *
+ * Usage (batch with mappings):
+ * const { getAllFieldValues, setOverride, validateRequired } = useFieldInheritanceBatch(
+ *   projectId,
+ *   taskId,
+ *   fieldNames,
+ *   { fieldMappings: { 'audience_field': 'target_audience' }, requiredFields: ['audience_field'] }
  * )
  */
 
@@ -235,20 +246,40 @@ export function useFieldInheritance(projectId, taskId, fieldName, logger = null)
 /**
  * Batch Field Inheritance Composable
  *
- * Manage multiple fields at once with inheritance support
+ * Manage multiple fields at once with inheritance support.
+ * Supports field mappings (miniApp field ID → canonical field name) and required field validation.
+ *
+ * @param {string} projectId - Project ID
+ * @param {string} taskId - Task ID
+ * @param {string[]} fieldNames - Array of canonical field names to manage
+ * @param {Object} options - Optional configuration
+ * @param {Object} options.fieldMappings - Map of miniApp field IDs to canonical field names
+ * @param {string[]} options.requiredFields - Array of field names (canonical) that are required
+ * @param {Object} logger - Optional logger instance
  */
-export function useFieldInheritanceBatch(projectId, taskId, fieldNames = [], logger = null) {
+export function useFieldInheritanceBatch(projectId, taskId, fieldNames = [], options = {}, logger = null) {
+  // Handle backward compatibility: if options is a logger, shift parameters
+  if (typeof options === 'object' && options.debug && !options.fieldMappings && !options.requiredFields) {
+    logger = options
+    options = {}
+  }
+
   const injectedRepository = inject('projectContextRepository', null)
   const injectedValidationService = inject('fieldValidationService', null)
 
   const repository = injectedRepository || new ProjectContextRepository(logger)
   const validationService = injectedValidationService || new FieldValidationService(logger)
 
+  // Options
+  const fieldMappings = options.fieldMappings || {}
+  const requiredFieldsList = options.requiredFields || []
+
   // State
   const projectContext = ref(null)
   const taskFieldOverrides = ref({})
   const isLoading = ref(false)
   const error = ref(null)
+  const validationErrors = ref({})
 
   /**
    * Load ProjectContext for the given project
@@ -425,6 +456,79 @@ export function useFieldInheritanceBatch(projectId, taskId, fieldNames = [], log
   }
 
   /**
+   * Validate a single field value
+   * @param {string} fieldName - Canonical field name to validate
+   * @param {*} value - Value to validate
+   * @returns {Object} { isValid: boolean, error?: string }
+   */
+  const validateField = (fieldName, value) => {
+    try {
+      const validation = validationService.validateField(fieldName, value)
+      return validation
+    } catch (err) {
+      return { isValid: false, error: err.message }
+    }
+  }
+
+  /**
+   * Check if a field is required
+   * @param {string} fieldName - Canonical field name
+   * @returns {boolean} True if field is required
+   */
+  const isFieldRequired = (fieldName) => {
+    return requiredFieldsList.includes(fieldName)
+  }
+
+  /**
+   * Validate all required fields have values
+   * @returns {Object} { isValid: boolean, errors: Object }
+   */
+  const validateRequired = () => {
+    const errors = {}
+    let isValid = true
+
+    requiredFieldsList.forEach((fieldName) => {
+      const fieldData = getFieldValue(fieldName)
+      const value = fieldData.value
+
+      if (value === null || value === undefined || value === '') {
+        errors[fieldName] = `${fieldName} is required`
+        isValid = false
+      }
+    })
+
+    validationErrors.value = errors
+
+    if (logger) {
+      if (isValid) {
+        logger.debug(`[useFieldInheritanceBatch] All required fields validated successfully`)
+      } else {
+        logger.warn(`[useFieldInheritanceBatch] Required field validation failed:`, errors)
+      }
+    }
+
+    return { isValid, errors }
+  }
+
+  /**
+   * Get canonical field name for a miniApp field ID
+   * Used when field mappings are provided
+   * @param {string} miniAppFieldId - The miniApp-specific field ID
+   * @returns {string|null} The canonical field name or null if not mapped
+   */
+  const getCanonicalFieldName = (miniAppFieldId) => {
+    return fieldMappings[miniAppFieldId] || null
+  }
+
+  /**
+   * Get all validation errors from last validation
+   * @returns {Object} Map of field names to error messages
+   */
+  const getValidationErrors = computed(() => {
+    return { ...validationErrors.value }
+  })
+
+  /**
    * Initialize
    */
   const initialize = async () => {
@@ -442,6 +546,7 @@ export function useFieldInheritanceBatch(projectId, taskId, fieldNames = [], log
     getAllFieldValues,
     getOverrides,
     getOverriddenFields,
+    getValidationErrors,
 
     // Methods
     loadProjectContext,
@@ -452,6 +557,14 @@ export function useFieldInheritanceBatch(projectId, taskId, fieldNames = [], log
     clearOverride,
     clearAllOverrides,
     getInheritanceSummary,
+
+    // Validation methods
+    validateField,
+    validateRequired,
+    isFieldRequired,
+    getCanonicalFieldName,
+
+    // Initialization
     initialize
   }
 }

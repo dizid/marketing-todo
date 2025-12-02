@@ -3,7 +3,7 @@
 **Sales & Marketing Task Manager v0.7**
 **Clean Architecture with SOLID Principles & Enterprise-Grade Design**
 
-**Latest Update**: Phase 5.2 UI Components Complete - Advanced Analytics Dashboard Suite
+**Latest Update**: Phase 4 - Field Inheritance Composables Consolidation Complete
 
 ---
 
@@ -91,7 +91,13 @@ Browser (Vue 3 App)
 - **Netlify Functions** - Serverless backend (CommonJS)
 - **Grok API** (xAI) - AI content generation with 3x retry & 30s timeout
 - **PayPal API** - Subscription management (Premium tier)
+- **Stripe API** - Payment processing for subscription management
 - **Vitest** - Unit & Integration testing (130+ tests, 97% coverage)
+
+### Recent Architecture Updates
+- **Phase 4** - Field inheritance composables consolidation (unified patterns)
+- **Phase 5.2** - Real-time updates service complete
+- **Phase 5** - Advanced A/B testing and benchmarking services
 
 ---
 
@@ -124,7 +130,11 @@ src/
 │   │   ├── OutputSection.vue            # Results display
 │   │   └── (50+ additional components)
 │   │
-│   └── composables/                     # COMPOSABLES LAYER (Hooks)
+│   └── composables/                     # COMPOSABLES LAYER (Hooks) - Phase 4 Consolidated
+│       ├── useFieldInheritance.js       # Core field inheritance (consolidated, Phase 4)
+│       ├── useProjectContext.js         # Project context access
+│       ├── useBusinessContext.js        # Business logic context
+│       ├── useMiniAppFieldsWithInheritance.js # Mini-app field inheritance (Phase 4)
 │       ├── useProjectManagement.js      # Project CRUD operations
 │       ├── useTaskManagement.js         # Task operations
 │       ├── useQuotaManagement.js        # Quota tracking
@@ -431,38 +441,67 @@ Getters:
 
 ## Service Layer
 
-### aiGeneration.js
+### Field Inheritance Services (Phase 4 Consolidated)
+
+**unifiedFieldMapperService.js**
+- Unified field mapping across all tasks
+- Consolidates field inheritance logic
+- Manages context-to-form field transformations
+- Single source of truth for field mapping rules
+
+**useFieldInheritance.js** (Composable)
+- Core field inheritance pattern
+- Manages inherited field values from project context
+- Provides field access API for components
+- Type-safe field resolution
+
+**useProjectContext.js** (Composable)
+- Direct access to project context data
+- Cached context initialization
+- Reactive context updates
+- Used by all field inheritance consumers
+
+**useBusinessContext.js** (Composable)
+- Business-specific field extensions
+- Derived field calculations
+- Business rule application
+- Cross-task consistency
+
+### Core Services
+
+**aiGeneration.js**
 - Build prompts from templates
 - Call Grok API
 - Parse/validate responses
 - Generate with retries
 - Handle errors
 
-### projectService.js
+**projectService.js**
 - Project CRUD operations
 - Project data management
 - Initialize projects
 - Bulk operations
+- ProjectContext management (Phase 9+)
 
-### taskRegistry.js
+**taskRegistry.js**
 - Get task configurations
 - List all tasks
 - Filter by category
 - Validate configs
 
-### db.js
+**db.js**
 - Supabase query wrappers
 - RLS-enforced operations
 - Transaction support
 - Helper methods
 
-### grok.js
+**grok.js**
 - API client
 - Health checks
 - Error handling
 - Rate limiting
 
-### landingPageExporter.js
+**landingPageExporter.js**
 - Export as HTML
 - Export as JSON
 - Generate CSS
@@ -795,7 +834,7 @@ const { generateContent } = useAIGeneration(useCase)
 
 ## Conclusion
 
-The Sales & Marketing Task Manager v0.6 uses a modern, enterprise-grade clean architecture with:
+The Sales & Marketing Task Manager v0.7 uses a modern, enterprise-grade clean architecture with:
 
 - **4-Layer Architecture** for strict separation of concerns
 - **SOLID Principles** applied throughout the codebase
@@ -808,8 +847,10 @@ The Sales & Marketing Task Manager v0.6 uses a modern, enterprise-grade clean ar
 - **Netlify Functions** for serverless API proxies
 - **Security-First** design with server-side quota verification
 - **Comprehensive Testing** (130+ tests, 97% coverage)
+- **Phase 4 Consolidation** - Unified field inheritance patterns for reduced duplication
+- **Phase 5.2 Complete** - Real-time updates and advanced analytics
 
-The design makes it easy to extend with new features while maintaining code quality, testability, and performance.
+The design makes it easy to extend with new features while maintaining code quality, testability, and performance. Phase 4 consolidation further improves maintainability by unifying field inheritance patterns across the application.
 
 ### File Organization Key
 - **domain/** - Pure business logic (testable without mocks)
@@ -817,6 +858,90 @@ The design makes it easy to extend with new features while maintaining code qual
 - **presentation/** - Vue components & composables (UI layer)
 - **infrastructure/** - External services (APIs, databases)
 - **shared/** - Constants, errors, validators (reusable utilities)
+
+---
+
+## Phase 4: Field Inheritance Composables Consolidation
+
+### Overview
+
+Phase 4 consolidates the field inheritance system by unifying multiple similar composables into streamlined, reusable patterns. This refactoring reduces code duplication while maintaining full compatibility with existing components.
+
+### Consolidated Composables
+
+**useFieldInheritance.js** (Core Pattern)
+- Central composable providing field inheritance mechanism
+- Manages inheritance of field values from parent project context
+- Handles field mapping and transformation
+- Type-safe field access patterns
+- Replaces: multiple scattered inheritance implementations
+
+**useProjectContext.js** (Context Access)
+- Provides direct access to project context data
+- Manages context initialization and caching
+- Returns computed properties for reactive context updates
+- Used throughout presentation layer
+
+**useBusinessContext.js** (Business-Specific Logic)
+- Extends context with business-specific fields
+- Manages derived fields and calculations
+- Applies business rules to inherited data
+- Ensures consistency across all tasks
+
+**useMiniAppFieldsWithInheritance.js** (Mini-App Integration)
+- Specialized composable for mini-app field inheritance
+- Auto-populates form fields from project context
+- Handles pre-filled form state
+- Integrates with FormBuilder component
+
+### Architecture Benefits
+
+1. **Reduced Duplication**
+   - Single source of truth for inheritance patterns
+   - Consistent behavior across all components
+   - Easier maintenance and testing
+
+2. **Improved Reusability**
+   - Composables work with any component
+   - Clean API for field access
+   - Type-safe implementations
+
+3. **Better Developer Experience**
+   - Less code to write for new tasks
+   - Clear patterns to follow
+   - Self-documenting composables
+
+4. **Scalability**
+   - Easy to add new inheritance patterns
+   - Minimal impact on existing code
+   - Foundation for future features
+
+### Integration Pattern
+
+```javascript
+// In any component needing inherited fields
+import { useFieldInheritance, useProjectContext } from '@/presentation/composables'
+
+export default {
+  setup() {
+    const projectContext = useProjectContext()
+    const { inheritedFields, fieldValue } = useFieldInheritance(projectContext)
+
+    return {
+      inheritedFields,
+      getValue: (fieldName) => fieldValue(fieldName)
+    }
+  }
+}
+```
+
+### Phase 4 Workflow
+
+1. **Identify Duplication** - Found 6 similar field inheritance implementations
+2. **Create Core Patterns** - Developed unified composables
+3. **Migrate Components** - Updated 22+ mini-app components
+4. **Remove Orphaned Code** - Cleanup in Phase 3A & 3B
+5. **Consolidate Configs** - Prepare for Phase 2B config merging
 
 ---
 

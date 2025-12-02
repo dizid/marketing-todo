@@ -59,7 +59,7 @@
 import { ref, watch, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { generateAIContent } from '../../../services/aiGeneration.js'
-import { useMiniAppFieldsWithInheritance } from '../../../composables/useMiniAppFieldsWithInheritance'
+import { useFormFieldInheritance } from '../../../composables/useFormFieldInheritance'
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
 import OutputSection from '../shared/OutputSection.vue'
@@ -97,19 +97,30 @@ const initializeInheritance = async () => {
   if (!projectId || !taskId) return
 
   try {
-    const { getInitialFormData, getInheritanceMetadata } = useMiniAppFieldsWithInheritance(
-      projectId,
-      taskId,
-      props.taskConfig.fieldMappings
-    )
+    // Use new useFormFieldInheritance adapter composable
+    const fieldInheritance = useFormFieldInheritance(projectId, {
+      fieldMappings: props.taskConfig.fieldMappings,
+      requiredFields: []
+    })
+
+    // Initialize the composable
+    await fieldInheritance.initialize()
 
     // Merge inherited values with current form data (current values take precedence)
     const currentData = formData.value
-    const inheritedData = getInitialFormData(currentData, true)
-    formData.value = inheritedData
+    const inheritedFields = fieldInheritance.inheritedFields
+    const mergedData = { ...currentData }
+
+    // Apply inherited fields that aren't already in form data
+    Object.entries(inheritedFields.value).forEach(([fieldId, fieldInfo]) => {
+      if (!(fieldId in mergedData) || mergedData[fieldId] === null || mergedData[fieldId] === undefined) {
+        mergedData[fieldId] = fieldInfo.value
+      }
+    })
+    formData.value = mergedData
 
     // Store inheritance metadata for UI indicators
-    inheritanceMetadata.value = getInheritanceMetadata()
+    inheritanceMetadata.value = fieldInheritance.getSummary
   } catch (err) {
     console.error('[MiniAppShell] Error initializing field inheritance:', err)
     // Silently fail - inheritance is optional enhancement

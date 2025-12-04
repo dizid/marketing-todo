@@ -136,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useProjectStore } from '@/stores/projectStore'
@@ -158,6 +158,10 @@ const showForgotPassword = ref(false)
 const resetEmail = ref('')
 const resetLoading = ref(false)
 const resetMessage = ref('')
+
+// Timeout tracking
+let signupRedirectTimeout = null
+let loginRedirectTimeout = null
 
 const validateEmail = (emailValue) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -254,7 +258,7 @@ const handleSubmit = async () => {
       } else {
         // Auto-confirmation enabled - user can login immediately
         message.value = '✅ ' + result.message
-        setTimeout(() => {
+        signupRedirectTimeout = setTimeout(() => {
           // Auto-redirect to landing page if email confirmation is disabled
           router.push('/landing')
         }, 1500)
@@ -271,7 +275,7 @@ const handleSubmit = async () => {
       }
       // Login successful - check for wizard data
       message.value = '✅ Login successful! Redirecting...'
-      setTimeout(async () => {
+      loginRedirectTimeout = setTimeout(async () => {
         await handlePostLoginWizardData()
         router.push('/app')
       }, 500)
@@ -310,6 +314,12 @@ const handlePasswordReset = async () => {
     resetLoading.value = false
   }
 }
+
+// Cleanup timeouts on unmount
+onBeforeUnmount(() => {
+  if (signupRedirectTimeout) clearTimeout(signupRedirectTimeout)
+  if (loginRedirectTimeout) clearTimeout(loginRedirectTimeout)
+})
 </script>
 
 <style scoped>

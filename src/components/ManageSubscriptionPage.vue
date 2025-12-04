@@ -281,7 +281,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -307,6 +307,11 @@ const showPaymentModal = ref(false)
 // Stripe service
 let stripeService = null
 
+// Timeout tracking
+let upgradeTimeout = null
+let successTimeout = null
+let errorTimeout = null
+
 // Lifecycle
 onMounted(async () => {
   // Initialize Stripe service
@@ -330,7 +335,7 @@ const handleUpgrade = async () => {
   isLoading.value = true
   showPaymentModal.value = true
   // Reset loading when modal is closed
-  setTimeout(() => {
+  upgradeTimeout = setTimeout(() => {
     if (!showPaymentModal.value) {
       isLoading.value = false
     }
@@ -345,7 +350,7 @@ const handlePaymentSuccess = async (details) => {
   await quotaStore.fetchSubscriptionStatus(true)
 
   // Clear message after 3 seconds
-  setTimeout(() => {
+  successTimeout = setTimeout(() => {
     successMessage.value = ''
   }, 3000)
 }
@@ -413,7 +418,7 @@ const confirmCancel = async () => {
     showCancelConfirm.value = false
 
     // Clear error message after 5 seconds
-    setTimeout(() => {
+    errorTimeout = setTimeout(() => {
       errorMessage.value = ''
     }, 5000)
   }
@@ -427,6 +432,13 @@ const formatDate = (dateString) => {
     year: 'numeric'
   })
 }
+
+// Cleanup timeouts on unmount
+onBeforeUnmount(() => {
+  if (upgradeTimeout) clearTimeout(upgradeTimeout)
+  if (successTimeout) clearTimeout(successTimeout)
+  if (errorTimeout) clearTimeout(errorTimeout)
+})
 </script>
 
 <style scoped>

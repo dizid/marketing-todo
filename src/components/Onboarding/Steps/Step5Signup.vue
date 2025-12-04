@@ -103,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOnboardingStore } from '@/stores/onboardingStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -121,6 +121,9 @@ const password = ref('')
 const agreedToTerms = ref(false)
 const isSigningUp = ref(false)
 const errorMessage = ref('')
+
+// Timeout tracking
+let sessionTimeout = null
 
 const timeSpent = computed(() => onboardingStore.timeSpentMinutes)
 const taskCount = computed(() => {
@@ -177,7 +180,9 @@ const handleSignup = async () => {
     await authStore.initializeAuth()
 
     // Wait a moment to ensure session is fully propagated
-    await new Promise(resolve => setTimeout(resolve, 300))
+    await new Promise(resolve => {
+      sessionTimeout = setTimeout(resolve, 300)
+    })
 
     // 4. Create project with wizard data
     const wizardData = onboardingStore.wizardData
@@ -229,4 +234,9 @@ Timeline: ${formatTimeline(wizardData.timeline)}
     isSigningUp.value = false
   }
 }
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (sessionTimeout) clearTimeout(sessionTimeout)
+})
 </script>

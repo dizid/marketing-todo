@@ -192,7 +192,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import MiniAppShell from './core/MiniAppShell.vue'
 import { feedbackConfig } from './configs/feedback.config.js'
 
@@ -221,6 +221,10 @@ const lastSavedIndex = ref(-1)
 
 // Expanded tutorials state (for accordion)
 const expandedTutorials = ref({})
+
+// Timeout IDs for cleanup
+let scrollTimeout
+let highlightTimeout
 
 // Toggle tutorial expansion
 const toggleTutorial = (toolName) => {
@@ -271,14 +275,14 @@ const savePlan = () => {
   emit('save', updatedData)
 
   // Scroll to saved plans section smoothly after DOM updates
-  setTimeout(() => {
+  scrollTimeout = setTimeout(() => {
     if (savedPlansSection.value) {
       savedPlansSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, 100)
 
   // Clear highlight after 3 seconds
-  setTimeout(() => {
+  highlightTimeout = setTimeout(() => {
     lastSavedIndex.value = -1
   }, 3000)
 }
@@ -358,5 +362,11 @@ const removePlan = (idx) => {
   taskData.value = updatedData
   emit('save', updatedData)
 }
+
+// Cleanup timers on component unmount
+onBeforeUnmount(() => {
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+  if (highlightTimeout) clearTimeout(highlightTimeout)
+})
 
 </script>

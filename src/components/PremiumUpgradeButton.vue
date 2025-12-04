@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuotaStore } from '@/stores/quotaStore'
 
@@ -93,6 +93,9 @@ const isLoading = ref(false)
 const isSuccess = ref(false)
 const errorMessage = ref('')
 
+// Timeout tracking
+let redirectTimeout = null
+
 // Computed
 const buttonText = computed(() => {
   if (isLoading.value) return 'Processing...'
@@ -113,7 +116,9 @@ const handleUpgradeClick = async () => {
     emit('success')
 
     // Redirect to subscription page (shows Stripe payment modal)
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => {
+      redirectTimeout = setTimeout(resolve, 1000)
+    })
     router.push('/app/subscription')
   } catch (err) {
     console.error('[PremiumUpgradeButton] Redirect failed:', err)
@@ -122,6 +127,11 @@ const handleUpgradeClick = async () => {
     emit('error', err)
   }
 }
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (redirectTimeout) clearTimeout(redirectTimeout)
+})
 </script>
 
 <style scoped>

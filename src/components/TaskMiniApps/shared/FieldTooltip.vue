@@ -45,6 +45,9 @@ const props = defineProps({
 // State
 const isVisible = ref(false)
 
+// Interval tracking
+let trackingTimer = null
+
 // Track tooltip view
 onMounted(() => {
   const trackTooltipView = () => {
@@ -60,14 +63,17 @@ onMounted(() => {
   }
 
   // Track after a short delay to ensure it's genuinely visible
-  const timer = setInterval(() => {
+  trackingTimer = setInterval(() => {
     if (isVisible.value) {
       trackTooltipView()
-      clearInterval(timer)
+      clearInterval(trackingTimer)
     }
   }, 500)
+})
 
-  onBeforeUnmount(() => clearInterval(timer))
+// Cleanup interval on unmount
+onBeforeUnmount(() => {
+  if (trackingTimer) clearInterval(trackingTimer)
 })
 </script>
 

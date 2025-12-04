@@ -193,7 +193,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { useAnalyticsIntegration } from '../../services/analyticsIntegration.js'
 
 const props = defineProps({
@@ -221,6 +221,9 @@ const autoSync = ref({
   enabled: true,
   frequency: 'daily'
 })
+
+// Timeout tracking
+let testTimeout = null
 
 const availablePlatforms = computed(() => PLATFORMS)
 
@@ -256,7 +259,7 @@ const testConnection = async () => {
   testResult.value = null
 
   // Simulate connection test
-  setTimeout(() => {
+  testTimeout = setTimeout(() => {
     testing.value = false
     testResult.value = {
       success: true,
@@ -299,4 +302,9 @@ const handleClose = () => {
   testResult.value = null
   emit('close')
 }
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (testTimeout) clearTimeout(testTimeout)
+})
 </script>

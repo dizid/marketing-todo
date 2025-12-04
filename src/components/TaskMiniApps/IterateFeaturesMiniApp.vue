@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import MiniAppShell from './core/MiniAppShell.vue'
 import { iterateFeaturesConfig } from './configs/iterateFeatures.config.js'
 
@@ -179,6 +179,10 @@ const savedPlans = ref(props.taskData?.savedItems || [])
 
 // Track the last saved plan index for highlighting
 const lastSavedIndex = ref(-1)
+
+// Timeout IDs for cleanup
+let scrollTimeout
+let highlightTimeout
 
 // Local task data
 const taskData = ref(props.taskData || {
@@ -246,14 +250,14 @@ const savePlan = () => {
   features.value = []
 
   // Scroll to saved plans section smoothly after DOM updates
-  setTimeout(() => {
+  scrollTimeout = setTimeout(() => {
     if (savedPlansSection.value) {
       savedPlansSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, 100)
 
   // Clear highlight after 3 seconds
-  setTimeout(() => {
+  highlightTimeout = setTimeout(() => {
     lastSavedIndex.value = -1
   }, 3000)
 }
@@ -350,4 +354,11 @@ const removePlan = (idx) => {
   taskData.value = updatedData
   emit('save', updatedData)
 }
+
+// Cleanup timers on component unmount
+onBeforeUnmount(() => {
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+  if (highlightTimeout) clearTimeout(highlightTimeout)
+})
+
 </script>

@@ -458,7 +458,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { paidAdsOptimizeTask } from '@/configs/paidAdsOptimize.config'
 
 const props = defineProps({
@@ -501,6 +501,9 @@ const isAnalyzing = ref(false)
 const expandedOptimizations = ref({})
 const selectedPlaybook = ref(null)
 
+// Timeout tracking
+let analysisTimeout = null
+
 // Computed
 const isFormValid = computed(() => {
   return auditData.value.platforms.length > 0 &&
@@ -522,7 +525,7 @@ const runAudit = async () => {
   })
 
   // Generate mock analysis
-  setTimeout(() => {
+  analysisTimeout = setTimeout(() => {
     auditResults.value = generateAuditResults()
     isAnalyzing.value = false
   }, 2000)
@@ -788,6 +791,11 @@ const formatContent = (content) => {
 
   return formatted
 }
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (analysisTimeout) clearTimeout(analysisTimeout)
+})
 </script>
 
 <style scoped>

@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import MiniAppShell from './core/MiniAppShell.vue'
 import { publishUpdatesConfig } from './configs/publishUpdates.config.js'
 
@@ -143,6 +143,10 @@ const taskData = ref(props.taskData || {
   aiOutput: null,
   savedItems: []
 })
+
+// Timeout tracking
+let scrollTimeout = null
+let highlightTimeout = null
 
 // Save a launch plan
 const savePlan = () => {
@@ -178,14 +182,14 @@ const savePlan = () => {
   emit('save', updatedData)
 
   // Scroll to saved plans section smoothly after DOM updates
-  setTimeout(() => {
+  scrollTimeout = setTimeout(() => {
     if (savedPlansSection.value) {
       savedPlansSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, 100)
 
   // Clear highlight after 3 seconds
-  setTimeout(() => {
+  highlightTimeout = setTimeout(() => {
     lastSavedIndex.value = -1
   }, 3000)
 }
@@ -256,4 +260,10 @@ const removePlan = (idx) => {
   taskData.value = updatedData
   emit('save', updatedData)
 }
+
+// Cleanup timeouts on unmount
+onBeforeUnmount(() => {
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+  if (highlightTimeout) clearTimeout(highlightTimeout)
+})
 </script>

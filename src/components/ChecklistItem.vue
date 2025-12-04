@@ -158,7 +158,7 @@
  * - Modal for viewing/editing AI output
  */
 
-import { ref } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import { generateAIContent } from '@/services/aiGeneration'
 
 // Props
@@ -182,6 +182,9 @@ const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
 const appDescription = ref('')
+
+// Timeout tracking
+let copyResetTimeout = null
 
 /**
  * Handle opening the mini-app modal
@@ -283,7 +286,7 @@ const copyAIOutput = (e) => {
     const button = e.target
     const originalText = button.textContent
     button.textContent = '✓ Copied!'
-    setTimeout(() => {
+    copyResetTimeout = setTimeout(() => {
       button.textContent = originalText
     }, 2000)
   }).catch(err => {
@@ -294,6 +297,11 @@ const copyAIOutput = (e) => {
 
 // Initialize on mount
 loadAppDescription()
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (copyResetTimeout) clearTimeout(copyResetTimeout)
+})
 </script>
 
 <style scoped>

@@ -85,6 +85,43 @@
       :category-name="selectedCategoryName"
       @close="showAddTasksModal = false"
     />
+
+    <!-- Conflict Resolution Dialog (Phase 3 Task 3.4) -->
+    <div v-if="showConflictDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Concurrent Edit Conflict</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          This task was edited by another user or in another window. How would you like to proceed?
+        </p>
+
+        <div class="bg-amber-50 border border-amber-200 rounded p-3 mb-4">
+          <p class="text-sm text-amber-900">
+            {{ projectStore.conflictInfo()?.conflictMessage || 'Conflict detected during save' }}
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <button
+            @click="handleReloadConflict"
+            class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
+          >
+            Reload & Discard My Changes
+          </button>
+          <button
+            @click="handleKeepChanges"
+            class="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium text-sm"
+          >
+            Keep My Changes
+          </button>
+          <button
+            @click="() => { showConflictDialog = false; projectStore.clearConflict() }"
+            class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition font-medium text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -144,6 +181,9 @@ const selectedTaskId = ref(null)
 
 // STATE - Save tracking (Phase 3 Task 3.2)
 const { isSaving, saveError, lastSaveTime, setSaving, setSaveError, clearError, recordSaveSuccess } = useSaveState()
+
+// STATE - Conflict detection (Phase 3 Task 3.4)
+const showConflictDialog = ref(false)
 
 // STATE - Add Tasks Modal
 const showAddTasksModal = ref(false)
@@ -538,11 +578,12 @@ const handleTaskOpened = (data) => {
 }
 
 /**
- * Handle task save (Phase 3 Task 3.2)
+ * Handle task save (Phase 3 Task 3.2-3.4)
  * Called when MiniAppShell emits save event (after debounce)
  * Coordinates save with:
  * - Save state tracking (isSaving, saveError, lastSaveTime)
  * - Polling pause/resume (via usePollingControl)
+ * - Conflict detection for concurrent edits (Phase 3 Task 3.4)
  * - Error handling and retry
  */
 const handleTaskSave = async (saveData) => {
@@ -568,9 +609,17 @@ const handleTaskSave = async (saveData) => {
     recordSaveSuccess()
     console.log(`[DashboardContainer] Task ${taskId} saved successfully`)
   } catch (error) {
-    // Handle save error
-    setSaveError(error.message || 'Failed to save task')
-    console.error('[DashboardContainer] Save error:', error)
+    // Phase 3 Task 3.4: Check if this is a conflict error
+    if (error?.status === 409 || error?.message?.includes('Conflict')) {
+      setSaveError(`Conflict: ${projectStore.conflictInfo()?.conflictMessage || 'Task was edited elsewhere'}`)
+      console.warn('[DashboardContainer] Conflict detected on task:', saveData?.taskId, error)
+      // Show conflict dialog - parent component should handle this with showConflictDialog ref
+      showConflictDialog.value = true
+    } else {
+      // Handle regular save error
+      setSaveError(error.message || 'Failed to save task')
+      console.error('[DashboardContainer] Save error:', error)
+    }
   } finally {
     // Stop saving indicator
     setSaving(false)
@@ -580,6 +629,39 @@ const handleTaskSave = async (saveData) => {
       globalPollingControl.resumePolling(saveData.taskId)
     }
   }
+}
+
+/**
+ * Phase 3 Task 3.4: Handle conflict - reload latest data from server
+ */
+const handleReloadConflict = async () => {
+  try {
+    if (selectedTaskId.value) {
+      await projectStore.reloadTaskData(selectedTaskId.value)
+      showConflictDialog.value = false
+      // Reload task modal with new data
+      if (showTaskModal.value) {
+        showTaskModal.value = false
+        // Give UI time to update, then reopen
+        setTimeout(() => {
+          showTaskModal.value = true
+        }, 100)
+      }
+      setSaveError('Data reloaded from server')
+    }
+  } catch (error) {
+    setSaveError('Failed to reload data: ' + error.message)
+    console.error('[DashboardContainer] Reload conflict error:', error)
+  }
+}
+
+/**
+ * Phase 3 Task 3.4: Handle conflict - keep local changes and retry save
+ */
+const handleKeepChanges = () => {
+  showConflictDialog.value = false
+  projectStore.clearConflict()
+  setSaveError('Conflict resolved - you kept your changes')
 }
 
 /**

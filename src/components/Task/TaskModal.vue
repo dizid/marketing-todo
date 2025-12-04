@@ -50,6 +50,7 @@
         <!-- Custom Component (e.g., Landing Page Creator) -->
         <component
           v-if="customComponent"
+          ref="taskComponentRef"
           :is="customComponent"
           :task-config="taskConfig"
           :task-data="currentTaskData"
@@ -59,6 +60,7 @@
         <!-- Default: Unified Task Component -->
         <UnifiedTaskComponent
           v-else
+          ref="taskComponentRef"
           :task-id="taskId"
           :task-config="taskConfig"
           :initial-data="currentTaskData"
@@ -89,6 +91,31 @@
           class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition font-medium text-sm"
         >
           Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unsaved Changes Warning (Phase 3 Task 3.5) -->
+  <div v-if="showUnsavedWarning" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Unsaved Changes</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        You have unsaved changes in this task. Are you sure you want to leave without saving?
+      </p>
+
+      <div class="space-y-3">
+        <button
+          @click="confirmDiscard"
+          class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm"
+        >
+          Discard Changes
+        </button>
+        <button
+          @click="cancelClose"
+          class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
+        >
+          Keep Editing
         </button>
       </div>
     </div>
@@ -198,6 +225,9 @@ const projectStore = useProjectStore()
 
 // State
 const notes = ref('')
+// Phase 3 Task 3.5: Unsaved changes warning
+const showUnsavedWarning = ref(false)
+const taskComponentRef = ref(null)
 
 // Computed
 const taskMetadata = computed(() => getTaskMetadata(props.taskId))
@@ -256,10 +286,35 @@ const handleSave = async (data) => {
   emit('save', { taskId: props.taskId, data })
 }
 
+/**
+ * Phase 3 Task 3.5: Handle close with unsaved changes check
+ */
 const handleClose = () => {
+  // Check if task component has unsaved changes
+  if (taskComponentRef.value?.hasUnsavedChanges?.()) {
+    showUnsavedWarning.value = true
+    return
+  }
+
   // Reset local state
   notes.value = ''
   emit('close')
+}
+
+/**
+ * Phase 3 Task 3.5: Confirm discard of unsaved changes
+ */
+const confirmDiscard = () => {
+  showUnsavedWarning.value = false
+  notes.value = ''
+  emit('close')
+}
+
+/**
+ * Phase 3 Task 3.5: Cancel close and keep editing
+ */
+const cancelClose = () => {
+  showUnsavedWarning.value = false
 }
 </script>
 

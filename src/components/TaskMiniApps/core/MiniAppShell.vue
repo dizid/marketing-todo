@@ -69,6 +69,7 @@ import { ref, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { generateAIContent } from '../../../services/aiGeneration.js'
 import { useFormFieldInheritance } from '../../../composables/useFormFieldInheritance'
+import { useUnsavedChanges } from '../../../composables/useUnsavedChanges'
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
 import OutputSection from '../shared/OutputSection.vue'
@@ -96,6 +97,9 @@ const formBuilder = ref(null)
 const formData = ref({ ...props.taskData.formData || {} })
 const inheritanceMetadata = ref({})
 const validationError = ref(null)
+
+// Phase 3 Task 3.5: Track unsaved changes
+const unsavedChanges = useUnsavedChanges(props.taskData.formData || {})
 
 // Initialize field inheritance if fieldMappings are configured
 const initializeInheritance = async () => {
@@ -157,6 +161,9 @@ const emitSave = (newData) => {
     aiOutput: aiOutput.value,
     savedItems: savedItems.value
   })
+
+  // Phase 3 Task 3.5: Mark as clean after save
+  unsavedChanges.updateSavedState(newData)
 }
 
 const debouncedSave = (newData) => {
@@ -219,6 +226,15 @@ watch(
       validationError.value = null
     }
   }
+)
+
+// Phase 3 Task 3.5: Watch form data changes and mark as dirty (unsaved)
+watch(
+  () => formData.value,
+  (newData) => {
+    unsavedChanges.markDirty()
+  },
+  { deep: true }
 )
 
 // Watch initial task data changes
@@ -321,7 +337,11 @@ defineExpose({
   savedItems,
   isFormValid,
   inheritanceMetadata,
-  validationError
+  validationError,
+  // Phase 3 Task 3.5: Expose unsaved changes state
+  isDirty: unsavedChanges.isDirty,
+  hasUnsavedChanges: () => unsavedChanges.isDirty.value,
+  getUnsavedWarning: unsavedChanges.getWarningMessage
 })
 </script>
 

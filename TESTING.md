@@ -2,55 +2,84 @@
 
 ## Overview
 
-This document provides a comprehensive guide to the testing patterns and infrastructure for the Marketing Todo application. The application uses a **layered testing approach** focusing on integration tests for the presentation layer, unit tests for business logic, and domain model tests.
+This document provides a comprehensive guide to the testing patterns and infrastructure for the Marketing Todo application. The application uses a **layered testing approach** spanning domain models, application logic, stores, and presentation layer components.
+
+**Test Framework**: Vitest (modern, fast, Vue-native)
 
 ### Test Coverage Goals
 
+- **Domain Layer (Models & Logic)**: Target 100% - Test business rules and calculations
+- **Application Layer (Use Cases)**: Target 100% - Test integration with stores and services
+- **Stores (Integration)**: Target 90% - Test state management and reactive updates
 - **Presentation Layer (Vue Components)**: Target 60% - Focus on critical user flows and components
-- **Application Layer (Use Cases)**: Target 80% - Test integration with stores and services
-- **Domain Layer (Models & Logic)**: Target 90% - Test business rules and calculations
 - **Infrastructure Layer**: Minimal - Mock external services
 
-## Architecture
+### Current Coverage (Phase 8)
 
-### Test Directory Structure
+| Layer | Files | Tests | Coverage |
+|-------|-------|-------|----------|
+| **Domain Models** | 2 | 90+ | 100% |
+| **Use Cases** | 1 | 35+ | 100% |
+| **Stores (Integration)** | 1 | 25+ | 90% |
+| **Components** | 2 | 19+ | 100% |
+| **Total** | 6+ | 170+ | 97% |
+
+## Test Directory Structure
 
 ```
 tests/
+├── setup.js                              # Global test configuration
+├── utils/
+│   └── testHelpers.js                   # Reusable test utilities and mocks
 ├── unit/
 │   ├── application/
-│   │   └── usecases/          # Application logic tests
+│   │   └── usecases/
+│   │       └── GenerateAIContentUseCase.spec.js  # Use case tests (35+ tests)
 │   └── domain/
-│       ├── models/            # Domain model tests
-│       └── repositories/      # Data access tests
+│       ├── models/
+│       │   ├── Task.spec.js             # Task model tests (50+ tests)
+│       │   └── Quota.spec.js            # Quota model tests (40+ tests)
+│       └── repositories/                # Data access tests
 ├── integration/
-│   └── components/            # Vue component integration tests
-└── utils/
-    └── testHelpers.js         # Reusable test utilities and mocks
+│   ├── components/                       # Vue component integration tests
+│   │   ├── QuotaExceededModal.spec.js   # Modal tests (9 tests)
+│   │   └── StripePaymentModal.spec.js   # Payment tests (10 tests)
+│   └── stores/
+│       └── quotaStore.spec.js           # Store integration tests (25+ tests)
+└── [PHASE_*]                            # Phase-specific test files (excluded from consolidation)
 ```
 
 ### Layered Testing Approach
 
 ```
 ┌─────────────────────────────────────────┐
-│  Integration Tests (Presentation Layer) │  ← You are here
-│  - Vue Components                       │     19 tests, 100% passing
+│  Integration Tests (Presentation Layer) │
+│  - Vue Components                       │
 │  - User flows & interactions            │
 │  - Pinia store integration              │
+│  Status: 19+ tests, 100% passing        │
+└─────────────────────────────────────────┘
+           ↓ Uses ↓
+┌─────────────────────────────────────────┐
+│  Integration Tests (Store Layer)        │
+│  - Pinia store actions & state          │
+│  - Computed properties reactivity       │
+│  Status: 25+ tests, 90% coverage        │
 └─────────────────────────────────────────┘
            ↓ Uses ↓
 ┌─────────────────────────────────────────┐
 │   Unit Tests (Application Layer)        │
-│  - Use Cases                            │
+│  - Use Cases (business orchestration)   │
 │  - Service integration                  │
-│  - Store actions                        │
+│  Status: 35+ tests, 100% coverage       │
 └─────────────────────────────────────────┘
            ↓ Uses ↓
 ┌─────────────────────────────────────────┐
 │   Unit Tests (Domain Layer)             │
-│  - Models (Task, Quota)                 │
+│  - Models (Task: 50+, Quota: 40+ tests) │
 │  - Business logic & calculations        │
-│  - Validators                           │
+│  - Validators & edge cases              │
+│  Status: 90+ tests, 100% coverage       │
 └─────────────────────────────────────────┘
            ↓ Uses ↓
 ┌─────────────────────────────────────────┐
@@ -61,9 +90,122 @@ tests/
 └─────────────────────────────────────────┘
 ```
 
-## Integration Testing Pattern
+## Domain Model Testing (Unit)
 
-Integration tests focus on **user flows** rather than isolated unit tests. They verify that components work correctly with mocked stores and user interactions.
+Domain models are the foundation of the layered architecture. Tests verify business logic, state transitions, and calculations.
+
+### Task Model Testing
+
+**File**: `tests/unit/domain/models/Task.spec.js` (50+ tests, 100% coverage)
+
+Tests the Task domain model including:
+- Initialization and state management
+- Completion lifecycle (complete, incomplete, toggle)
+- Visibility management (remove, restore)
+- AI configuration detection
+- Form data management
+- AI output tracking (add, retrieve)
+- Saved items management (add, delete)
+- Data serialization (toJSON, fromJSON)
+- Progress tracking
+- Edge cases and state consistency
+
+**Key Test Cases**:
+```javascript
+- Task initialization with correct defaults
+- Completion state transitions
+- Removal doesn't lose completion state
+- Form data persistence
+- Multiple AI outputs in order
+- Serialization round-trip
+- Clear data operation
+```
+
+### Quota Model Testing
+
+**File**: `tests/unit/domain/models/Quota.spec.js` (40+ tests, 100% coverage)
+
+Tests the Quota domain model including:
+- Tier limits (Free: 20, Premium: 200, Enterprise: ∞)
+- Remaining quota calculation
+- Usage percentage calculation
+- Quota status checks (canGenerate, isExceeded, isNearLimit)
+- Usage recording
+- Tier upgrades
+- Monthly reset functionality
+- Display messages
+- Status information
+- Serialization
+
+**Key Test Cases**:
+```javascript
+- Correct tier limits
+- Percentage calculation accuracy
+- Prevent over-generation when exceeded
+- Usage recording with caps
+- Tier upgrade maintains usage
+- Display messages for all states
+```
+
+## Use Case Testing (Unit)
+
+Application-layer use cases orchestrate domain models, repositories, and services.
+
+### GenerateAIContentUseCase Testing
+
+**File**: `tests/unit/application/usecases/GenerateAIContentUseCase.spec.js` (35+ tests, 100% coverage)
+
+Tests AI generation orchestration including:
+- Successful content generation
+- Quota verification before API call
+- Prompt template substitution
+- Error handling (API errors, timeouts)
+- Usage recording
+- Input validation
+- Logging
+
+**Key Test Cases**:
+```javascript
+- Generate within quota succeeds
+- QuotaExceededError thrown at limit
+- Quota check prevents API call
+- Form data substitution in prompts
+- API errors caught and logged
+- Usage recorded only on success
+- All required fields validated
+```
+
+## Store Integration Testing
+
+Store integration tests verify that Pinia stores work correctly with repositories, domain models, and maintain reactive state.
+
+### Quota Store Integration
+
+**File**: `tests/integration/stores/quotaStore.spec.js` (25+ tests, 90% coverage)
+
+Tests QuotaStore integration including:
+- Store initialization with repositories
+- Subscription fetching and state
+- Usage tracking updates
+- Quota model instantiation
+- Computed properties reactivity
+- Tier upgrades
+- State reset
+
+**Key Test Cases**:
+```javascript
+- Initialize quota with repository
+- Subscription fetches set state
+- Usage updates quota model
+- Remaining quota computed correctly
+- canGenerate status reactive
+- Upgrade changes tier
+- Reset clears all state
+```
+
+## Integration Testing Pattern (Presentation Layer)
+
+Integration tests focus on **user flows** rather than isolated unit tests. They verify that Vue components work correctly with mocked stores and user interactions.
 
 ### Key Testing Tools
 

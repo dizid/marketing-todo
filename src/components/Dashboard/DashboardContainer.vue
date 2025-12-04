@@ -72,7 +72,11 @@
     <TaskModal
       :is-open="showTaskModal"
       :task-id="selectedTaskId"
+      :is-saving="isSaving"
+      :save-error="saveError"
+      :last-save-time="lastSaveTime"
       @close="handleTaskModalClosed"
+      @save="handleTaskSave"
     />
 
     <!-- Add Tasks Modal (for empty categories) -->
@@ -104,6 +108,8 @@ import { useQuotaStore } from '@/stores/quotaStore'
 import { useOnboardingStore } from '@/stores/onboardingStore'
 import { generateAIContent } from '@/services/aiGeneration.js'
 import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
+import { useSaveState } from '@/composables/useSaveState'
+import { globalPollingControl } from '@/composables/usePollingControl'
 
 // Child components
 import ProjectHeader from '../Project/ProjectHeader.vue'
@@ -135,6 +141,9 @@ const summaryError = ref('')
 // STATE - Task Modal
 const showTaskModal = ref(false)
 const selectedTaskId = ref(null)
+
+// STATE - Save tracking (Phase 3 Task 3.2)
+const { isSaving, saveError, lastSaveTime, setSaving, setSaveError, clearError, recordSaveSuccess } = useSaveState()
 
 // STATE - Add Tasks Modal
 const showAddTasksModal = ref(false)
@@ -526,6 +535,51 @@ const handleTaskRemoved = async (data) => {
 const handleTaskOpened = (data) => {
   selectedTaskId.value = data.taskId
   showTaskModal.value = true
+}
+
+/**
+ * Handle task save (Phase 3 Task 3.2)
+ * Called when MiniAppShell emits save event (after debounce)
+ * Coordinates save with:
+ * - Save state tracking (isSaving, saveError, lastSaveTime)
+ * - Polling pause/resume (via usePollingControl)
+ * - Error handling and retry
+ */
+const handleTaskSave = async (saveData) => {
+  try {
+    // Extract taskId and data from event
+    const { taskId, data } = saveData
+    if (!taskId || !data) {
+      console.warn('[DashboardContainer] Invalid save data', saveData)
+      return
+    }
+
+    // Pause polling before save to prevent data race conditions
+    globalPollingControl.pausePolling(taskId)
+
+    // Start save operation
+    setSaving(true)
+    clearError()
+
+    // Save to database via projectStore
+    await projectStore.updateTaskData(taskId, data)
+
+    // Record successful save
+    recordSaveSuccess()
+    console.log(`[DashboardContainer] Task ${taskId} saved successfully`)
+  } catch (error) {
+    // Handle save error
+    setSaveError(error.message || 'Failed to save task')
+    console.error('[DashboardContainer] Save error:', error)
+  } finally {
+    // Stop saving indicator
+    setSaving(false)
+
+    // Resume polling after save completes (even if error occurred)
+    if (saveData?.taskId) {
+      globalPollingControl.resumePolling(saveData.taskId)
+    }
+  }
 }
 
 /**

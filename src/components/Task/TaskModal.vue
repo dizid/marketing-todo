@@ -13,7 +13,30 @@
             {{ taskMetadata?.icon }} {{ taskMetadata?.name }}
           </h3>
           <p class="text-sm text-gray-600 mt-1 hidden md:block">{{ taskMetadata?.description }}</p>
+
+          <!-- Phase 3 Task 3.2: Save Status Feedback -->
+          <!-- Saving Indicator -->
+          <div v-if="isSaving" class="mt-3 flex items-center gap-2 text-sm text-indigo-600">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Saving...</span>
+          </div>
+
+          <!-- Error Message -->
+          <div v-else-if="saveError" class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-start gap-2">
+            <span class="text-lg">⚠️</span>
+            <span>{{ saveError }}</span>
+          </div>
+
+          <!-- Success Message -->
+          <div v-else-if="lastSaveTime" class="mt-3 flex items-center gap-2 text-sm text-green-600">
+            <span>✓ Saved</span>
+            <span class="text-gray-500">({{ formatSaveTime(lastSaveTime) }})</span>
+          </div>
         </div>
+
         <button
           @click="handleClose"
           class="text-gray-500 hover:text-gray-700 text-2xl ml-4 flex-shrink-0"
@@ -151,6 +174,19 @@ const props = defineProps({
   taskId: {
     type: [String, null],
     default: null
+  },
+  // Phase 3 Task 3.2: Save state tracking props
+  isSaving: {
+    type: Boolean,
+    default: false
+  },
+  saveError: {
+    type: [String, null],
+    default: null
+  },
+  lastSaveTime: {
+    type: [Date, null],
+    default: null
   }
 })
 
@@ -188,6 +224,28 @@ const handleBackdropClick = (e) => {
   // Only close if clicking on the backdrop itself, not the modal
   if (e.target === e.currentTarget) {
     handleClose()
+  }
+}
+
+/**
+ * Format last save time for display (Phase 3 Task 3.2)
+ * Shows relative time like "just now", "2 minutes ago", etc.
+ */
+const formatSaveTime = (saveTime) => {
+  if (!saveTime) return null
+
+  const now = new Date()
+  const diff = Math.floor((now - saveTime) / 1000) // Difference in seconds
+
+  if (diff < 30) {
+    return 'just now'
+  } else if (diff < 60) {
+    return '1 minute ago'
+  } else if (diff < 300) {
+    const minutes = Math.floor(diff / 60)
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else {
+    return saveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 }
 

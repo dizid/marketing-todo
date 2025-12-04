@@ -6,6 +6,15 @@
       <p v-if="taskConfig.description" class="text-sm text-gray-600 mt-1">{{ taskConfig.description }}</p>
     </div>
 
+    <!-- Validation Error Banner (Phase 3 Task 3.3) -->
+    <div v-if="validationError" class="p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-start gap-3">
+      <span class="text-lg flex-shrink-0">⚠️</span>
+      <div>
+        <p class="text-sm font-medium text-amber-900">Cannot save with validation errors</p>
+        <p class="text-sm text-amber-800 mt-1">{{ validationError }}</p>
+      </div>
+    </div>
+
     <!-- Help Panel -->
     <HelpPanel
       v-if="taskConfig.help"
@@ -86,6 +95,7 @@ const route = useRoute()
 const formBuilder = ref(null)
 const formData = ref({ ...props.taskData.formData || {} })
 const inheritanceMetadata = ref({})
+const validationError = ref(null)
 
 // Initialize field inheritance if fieldMappings are configured
 const initializeInheritance = async () => {
@@ -157,6 +167,20 @@ const debouncedSave = (newData) => {
 
   // Schedule new save after 500ms of inactivity
   saveTimeout = setTimeout(() => {
+    // Phase 3 Task 3.3: Validate before saving
+    if (!isFormValid.value) {
+      // Get validation errors from FormBuilder
+      if (formBuilder.value && formBuilder.value.errors && formBuilder.value.errors.length > 0) {
+        validationError.value = formBuilder.value.errors[0]
+      } else {
+        validationError.value = 'Please fill all required fields before saving'
+      }
+      saveTimeout = null
+      return
+    }
+
+    // Clear validation error if form becomes valid
+    validationError.value = null
     emitSave(newData)
     saveTimeout = null
   }, 500)
@@ -185,6 +209,16 @@ watch(
     debouncedSave(newData)
   },
   { deep: true }
+)
+
+// Phase 3 Task 3.3: Watch form validity and clear validation error when form becomes valid
+watch(
+  () => isFormValid.value,
+  (newValid) => {
+    if (newValid) {
+      validationError.value = null
+    }
+  }
 )
 
 // Watch initial task data changes
@@ -286,7 +320,8 @@ defineExpose({
   aiOutput,
   savedItems,
   isFormValid,
-  inheritanceMetadata
+  inheritanceMetadata,
+  validationError
 })
 </script>
 

@@ -89,15 +89,15 @@ export const assets = [
 
 export const prepareAssetsTask = {
   id: 'setup-4',
-  name: 'Prepare Assets',
-  description: 'Create logos, images, videos, and brand guidelines',
+  name: 'Asset Preparation Checklist',
+  description: 'Checklist for organizing your brand assets and tools',
   category: 'setup',
 
   // Freemium model - Premium tier task
   tier: 'premium',
-  what: 'Organize and create all your brand assets—logos, hero images, demo videos, color palettes, and social media templates. One central place for all brand materials.',
-  why: 'Consistent branding across all channels builds recognition and trust. Disorganized assets waste time when you need them fast. A brand guideline saves hundreds of hours.',
-  how: 'Follow the 5-step asset checklist. Create or upload each asset (logo, hero image, videos, colors, social templates). Export as ready-to-use files for any channel.',
+  what: 'Complete the 5-asset checklist for your brand: logo, hero image, demo video, brand colors, and social templates. Get tool recommendations and specifications for each.',
+  why: 'Consistent branding across all channels builds recognition and trust. A clear checklist of what you need saves time and ensures nothing is forgotten.',
+  how: 'Go through the 5-step checklist, get specifications for each asset type (dimensions, file formats), and see tool recommendations for creating each asset.',
 
   form: [],
   ai: null,

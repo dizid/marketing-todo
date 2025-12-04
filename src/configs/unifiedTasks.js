@@ -1360,8 +1360,8 @@ Generate:
 
 export const landingPageCreatorTask = {
   id: 'setup-2',
-  name: 'Landing Page Creator',
-  description: 'Build a professional landing page in 5 minutes. No coding required. Step-by-step wizard with AI-assisted copy suggestions.',
+  name: 'Landing Page Planning Wizard',
+  description: 'Step-by-step wizard to plan and structure your landing page. Get organized copy and design layout before building.',
   category: 'setup',
 
   form: [],  // Empty - uses custom wizard interface

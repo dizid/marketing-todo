@@ -1,7 +1,7 @@
 export const videoScriptTask = {
   id: 'content-2',
-  name: 'Create Video Tutorial',
-  description: 'Script and plan a product demo video',
+  name: 'Video Script Outline Generator',
+  description: 'Generate a structured script outline for a product demo video',
   category: 'content',
 
   // Freemium model - Premium tier task

@@ -81,15 +81,15 @@ export const platforms = [
 
 export const connectAccountsTask = {
   id: 'setup-3',
-  name: 'Connect Accounts',
-  description: 'Link your social media, email, and analytics accounts',
+  name: 'Account Connection Guide',
+  description: 'Step-by-step guide to connect social media, email, and analytics accounts',
   category: 'setup',
 
   // Freemium model fields
   tier: 'free',
-  what: 'Connect your email, social media, analytics, payments, and Slack accounts to this app in 15 minutes. One-click OAuth for most platforms.',
+  what: 'Get step-by-step guides to manually connect your email, social media, analytics, payments, and Slack accounts. Includes specific instructions for each platform and API key generation.',
   why: 'Connected accounts enable automation (scheduled posts, email campaigns) and real-time notifications (signups, customer feedback). Manual updates are slow and error-prone.',
-  how: 'Click each platform, follow the OAuth flow to authorize access, then come back. Your accounts stay secure—we only get access to what you grant permission for.',
+  how: 'Select each platform you want to connect, follow the detailed guide to generate API keys and access tokens, then use those credentials in your tools.',
 
   form: [],
   ai: null,

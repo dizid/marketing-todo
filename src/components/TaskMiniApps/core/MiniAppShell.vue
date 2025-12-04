@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { generateAIContent } from '../../../services/aiGeneration.js'
 import { useFormFieldInheritance } from '../../../composables/useFormFieldInheritance'
@@ -135,6 +135,33 @@ const isFormValid = computed(() => {
   return formBuilder.value.validate()
 })
 
+// Debouncing for form save - prevents database overload from rapid typing
+// Each keystroke delays the save by 500ms. If user types again within 500ms,
+// the previous save is cancelled and a new 500ms timer starts.
+// This ensures: 5 characters typed in 500ms = 1 save (not 5 saves)
+let saveTimeout = null
+
+const emitSave = (newData) => {
+  emit('save', {
+    formData: newData,
+    aiOutput: aiOutput.value,
+    savedItems: savedItems.value
+  })
+}
+
+const debouncedSave = (newData) => {
+  // Cancel previous save if still pending
+  if (saveTimeout) {
+    clearTimeout(saveTimeout)
+  }
+
+  // Schedule new save after 500ms of inactivity
+  saveTimeout = setTimeout(() => {
+    emitSave(newData)
+    saveTimeout = null
+  }, 500)
+}
+
 // Initialize inheritance on mount
 onMounted(() => {
   initializeInheritance()
@@ -148,15 +175,14 @@ watch(
   }
 )
 
-// Watch form data changes
+// Watch form data changes with debouncing
+// CRITICAL: Deep watch triggers on ANY nested property change
+// Without debouncing: typing one character = 1 watch fire = 1 database save
+// With debouncing: typing 5 characters in 500ms = 1 database save
 watch(
   () => formData.value,
   (newData) => {
-    emit('save', {
-      formData: newData,
-      aiOutput: aiOutput.value,
-      savedItems: savedItems.value
-    })
+    debouncedSave(newData)
   },
   { deep: true }
 )
@@ -244,6 +270,15 @@ const handleHelpViewed = (data) => {
 const handleHelpFeedback = (data) => {
   console.log(`[MiniAppShell] Help feedback received for task: ${data.taskId}, helpful: ${data.helpful}`)
 }
+
+// Cleanup debounce timer on unmount
+// Critical: Prevents orphaned timers from trying to emit after component destroyed
+onBeforeUnmount(() => {
+  if (saveTimeout) {
+    clearTimeout(saveTimeout)
+    saveTimeout = null
+  }
+})
 
 // Expose methods
 defineExpose({

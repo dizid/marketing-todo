@@ -49,16 +49,16 @@ describe('Phase 3 SSOT Tests', () => {
       const debouncedFn = debounce(debounceCallback, 500)
 
       debouncedFn()
-      await vi.advanceTimersByTimeAsync(100)
+      vi.advanceTimersByTime(100)
       debouncedFn() // Reset timer
-      await vi.advanceTimersByTimeAsync(100)
+      vi.advanceTimersByTime(100)
       debouncedFn() // Reset timer again
 
       // Should not have called yet
       expect(debounceCallback).not.toHaveBeenCalled()
 
-      // Advance to 500ms total
-      await vi.advanceTimersByTimeAsync(300)
+      // Advance to 500ms from last call
+      vi.advanceTimersByTime(500)
 
       // Now it should have been called once
       expect(debounceCallback).toHaveBeenCalledTimes(1)

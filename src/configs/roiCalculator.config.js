@@ -128,10 +128,10 @@ export const roiCalculatorTask = {
 
 **Business Model:** {business_model}
 **Active Marketing Channels:** {marketing_channels}
-**Avg Revenue Per Customer:** ${avg_revenue_per_customer}
+**Avg Revenue Per Customer:** {avg_revenue_per_customer}
 **Avg Customer Lifetime:** {avg_customer_lifetime_months} months
 **Gross Margin:** {gross_margin_percent}%
-**Monthly Budget:** ${monthly_budget}
+**Monthly Budget:** {monthly_budget}
 **Optimization Goal:** {optimization_goal}
 
 **Channel Performance Data (from calculator):**
@@ -202,7 +202,7 @@ Based on your {optimization_goal} goal:
 | [Channel 1] | $X | X% | $X | X% | +X% / -X% |
 | [Channel 2] | $X | X% | $X | X% | +X% / -X% |
 | ... | ... | ... | ... | ... | ... |
-| **Total** | ${monthly_budget} | 100% | ${monthly_budget} | 100% | - |
+| **Total** | {monthly_budget} | 100% | {monthly_budget} | 100% | - |
 
 ### Why These Changes?
 

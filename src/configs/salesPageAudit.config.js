@@ -478,6 +478,16 @@ Format with specific copy examples and actionable fixes, not just theory.`,
       'Not checking mobile - auditing only desktop when 60% of traffic is mobile. Always audit mobile experience separately - different pain points emerge.',
       'Comparing to wrong benchmarks - expecting 10% conversion on a $5K product when 2-3% is excellent for high-ticket. Know your industry benchmarks before setting goals.',
       'Ignoring page speed - beautiful page that takes 5+ seconds to load loses 40% of visitors before they see anything. Run PageSpeed Insights first - speed improvements often have highest ROI.'
+    ],
+    proTips: [
+      'Test one change at a time: Make a single high-impact change, measure for 2 weeks with at least 500 visitors, then iterate. Changing multiple elements simultaneously makes it impossible to know what worked.',
+      'Screenshot your page before changes: Create a dated archive of every version. When conversion drops, you can quickly identify what changed and revert if needed.',
+      'Use session recordings over heatmaps: Heatmaps show aggregate behavior, but session recordings show WHY people leave. Watch 20-30 recordings of non-buyers to find patterns.',
+      'Prioritize above-the-fold: 50% of visitors never scroll past the first screen. Your headline, subheadline, and first CTA must do the heavy lifting.',
+      'Match landing page to ad creative: If your ad promises "5 easy steps", your landing page headline should reinforce that exact promise. Mismatched expectations kill conversions.',
+      'Add a price anchor: Before revealing your price, show the value of what they\'re getting. "$5,000 value for just $497" converts better than "$497" alone.',
+      'Test guarantee placement: Some pages convert better with guarantee near price, others with guarantee near CTA. Test both positions.',
+      'Remove navigation on sales pages: Every link is a potential exit. Remove header navigation and footer links on dedicated sales pages.'
     ]
   }
 }

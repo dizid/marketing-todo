@@ -178,7 +178,7 @@ exports.handler = async (event) => {
       // Build prompt for executive summary
       const summaryPrompt = buildExecutiveSummaryPrompt(userData)
       messages = [{ role: 'user', content: summaryPrompt }]
-      model = model || 'grok-2'
+      model = model || 'grok-3'
       temperature = temperature !== undefined ? temperature : 0.5
       max_tokens = max_tokens || 1500
     } else {
@@ -232,7 +232,7 @@ exports.handler = async (event) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: model || 'grok-2',
+          model: model || 'grok-3',
           messages: messages,
           temperature: temperature || 0.7,
           max_tokens: max_tokens || 1500

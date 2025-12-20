@@ -191,7 +191,7 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-2',
+        model: 'grok-3',
         messages,
         temperature: aiConfig.temperature || 0.8,
         max_tokens: aiConfig.maxTokens || 2000,

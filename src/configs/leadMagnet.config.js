@@ -9,6 +9,16 @@ export const leadMagnetTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_audience': 'targetAudience',
+    'main_problem': 'primaryGoal',
+    // Fields without canonical mapping (task-specific)
+    'industry': null,
+    'business_model': null,
+    'lead_quality': null
+  },
+
   what: 'Get 10 lead magnet ideas tailored to your audience and business model. For each idea, receive conversion-optimized landing page copy, delivery mechanisms, follow-up nurture sequences, and promotion strategies. Transform cold traffic into qualified leads.',
 
   why: 'Your email list is your most valuable asset - subscribers convert 10x higher than social followers. But generic "newsletter signups" get 1-2% opt-in rates. The right lead magnet can achieve 30-60% opt-in rates and attract pre-qualified buyers.',
@@ -389,21 +399,7 @@ Format with specific, ready-to-implement ideas and copy examples.`,
     temperature: 0.8,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

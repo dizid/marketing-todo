@@ -173,21 +173,7 @@ Format your response clearly with section headers.`,
     temperature: 0.8,
     maxTokens: 1500,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -239,9 +225,8 @@ export const generatePostsTask = {
       id: 'platforms',
       type: 'checkboxes',
       label: 'Select Platforms',
-      
-      tooltip: 'Information about Select Platforms',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'Select ALL platforms where you want to post. Each gets customized content with proper formatting, length, and hashtags for that platform.',
+      options: [
         { value: 'twitter', label: 'X / Twitter (280 char limit)' },
         { value: 'linkedin', label: 'LinkedIn (professional tone)' },
         { value: 'instagram', label: 'Instagram (visual-focused)' },
@@ -254,9 +239,8 @@ export const generatePostsTask = {
       id: 'tone',
       type: 'select',
       label: 'Tone / Style',
-      
-      tooltip: 'Information about Tone / Style',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'The voice of your posts. Professional works for B2B, casual for consumer brands, humorous if your brand personality supports it.',
+      options: [
         { value: 'professional', label: 'Professional & Authoritative' },
         { value: 'casual', label: 'Casual & Friendly' },
         { value: 'technical', label: 'Technical & Detailed' },
@@ -269,9 +253,8 @@ export const generatePostsTask = {
       id: 'cta',
       type: 'select',
       label: 'Call-to-Action',
-      
-      tooltip: 'Information about Call-to-Action',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'What action should readers take? "No CTA" works for pure engagement/awareness posts.',
+      options: [
         { value: 'signup', label: 'Sign Up / Register' },
         { value: 'learn_more', label: 'Learn More' },
         { value: 'join', label: 'Join Community' },
@@ -284,9 +267,8 @@ export const generatePostsTask = {
       id: 'post_count',
       type: 'number',
       label: 'Number of Posts',
-      
-      tooltip: 'Information about Number of Posts',
-      example: 'e.g., specific example here',min: 1,
+      tooltip: 'Start with 3 per platform to see variety. You can regenerate for more options.',
+      min: 1,
       max: 10,
       placeholder: '3',
       suffix: 'per platform'
@@ -295,9 +277,8 @@ export const generatePostsTask = {
       id: 'content_focus',
       type: 'textarea',
       label: 'Content Focus / Topic',
-      
-      tooltip: 'Information about Content Focus / Topic',
-      example: 'e.g., specific example here',placeholder: 'What should these posts be about? (e.g., new feature launch, educational content, company milestone)',
+      tooltip: 'Be specific: "New feature announcement for our AI writing tool" not just "marketing".',
+      placeholder: 'What should these posts be about? (e.g., new feature launch, educational content, company milestone)',
       description: 'The main theme or topic for these posts',
       rows: 3,
       required: true
@@ -306,18 +287,16 @@ export const generatePostsTask = {
       id: 'keywords',
       type: 'text',
       label: 'Keywords to Include',
-      
-      tooltip: 'Information about Keywords to Include',
-      example: 'e.g., specific example here',placeholder: 'e.g., AI, automation, productivity (comma-separated)',
+      tooltip: 'Include 2-5 relevant hashtags or keywords. AI will incorporate them naturally.',
+      placeholder: 'e.g., AI, automation, productivity (comma-separated)',
       description: 'Keywords or hashtags to naturally include'
     },
     {
       id: 'audience_context',
       type: 'textarea',
       label: 'Audience Context',
-      
-      tooltip: 'Information about Audience Context',
-      example: 'e.g., specific example here',placeholder: 'Who is your target audience for these posts?',
+      tooltip: 'Who should engage? "SaaS founders struggling with content" is better than "business owners".',
+      placeholder: 'Who is your target audience for these posts?',
       description: 'Brief description of who should see and engage with these posts',
       rows: 2
     },
@@ -325,9 +304,8 @@ export const generatePostsTask = {
       id: 'notes',
       type: 'textarea',
       label: 'Additional Notes',
-      
-      tooltip: 'Any other relevant context about your audience or market',
-      example: 'e.g., specific example here',placeholder: 'Any special requirements or context...',
+      tooltip: 'Any brand voice requirements, things to avoid, or specific angles to try.',
+      placeholder: 'Any special requirements or context...',
       rows: 2
     }
   ],
@@ -367,19 +345,7 @@ Start each post on a new line after the separator.`,
     temperature: 0.8,
     maxTokens: 2500,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        const data = stored ? JSON.parse(stored) : {}
-        return {
-          app_description: data.appDescription || 'Your product/service',
-          company_name: data.companyName || ''
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-        return { app_description: 'Your product/service' }
-      }
-    },
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
 
     responseParser: (response) => {
       console.log('[responseParser] Input response:', response.substring(0, 300))
@@ -497,9 +463,8 @@ export const defineGoalsTask = {
       id: 'goal_what',
       type: 'text',
       label: '📍 Goal: What (Specific)',
-      
-      tooltip: 'Information about 📍 Goal: What (Specific)',
-      example: 'e.g., specific example here',placeholder: 'e.g., Acquire new users through organic channels',
+      tooltip: 'What exactly do you want to achieve? Be specific: "Acquire new users" is better than "grow the business".',
+      placeholder: 'e.g., Acquire new users through organic channels',
       description: 'Be specific about what you want to achieve',
       required: true
     },
@@ -507,9 +472,8 @@ export const defineGoalsTask = {
       id: 'goal_metric',
       type: 'number',
       label: '📊 Metric (Measurable)',
-      
-      tooltip: 'Information about 📊 Metric (Measurable)',
-      example: 'e.g., specific example here',placeholder: '150',
+      tooltip: 'The specific number you want to hit. Make it challenging but achievable based on your current baseline.',
+      placeholder: '150',
       suffix: 'units',
       min: 1,
       required: true
@@ -518,62 +482,119 @@ export const defineGoalsTask = {
       id: 'goal_unit',
       type: 'text',
       label: 'Unit of Measure',
-      
-      tooltip: 'Information about Unit of Measure',
-      example: 'e.g., specific example here',placeholder: 'e.g., users, signups, visits, revenue',
+      tooltip: 'What are you counting? Users, signups, revenue in dollars, page visits, conversions, etc.',
+      placeholder: 'e.g., users, signups, visits, revenue',
       required: true
     },
     {
       id: 'goal_strategy',
       type: 'textarea',
       label: '✅ Strategy (How to Achieve)',
-      
-      tooltip: 'Information about ✅ Strategy (How to Achieve)',
-      example: 'e.g., specific example here',placeholder: 'What is your strategy? (e.g., content marketing, paid ads, partnerships)',
+      tooltip: 'A goal without a plan is a wish. What specific actions will you take? Be concrete: "Publish 2 blog posts/week" not "do content marketing".',
+      placeholder: 'What is your strategy? (e.g., content marketing, paid ads, partnerships)',
       rows: 3
     },
     {
       id: 'goal_why',
       type: 'textarea',
       label: '🎯 Why (Relevant)',
-      
-      tooltip: 'Information about 🎯 Why (Relevant)',
-      example: 'e.g., specific example here',placeholder: 'Why is this goal important for your business?',
+      tooltip: 'Connect this goal to your business outcomes. How does achieving this help your company grow?',
+      placeholder: 'Why is this goal important for your business?',
       rows: 3
     },
     {
       id: 'goal_deadline',
       type: 'text',
       label: '⏰ Deadline (Time-bound)',
-      
-      tooltip: 'Information about ⏰ Deadline (Time-bound)',
-      example: 'e.g., specific example here',placeholder: 'e.g., 30 days, Q1 2024, By March 31',
+      tooltip: 'Set a specific date. "30 days" or "by March 31" creates urgency. "Eventually" creates nothing.',
+      placeholder: 'e.g., 30 days, Q1 2024, By March 31',
       required: true
     }
   ],
 
-  ai: null, // No AI for this task
+  ai: {
+    template: `You are a marketing strategy consultant. Analyze this SMART goal and provide actionable recommendations.
 
-  output: {
-    enabled: false
+GOAL DETAILS:
+- What: {goal_what}
+- Target Metric: {goal_metric} {goal_unit}
+- Strategy: {goal_strategy}
+- Why Important: {goal_why}
+- Deadline: {goal_deadline}
+
+Generate a structured analysis:
+
+## 1. SMART ASSESSMENT
+Evaluate each dimension (Specific, Measurable, Achievable, Relevant, Time-bound) with a score 1-5 and specific feedback.
+
+## 2. REFINED GOAL STATEMENT
+Rewrite as a single, powerful goal statement that's crystal clear.
+
+## 3. MILESTONE BREAKDOWN
+Break into 3-4 weekly milestones with specific targets.
+- Week 1: [Milestone + metric]
+- Week 2: [Milestone + metric]
+- Week 3: [Milestone + metric]
+- Week 4: [Final push + target]
+
+## 4. KEY METRICS TO TRACK
+List 4-5 leading indicators that predict success.
+
+## 5. RISK FACTORS & MITIGATION
+Top 3 things that could derail this goal + how to prevent each.
+
+## 6. QUICK WINS (First 48 Hours)
+3 specific actions to build momentum immediately.`,
+
+    temperature: 0.7,
+    maxTokens: 2000
   },
 
-  help:   {
-      "examples": [
-          {
-              "scenario": "Example scenario",
-              "input": {
-                  "example": "sample input"
-              },
-              "output": "Sample output from AI"
-          }
-      ],
-      "commonMistakes": [
-          "Being too vague or generic",
-          "Not providing enough context",
-          "Forgetting key details",
-          "Not being specific about goals"
-      ]
+  output: {
+    enabled: true,
+    exportFilename: 'goal-analysis',
+    displayFormat: 'text',
+    editable: true,
+    deletable: true,
+    exportable: true,
+    copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS startup setting user acquisition goal',
+        input: {
+          goal_what: 'Acquire new users through content marketing',
+          goal_metric: 150,
+          goal_unit: 'signups',
+          goal_strategy: 'Publish 2 blog posts/week, promote on LinkedIn',
+          goal_why: 'Build pipeline for Series A metrics',
+          goal_deadline: '30 days'
+        },
+        output: 'SMART Assessment: 4.2/5 - Specific audience missing. Refined: "Acquire 150 SaaS founder signups via SEO blog content in 30 days." Milestones: W1: Publish 2 posts + 10 signups, W2: 4 total posts + 35 signups, W3: 6 posts + 80 signups, W4: 8 posts + 150 signups. Metrics: organic traffic, time on page, email capture rate, LinkedIn impressions.'
+      },
+      {
+        scenario: 'E-commerce brand setting revenue goal',
+        input: {
+          goal_what: 'Increase monthly revenue through email marketing',
+          goal_metric: 25000,
+          goal_unit: 'dollars',
+          goal_strategy: 'Launch weekly promotional emails to 10K subscribers',
+          goal_why: 'Hit profitability before Q2',
+          goal_deadline: 'End of month'
+        },
+        output: 'SMART Assessment: 3.8/5 - Missing baseline and conversion targets. Refined: "Generate $25K from email channel by sending 4 campaigns to 10K subscribers at 2% conversion, $125 AOV." Milestones: W1: Send campaign #1 + $5K, W2: A/B test subjects + $7K, W3: Segment high-value + $8K, W4: Final push + $5K.'
+      }
+    ],
+    commonMistakes: [
+      'Setting unmeasurable goals - "grow the business" or "get more customers" with no number attached. Always include a specific metric.',
+      'No deadline pressure - "eventually" or "this year" creates no urgency. Pick a specific date within 30-90 days.',
+      'Confusing outputs with outcomes - "publish 10 blog posts" is an output, "acquire 100 users from blog content" is an outcome. Focus on outcomes.',
+      'Setting goals you cannot control - "go viral" or "get featured in TechCrunch" depend on others. Set goals within your control.',
+      'Too many goals at once - 5 big goals = 0 achieved goals. Pick ONE primary goal per 30-day sprint.',
+      'No strategy attached - a goal without a plan is a wish. Always pair "what" with "how".'
+    ]
   }
 }
 
@@ -1141,22 +1162,41 @@ export const publishUpdatesTask = {
   type: 'miniapp',
   hasAI: false,
 
-  help:   {
-      "examples": [
-          {
-              "scenario": "Example scenario",
-              "input": {
-                  "example": "sample input"
-              },
-              "output": "Sample output from AI"
-          }
-      ],
-      "commonMistakes": [
-          "Being too vague or generic",
-          "Not providing enough context",
-          "Forgetting key details",
-          "Not being specific about goals"
-      ]
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Create multi-channel product update announcements. Plan your message, select channels (email, social, in-app, blog), and get a step-by-step publishing checklist.',
+  why: 'Product updates that nobody sees are wasted development effort. Consistent, well-timed announcements keep users engaged, drive feature adoption, and show your product is actively improving.',
+  how: 'Describe what you\'re announcing, select which channels to use, and follow the guided checklist to publish across all channels with consistent messaging.',
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS company announcing a major feature release',
+        input: {
+          update_type: 'major_feature',
+          channels: ['email', 'twitter', 'linkedin', 'in-app'],
+          announcement: 'Launching AI-powered analytics dashboard'
+        },
+        output: 'Multi-channel campaign: Teaser email 3 days before, Twitter thread on launch day, LinkedIn post for B2B audience, in-app modal for existing users. Checklist: write email copy, create social graphics, configure in-app notification, prepare help docs link.'
+      },
+      {
+        scenario: 'E-commerce store announcing holiday shipping deadlines',
+        input: {
+          update_type: 'operational',
+          channels: ['email', 'instagram', 'website-banner'],
+          announcement: 'Last day to order for Christmas delivery'
+        },
+        output: 'Urgency-focused campaign: Email blast to all customers with countdown, Instagram stories with shipping deadline reminder, website banner with days remaining. Include clear cut-off times by shipping method.'
+      }
+    ],
+    commonMistakes: [
+      'Announcing too late - users should know about updates BEFORE they need them. Tease major features 1-2 weeks ahead.',
+      'Same message everywhere - Twitter needs punchy 280 chars, email can be detailed, in-app should be actionable. Adapt format to channel.',
+      'No clear benefit - "We added dark mode" vs "Your eyes will thank you - dark mode is here." Lead with user benefit.',
+      'Forgetting the CTA - every announcement should tell users what to do next: try the feature, update their settings, give feedback.',
+      'One-and-done posting - post once and forget. Major updates deserve 3-5 mentions over 2 weeks across different angles.',
+      'Ignoring timing - posting product updates on Friday afternoon means low engagement. Aim for Tuesday-Thursday, mid-morning.'
+    ]
   }
 }
 
@@ -1170,22 +1210,47 @@ export const iterateFeaturesTask = {
   type: 'miniapp',
   hasAI: false,
 
-  help:   {
-      "examples": [
-          {
-              "scenario": "Example scenario",
-              "input": {
-                  "example": "sample input"
-              },
-              "output": "Sample output from AI"
-          }
-      ],
-      "commonMistakes": [
-          "Being too vague or generic",
-          "Not providing enough context",
-          "Forgetting key details",
-          "Not being specific about goals"
-      ]
+  // Freemium model - Premium tier task
+  tier: 'premium',
+  what: 'Use an impact/effort matrix to prioritize your feature backlog. Plot features on a 2x2 grid, identify quick wins, and create a prioritized roadmap.',
+  why: 'Building the wrong features wastes months. A clear prioritization framework ensures you build high-impact features first and avoid time sinks that don\'t move the needle.',
+  how: 'List your feature ideas, score each on impact (1-5) and effort (1-5), then plot them on the matrix. Quick wins (high impact, low effort) go first. Time sinks (low impact, high effort) get cut.',
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS startup prioritizing Q1 roadmap',
+        input: {
+          features: [
+            { name: 'Dark mode', impact: 2, effort: 2 },
+            { name: 'Slack integration', impact: 4, effort: 3 },
+            { name: 'Mobile app', impact: 4, effort: 5 },
+            { name: 'Bulk export', impact: 3, effort: 1 }
+          ]
+        },
+        output: 'Priority order: 1) Bulk export (quick win - low effort, decent impact), 2) Slack integration (strategic - high impact, medium effort), 3) Dark mode (fill-in - low priority but easy), 4) Mobile app (major project - defer unless critical to growth). Recommendation: Ship bulk export this week, spend Q1 on Slack integration.'
+      },
+      {
+        scenario: 'E-commerce platform deciding between features',
+        input: {
+          features: [
+            { name: 'One-click checkout', impact: 5, effort: 3 },
+            { name: 'Wishlist sharing', impact: 2, effort: 2 },
+            { name: 'AR product preview', impact: 3, effort: 5 },
+            { name: 'Order tracking SMS', impact: 4, effort: 1 }
+          ]
+        },
+        output: 'Priority order: 1) Order tracking SMS (quick win - 10% conversion lift expected, 1 week build), 2) One-click checkout (strategic - directly impacts revenue, 1 month build), 3) Wishlist sharing (nice-to-have), 4) AR preview (time sink - cool but expensive and unproven ROI).'
+      }
+    ],
+    commonMistakes: [
+      'Letting the loudest customer dictate roadmap - one customer\'s request isn\'t representative. Validate demand across multiple sources before prioritizing.',
+      'Underestimating effort - "it\'s just a small change" turns into 2 weeks. Always add 50% buffer to effort estimates.',
+      'Ignoring dependencies - feature B might unlock 3 other features. Consider cascading impact, not just standalone value.',
+      'Building for edge cases - 80% of users need 20% of features. Don\'t build complex features for the 5% power users at the expense of the majority.',
+      'No re-prioritization cadence - priorities change as you learn. Review and re-stack your backlog monthly.',
+      'Confusing "fun to build" with "impactful" - engineers love hard problems, but customers need solved problems. Impact should drive priority, not technical interest.'
+    ]
   }
 }
 
@@ -1200,9 +1265,8 @@ export const setupAnalyticsTask = {
       id: 'analytics_platform',
       type: 'select',
       label: 'Analytics Platform',
-      
-      tooltip: 'Information about Analytics Platform',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'Choose your primary analytics tool. Google Analytics is free and great for basic tracking. Mixpanel/Amplitude excel at user behavior and funnels.',
+      options: [
         { value: 'google', label: 'Google Analytics' },
         { value: 'mixpanel', label: 'Mixpanel' },
         { value: 'amplitude', label: 'Amplitude' },
@@ -1213,9 +1277,8 @@ export const setupAnalyticsTask = {
       id: 'analytics_metrics',
       type: 'checkboxes',
       label: 'Key Metrics to Track',
-      
-      tooltip: 'Information about Key Metrics to Track',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'Select metrics aligned with your goals. Early-stage: focus on acquisition (visitors, signups). Growth-stage: add retention and conversion metrics.',
+      options: [
         { value: 'pageviews', label: 'Page Views' },
         { value: 'visitors', label: 'Unique Visitors' },
         { value: 'conversion', label: 'Conversion Rate' },
@@ -1228,35 +1291,101 @@ export const setupAnalyticsTask = {
       id: 'analytics_goals',
       type: 'textarea',
       label: 'Analytics Goals',
-      
-      tooltip: 'Information about Analytics Goals',
-      example: 'e.g., specific example here',placeholder: 'What do you want to measure? (e.g., user acquisition, retention, revenue)',
+      tooltip: 'What questions do you want analytics to answer? "Where do users drop off?" "Which channels convert best?" "How long until users become paying customers?"',
+      placeholder: 'What do you want to measure? (e.g., user acquisition, retention, revenue)',
       rows: 2
     }
   ],
 
-  ai: null,
+  ai: {
+    template: `You are an analytics implementation consultant. Create a comprehensive analytics setup plan based on these requirements.
 
-  output: {
-    enabled: false
+ANALYTICS CONTEXT:
+- Platform: {analytics_platform}
+- Metrics to Track: {analytics_metrics}
+- Goals: {analytics_goals}
+
+Generate a detailed analytics implementation plan:
+
+## 1. RECOMMENDED EVENTS TO TRACK
+List 10-15 specific events to implement, grouped by funnel stage:
+- Acquisition (landing, signup flow)
+- Activation (first value moment)
+- Retention (return visits, feature usage)
+- Revenue (purchases, upgrades)
+
+## 2. KEY DASHBOARDS TO BUILD
+Design 3 essential dashboards:
+- Executive Dashboard (high-level KPIs)
+- Marketing Dashboard (channel performance)
+- Product Dashboard (user behavior)
+
+For each dashboard, list 5-7 specific charts/metrics.
+
+## 3. CONVERSION FUNNELS TO MONITOR
+Define 2-3 critical funnels with expected benchmarks:
+- Funnel name
+- Steps in the funnel
+- Industry benchmark conversion rates
+- Warning thresholds
+
+## 4. IMPLEMENTATION CHECKLIST
+Step-by-step setup guide for {analytics_platform}:
+- [ ] Account setup steps
+- [ ] Tracking code installation
+- [ ] Event implementation
+- [ ] Goal configuration
+- [ ] Dashboard creation
+
+## 5. COMMON PITFALLS TO AVOID
+Platform-specific mistakes and how to prevent them.
+
+## 6. 30-DAY ANALYTICS ROADMAP
+Week-by-week implementation plan to get analytics fully operational.`,
+
+    temperature: 0.7,
+    maxTokens: 2500
   },
 
-  help:   {
-      "examples": [
-          {
-              "scenario": "Example scenario",
-              "input": {
-                  "example": "sample input"
-              },
-              "output": "Sample output from AI"
-          }
-      ],
-      "commonMistakes": [
-          "Being too vague or generic",
-          "Not providing enough context",
-          "Forgetting key details",
-          "Not being specific about goals"
-      ]
+  output: {
+    enabled: true,
+    exportFilename: 'analytics-setup-plan',
+    displayFormat: 'text',
+    editable: true,
+    deletable: true,
+    exportable: true,
+    copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS product setting up Google Analytics 4',
+        input: {
+          analytics_platform: 'google',
+          analytics_metrics: ['visitors', 'conversion', 'retention'],
+          analytics_goals: 'Track signup funnel and identify where users drop off'
+        },
+        output: 'Events: page_view, signup_started, signup_completed, first_login, feature_used, subscription_started. Funnels: Landing→Signup (benchmark: 3-5%), Signup→First Value (benchmark: 40-60%). Dashboard: Daily signups, conversion by source, retention cohorts. Setup: GA4 property, GTM container, custom events via dataLayer.'
+      },
+      {
+        scenario: 'E-commerce store setting up Mixpanel',
+        input: {
+          analytics_platform: 'mixpanel',
+          analytics_metrics: ['pageviews', 'conversion', 'bounce_rate'],
+          analytics_goals: 'Understand purchase behavior and cart abandonment'
+        },
+        output: 'Events: product_viewed, add_to_cart, checkout_started, checkout_completed, purchase_completed. Funnels: View→Cart (benchmark: 8-12%), Cart→Purchase (benchmark: 30-40%). Dashboard: Revenue by source, cart abandonment rate, product performance. User properties: total_purchases, lifetime_value, last_purchase_date.'
+      }
+    ],
+    commonMistakes: [
+      'Tracking everything - more events = more noise. Start with 10-15 essential events tied to business outcomes, not 50 vanity metrics.',
+      'No event naming convention - "button_click" vs "Button Click" vs "buttonClick" creates chaos. Use snake_case consistently.',
+      'Forgetting user identification - anonymous visitors become users. Implement identify() call at signup to connect pre and post-signup behavior.',
+      'Not setting up goals/conversions - without goals, analytics is just data. Define what success looks like and track it.',
+      'Ignoring mobile vs desktop - user behavior differs dramatically. Always segment by device type in your reports.',
+      'No UTM discipline - campaigns without UTM parameters are invisible. Create a UTM naming convention and enforce it.'
+    ]
   }
 }
 
@@ -1274,9 +1403,8 @@ export const reviewROITask = {
       id: 'roi_period',
       type: 'select',
       label: 'Review Period',
-      
-      tooltip: 'Information about Review Period',
-      example: 'e.g., specific example here',options: [
+      tooltip: 'Select the time period to analyze. Monthly reviews catch issues early. Quarterly reviews show trends.',
+      options: [
         { value: 'week', label: 'Last Week' },
         { value: 'month', label: 'Last Month' },
         { value: 'quarter', label: 'Last Quarter' },
@@ -1287,74 +1415,149 @@ export const reviewROITask = {
       id: 'roi_revenue',
       type: 'number',
       label: 'Revenue Generated',
-      
-      tooltip: 'Information about Revenue Generated',
-      example: 'e.g., specific example here',placeholder: '50000',
+      tooltip: 'Total revenue attributable to marketing during this period. Include direct conversions and assisted conversions if tracked.',
+      placeholder: '50000',
       suffix: 'USD'
     },
     {
       id: 'roi_spending',
       type: 'number',
       label: 'Marketing Spend',
-      
-      tooltip: 'Information about Marketing Spend',
-      example: 'e.g., specific example here',placeholder: '10000',
+      tooltip: 'Total marketing investment: ad spend, tools, agency fees, content creation costs. Don\'t forget hidden costs like your time.',
+      placeholder: '10000',
       suffix: 'USD'
     },
     {
       id: 'roi_issues',
       type: 'textarea',
       label: 'Challenges / Concerns',
-      
-      tooltip: 'Information about Challenges / Concerns',
-      example: 'e.g., specific example here',placeholder: 'What challenges did you face?',
+      tooltip: 'What didn\'t work? High CPAs? Low conversion rates? Channel underperformance? Be specific so AI can address them.',
+      placeholder: 'What challenges did you face?',
       rows: 2
     }
   ],
 
   ai: {
-    template: `Analyze marketing ROI and create improvement plan:
+    template: `You are a marketing analytics consultant. Analyze this marketing ROI data and create a comprehensive improvement plan.
 
-Period: {roi_period}
-Revenue: ${'{roi_revenue}'}
-Spend: ${'{roi_spending}'}
-Challenges: {roi_issues}
+PERFORMANCE DATA:
+- Review Period: {roi_period}
+- Revenue Generated: ${'{roi_revenue}'} USD
+- Marketing Spend: ${'{roi_spending}'} USD
+- Challenges Faced: {roi_issues}
 
-Generate:
-1. ROI calculation and analysis
-2. Channel performance comparison
-3. Cost per acquisition analysis
-4. Profitability assessment
-5. Top 3 areas to improve
-6. Budget reallocation strategy
-7. 90-day improvement plan`,
+Provide a detailed ROI analysis:
 
-    temperature: 0.8,
-    maxTokens: 1500
+## 1. ROI CALCULATION & HEALTH CHECK
+
+**Core Metrics:**
+- ROI Percentage: ((Revenue - Spend) / Spend) × 100
+- Return per Dollar Spent
+- Break-even analysis
+
+**Health Assessment:**
+- Is this ROI sustainable?
+- How does it compare to industry benchmarks?
+- What's the trajectory (improving/declining)?
+
+## 2. PROFITABILITY BREAKDOWN
+
+**By Category:**
+- Gross margin impact
+- Customer acquisition cost (CAC) estimate
+- Lifetime value implications (if revenue represents new customers)
+
+**Red Flags:**
+- Warning signs in the numbers
+- Hidden costs that may not be captured
+
+## 3. ROOT CAUSE ANALYSIS
+
+Based on the challenges mentioned, identify:
+- Primary bottlenecks limiting ROI
+- Secondary factors contributing to issues
+- External factors (market, competition, seasonality)
+
+## 4. CHANNEL EFFICIENCY ANALYSIS
+
+If multiple channels are in use, evaluate:
+- Which channels likely drove the most revenue?
+- Where is spend potentially being wasted?
+- Channel mix optimization opportunities
+
+## 5. QUICK WINS (Next 7 Days)
+
+3 immediate actions to improve ROI:
+1. [Action] - Expected impact: X%
+2. [Action] - Expected impact: X%
+3. [Action] - Expected impact: X%
+
+## 6. 30-DAY IMPROVEMENT PLAN
+
+**Week 1:** [Focus area + specific actions]
+**Week 2:** [Focus area + specific actions]
+**Week 3:** [Focus area + specific actions]
+**Week 4:** [Focus area + specific actions]
+
+## 7. BUDGET REALLOCATION STRATEGY
+
+Recommended budget shifts:
+- Increase spend on: [channels/tactics]
+- Decrease spend on: [channels/tactics]
+- Test with small budget: [new opportunities]
+
+## 8. SUCCESS METRICS TO TRACK
+
+Key metrics to monitor going forward:
+- Leading indicators (predict future ROI)
+- Lagging indicators (confirm results)
+- Warning thresholds (when to take action)`,
+
+    temperature: 0.7,
+    maxTokens: 2500
   },
 
   output: {
     enabled: true,
     exportFilename: 'roi-analysis',
-    displayFormat: 'text'
+    displayFormat: 'text',
+    editable: true,
+    deletable: true,
+    exportable: true,
+    copyable: true
   },
 
-  help:   {
-      "examples": [
-          {
-              "scenario": "Example scenario",
-              "input": {
-                  "example": "sample input"
-              },
-              "output": "Sample output from AI"
-          }
-      ],
-      "commonMistakes": [
-          "Being too vague or generic",
-          "Not providing enough context",
-          "Forgetting key details",
-          "Not being specific about goals"
-      ]
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS company reviewing monthly ad spend ROI',
+        input: {
+          roi_period: 'month',
+          roi_revenue: 50000,
+          roi_spending: 12000,
+          roi_issues: 'High CPA on Facebook, low conversion from Google Ads'
+        },
+        output: 'ROI: 317% ($4.17 return per $1 spent). Health: Good but declining 15% from last month. Root cause: Facebook CPA up 40% due to iOS privacy changes. Quick wins: 1) Shift 30% of Facebook budget to LinkedIn (lower CPA for B2B), 2) Fix Google Ads landing page (bounce rate 78%), 3) Implement retargeting to warm leads.'
+      },
+      {
+        scenario: 'E-commerce store analyzing Q4 performance',
+        input: {
+          roi_period: 'quarter',
+          roi_revenue: 180000,
+          roi_spending: 45000,
+          roi_issues: 'Black Friday performed below expectations, high return rate'
+        },
+        output: 'ROI: 300% ($4 return per $1 spent). Health: Below target (350% goal). Issues: 18% return rate eating into margins. Root cause: Discount-driven customers have 3x higher return rate. 30-day plan: Shift from discount messaging to value messaging, implement stricter return policy display, segment email list by purchase behavior.'
+      }
+    ],
+    commonMistakes: [
+      'Only counting direct revenue - missing assisted conversions, brand lift, and long-term customer value. A customer who converts 6 months later still counts.',
+      'Forgetting hidden costs - your time, agency retainers, software subscriptions, content creation. True marketing spend is usually 20-40% higher than ad spend alone.',
+      'Comparing apples to oranges - paid ads show immediate ROI, content marketing takes 6+ months. Compare channels at appropriate time horizons.',
+      'Chasing vanity metrics - impressions and clicks don\'t pay bills. Focus on revenue, profit, and customer acquisition cost.',
+      'Not accounting for seasonality - Q4 always looks better for retail. Compare year-over-year, not month-over-month.',
+      'Ignoring customer quality - 100 customers at $100 each isn\'t the same as 10 customers at $1000 each. High-value customers have better LTV.'
+    ]
   }
 }
 
@@ -1388,21 +1591,7 @@ Please suggest:
     temperature: 0.8,
     maxTokens: 1200,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

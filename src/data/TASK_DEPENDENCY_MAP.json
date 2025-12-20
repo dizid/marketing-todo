@@ -1,4 +1,21 @@
 {
+  "experienceLevels": {
+    "beginner": {
+      "name": "Beginner",
+      "description": "Essential tasks for those new to sales & marketing",
+      "maxPhase": 3
+    },
+    "intermediate": {
+      "name": "Intermediate",
+      "description": "Full toolkit for those with marketing experience",
+      "maxPhase": 4
+    },
+    "advanced": {
+      "name": "Advanced",
+      "description": "Expert-level optimization and scaling (coming soon)",
+      "maxPhase": 4
+    }
+  },
   "phases": [
     {
       "phase": 1,
@@ -8,17 +25,20 @@
         {
           "id": "growth-5",
           "name": "Positioning & Messaging Map",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "premium-intro-1",
           "name": "Audience Research",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "growth-3",
           "name": "Competitor Intelligence",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         }
       ]
     },
@@ -30,32 +50,38 @@
         {
           "id": "growth-1",
           "name": "Lead Magnet Ideas",
-          "businessModels": ["saas", "service", "info-product"]
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "premium-1",
           "name": "High-Converting Offer Builder",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "premium-2",
           "name": "Sales Page Audit & Optimizer",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-4",
           "name": "Email Sales Sequence Builder",
-          "businessModels": ["saas", "service", "info-product"]
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-5",
           "name": "Cold Outreach Templates",
-          "businessModels": ["saas", "service"]
+          "businessModels": ["saas", "service"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-6",
           "name": "Sales Objection Handler",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         }
       ]
     },
@@ -67,42 +93,50 @@
         {
           "id": "growth-2",
           "name": "A/B Test Idea Generator",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "growth-4",
           "name": "Blog Post Generator",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "growth-6",
           "name": "Create Email Newsletter",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "growth-7",
           "name": "Social Media Content Plan",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "premium-7",
           "name": "Webinar Planning Checklist",
-          "businessModels": ["saas", "service", "info-product"]
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-8",
           "name": "Community Engagement Strategy",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "premium-9",
           "name": "Paid Ads Strategy",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-10",
           "name": "Landing Page Creator",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
         }
       ]
     },
@@ -114,32 +148,38 @@
         {
           "id": "premium-11",
           "name": "A/B Test Results Analyzer",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-12",
           "name": "Analytics Setup Guide",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-13",
           "name": "Channel Performance Analyzer",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-14",
           "name": "Conversion Rate Optimizer",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-15",
           "name": "ROI Calculator & Forecaster",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         },
         {
           "id": "premium-intro-3",
           "name": "Annual Marketing Plan",
-          "businessModels": ["all"]
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
         }
       ]
     }

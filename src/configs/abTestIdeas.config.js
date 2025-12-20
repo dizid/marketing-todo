@@ -492,21 +492,7 @@ Format with specific test ideas and implementation steps.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

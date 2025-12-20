@@ -13,7 +13,7 @@
         <div class="flex items-center gap-3">
           <span class="text-3xl font-black tracking-tighter">
             <span class="bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
-              ⚡ SalesTaskMaster
+              ⚡ Launchpilot
             </span>
           </span>
         </div>
@@ -331,7 +331,7 @@
           </span>
         </h2>
         <p class="text-xl sm:text-2xl text-cyberpunk-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-          Stop dreaming. Start doing. Launch your SalesTaskMaster dashboard today and turn your sales & marketing into a revenue-generating machine.
+          Stop dreaming. Start doing. Launch your Launchpilot dashboard today and turn your sales & marketing into a revenue-generating machine.
         </p>
 
         <button
@@ -350,7 +350,7 @@
     <!-- Footer -->
     <footer class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t-2 border-cyberpunk-primary/30 text-center">
       <p class="text-cyberpunk-text-secondary font-mono">
-        &copy; 2025 SalesTaskMaster. Built for online revenue makers.
+        &copy; 2025 Launchpilot. Built for online revenue makers.
       </p>
       <p class="text-cyberpunk-text-secondary/60 text-sm mt-2 font-mono">
         Make money. Take action. Win.

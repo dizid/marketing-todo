@@ -139,22 +139,8 @@ QUALITY STANDARDS:
     temperature: 0.7,
     maxTokens: 3500,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('launchpilot-projectData')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_name: data.productName || '',
-            app_description: data.productDescription || '',
-            target_audience: data.targetAudience || ''
-          }
-        }
-      } catch (e) {
-        console.error('[CompetitivePositioningBrief] Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
+    // Note: app_name, app_description, target_audience are now provided by getProjectContext() in aiGeneration.js
   },
 
   output: {

@@ -80,9 +80,18 @@
 
       <!-- Payment Methods Info -->
       <div class="mt-6 rounded-lg bg-blue-50 p-3">
-        <p class="text-xs text-blue-900">
-          💳 We accept credit cards, debit cards, and PayPal. Your payment is
-          secured by Stripe.
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm">💳</span>
+          <span class="text-xs font-medium text-blue-900">Accepted Payment Methods</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 mb-2">
+          <span class="text-xs text-blue-800">Cards</span>
+          <span class="text-xs text-blue-800">Google Pay</span>
+          <span class="text-xs text-blue-800">Apple Pay</span>
+          <span class="text-xs text-blue-800">PayPal</span>
+        </div>
+        <p class="text-xs text-blue-700">
+          Your payment is secured by Stripe. Payment options shown depend on your device and region.
         </p>
       </div>
     </div>
@@ -232,13 +241,12 @@ async function handlePayment() {
 
     const attemptPayment = async () => {
       try {
-        // Card Element doesn't require submitPayment() call
-        // Validation happens during confirmPayment()
-        console.log('[StripePaymentModal] Confirming payment with Card Element...')
+        // Payment Element handles validation automatically
+        console.log('[StripePaymentModal] Confirming payment with Payment Element...')
         const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
 
-        // Confirm payment directly with Stripe
-        // Card Element validates card input during this call
+        // Confirm payment with Stripe Payment Element
+        // Supports Cards, Google Pay, Apple Pay, PayPal based on dashboard config
         const paymentStatus = await stripeService.confirmPayment(
           clientSecret,
           props.userId

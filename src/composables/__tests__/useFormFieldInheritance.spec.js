@@ -19,8 +19,8 @@ describe('useFormFieldInheritance', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
         fieldMappings: {
-          'audience_field': 'target_audience',
-          'title_field': 'product_name'
+          'audience_field': CANONICAL_FIELDS.TARGET_AUDIENCE,
+          'title_field': CANONICAL_FIELDS.PRODUCT_NAME
         },
         requiredFields: ['audience_field', 'title_field']
       })
@@ -72,14 +72,14 @@ describe('useFormFieldInheritance', () => {
     it('should have correct required fields for paidAds preset', () => {
       composable = useFormFieldInheritance(projectId, 'paidAds')
       expect(composable.isRequired(CANONICAL_FIELDS.PRIMARY_GOAL)).toBe(true)
-      expect(composable.isRequired(CANONICAL_FIELDS.MARKETING_BUDGET)).toBe(true)
+      expect(composable.isRequired(CANONICAL_FIELDS.TARGET_AUDIENCE)).toBe(true)
     })
   })
 
   describe('Field Access', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
-        fieldMappings: { 'product_field': 'product_name' },
+        fieldMappings: { 'product_field': CANONICAL_FIELDS.PRODUCT_NAME },
         requiredFields: ['product_field']
       })
     })
@@ -125,13 +125,14 @@ describe('useFormFieldInheritance', () => {
   describe('Field Source Tracking', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
-        fieldMappings: { 'product_field': 'product_name' },
+        fieldMappings: { 'product_field': CANONICAL_FIELDS.PRODUCT_NAME },
         requiredFields: []
       })
     })
 
     it('should identify inherited fields', () => {
-      expect(composable.isInherited('product_field')).toBe(true) // Assumes inherited if not overridden
+      // Without project context loaded, there's no inherited value, so isInherited is false
+      expect(composable.isInherited('product_field')).toBe(false)
     })
 
     it('should track field source', () => {
@@ -149,8 +150,8 @@ describe('useFormFieldInheritance', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
         fieldMappings: {
-          'required_field': 'product_name',
-          'optional_field': 'product_description'
+          'required_field': CANONICAL_FIELDS.PRODUCT_NAME,
+          'optional_field': CANONICAL_FIELDS.PRODUCT_DESCRIPTION
         },
         requiredFields: ['required_field']
       })
@@ -175,7 +176,7 @@ describe('useFormFieldInheritance', () => {
     })
 
     it('should provide validation status', () => {
-      const status = composable.getValidationStatus
+      const status = composable.getValidationStatus.value
       expect(status).toHaveProperty('isValidated')
       expect(status).toHaveProperty('isValid')
       expect(status).toHaveProperty('requiredFieldsCount')
@@ -187,8 +188,8 @@ describe('useFormFieldInheritance', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
         fieldMappings: {
-          'product_field': 'product_name',
-          'audience_field': 'target_audience'
+          'product_field': CANONICAL_FIELDS.PRODUCT_NAME,
+          'audience_field': CANONICAL_FIELDS.TARGET_AUDIENCE
         },
         requiredFields: []
       })
@@ -210,14 +211,14 @@ describe('useFormFieldInheritance', () => {
     })
 
     it('should get inherited fields object', () => {
-      const inherited = composable.getInheritedFields
+      const inherited = composable.getInheritedFields.value
       expect(inherited).toBeDefined()
       expect(typeof inherited).toBe('object')
     })
 
     it('should get overridden fields object', () => {
       composable.setField('product_field', 'Override')
-      const overridden = composable.getOverriddenFields
+      const overridden = composable.getOverriddenFields.value
       expect(overridden['product_field']).toBe('Override')
     })
   })
@@ -225,13 +226,13 @@ describe('useFormFieldInheritance', () => {
   describe('Summary and State', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
-        fieldMappings: { 'product_field': 'product_name' },
+        fieldMappings: { 'product_field': CANONICAL_FIELDS.PRODUCT_NAME },
         requiredFields: ['product_field']
       })
     })
 
     it('should provide comprehensive summary', () => {
-      const summary = composable.getSummary
+      const summary = composable.getSummary.value
       expect(summary).toHaveProperty('totalFields')
       expect(summary).toHaveProperty('requiredFields')
       expect(summary).toHaveProperty('overriddenFields')
@@ -256,7 +257,7 @@ describe('useFormFieldInheritance', () => {
   describe('Advanced - Underlying Batch Composable', () => {
     beforeEach(() => {
       composable = useFormFieldInheritance(projectId, {
-        fieldMappings: { 'product_field': 'product_name' },
+        fieldMappings: { 'product_field': CANONICAL_FIELDS.PRODUCT_NAME },
         requiredFields: []
       })
     })

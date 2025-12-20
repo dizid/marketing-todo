@@ -9,6 +9,18 @@ export const positioningMapTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_market': 'targetAudience',
+    'transformation': 'primaryGoal',
+    'product_category': 'productType',
+    // Fields without canonical mapping (task-specific)
+    'competitors': null,
+    'unique_mechanism': null,
+    'proof_points': null,
+    'audience_sophistication': null
+  },
+
   what: 'Generate a complete positioning and messaging framework including positioning statement, unique value proposition, messaging pillars, elevator pitch variations, tagline options, problem/solution framework, before/after messaging, audience-specific messaging, objection-proof copy, and brand voice guidelines.',
 
   why: 'Positioning is the foundation of all marketing. Weak positioning = generic messaging = blending in. Strong positioning = instant clarity = standing out. Get this right and every marketing campaign becomes easier and more effective. Get it wrong and you\'ll compete on price alone.',
@@ -410,21 +422,7 @@ Format as actionable messaging frameworks with specific copy examples.`,
     temperature: 0.7,
     maxTokens: 3500,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

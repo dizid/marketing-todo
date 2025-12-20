@@ -9,6 +9,15 @@ export const competitorAnalysisTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'your_positioning': 'productDescription',
+    // Fields without canonical mapping (task-specific)
+    'main_competitors': null,
+    'competitive_advantages': null,
+    'intelligence_sources': null
+  },
+
   what: 'Receive a comprehensive competitive analysis including SWOT breakdown, messaging differentiation strategies, pricing comparison framework, feature gap analysis, market positioning map, and defensive moat-building tactics. Turn competitive intelligence into actionable growth opportunities.',
 
   why: 'Ignoring competitors = leaving money on the table. But obsessing over them = copying instead of innovating. Strategic competitive analysis reveals white space opportunities, defensive vulnerabilities, and offensive growth tactics that help you win without competing on price.',
@@ -388,21 +397,7 @@ Format with specific, actionable insights and monitoring tactics.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

@@ -234,6 +234,14 @@ describe('PaidAdsLaunchMiniApp', () => {
     })
 
     it('should generate targeting specifications', async () => {
+      // Set up valid wizard data to trigger platform recommendations
+      wrapper.vm.wizardData = {
+        monthly_budget: 1000,
+        primary_goal: 'sales',
+        timeline: 'two_weeks',
+        experience_level: 'some'
+      }
+
       wrapper.vm.generatedPlan = wrapper.vm.generateMockPlan()
 
       expect(wrapper.vm.generatedPlan.targetingSpecs).toBeTruthy()

@@ -9,6 +9,17 @@ export const offerBuilderTask = {
   category: 'sales',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'core_product': 'productName',
+    'customer_outcome': 'primaryGoal',
+    // Fields without canonical mapping (task-specific)
+    'existing_assets': null,
+    'target_price': null,
+    'guarantee_preference': null,
+    'urgency_approach': null
+  },
+
   what: 'Create a complete offer package that makes buying a no-brainer. Get product naming ideas, value stacking formulas, bonus recommendations, guarantee templates, pricing psychology tactics, and ready-to-use sales copy. Turn your product into an irresistible offer.',
 
   why: 'The same product can convert at 1% or 15% based purely on HOW you package and present it. Most entrepreneurs leave money on the table by under-pricing, weak guarantees, and no bonuses. A well-structured offer can 3-5x your conversion rate overnight without changing your product.',
@@ -780,21 +791,7 @@ Set these targets:
     temperature: 0.8,
     maxTokens: 4000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

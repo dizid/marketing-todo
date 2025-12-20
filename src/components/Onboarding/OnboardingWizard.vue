@@ -5,7 +5,7 @@
       <!-- Progress bar -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-gray-600">Step {{ currentStep }} of 5</span>
+          <span class="text-sm font-medium text-gray-600">Step {{ currentStep }} of 6</span>
           <span class="text-sm font-medium text-indigo-600">{{ progressPercentage }}% complete</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -63,6 +63,7 @@ import { useOnboardingStore } from '@/stores/onboardingStore'
 
 // Import step components
 import Step1ProductType from './Steps/Step1ProductType.vue'
+import StepExperience from './Steps/StepExperience.vue'
 import Step2Audience from './Steps/Step2Audience.vue'
 import Step3Goals from './Steps/Step3Goals.vue'
 import Step4Details from './Steps/Step4Details.vue'
@@ -77,10 +78,11 @@ const progressPercentage = computed(() => onboardingStore.progressPercentage)
 const currentStepComponent = computed(() => {
   const components = {
     1: Step1ProductType,
-    2: Step2Audience,
-    3: Step3Goals,
-    4: Step4Details,
-    5: Step5Signup
+    2: StepExperience,
+    3: Step2Audience,
+    4: Step3Goals,
+    5: Step4Details,
+    6: Step5Signup
   }
   return components[currentStep.value] || Step1ProductType
 })

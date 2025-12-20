@@ -12,6 +12,7 @@ import { logger } from '@/utils/logger'
 import { checkQuotaBeforeGeneration } from './aiQuotaService'
 import { useAuthStore } from '@/stores/authStore'
 import { useQuotaStore } from '@/stores/quotaStore'
+import { useProjectStore } from '@/stores/projectStore'
 
 /**
  * Generate AI content based on configuration
@@ -68,6 +69,31 @@ export async function generateAIContent(config, formData, options = {}) {
 }
 
 /**
+ * Get project context from Pinia store (SSOT Phase 5)
+ * Replaces localStorage.getItem('marketing-app-data') pattern
+ * @returns {Object} Project context with common AI placeholders
+ */
+function getProjectContext() {
+  try {
+    const projectStore = useProjectStore()
+    const settings = projectStore.currentProjectSettings || {}
+
+    return {
+      // Common placeholders used by AI prompts
+      app_description: settings.productDescription || settings.appDescription || settings.description || '',
+      company_name: settings.productName || settings.name || projectStore.projectName || '',
+      target_audience: settings.targetAudience || '',
+      primary_goal: settings.primaryGoal || settings.mainGoal || settings.goals || '',
+      product_name: settings.productName || projectStore.projectName || '',
+      product_description: settings.productDescription || settings.description || ''
+    }
+  } catch (err) {
+    logger.warn('[AIGeneration] Error getting project context from store:', err)
+    return {}
+  }
+}
+
+/**
  * Build prompt by replacing placeholders with form data and context
  * @param {string} template - Prompt template with {placeholder} syntax
  * @param {Object} formData - Form data from user input
@@ -88,7 +114,17 @@ function buildPrompt(template, formData, contextProvider) {
     }
   }
 
-  // Replace placeholders from context provider
+  // SSOT Phase 5: Inject project context from store (replaces localStorage)
+  // This provides common values like app_description, company_name, etc.
+  const projectContext = getProjectContext()
+  for (const [key, value] of Object.entries(projectContext)) {
+    const placeholder = `{${key}}`
+    if (prompt.includes(placeholder) && value) {
+      prompt = prompt.replace(new RegExp(placeholder, 'g'), value)
+    }
+  }
+
+  // Replace placeholders from context provider (can override project context)
   if (contextProvider && typeof contextProvider === 'function') {
     try {
       const context = contextProvider()

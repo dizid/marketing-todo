@@ -46,8 +46,9 @@ CREATE POLICY "Users can view their own business context audit"
   ON business_context_audit FOR SELECT
   USING (
     project_id IN (
-      SELECT id FROM project_data
-      WHERE project_data.user_id = auth.uid()
+      SELECT pd.id FROM project_data pd
+      JOIN projects p ON pd.project_id = p.id
+      WHERE p.user_id = auth.uid()
     )
   );
 

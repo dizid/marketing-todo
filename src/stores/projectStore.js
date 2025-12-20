@@ -1,11 +1,11 @@
 // Project Store - Pinia state management for projects
 // Manages: current project, all projects, project data
+// Uses normalized task storage (task_form_data, task_saved_items tables)
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useAuthStore } from './authStore'
 import { logger } from '@/utils/logger'
-import { useConflictDetection } from '@/composables/useConflictDetection'
 import {
   getProjects,
   getProject,
@@ -19,6 +19,12 @@ import {
   initializeProject
 } from '@/services/projectService.js'
 
+// Normalized task data service
+import {
+  saveTaskData,
+  getAllTaskData
+} from '@/services/taskDataService.js'
+
 export const useProjectStore = defineStore('project', () => {
   // State
   const projects = ref([])
@@ -27,10 +33,6 @@ export const useProjectStore = defineStore('project', () => {
   const projectData = ref({})
   const isLoading = ref(false)
   const error = ref(null)
-
-  // Phase 3 Task 3.4: Conflict detection state
-  const taskDataVersions = ref({}) // Track version of each task's data
-  const conflictDetection = useConflictDetection()
 
   // Get auth store for user info
   const authStore = useAuthStore()
@@ -91,6 +93,11 @@ export const useProjectStore = defineStore('project', () => {
     ''
   )
 
+  // Experience level for task recommendations (beginner, intermediate, advanced)
+  const experienceLevel = computed(() =>
+    currentProjectSettings.value?.experienceLevel || 'beginner'
+  )
+
   /**
    * Fetch all projects for current user
    */
@@ -126,7 +133,7 @@ export const useProjectStore = defineStore('project', () => {
       currentProjectId.value = projectId
       currentProject.value = project
 
-      // Load all project data
+      // Load project settings/tasks/content
       let allData = await getAllProjectData(projectId)
       projectData.value = allData
 
@@ -136,6 +143,11 @@ export const useProjectStore = defineStore('project', () => {
         allData = await getAllProjectData(projectId)
         projectData.value = allData
       }
+
+      // Load task form data from normalized storage
+      const taskData = await getAllTaskData(projectId)
+      projectData.value.taskData = taskData
+      logger.debug(`[ProjectStore] Loaded ${Object.keys(taskData).length} tasks`)
     } catch (err) {
       error.value = err.message
       logger.error('Error selecting project', err)
@@ -292,7 +304,8 @@ export const useProjectStore = defineStore('project', () => {
 
   /**
    * Update task-specific data (for mini-apps)
-   * Phase 3 Task 3.4: Includes conflict detection for concurrent edits
+   * Saves formData and savedItems to normalized storage
+   * Note: aiOutput is NOT stored - regenerated on demand
    */
   const updateTaskData = async (taskId, taskData) => {
     if (!currentProjectId.value) throw new Error('No project selected')
@@ -302,32 +315,23 @@ export const useProjectStore = defineStore('project', () => {
         projectData.value.taskData = {}
       }
 
+      // Only save formData and savedItems (not aiOutput)
+      const dataToSave = {
+        formData: taskData.formData,
+        savedItems: taskData.savedItems
+      }
+
       projectData.value.taskData[taskId] = {
         ...projectData.value.taskData[taskId],
-        ...taskData
+        ...dataToSave
       }
 
-      // Get current version for optimistic locking
-      const currentVersion = taskDataVersions.value[taskId] || 1
-
-      // Save to database with version tracking
-      await saveProjectTaskData(currentProjectId.value, projectData.value.taskData, currentVersion, taskId)
-
-      // Update version on successful save
-      if (!taskDataVersions.value[taskId]) {
-        taskDataVersions.value[taskId] = currentVersion
-      }
+      // Save to normalized storage
+      await saveTaskData(currentProjectId.value, taskId, dataToSave)
+      logger.debug(`[ProjectStore] Saved task: ${taskId}`)
     } catch (err) {
-      // Phase 3 Task 3.4: Detect conflicts
-      if (err?.status === 409 || err?.response?.status === 409) {
-        const conflictError = err?.data?.error || err?.response?.data?.error || {}
-        conflictDetection.detectConflict(err, taskId, taskDataVersions.value[taskId] || 1)
-        error.value = `Conflict: ${conflictDetection.getConflictMessage()}`
-        console.warn('[ProjectStore] Conflict detected on task:', taskId, conflictError)
-      } else {
-        error.value = err.message
-        console.error('Error updating task data:', err)
-      }
+      error.value = err.message
+      console.error('Error updating task data:', err)
       throw err
     }
   }
@@ -340,66 +344,6 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
-   * Save all task data to database
-   * Phase 3 Task 3.4: Includes optimistic locking with version parameter
-   * Helper function
-   */
-  const saveProjectTaskData = async (projectId, taskData, version = 1, taskId = null) => {
-    // Use Supabase to save with optimistic locking
-    const { data, error: err, status } = await import('@/utils/supabase').then(mod =>
-      mod.supabase
-        .from('project_data')
-        .upsert({
-          project_id: projectId,
-          key: 'taskData',
-          value: taskData,
-          version: version // Include version for optimistic locking
-        }, { onConflict: 'project_id,key' })
-        .select()
-    )
-
-    // Handle conflict detection
-    if (status === 409 || err?.code === '409') {
-      const conflictError = new Error('Concurrent edit conflict')
-      conflictError.status = 409
-      conflictError.taskId = taskId
-      conflictError.localVersion = version
-      throw conflictError
-    }
-
-    if (err) throw err
-    return data
-  }
-
-  /**
-   * Phase 3 Task 3.4: Reload task data from server to resolve conflicts
-   */
-  const reloadTaskData = async (taskId) => {
-    if (!currentProjectId.value) throw new Error('No project selected')
-
-    try {
-      const allData = await getAllProjectData(currentProjectId.value)
-      if (allData?.taskData) {
-        projectData.value.taskData = allData.taskData
-        // Reset version to server version
-        taskDataVersions.value[taskId] = 1
-        conflictDetection.clearConflict()
-      }
-    } catch (err) {
-      error.value = err.message
-      console.error('Error reloading task data:', err)
-      throw err
-    }
-  }
-
-  /**
-   * Phase 3 Task 3.4: Clear conflict state
-   */
-  const clearConflict = () => {
-    conflictDetection.clearConflict()
-  }
-
-  /**
    * Get next task recommendation based on user context and completed tasks
    */
   const getTaskRecommendation = async () => {
@@ -408,9 +352,10 @@ export const useProjectStore = defineStore('project', () => {
     try {
       const { getNextTaskRecommendation } = await import('@/services/taskRecommendationEngine.js')
 
-      // Get user context from settings
+      // Get user context from settings (including experience level)
       const userContext = {
-        productType: currentProjectSettings.value?.productType
+        productType: currentProjectSettings.value?.productType,
+        experienceLevel: experienceLevel.value
       }
 
       // Get completed task IDs
@@ -430,6 +375,31 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * Update experience level (beginner, intermediate, advanced)
+   */
+  const setExperienceLevel = async (level) => {
+    if (!currentProjectId.value) throw new Error('No project selected')
+
+    const validLevels = ['beginner', 'intermediate', 'advanced']
+    if (!validLevels.includes(level)) {
+      throw new Error(`Invalid experience level: ${level}. Must be one of: ${validLevels.join(', ')}`)
+    }
+
+    try {
+      const updatedSettings = {
+        ...currentProjectSettings.value,
+        experienceLevel: level
+      }
+      await updateProjectSettings(updatedSettings)
+      logger.info(`[ProjectStore] Experience level set to: ${level}`)
+    } catch (err) {
+      error.value = err.message
+      console.error('Error setting experience level:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     projects,
@@ -438,10 +408,6 @@ export const useProjectStore = defineStore('project', () => {
     projectData,
     isLoading,
     error,
-    // Phase 3 Task 3.4: Conflict detection state
-    taskDataVersions,
-    hasConflict: () => conflictDetection.hasConflict,
-    conflictInfo: () => conflictDetection.conflictInfo,
 
     // Computed
     currentProjectSettings,
@@ -457,6 +423,7 @@ export const useProjectStore = defineStore('project', () => {
     techStack,
     marketingBudget,
     teamSize,
+    experienceLevel,
 
     // Actions
     fetchProjects,
@@ -473,8 +440,6 @@ export const useProjectStore = defineStore('project', () => {
     getTaskData,
     addContent,
     getTaskRecommendation,
-    // Phase 3 Task 3.4: Conflict resolution actions
-    reloadTaskData,
-    clearConflict
+    setExperienceLevel
   }
 })

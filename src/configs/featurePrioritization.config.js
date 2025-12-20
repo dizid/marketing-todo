@@ -1,8 +1,9 @@
 export const featurePrioritizationTask = {
   id: 'feedback-3',
   name: 'Iterate on Features',
-  description: 'Prioritize features based on impact & effort',
+  description: 'Get AI-powered feature prioritization recommendations. Input your feature list with impact/effort scores and get strategic analysis.',
   category: 'feedback',
+  hasAI: true,
 
   // Freemium model - Premium tier task
   tier: 'premium',
@@ -17,7 +18,154 @@ export const featurePrioritizationTask = {
     { name: 'Nice to Have', color: '#f59e0b', description: 'Low impact, low effort - consider later' },
     { name: 'Time Sinks', color: '#ef4444', description: 'Low impact, high effort - avoid' }
   ],
-  output: { enabled: false },
+
+  form: [
+    {
+      id: 'features_json',
+      type: 'textarea',
+      label: 'List your feature ideas with scores',
+      placeholder: 'Dark mode (Impact: 3, Effort: 2)\nSlack integration (Impact: 5, Effort: 4)\nMobile app (Impact: 5, Effort: 5)\nBulk export (Impact: 3, Effort: 1)',
+      tooltip: 'List each feature with impact (1-5) and effort (1-5) scores. One per line.',
+      required: true,
+      rows: 8
+    },
+    {
+      id: 'product_description',
+      type: 'text',
+      label: 'What does your product do?',
+      placeholder: 'Email marketing tool for small businesses',
+      tooltip: 'One sentence description to help AI understand context',
+      required: true
+    },
+    {
+      id: 'business_stage',
+      type: 'select',
+      label: 'Current business stage',
+      tooltip: 'Your stage affects prioritization - early stage focuses on PMF, growth stage on scaling',
+      options: [
+        { value: 'pre-launch', label: 'Pre-launch (building MVP)' },
+        { value: 'early', label: 'Early stage (finding product-market fit)' },
+        { value: 'growth', label: 'Growth (scaling what works)' },
+        { value: 'mature', label: 'Mature (optimizing)' }
+      ],
+      required: true
+    },
+    {
+      id: 'primary_goal',
+      type: 'select',
+      label: 'Primary goal right now',
+      tooltip: 'Features should align with your main objective',
+      options: [
+        { value: 'retention', label: 'Improve retention' },
+        { value: 'acquisition', label: 'Acquire new users' },
+        { value: 'revenue', label: 'Increase revenue' },
+        { value: 'engagement', label: 'Boost engagement' },
+        { value: 'differentiation', label: 'Differentiate from competitors' }
+      ],
+      required: true
+    }
+  ],
+
+  ai: {
+    template: `You are a product strategy consultant. Analyze this feature list and provide prioritization recommendations.
+
+FEATURE IDEAS:
+{features_json}
+
+BUSINESS CONTEXT:
+- Product: {product_description}
+- Current stage: {business_stage}
+- Main goal: {primary_goal}
+
+Analyze each feature and provide:
+
+## 📊 IMPACT/EFFORT MATRIX ANALYSIS
+
+### QUICK WINS (High Impact, Low Effort) ✅
+[List features that belong here with reasoning]
+
+For each Quick Win:
+- **Feature:** [Name]
+- **Why High Impact:** [Specific reasoning]
+- **Why Low Effort:** [Technical reasoning]
+- **Recommended Timeline:** [Days/weeks]
+- **Success Metric:** [How to measure success]
+
+### MAJOR PROJECTS (High Impact, High Effort) 🎯
+[List features with reasoning]
+
+For each Major Project:
+- **Feature:** [Name]
+- **Why High Impact:** [Specific reasoning]
+- **Why High Effort:** [Technical complexity]
+- **Recommended Timeline:** [Weeks/months]
+- **Risk Factors:** [What could go wrong]
+- **Success Metric:** [How to measure]
+
+### NICE TO HAVE (Low Impact, Low Effort) 💭
+[List features with reasoning]
+- Consider for: [When to build these]
+
+### TIME SINKS (Low Impact, High Effort) ⚠️
+[List features with reasoning]
+- Recommendation: [Deprioritize or kill]
+
+---
+
+## 🎯 RECOMMENDED PRIORITIZATION
+
+**This Week:**
+1. [Feature] - [Why now]
+
+**This Month:**
+1. [Feature]
+2. [Feature]
+
+**Next Quarter:**
+1. [Feature]
+2. [Feature]
+
+**Deprioritize:**
+1. [Feature] - [Why]
+
+---
+
+## 💡 STRATEGIC INSIGHTS
+
+**Patterns I noticed:**
+- [Insight about user needs]
+- [Insight about technical debt]
+- [Insight about market opportunity]
+
+**Questions to consider:**
+1. [Strategic question]
+2. [Validation question]
+
+**Alternative approaches:**
+- [Different way to solve same problem with less effort]
+
+---
+
+## 📈 VALIDATION RECOMMENDATIONS
+
+Before building, validate:
+1. **[Feature]:** Talk to [X] users who asked for this
+2. **[Feature]:** Run survey asking [specific question]
+3. **[Feature]:** Build MVP version first to test demand`,
+
+    temperature: 0.7,
+    maxTokens: 3000
+  },
+
+  output: {
+    enabled: true,
+    exportFilename: 'feature-prioritization-analysis',
+    displayFormat: 'text',
+    editable: true,
+    deletable: true,
+    exportable: true,
+    copyable: true
+  },
 
   help: {
     examples: [

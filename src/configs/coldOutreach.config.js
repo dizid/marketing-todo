@@ -9,6 +9,16 @@ export const coldOutreachTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_persona': 'targetAudience',
+    'value_proposition': 'productDescription',
+    // Fields without canonical mapping (task-specific)
+    'outreach_channel': null,
+    'campaign_goal': null,
+    'email_count': null
+  },
+
   what: 'Get proven cold outreach templates for email, LinkedIn, and DMs. Includes 5 email variations, 4 LinkedIn message templates, follow-up sequences, personalization strategies, icebreaker tactics, and response handling scripts. Designed for high open rates and replies.',
 
   why: 'Cold outreach done right can generate 20-50+ qualified leads per month. But most cold messages get ignored or marked as spam. The difference between 0% and 30% response rates is the template structure, personalization level, and follow-up strategy.',
@@ -522,21 +532,8 @@ Format with ready-to-use templates and specific tactics.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context now auto-injected
+    // from projectStore in aiGeneration.js (app_description, company_name, etc.)
   },
 
   output: {

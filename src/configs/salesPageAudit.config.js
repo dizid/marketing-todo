@@ -9,6 +9,15 @@ export const salesPageAuditTask = {
   category: 'sales',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    // Fields without canonical mapping (task-specific, requires existing page)
+    'page_url': null,
+    'current_conversion_rate': null,
+    'traffic_sources': null,
+    'main_objections': null
+  },
+
   what: 'Receive a comprehensive audit of your sales page or landing page. Get a conversion scorecard, headline optimization suggestions, CTA improvements, trust element recommendations, mobile UX fixes, and heatmap interpretation guidance.',
 
   why: 'Most sales pages convert at 1-3%. Small changes can double or triple conversions. But most entrepreneurs don\'t know what to fix first. A systematic audit identifies the highest-impact improvements and prioritizes them.',
@@ -436,21 +445,7 @@ Format with specific copy examples and actionable fixes, not just theory.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {

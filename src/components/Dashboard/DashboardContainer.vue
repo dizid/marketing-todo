@@ -8,6 +8,9 @@
       <!-- Quota Status Card -->
       <QuotaStatusCard @upgrade-clicked="handleUpgradeClick" />
 
+      <!-- Experience Mode Toggle (Beginner/Intermediate) -->
+      <ExperienceModeToggle v-if="projectStore.currentProject" />
+
       <!-- No Project State -->
       <div v-if="!projectStore.currentProject" class="card p-12 text-center animate-fade-in">
         <p class="text-muted mb-4">No project selected. Create a new project to get started.</p>
@@ -46,10 +49,14 @@
         <TaskChecklistView
           :filtered-categories="filteredCategories"
           :project-tasks="projectStore.currentProjectTasks"
+          :hidden-task-count="hiddenTaskCount"
+          :hidden-task-preview="hiddenTaskPreview"
+          :experience-level="projectStore.experienceLevel"
           @task-checked="handleTaskUpdate"
           @task-removed="handleTaskRemoved"
           @task-opened="handleTaskOpened"
           @show-add-tasks="handleShowAddTasks"
+          @upgrade-to-intermediate="handleUpgradeToIntermediate"
         />
 
         <!-- Executive Summary Section -->
@@ -86,42 +93,20 @@
       @close="showAddTasksModal = false"
     />
 
-    <!-- Conflict Resolution Dialog (Phase 3 Task 3.4) -->
-    <div v-if="showConflictDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Concurrent Edit Conflict</h3>
-        <p class="text-sm text-gray-600 mb-4">
-          This task was edited by another user or in another window. How would you like to proceed?
-        </p>
+    <!-- Level Up Notification (when upgrading to intermediate) -->
+    <LevelUpNotification
+      :is-visible="showLevelUpNotification"
+      :unlocked-tasks="unlockedTasksForNotification"
+      @dismiss="showLevelUpNotification = false"
+    />
 
-        <div class="bg-amber-50 border border-amber-200 rounded p-3 mb-4">
-          <p class="text-sm text-amber-900">
-            {{ projectStore.conflictInfo()?.conflictMessage || 'Conflict detected during save' }}
-          </p>
-        </div>
-
-        <div class="space-y-3">
-          <button
-            @click="handleReloadConflict"
-            class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
-          >
-            Reload & Discard My Changes
-          </button>
-          <button
-            @click="handleKeepChanges"
-            class="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition font-medium text-sm"
-          >
-            Keep My Changes
-          </button>
-          <button
-            @click="() => { showConflictDialog = false; projectStore.clearConflict() }"
-            class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition font-medium text-sm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Graduation Prompt (when all beginner tasks completed) -->
+    <GraduationPrompt
+      :is-visible="showGraduationPrompt"
+      :completed-tasks="completedBeginnerTasks"
+      @stay-beginner="handleStayBeginner"
+      @upgrade="handleGraduationUpgrade"
+    />
   </div>
 </template>
 
@@ -139,7 +124,7 @@
  * Child components handle UI rendering only.
  */
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { useOnboardingStore } from '@/stores/onboardingStore'
@@ -159,6 +144,9 @@ import ActionButtonsSection from './ActionButtonsSection.vue'
 import TaskModal from '../Task/TaskModal.vue'
 import AddTasksModal from '../Project/AddTasksModal.vue'
 import NextTaskCard from '../TaskRecommendation/NextTaskCard.vue'
+import ExperienceModeToggle from './ExperienceModeToggle.vue'
+import LevelUpNotification from './LevelUpNotification.vue'
+import GraduationPrompt from './GraduationPrompt.vue'
 
 // Stores
 const projectStore = useProjectStore()
@@ -179,11 +167,8 @@ const summaryError = ref('')
 const showTaskModal = ref(false)
 const selectedTaskId = ref(null)
 
-// STATE - Save tracking (Phase 3 Task 3.2)
+// STATE - Save tracking
 const { isSaving, saveError, lastSaveTime, setSaving, setSaveError, clearError, recordSaveSuccess } = useSaveState()
-
-// STATE - Conflict detection (Phase 3 Task 3.4)
-const showConflictDialog = ref(false)
 
 // STATE - Add Tasks Modal
 const showAddTasksModal = ref(false)
@@ -194,7 +179,16 @@ const showRecommendation = ref(false)
 const taskRecommendation = ref(null)
 const recommendationDismissTimer = ref(null)
 
+// STATE - Level Up Notification
+const showLevelUpNotification = ref(false)
+const unlockedTasksForNotification = ref([])
+
+// STATE - Graduation Prompt (when all beginner tasks completed)
+const showGraduationPrompt = ref(false)
+const hasShownGraduationPrompt = ref(false)
+
 // Task categories data (global template - applies to all projects)
+// experienceLevels: 'beginner' = 10 essential tasks, 'intermediate' = all 24+ tasks
 const taskCategories = ref([
   {
     name: 'setup',
@@ -206,14 +200,16 @@ const taskCategories = ref([
         description: 'Profile ideal users and set acquisition targets.',
         aiPrompt: 'Suggest 3 personas and a 30-day plan for [app desc] to get 150 users.',
         hasAI: true,
-        miniAppId: 'define-audience'
+        miniAppId: 'define-audience',
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'setup-2',
         name: 'Set Up Landing Page',
         description: 'Build a simple site with features, screenshots, and sign-up form.',
         aiPrompt: 'Generate headline, 5 bullets, and CTA copy for landing page on [app desc].',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'setup-3',
@@ -221,7 +217,8 @@ const taskCategories = ref([
         description: 'Link social (X, LinkedIn, Reddit), email (Mailchimp), and analytics.',
         aiPrompt: '',
         hasAI: false,
-        miniAppId: 'connect-accounts'
+        miniAppId: 'connect-accounts',
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'setup-4',
@@ -229,7 +226,8 @@ const taskCategories = ref([
         description: 'Create demo video/screenshots and basic branding.',
         aiPrompt: '',
         hasAI: false,
-        miniAppId: 'prepare-assets'
+        miniAppId: 'prepare-assets',
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'setup-5',
@@ -237,7 +235,8 @@ const taskCategories = ref([
         description: 'Use Google Sheets for logging sign-ups and sources.',
         aiPrompt: '',
         hasAI: false,
-        miniAppId: 'tracking-sheet'
+        miniAppId: 'tracking-sheet',
+        experienceLevels: ['beginner', 'intermediate']
       }
     ]
   },
@@ -251,21 +250,24 @@ const taskCategories = ref([
         description: 'Plan and queue 4-6 updates on X/LinkedIn/Instagram.',
         aiPrompt: 'Generate 10 posts for [app desc] with hashtags, emojis, and sign-up links.',
         hasAI: true,
-        miniAppId: 'generate-posts'
+        miniAppId: 'generate-posts',
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'social-2',
         name: 'Engage Followers',
         description: 'Template responses for common interactions. Build community by engaging followers.',
         miniAppId: 'engage-followers',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'social-3',
         name: 'Run Giveaway/Contest',
         description: 'Launch a giveaway in 5 steps. Offer free access for shares and engagement.',
         miniAppId: 'giveaway',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -278,21 +280,24 @@ const taskCategories = ref([
         name: 'Write Blog Post',
         description: 'Create a compelling blog post with AI-guided structure and research',
         miniAppId: 'write-blog',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'content-2',
         name: 'Create Video Tutorial',
         description: 'Script a 2-minute product demo. Section-by-section guidance with timing targets.',
         miniAppId: 'video-script',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'content-3',
         name: 'Design Graphics',
         description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
         miniAppId: 'design-graphics',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -305,21 +310,24 @@ const taskCategories = ref([
         name: 'Post in Communities',
         description: 'Share on Reddit, Indie Hackers, Product Hunt, HackerNews, Dev.to. Community-specific tone guides.',
         miniAppId: 'community-posts',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'acq-2',
         name: 'Personalized Outreach',
         description: 'Email/DM 20-50 potential users. 5 proven cold outreach templates.',
         miniAppId: 'outreach',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'acq-3',
         name: 'Host Webinar/Q&A',
         description: 'Plan a 30-minute webinar. Structure, topics, and Q&A guidance.',
         miniAppId: 'webinar',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -332,21 +340,24 @@ const taskCategories = ref([
         name: 'Collect User Feedback',
         description: 'Send surveys or interviews to 10+ users. 5 survey type templates.',
         miniAppId: 'feedback-collection',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'feedback-2',
         name: 'Publish Product Updates',
         description: 'Share improvements and bug fixes. Track changelog across channels.',
         miniAppId: 'changelog',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'feedback-3',
         name: 'Iterate on Features',
         description: 'Prioritize user requests and refine product. Feature matrix with impact/effort.',
         miniAppId: 'feature-prioritization',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -359,21 +370,24 @@ const taskCategories = ref([
         name: 'Set Up Analytics',
         description: 'Track sign-ups, retention, engagement metrics. Setup guides for 5 tools.',
         miniAppId: 'analytics-setup',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'analytics-2',
         name: 'Optimize Channels',
         description: 'Analyze metrics by channel. Double down on high-performers.',
         miniAppId: 'channel-analyzer',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'analytics-3',
         name: 'Review ROI',
         description: 'Calculate cost-per-user and track ROI metrics. 5 key metrics to monitor.',
         miniAppId: 'roi-calculator',
-        hasAI: false
+        hasAI: false,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -386,14 +400,16 @@ const taskCategories = ref([
         name: 'Launch Paid Ads',
         description: 'Create and launch profitable paid advertising campaigns on Facebook, Google, and Instagram with AI-guided strategy.',
         miniAppId: 'paid-ads-launch',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'advertising-2',
         name: 'Optimize Paid Ads',
         description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
         miniAppId: 'paid-ads-optimize',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -406,35 +422,40 @@ const taskCategories = ref([
         name: 'Sales Funnel Blueprint',
         description: 'Design your complete sales funnel with proven conversion stages and psychology tactics.',
         miniAppId: 'funnel-blueprint',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'sales-2',
         name: 'High-Converting Offer Builder',
         description: 'Build a compelling offer including bonuses, guarantee, positioning, and pricing psychology.',
         miniAppId: 'offer-builder',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'sales-3',
         name: 'Objection Handling',
         description: 'Create powerful responses to every objection. Pre-emptively address common buyer hesitations.',
         miniAppId: 'objection-handling',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'sales-4',
         name: 'Email Sequence Designer',
         description: 'Write an automated email funnel that nurtures leads and drives conversions.',
         miniAppId: 'email-sequence',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'sales-5',
         name: 'Sales Page Audit',
         description: 'Get a conversion-focused audit of your sales page with specific optimization recommendations.',
         miniAppId: 'sales-page-audit',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       }
     ]
   },
@@ -447,48 +468,60 @@ const taskCategories = ref([
         name: 'Lead Magnet Builder',
         description: 'Create an irresistible lead magnet to build your email list 10x faster.',
         miniAppId: 'lead-magnet',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['beginner', 'intermediate']
       },
       {
         id: 'growth-2',
         name: 'Cold Outreach Campaigns',
         description: 'Design personalized cold outreach campaigns that get responses and build relationships.',
         miniAppId: 'cold-outreach',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'growth-3',
         name: 'Competitor Analysis',
         description: 'Analyze competitors\' strategies, positioning, and vulnerabilities to find your competitive edge.',
         miniAppId: 'competitor-analysis',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'growth-4',
         name: 'A/B Testing Ideas',
         description: 'Generate powerful testing hypotheses to improve every metric that matters.',
         miniAppId: 'ab-test-ideas',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['intermediate']
       },
       {
         id: 'growth-5',
         name: 'Positioning Map',
         description: 'Map your unique position in the market and craft positioning statements that stand out.',
         miniAppId: 'positioning-map',
-        hasAI: true
+        hasAI: true,
+        experienceLevels: ['beginner', 'intermediate']
       }
     ]
   }
 ])
 
-// COMPUTED - Filtered categories based on search and filters
+// COMPUTED - Filtered categories based on search, filters, AND experience level
 const filteredCategories = computed(() => {
+  const currentLevel = projectStore.experienceLevel || 'beginner'
+
   return taskCategories.value
     .filter(cat => !selectedCategory.value || cat.name === selectedCategory.value)
     .map(category => ({
       ...category,
       items: category.items
         .filter(item => {
+          // Experience level filter - hide tasks not available for current level
+          if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
+            return false
+          }
+
           // Search filter
           if (searchQuery.value) {
             const query = searchQuery.value.toLowerCase()
@@ -511,23 +544,114 @@ const filteredCategories = computed(() => {
     .filter(cat => cat.items.length > 0)
 })
 
-// COMPUTED - Task progress metrics
+// COMPUTED - Hidden tasks (only for beginners - shows what's available in intermediate)
+const hiddenTasks = computed(() => {
+  const currentLevel = projectStore.experienceLevel || 'beginner'
+  if (currentLevel !== 'beginner') return []
+
+  const hidden = []
+  taskCategories.value.forEach(category => {
+    category.items.forEach(item => {
+      if (item.experienceLevels && !item.experienceLevels.includes('beginner')) {
+        hidden.push({
+          id: item.id,
+          name: item.name,
+          category: category.label
+        })
+      }
+    })
+  })
+  return hidden
+})
+
+const hiddenTaskCount = computed(() => hiddenTasks.value.length)
+
+const hiddenTaskPreview = computed(() => {
+  return hiddenTasks.value.slice(0, 3).map(t => t.name)
+})
+
+// COMPUTED - Task progress metrics (only counts visible tasks for current experience level)
 const totalTasks = computed(() => {
+  const currentLevel = projectStore.experienceLevel || 'beginner'
   return taskCategories.value.reduce((sum, cat) => {
-    const activeItems = cat.items.filter(item => !projectStore.currentProjectTasks[item.id]?.removed)
+    const activeItems = cat.items.filter(item => {
+      // Must be visible for current experience level
+      if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
+        return false
+      }
+      // Must not be removed
+      return !projectStore.currentProjectTasks[item.id]?.removed
+    })
     return sum + activeItems.length
   }, 0)
 })
 
 const completedTasks = computed(() => {
+  const currentLevel = projectStore.experienceLevel || 'beginner'
+
+  // Get all visible task IDs for current experience level
+  const visibleTaskIds = new Set()
+  taskCategories.value.forEach(cat => {
+    cat.items.forEach(item => {
+      if (!item.experienceLevels || item.experienceLevels.includes(currentLevel)) {
+        visibleTaskIds.add(item.id)
+      }
+    })
+  })
+
   return Object.entries(projectStore.currentProjectTasks)
-    .filter(([taskId, taskData]) => taskData.checked && !taskData.removed)
+    .filter(([taskId, taskData]) => {
+      return taskData.checked && !taskData.removed && visibleTaskIds.has(taskId)
+    })
     .length
 })
 
 const progressPercentage = computed(() => {
   if (totalTasks.value === 0) return 0
   return Math.round((completedTasks.value / totalTasks.value) * 100)
+})
+
+// COMPUTED - Beginner tasks for graduation detection
+const beginnerTasks = computed(() => {
+  const tasks = []
+  taskCategories.value.forEach(cat => {
+    cat.items.forEach(item => {
+      if (item.experienceLevels && item.experienceLevels.includes('beginner')) {
+        tasks.push({
+          id: item.id,
+          name: item.name,
+          category: cat.label
+        })
+      }
+    })
+  })
+  return tasks
+})
+
+const completedBeginnerTasks = computed(() => {
+  return beginnerTasks.value.filter(task => {
+    const taskData = projectStore.currentProjectTasks[task.id]
+    return taskData?.checked && !taskData?.removed
+  })
+})
+
+const allBeginnerTasksCompleted = computed(() => {
+  if (beginnerTasks.value.length === 0) return false
+  return completedBeginnerTasks.value.length >= beginnerTasks.value.length
+})
+
+// Watch for beginner task completion to show graduation prompt
+watch(allBeginnerTasksCompleted, (isComplete) => {
+  // Only show if:
+  // 1. All beginner tasks are completed
+  // 2. User is still in beginner mode
+  // 3. We haven't already shown the prompt in this session
+  if (isComplete &&
+      projectStore.experienceLevel === 'beginner' &&
+      !hasShownGraduationPrompt.value) {
+    showGraduationPrompt.value = true
+    hasShownGraduationPrompt.value = true
+  }
 })
 
 // EVENT HANDLERS
@@ -578,90 +702,39 @@ const handleTaskOpened = (data) => {
 }
 
 /**
- * Handle task save (Phase 3 Task 3.2-3.4)
+ * Handle task save
  * Called when MiniAppShell emits save event (after debounce)
- * Coordinates save with:
- * - Save state tracking (isSaving, saveError, lastSaveTime)
- * - Polling pause/resume (via usePollingControl)
- * - Conflict detection for concurrent edits (Phase 3 Task 3.4)
- * - Error handling and retry
  */
 const handleTaskSave = async (saveData) => {
   try {
-    // Extract taskId and data from event
     const { taskId, data } = saveData
     if (!taskId || !data) {
       console.warn('[DashboardContainer] Invalid save data', saveData)
       return
     }
 
-    // Pause polling before save to prevent data race conditions
+    // Pause polling before save
     globalPollingControl.pausePolling(taskId)
 
-    // Start save operation
     setSaving(true)
     clearError()
 
     // Save to database via projectStore
     await projectStore.updateTaskData(taskId, data)
 
-    // Record successful save
     recordSaveSuccess()
     console.log(`[DashboardContainer] Task ${taskId} saved successfully`)
   } catch (error) {
-    // Phase 3 Task 3.4: Check if this is a conflict error
-    if (error?.status === 409 || error?.message?.includes('Conflict')) {
-      setSaveError(`Conflict: ${projectStore.conflictInfo()?.conflictMessage || 'Task was edited elsewhere'}`)
-      console.warn('[DashboardContainer] Conflict detected on task:', saveData?.taskId, error)
-      // Show conflict dialog - parent component should handle this with showConflictDialog ref
-      showConflictDialog.value = true
-    } else {
-      // Handle regular save error
-      setSaveError(error.message || 'Failed to save task')
-      console.error('[DashboardContainer] Save error:', error)
-    }
+    setSaveError(error.message || 'Failed to save task')
+    console.error('[DashboardContainer] Save error:', error)
   } finally {
-    // Stop saving indicator
     setSaving(false)
 
-    // Resume polling after save completes (even if error occurred)
+    // Resume polling after save
     if (saveData?.taskId) {
       globalPollingControl.resumePolling(saveData.taskId)
     }
   }
-}
-
-/**
- * Phase 3 Task 3.4: Handle conflict - reload latest data from server
- */
-const handleReloadConflict = async () => {
-  try {
-    if (selectedTaskId.value) {
-      await projectStore.reloadTaskData(selectedTaskId.value)
-      showConflictDialog.value = false
-      // Reload task modal with new data
-      if (showTaskModal.value) {
-        showTaskModal.value = false
-        // Give UI time to update, then reopen
-        setTimeout(() => {
-          showTaskModal.value = true
-        }, 100)
-      }
-      setSaveError('Data reloaded from server')
-    }
-  } catch (error) {
-    setSaveError('Failed to reload data: ' + error.message)
-    console.error('[DashboardContainer] Reload conflict error:', error)
-  }
-}
-
-/**
- * Phase 3 Task 3.4: Handle conflict - keep local changes and retry save
- */
-const handleKeepChanges = () => {
-  showConflictDialog.value = false
-  projectStore.clearConflict()
-  setSaveError('Conflict resolved - you kept your changes')
 }
 
 /**
@@ -758,6 +831,42 @@ const generateExecutiveSummary = async () => {
  */
 const handleUpgradeClick = () => {
   console.log('[Dashboard] Upgrade button clicked')
+}
+
+/**
+ * Handle upgrade to intermediate experience level
+ */
+const handleUpgradeToIntermediate = async () => {
+  try {
+    // Capture hidden tasks before level change (since hiddenTasks depends on current level)
+    unlockedTasksForNotification.value = [...hiddenTasks.value]
+
+    await projectStore.setExperienceLevel('intermediate')
+
+    // Show level-up notification after successful upgrade
+    showLevelUpNotification.value = true
+    console.log('[Dashboard] Upgraded to intermediate experience level')
+  } catch (error) {
+    console.error('Error upgrading experience level:', error)
+    showLevelUpNotification.value = false
+    unlockedTasksForNotification.value = []
+  }
+}
+
+/**
+ * Handle staying on beginner mode from graduation prompt
+ */
+const handleStayBeginner = () => {
+  showGraduationPrompt.value = false
+  console.log('[Dashboard] User chose to stay on beginner mode')
+}
+
+/**
+ * Handle upgrade from graduation prompt
+ */
+const handleGraduationUpgrade = async () => {
+  showGraduationPrompt.value = false
+  await handleUpgradeToIntermediate()
 }
 
 /**

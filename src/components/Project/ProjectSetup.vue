@@ -188,10 +188,8 @@ const handleSubmit = async () => {
   try {
     const project = await projectStore.createProject(form.value.name, form.value.description)
 
-    // Save app description to localStorage for AI features
-    localStorage.setItem('marketing-app-data', JSON.stringify({
-      appDescription: form.value.appDescription.trim()
-    }))
+    // SSOT Phase 5: Removed localStorage write - data saved to Supabase via projectStore
+    // Settings are saved below via updateProjectSettings() which persists to database
 
     // Save settings
     const settings = {

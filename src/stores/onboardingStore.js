@@ -18,14 +18,17 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     productName: '',
     productDescription: '',
 
-    // Step 2: Target audience
+    // Step 2: Experience level
+    experienceLevel: null, // 'beginner' or 'intermediate'
+
+    // Step 3: Target audience
     targetAudience: '',
 
-    // Step 3: Goals
+    // Step 4: Goals
     mainGoal: null,
     timeline: null,
 
-    // Step 4: Optional details
+    // Step 5: Optional details
     budget: null,
     teamSize: 'solo',
     techStack: [],
@@ -87,6 +90,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       productType: null,
       productName: '',
       productDescription: '',
+      experienceLevel: null,
       targetAudience: '',
       mainGoal: null,
       timeline: null,
@@ -100,7 +104,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   // Navigation
   const nextStep = () => {
-    if (currentStep.value < 5) {
+    if (currentStep.value < 6) {
       currentStep.value++
       saveToStorage()
     }
@@ -136,12 +140,14 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       case 1:
         return !!(wizardData.value.productType && wizardData.value.productName?.trim())
       case 2:
-        return !!(wizardData.value.targetAudience?.trim())
+        return !!(wizardData.value.experienceLevel) // Experience level selection
       case 3:
-        return !!(wizardData.value.mainGoal && wizardData.value.timeline)
+        return !!(wizardData.value.targetAudience?.trim())
       case 4:
-        return true // Optional step
+        return !!(wizardData.value.mainGoal && wizardData.value.timeline)
       case 5:
+        return true // Optional step
+      case 6:
         return true // Validation in component
       default:
         return false
@@ -150,7 +156,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   // Progress
   const progressPercentage = computed(() => {
-    return Math.round((currentStep.value / 5) * 100)
+    return Math.round((currentStep.value / 6) * 100)
   })
 
   // Time spent
@@ -189,6 +195,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
         productType: wizardData.value.productType,
         productName: wizardData.value.productName,
         productDescription: wizardData.value.productDescription,
+        experienceLevel: wizardData.value.experienceLevel,
         targetAudience: wizardData.value.targetAudience,
         mainGoal: wizardData.value.mainGoal,
         timeline: wizardData.value.timeline,

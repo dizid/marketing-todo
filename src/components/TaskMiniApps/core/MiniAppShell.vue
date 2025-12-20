@@ -6,6 +6,27 @@
       <p v-if="taskConfig.description" class="text-sm text-gray-600 mt-1">{{ taskConfig.description }}</p>
     </div>
 
+    <!-- Phase 6 Task 6.2: Inherited Fields Changed Banner -->
+    <div v-if="inheritanceSourceChanged" class="p-3 bg-blue-50 border border-blue-300 rounded-lg flex items-start gap-3">
+      <span class="text-lg flex-shrink-0">🔄</span>
+      <div class="flex-1">
+        <p class="text-sm font-medium text-blue-900">Project settings have changed</p>
+        <p class="text-sm text-blue-700 mt-1">Some inherited fields may have updated values from your project context.</p>
+        <button
+          @click="reloadInheritedFields"
+          class="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Reload Inherited Values
+        </button>
+        <button
+          @click="dismissInheritanceNotice"
+          class="mt-2 ml-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+
     <!-- Validation Error Banner (Phase 3 Task 3.3) -->
     <div v-if="validationError" class="p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-start gap-3">
       <span class="text-lg flex-shrink-0">⚠️</span>
@@ -98,11 +119,15 @@ const formData = ref({ ...props.taskData.formData || {} })
 const inheritanceMetadata = ref({})
 const validationError = ref(null)
 
+// Phase 6 Task 6.2: Track if inheritance sources have changed
+const inheritanceSourceChanged = ref(false)
+const lastKnownSettingsSnapshot = ref(null)
+
 // Phase 3 Task 3.5: Track unsaved changes
 const unsavedChanges = useUnsavedChanges(props.taskData.formData || {})
 
 // Initialize field inheritance if fieldMappings are configured
-const initializeInheritance = async () => {
+const initializeInheritance = async (forceReload = false) => {
   if (!props.taskConfig.fieldMappings) return
 
   const projectId = projectStore.currentProject?.id
@@ -126,8 +151,9 @@ const initializeInheritance = async () => {
     const mergedData = { ...currentData }
 
     // Apply inherited fields that aren't already in form data
+    // If forceReload, overwrite ALL inherited fields with new values
     Object.entries(inheritedFields.value).forEach(([fieldId, fieldInfo]) => {
-      if (!(fieldId in mergedData) || mergedData[fieldId] === null || mergedData[fieldId] === undefined) {
+      if (forceReload || !(fieldId in mergedData) || mergedData[fieldId] === null || mergedData[fieldId] === undefined) {
         mergedData[fieldId] = fieldInfo.value
       }
     })
@@ -135,6 +161,10 @@ const initializeInheritance = async () => {
 
     // Store inheritance metadata for UI indicators
     inheritanceMetadata.value = fieldInheritance.getSummary
+
+    // Phase 6 Task 6.2: Snapshot current settings for change detection
+    lastKnownSettingsSnapshot.value = JSON.stringify(projectStore.currentProjectSettings || {})
+    inheritanceSourceChanged.value = false
   } catch (err) {
     console.error('[MiniAppShell] Error initializing field inheritance:', err)
     // Silently fail - inheritance is optional enhancement
@@ -156,9 +186,14 @@ const isFormValid = computed(() => {
 let saveTimeout = null
 
 const emitSave = (newData) => {
+  // SSOT Phase 4: Emit save event with form data and saved items
+  // NOTE: aiOutput is passed but NOT persisted to database (regenerate on demand)
+  // The projectStore.updateTaskData() strips aiOutput before saving to:
+  // 1. task_form_data table (normalized storage - SSOT)
+  // 2. project_data blob (legacy, for migration safety)
   emit('save', {
     formData: newData,
-    aiOutput: aiOutput.value,
+    aiOutput: aiOutput.value,       // For UI state only, not persisted
     savedItems: savedItems.value
   })
 
@@ -205,6 +240,41 @@ watch(
     initializeInheritance()
   }
 )
+
+// Phase 6 Task 6.2: Watch for project settings changes
+// When project context changes while a task is open, show notification
+watch(
+  () => projectStore.currentProjectSettings,
+  (newSettings) => {
+    // Only check if task has fieldMappings (uses inheritance)
+    if (!props.taskConfig.fieldMappings) return
+
+    // Skip if no previous snapshot (first load)
+    if (!lastKnownSettingsSnapshot.value) return
+
+    // Compare with snapshot to detect actual changes
+    const newSnapshot = JSON.stringify(newSettings || {})
+    if (newSnapshot !== lastKnownSettingsSnapshot.value) {
+      // Settings have changed - show notification
+      inheritanceSourceChanged.value = true
+      console.log('[MiniAppShell] Project settings changed while task open')
+    }
+  },
+  { deep: true }
+)
+
+// Phase 6 Task 6.2: Reload inherited fields with new values
+const reloadInheritedFields = async () => {
+  await initializeInheritance(true) // forceReload = true
+  console.log('[MiniAppShell] Inherited fields reloaded from updated project context')
+}
+
+// Phase 6 Task 6.2: Dismiss the notification without reloading
+const dismissInheritanceNotice = () => {
+  // Update snapshot to current state (ignore the changes)
+  lastKnownSettingsSnapshot.value = JSON.stringify(projectStore.currentProjectSettings || {})
+  inheritanceSourceChanged.value = false
+}
 
 // Watch form data changes with debouncing
 // CRITICAL: Deep watch triggers on ANY nested property change
@@ -341,7 +411,11 @@ defineExpose({
   // Phase 3 Task 3.5: Expose unsaved changes state
   isDirty: unsavedChanges.isDirty,
   hasUnsavedChanges: () => unsavedChanges.isDirty.value,
-  getUnsavedWarning: unsavedChanges.getWarningMessage
+  getUnsavedWarning: unsavedChanges.getWarningMessage,
+  // Phase 6 Task 6.2: Expose inheritance change detection
+  inheritanceSourceChanged,
+  reloadInheritedFields,
+  dismissInheritanceNotice
 })
 </script>
 

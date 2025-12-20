@@ -274,7 +274,7 @@ export function createMockQuotaStore(overrides = {}) {
     fetchAIUsage: vi.fn().mockResolvedValue([]),
     trackAIUsage: vi.fn().mockResolvedValue(null),
     decrementQuota: vi.fn(),
-    upgradeToPresentation: vi.fn().mockResolvedValue(null),
+    verifyPremiumUpgrade: vi.fn().mockResolvedValue(null),
     cancelSubscription: vi.fn().mockResolvedValue(null),
     invalidateCache: vi.fn(),
     initialize: vi.fn().mockResolvedValue(null),

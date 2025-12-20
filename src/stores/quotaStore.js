@@ -39,6 +39,9 @@ export const useQuotaStore = defineStore('quota', () => {
   const FREE_TIER_QUOTA = 40 // 40 AI generations per month
   const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
 
+  // Guards against concurrent fetches
+  let _isFetchingAIUsage = false
+
   // ===== COMPUTED PROPERTIES =====
 
   // Tier information
@@ -191,6 +194,7 @@ export const useQuotaStore = defineStore('quota', () => {
 
   /**
    * Fetch AI usage for current user
+   * Includes guard against concurrent fetches to prevent race conditions
    */
   async function fetchAIUsage() {
     if (!authStore.user) {
@@ -198,6 +202,12 @@ export const useQuotaStore = defineStore('quota', () => {
       return []
     }
 
+    // Prevent concurrent fetches
+    if (_isFetchingAIUsage) {
+      return aiUsage.value
+    }
+
+    _isFetchingAIUsage = true
     try {
       const { data, error: fetchError } = await supabase
         .from('ai_usage')
@@ -213,6 +223,8 @@ export const useQuotaStore = defineStore('quota', () => {
       console.error('Failed to fetch AI usage:', err)
       aiUsage.value = []
       return []
+    } finally {
+      _isFetchingAIUsage = false
     }
   }
 
@@ -264,11 +276,11 @@ export const useQuotaStore = defineStore('quota', () => {
   }
 
   /**
-   * Upgrade subscription to premium
+   * Verify premium subscription after Stripe payment
    * Note: Subscription is created server-side by stripe-create-subscription function
-   * This just fetches the subscription to verify it was created
+   * This fetches the subscription to verify it was created successfully
    */
-  async function upgradeToPresentation() {
+  async function verifyPremiumUpgrade() {
     if (!authStore.user) {
       throw new Error('User not authenticated')
     }
@@ -591,7 +603,7 @@ export const useQuotaStore = defineStore('quota', () => {
     fetchAIUsage,
     trackAIUsage,
     decrementQuota,
-    upgradeToPresentation,
+    verifyPremiumUpgrade,
     cancelSubscription,
     invalidateCache,
     initialize,

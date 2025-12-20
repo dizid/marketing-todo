@@ -28,27 +28,27 @@ describe('useFieldInheritance', () => {
 
   it('should detect inheritable fields', () => {
     composable = useFieldInheritance(projectId, taskId, CANONICAL_FIELDS.TARGET_AUDIENCE)
-    expect(composable.canInherit).toBe(true)
+    expect(composable.canInherit.value).toBe(true)
 
     const nonInheritableComposable = useFieldInheritance(projectId, taskId, CANONICAL_FIELDS.TECH_STACK)
-    expect(nonInheritableComposable.canInherit).toBe(false)
+    expect(nonInheritableComposable.canInherit.value).toBe(false)
   })
 
   it('should set and clear overrides', () => {
     composable = useFieldInheritance(projectId, taskId, fieldName)
 
     // Initially no override
-    expect(composable.hasOverride).toBe(false)
+    expect(composable.hasOverride.value).toBe(false)
 
     // Set override
     const result = composable.setOverride('Test Audience')
     expect(result.isValid).toBe(true)
-    expect(composable.hasOverride).toBe(true)
-    expect(composable.fieldValue).toBe('Test Audience')
+    expect(composable.hasOverride.value).toBe(true)
+    expect(composable.fieldValue.value).toBe('Test Audience')
 
     // Clear override
     composable.clearOverride()
-    expect(composable.hasOverride).toBe(false)
+    expect(composable.hasOverride.value).toBe(false)
   })
 
   it('should validate override values', () => {
@@ -68,15 +68,15 @@ describe('useFieldInheritance', () => {
     composable = useFieldInheritance(projectId, taskId, fieldName)
 
     // No value initially
-    expect(composable.getSource).toBe(null)
+    expect(composable.getSource.value).toBe(null)
 
     // Set override
     composable.setOverride('Override Value')
-    expect(composable.getSource).toBe('override')
+    expect(composable.getSource.value).toBe('override')
 
     // Clear override
     composable.clearOverride()
-    expect(composable.getSource).toBe(null)
+    expect(composable.getSource.value).toBe(null)
   })
 
   it('should provide inheritance chain information', () => {
@@ -107,7 +107,7 @@ describe('useFieldInheritance', () => {
   it('should initialize async without errors', async () => {
     composable = useFieldInheritance(projectId, taskId, fieldName)
     const initResult = await composable.initialize()
-    expect(composable.isLoading).toBe(false)
+    expect(composable.isLoading.value).toBe(false)
   })
 })
 
@@ -135,7 +135,7 @@ describe('useFieldInheritanceBatch', () => {
   it('should get field values for multiple fields', () => {
     composable = useFieldInheritanceBatch(projectId, taskId, fieldNames)
 
-    const values = composable.getAllFieldValues
+    const values = composable.getAllFieldValues.value
     expect(values).toBeDefined()
     expect(Object.keys(values)).toContain(CANONICAL_FIELDS.TARGET_AUDIENCE)
     expect(Object.keys(values)).toContain(CANONICAL_FIELDS.PRIMARY_GOAL)
@@ -241,6 +241,6 @@ describe('useFieldInheritanceBatch', () => {
   it('should initialize async without errors', async () => {
     composable = useFieldInheritanceBatch(projectId, taskId, fieldNames)
     const initResult = await composable.initialize()
-    expect(composable.isLoading).toBe(false)
+    expect(composable.isLoading.value).toBe(false)
   })
 })

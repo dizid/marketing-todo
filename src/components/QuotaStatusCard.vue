@@ -64,8 +64,66 @@
       </div>
     </div>
 
-    <!-- Status Message -->
-    <div v-if="statusMessage" :class="['p-2 sm:p-3 border mb-6 text-xs sm:text-sm', statusMessageClasses]">
+    <!-- Warning Banners based on quota percentage -->
+    <!-- 75% Warning -->
+    <div
+      v-if="quotaPercentage >= 75 && quotaPercentage < 90 && quotaStore.isFree"
+      class="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 mb-6"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-yellow-500">⚠️</span>
+        <p class="text-sm text-yellow-300">
+          You've used {{ quotaStore.currentMonthUsage }} of {{ quotaStore.currentQuotaLimit }} AI tasks this month.
+        </p>
+      </div>
+    </div>
+
+    <!-- 90% Urgent Warning -->
+    <div
+      v-if="quotaPercentage >= 90 && quotaStore.hasQuotaRemaining && quotaStore.isFree"
+      class="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 mb-6"
+    >
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="text-orange-500">🔥</span>
+          <p class="text-sm text-orange-300 font-medium">
+            Only {{ quotaStore.remainingQuota }} AI task{{ quotaStore.remainingQuota !== 1 ? 's' : '' }} remaining!
+          </p>
+        </div>
+        <button
+          @click="emit('upgrade-clicked')"
+          class="px-3 py-1 text-xs bg-orange-600 hover:bg-orange-500 text-white rounded-md transition-colors"
+        >
+          Upgrade Now
+        </button>
+      </div>
+    </div>
+
+    <!-- 100% Blocked State -->
+    <div
+      v-if="!quotaStore.hasQuotaRemaining && quotaStore.isFree"
+      class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 mb-6"
+    >
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-red-500 text-lg">🚫</span>
+        <p class="text-sm text-red-300 font-medium">
+          Monthly AI quota reached
+        </p>
+      </div>
+      <p class="text-xs text-gray-400 mb-3">
+        Resets {{ quotaStore.formattedResetDate }}. Upgrade to Professional for 200 tasks/month.
+      </p>
+      <PremiumUpgradeButton
+        variant="primary"
+        text="Upgrade to Professional - $19/mo"
+        :show-price="false"
+        @success="handleUpgradeSuccess"
+        @error="handleUpgradeError"
+      />
+    </div>
+
+    <!-- Status Message (for other cases) -->
+    <div v-if="statusMessage && quotaPercentage < 75" :class="['p-2 sm:p-3 border mb-6 text-xs sm:text-sm', statusMessageClasses]">
       <p class="font-medium">{{ statusMessage }}</p>
     </div>
 

@@ -32,20 +32,20 @@ import { useFieldInheritanceBatch } from './useFieldInheritance.js'
  */
 const MINIAPP_FIELD_MAPPINGS = {
   blog: {
-    fields: ['product_name', 'product_description', 'target_audience', 'primary_goal'],
-    required: ['product_name', 'target_audience']
+    fields: ['productName', 'productDescription', 'targetAudience', 'primaryGoal'],
+    required: ['productName', 'targetAudience']
   },
   webinar: {
-    fields: ['product_name', 'target_audience', 'primary_goal', 'target_timeline', 'team_size'],
-    required: ['product_name', 'target_audience']
+    fields: ['productName', 'targetAudience', 'primaryGoal', 'targetTimeline', 'teamSize'],
+    required: ['productName', 'targetAudience']
   },
   paidAds: {
-    fields: ['product_name', 'product_description', 'target_audience', 'primary_goal', 'marketing_budget'],
-    required: ['product_name', 'target_audience', 'primary_goal']
+    fields: ['productName', 'productDescription', 'targetAudience', 'primaryGoal', 'marketingBudget'],
+    required: ['productName', 'targetAudience', 'primaryGoal']
   },
   landingPage: {
-    fields: ['product_name', 'product_description', 'target_audience', 'primary_goal'],
-    required: ['product_name', 'product_description']
+    fields: ['productName', 'productDescription', 'targetAudience', 'primaryGoal'],
+    required: ['productName', 'productDescription']
   }
 }
 
@@ -78,12 +78,17 @@ export function useFormFieldInheritance(projectId, options = {}, logger = null) 
   // Get canonical field names from mappings
   const canonicalFields = Object.values(fieldMappings).filter(Boolean)
 
+  // Convert requiredFields from miniApp field IDs to canonical names for the batch composable
+  const canonicalRequiredFields = requiredFields.map((fieldId) => {
+    return fieldMappings[fieldId] || fieldId
+  })
+
   // Use batch composable with options
   const batchComposable = useFieldInheritanceBatch(
     projectId,
     null,
     canonicalFields,
-    { fieldMappings, requiredFields },
+    { fieldMappings, requiredFields: canonicalRequiredFields },
     logger
   )
 
@@ -216,8 +221,13 @@ export function useFormFieldInheritance(projectId, options = {}, logger = null) 
    * @returns {boolean} True if field is required
    */
   const isRequired = (fieldId) => {
+    // Check against both miniApp field ID and canonical name
+    if (requiredFields.includes(fieldId)) {
+      return true
+    }
+    // Also check if canonical name is in requiredFields
     const canonicalName = fieldMappings[fieldId] || fieldId
-    return batchComposable.isFieldRequired(canonicalName)
+    return requiredFields.includes(canonicalName)
   }
 
   /**

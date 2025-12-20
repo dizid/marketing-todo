@@ -30,32 +30,32 @@ describe('OnboardingMigrationService', () => {
     it('should transform basic wizard data to context format', () => {
       const transformed = service.transformWizardToContext(mockWizardData)
 
-      expect(transformed.product_name).toBe('Test Product')
-      expect(transformed.product_type).toBe('saas')
-      expect(transformed.product_description).toBe('A test product')
-      expect(transformed.target_audience).toBe('Developers')
+      expect(transformed.productName).toBe('Test Product')
+      expect(transformed.productType).toBe('saas')
+      expect(transformed.productDescription).toBe('A test product')
+      expect(transformed.targetAudience).toBe('Developers')
     })
 
     it('should transform goals and timeline', () => {
       const transformed = service.transformWizardToContext(mockWizardData)
 
-      expect(transformed.primary_goal).toBe('first_100')
-      expect(transformed.target_timeline).toBe('3_months')
+      expect(transformed.primaryGoal).toBe('first_100')
+      expect(transformed.targetTimeline).toBe('3_months')
     })
 
     it('should transform team and stage information', () => {
       const transformed = service.transformWizardToContext(mockWizardData)
 
-      expect(transformed.marketing_budget).toBe(5000)
-      expect(transformed.team_size).toBe('2-5')
-      expect(transformed.current_stage).toBe('building')
+      expect(transformed.marketingBudget).toBe(5000)
+      expect(transformed.teamSize).toBe('2-5')
+      expect(transformed.currentStage).toBe('building')
     })
 
     it('should transform tech stack', () => {
       const transformed = service.transformWizardToContext(mockWizardData)
 
-      expect(transformed.tech_stack).toBeDefined()
-      expect(transformed.tech_stack.tools).toEqual(['React', 'Node.js'])
+      expect(transformed.techStack).toBeDefined()
+      expect(transformed.techStack.tools).toEqual(['React', 'Node.js'])
     })
 
     it('should handle partial wizard data', () => {
@@ -66,9 +66,9 @@ describe('OnboardingMigrationService', () => {
 
       const transformed = service.transformWizardToContext(partial)
 
-      expect(transformed.product_name).toBe('Only Name')
-      expect(transformed.product_type).toBe('mobile_app')
-      expect(transformed.target_audience).toBeUndefined()
+      expect(transformed.productName).toBe('Only Name')
+      expect(transformed.productType).toBe('mobile_app')
+      expect(transformed.targetAudience).toBeUndefined()
     })
 
     it('should handle missing optional fields', () => {
@@ -80,14 +80,14 @@ describe('OnboardingMigrationService', () => {
       const transformed = service.transformWizardToContext(minimal)
 
       expect(Object.keys(transformed).length).toBe(2)
-      expect(transformed.product_name).toBe('Minimal')
+      expect(transformed.productName).toBe('Minimal')
     })
 
     it('should skip empty tech stack', () => {
       const data = { ...mockWizardData, techStack: [] }
       const transformed = service.transformWizardToContext(data)
 
-      expect(transformed.tech_stack).toBeUndefined()
+      expect(transformed.techStack).toBeUndefined()
     })
   })
 
@@ -250,7 +250,8 @@ describe('OnboardingMigrationService', () => {
 
       const result = service.validateCompleteness(partial)
 
-      expect(result.completionPercentage).toBeGreaterThan(50)
+      // 4 fields out of 9 total = ~44%
+      expect(result.completionPercentage).toBeGreaterThan(40)
       expect(result.completionPercentage).toBeLessThan(100)
     })
 
@@ -351,9 +352,9 @@ describe('OnboardingMigrationService', () => {
 
       const transformed = service.transformWizardToContext(data)
 
-      expect(transformed.product_name).toBe('Product')
-      expect(transformed.marketing_budget).toBeUndefined()
-      expect(transformed.tech_stack).toBeUndefined()
+      expect(transformed.productName).toBe('Product')
+      expect(transformed.marketingBudget).toBeUndefined()
+      expect(transformed.techStack).toBeUndefined()
     })
 
     it('should handle whitespace in mappings', () => {
@@ -366,7 +367,7 @@ describe('OnboardingMigrationService', () => {
       const data = { ...mockWizardData, budget: '5000' }
       const transformed = service.transformWizardToContext(data)
 
-      expect(transformed.marketing_budget).toBe(5000)
+      expect(transformed.marketingBudget).toBe(5000)
     })
 
     it('should handle empty strings', () => {
@@ -378,8 +379,8 @@ describe('OnboardingMigrationService', () => {
 
       const transformed = service.transformWizardToContext(data)
 
-      expect(transformed.product_name).toBeUndefined()
-      expect(transformed.target_audience).toBeUndefined()
+      expect(transformed.productName).toBeUndefined()
+      expect(transformed.targetAudience).toBeUndefined()
     })
   })
 

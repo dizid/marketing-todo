@@ -1,7 +1,15 @@
 /**
  * Stripe API Client
  * Handles Stripe.js initialization and payment processing
- * Mirrors pattern of GrokApiClient for consistency
+ *
+ * Supports multiple payment methods via Payment Element:
+ * - Credit/Debit Cards (Visa, Mastercard, Amex, etc.)
+ * - Google Pay (auto-detected on supported devices)
+ * - Apple Pay (auto-detected on Safari/iOS)
+ * - PayPal (when enabled in Stripe Dashboard)
+ *
+ * Payment methods shown depend on Stripe Dashboard configuration.
+ * Enable additional methods: Dashboard → Settings → Payment Methods
  */
 
 export class StripeApiClient {
@@ -51,18 +59,20 @@ export class StripeApiClient {
 
   /**
    * Initialize Payment Element for subscription creation
-   * Uses Card Element instead of Payment Element to avoid showing Stripe Link
+   * Uses Payment Element to support multiple payment methods:
+   * - Credit/Debit Cards
+   * - Google Pay
+   * - Apple Pay
+   * - PayPal (if enabled in Stripe Dashboard)
    * @param {string} clientSecret - Payment intent client secret from server
-   * @returns {HTMLElement} Card element DOM element
+   * @returns {HTMLElement} Payment element
    */
   async initializePaymentElement(clientSecret, appearance = {}) {
     if (!this.stripe) {
       throw new Error('Stripe not initialized. Call initialize() first.')
     }
 
-    // Create elements with appearance options
-    // NOTE: Do NOT pass clientSecret here - Card Element doesn't support it
-    // clientSecret is only used with confirmPayment() later
+    // Create elements with appearance options and client secret
     const defaultAppearance = {
       theme: 'stripe',
       variables: {
@@ -74,29 +84,27 @@ export class StripeApiClient {
       }
     }
 
+    // Initialize elements WITH clientSecret for Payment Element
     this.elements = this.stripe.elements({
+      clientSecret,
       appearance: { ...defaultAppearance, ...appearance }
     })
 
-    // Use Card Element for card-only payments, no Link/wallets
-    // Payment Element automatically includes Link which we don't want
-    // Card Element is simpler and avoids confusion between payment methods
-    this.paymentElement = this.elements.create('card', {
-      hidePostalCode: true,
-      style: {
-        base: {
-          fontSize: '16px',
-          color: '#424242',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          '::placeholder': {
-            color: '#cfcfcf'
-          }
-        },
-        invalid: {
-          color: '#fa755a'
-        }
+    // Use Payment Element for multi-payment method support
+    // Automatically includes Card, Google Pay, Apple Pay based on Stripe Dashboard config
+    this.paymentElement = this.elements.create('payment', {
+      layout: 'tabs',
+      // Payment methods shown are controlled by Stripe Dashboard settings
+      // Enable PayPal, Google Pay, Apple Pay in Dashboard → Settings → Payment Methods
+      wallets: {
+        applePay: 'auto',
+        googlePay: 'auto'
       }
     })
+
+    // Store client secret for later use
+    this.clientSecret = clientSecret
+
     return this.paymentElement
   }
 
@@ -129,10 +137,10 @@ export class StripeApiClient {
   }
 
   /**
-   * Confirm payment for subscription with Card Element
-   * Uses confirmCardPayment instead of confirmPayment (which requires Payment Element)
-   * @param {string} clientSecret - Payment intent client secret
-   * @param {string} returnUrl - URL to return to after payment
+   * Confirm payment with Payment Element
+   * Supports multiple payment methods: Cards, Google Pay, Apple Pay, PayPal
+   * @param {string} clientSecret - Payment intent client secret (optional if already set)
+   * @param {string} returnUrl - URL to return to after payment (for redirect-based methods)
    * @returns {Object} Confirmation result
    */
   async confirmPayment(clientSecret, returnUrl) {
@@ -140,14 +148,18 @@ export class StripeApiClient {
       throw new Error('Stripe not initialized')
     }
 
-    // Use confirmCardPayment for Card Element (not confirmPayment which needs Payment Element)
-    const { error, paymentIntent } = await this.stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: this.paymentElement,
-        billing_details: {
-          // Can add billing details here if needed
-        }
-      }
+    if (!this.elements) {
+      throw new Error('Payment elements not initialized. Call initializePaymentElement() first.')
+    }
+
+    // Use confirmPayment with Payment Element for multi-payment method support
+    // redirect: 'if_required' handles both redirect (PayPal, some cards with 3DS) and non-redirect flows
+    const { error, paymentIntent } = await this.stripe.confirmPayment({
+      elements: this.elements,
+      confirmParams: {
+        return_url: returnUrl || window.location.href
+      },
+      redirect: 'if_required'
     })
 
     if (error) {

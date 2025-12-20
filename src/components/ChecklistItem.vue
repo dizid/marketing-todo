@@ -112,6 +112,13 @@
         <div class="px-6 py-4" @click.stop>
           <div v-if="aiError" class="mb-4 p-3 bg-accent/20 border border-accent rounded-0">
             <p class="text-sm text-accent">{{ aiError }}</p>
+            <button
+              @click="handleGenerateAI"
+              :disabled="isGenerating"
+              class="mt-2 btn-accent text-sm"
+            >
+              {{ isGenerating ? 'Retrying...' : 'Retry' }}
+            </button>
           </div>
 
           <textarea
@@ -158,8 +165,9 @@
  * - Modal for viewing/editing AI output
  */
 
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { generateAIContent } from '@/services/aiGeneration'
+import { useProjectStore } from '@/stores/projectStore'
 
 // Props
 const props = defineProps({
@@ -181,7 +189,13 @@ const isGenerating = ref(false)
 const showAIModal = ref(false)
 const aiOutput = ref('')
 const aiError = ref('')
-const appDescription = ref('')
+
+// SSOT Phase 5: Get app description from projectStore instead of localStorage
+const projectStore = useProjectStore()
+const appDescription = computed(() => {
+  const settings = projectStore.currentProjectSettings || {}
+  return settings.productDescription || settings.appDescription || settings.description || ''
+})
 
 // Timeout tracking
 let copyResetTimeout = null
@@ -200,16 +214,7 @@ const handleRemoveTask = () => {
   emit('task-removed', { id: props.item.id })
 }
 
-/**
- * Load app description from local storage
- */
-const loadAppDescription = () => {
-  const stored = localStorage.getItem('marketing-app-data')
-  if (stored) {
-    const data = JSON.parse(stored)
-    appDescription.value = data.appDescription || ''
-  }
-}
+// SSOT Phase 5: Removed loadAppDescription() - now using computed from projectStore
 
 /**
  * Handle checkbox change
@@ -295,8 +300,7 @@ const copyAIOutput = (e) => {
   })
 }
 
-// Initialize on mount
-loadAppDescription()
+// SSOT Phase 5: Removed loadAppDescription() call - appDescription is now a computed from projectStore
 
 // Cleanup timeout on unmount
 onBeforeUnmount(() => {

@@ -185,7 +185,10 @@ describe('StripePaymentModal - Integration Tests', () => {
     })
 
     // Check for payment info
-    expect(wrapper.text()).toContain('accept credit cards')
+    expect(wrapper.text()).toContain('Accepted Payment Methods')
+    expect(wrapper.text()).toContain('Cards')
+    expect(wrapper.text()).toContain('Google Pay')
+    expect(wrapper.text()).toContain('Apple Pay')
     expect(wrapper.text()).toContain('PayPal')
     expect(wrapper.text()).toContain('Stripe')
   })

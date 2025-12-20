@@ -34,11 +34,11 @@ describe('Quota Model', () => {
 
   describe('Tier Limits', () => {
     it('returns correct limit for free tier', () => {
-      expect(freeQuota.getLimit()).toBe(20)
+      expect(freeQuota.getLimit()).toBe(40)
     })
 
     it('returns correct limit for premium tier', () => {
-      expect(premiumQuota.getLimit()).toBe(200)
+      expect(premiumQuota.getLimit()).toBe(400)
     })
 
     it('returns unlimited for enterprise tier', () => {
@@ -49,23 +49,23 @@ describe('Quota Model', () => {
 
   describe('Remaining Quota', () => {
     it('calculates remaining quota correctly', () => {
-      expect(freeQuota.getRemaining()).toBe(15) // 20 - 5
+      expect(freeQuota.getRemaining()).toBe(35) // 40 - 5
     })
 
     it('returns zero when quota exceeded', () => {
-      const exceeded = new Quota('free', 25)
+      const exceeded = new Quota('free', 45)
       expect(exceeded.getRemaining()).toBe(0)
     })
 
     it('returns full limit when no usage', () => {
       const fresh = new Quota('free', 0)
-      expect(fresh.getRemaining()).toBe(20)
+      expect(fresh.getRemaining()).toBe(40)
     })
   })
 
   describe('Quota Percentage', () => {
     it('calculates usage percentage correctly', () => {
-      const quota = new Quota('free', 10) // 50% usage
+      const quota = new Quota('free', 20) // 50% of 40
       expect(quota.getPercentage()).toBe(50)
     })
 
@@ -75,12 +75,12 @@ describe('Quota Model', () => {
     })
 
     it('returns 100% when at limit', () => {
-      const quota = new Quota('free', 20)
+      const quota = new Quota('free', 40)
       expect(quota.getPercentage()).toBe(100)
     })
 
     it('caps at 100% when exceeded', () => {
-      const quota = new Quota('free', 25)
+      const quota = new Quota('free', 45)
       expect(quota.getPercentage()).toBe(100)
     })
   })
@@ -91,12 +91,12 @@ describe('Quota Model', () => {
     })
 
     it('denies generation when quota exceeded', () => {
-      const exceeded = new Quota('free', 25)
+      const exceeded = new Quota('free', 45)
       expect(exceeded.canGenerate()).toBe(false)
     })
 
     it('detects exceeded quota', () => {
-      const exceeded = new Quota('free', 25)
+      const exceeded = new Quota('free', 45)
       expect(exceeded.isExceeded()).toBe(true)
     })
 
@@ -105,12 +105,12 @@ describe('Quota Model', () => {
     })
 
     it('detects near-limit status', () => {
-      const nearLimit = new Quota('free', 18) // 90% usage
+      const nearLimit = new Quota('free', 36) // 90% of 40
       expect(nearLimit.isNearLimit()).toBe(true)
     })
 
     it('allows generation at exactly limit', () => {
-      const atLimit = new Quota('free', 20)
+      const atLimit = new Quota('free', 40)
       expect(atLimit.canGenerate()).toBe(false)
     })
   })
@@ -127,9 +127,9 @@ describe('Quota Model', () => {
     })
 
     it('prevents over-recording', () => {
-      const quota = new Quota('free', 20)
+      const quota = new Quota('free', 40)
       quota.recordUsage()
-      expect(quota.usageThisMonth).toBe(21) // Allows over-recording
+      expect(quota.usageThisMonth).toBe(41) // Allows over-recording
     })
   })
 
@@ -137,13 +137,13 @@ describe('Quota Model', () => {
     it('upgrades tier correctly', () => {
       freeQuota.upgradeTo('premium')
       expect(freeQuota.tier).toBe('premium')
-      expect(freeQuota.getLimit()).toBe(200)
+      expect(freeQuota.getLimit()).toBe(400)
     })
 
     it('allows downgrade', () => {
       premiumQuota.upgradeTo('free')
       expect(premiumQuota.tier).toBe('free')
-      expect(premiumQuota.getLimit()).toBe(20)
+      expect(premiumQuota.getLimit()).toBe(40)
     })
 
     it('maintains usage when upgrading', () => {
@@ -168,20 +168,20 @@ describe('Quota Model', () => {
   describe('Display Messages', () => {
     it('generates appropriate message for under-limit', () => {
       const message = freeQuota.getDisplayMessage()
-      expect(message).toContain('15')
+      expect(message).toContain('35') // 40 - 5 = 35
       expect(message).toContain('of')
       expect(message).toContain('generations')
     })
 
     it('generates near-limit warning', () => {
-      const nearLimit = new Quota('free', 18)
+      const nearLimit = new Quota('free', 38) // 2 remaining
       const message = nearLimit.getDisplayMessage()
       expect(message).toContain('2')
       expect(message).toContain('of')
     })
 
     it('generates exceeded message', () => {
-      const exceeded = new Quota('free', 25)
+      const exceeded = new Quota('free', 45)
       const message = exceeded.getDisplayMessage()
       expect(message.toLowerCase()).toContain('exceeded')
     })

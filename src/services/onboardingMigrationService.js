@@ -190,16 +190,18 @@ export class OnboardingMigrationService {
     const mapping = {
       'mobile-app': 'mobile_app',
       mobile_app: 'mobile_app',
+      mobileapp: 'mobile_app',
       saas: 'saas',
       ecommerce: 'ecommerce',
       'e-commerce': 'ecommerce',
       game: 'game',
       'digital-product': 'digital_product',
       digital_product: 'digital_product',
+      digitalproduct: 'digital_product',
       other: 'other'
     }
 
-    return mapping[wizardType?.toLowerCase()] || null
+    return mapping[wizardType?.toLowerCase()?.trim()] || null
   }
 
   /**
@@ -224,7 +226,7 @@ export class OnboardingMigrationService {
       'pmf': 'validate'
     }
 
-    return mapping[wizardGoal?.toLowerCase()?.replace(/\s+/g, '-')] || null
+    return mapping[wizardGoal?.toLowerCase()?.trim()?.replace(/\s+/g, '-')] || null
   }
 
   /**
@@ -248,7 +250,7 @@ export class OnboardingMigrationService {
       'undefined': 'no_timeline'
     }
 
-    return mapping[wizardTimeline?.toLowerCase()?.replace(/\s+/g, '-')] || null
+    return mapping[wizardTimeline?.toLowerCase()?.trim()?.replace(/\s+/g, '-')] || null
   }
 
   /**
@@ -272,7 +274,7 @@ export class OnboardingMigrationService {
       'large': '10+'
     }
 
-    return mapping[wizardSize?.toLowerCase()?.replace(/\s+/g, '-')] || null
+    return mapping[wizardSize?.toLowerCase()?.trim()?.replace(/\s+/g, '-')] || null
   }
 
   /**
@@ -294,7 +296,7 @@ export class OnboardingMigrationService {
       'production': 'launched'
     }
 
-    return mapping[wizardStage?.toLowerCase()?.replace(/\s+/g, '-')] || null
+    return mapping[wizardStage?.toLowerCase()?.trim()?.replace(/\s+/g, '-')] || null
   }
 
   /**

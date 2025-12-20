@@ -2,8 +2,25 @@ import TASK_MAP from '@/data/TASK_DEPENDENCY_MAP.json'
 
 /**
  * Task Recommendation Engine
- * Intelligently recommends the next task based on user context and completed tasks
+ * Intelligently recommends the next task based on user context, completed tasks, and experience level
  */
+
+/**
+ * Get experience level configuration
+ * @param {string} level - Experience level (beginner, intermediate, advanced)
+ * @returns {Object} Experience level config
+ */
+export function getExperienceLevelConfig(level = 'beginner') {
+  return TASK_MAP.experienceLevels[level] || TASK_MAP.experienceLevels.beginner
+}
+
+/**
+ * Get all available experience levels
+ * @returns {Object} Experience levels configuration
+ */
+export function getExperienceLevels() {
+  return TASK_MAP.experienceLevels
+}
 
 /**
  * Get the current phase based on completed tasks
@@ -58,6 +75,32 @@ function filterByBusinessModel(tasks, userBusinessModel) {
 }
 
 /**
+ * Filter tasks by experience level
+ * @param {Array} tasks - Array of task objects
+ * @param {string} experienceLevel - User's experience level (beginner, intermediate, advanced)
+ * @returns {Array} Filtered tasks
+ */
+function filterByExperienceLevel(tasks, experienceLevel = 'beginner') {
+  return tasks.filter(task => {
+    // If task has no experienceLevels defined, include it for all levels
+    if (!task.experienceLevels || task.experienceLevels.length === 0) {
+      return true
+    }
+    return task.experienceLevels.includes(experienceLevel)
+  })
+}
+
+/**
+ * Get the maximum phase allowed for an experience level
+ * @param {string} experienceLevel - User's experience level
+ * @returns {number} Maximum phase number
+ */
+function getMaxPhaseForLevel(experienceLevel = 'beginner') {
+  const config = getExperienceLevelConfig(experienceLevel)
+  return config.maxPhase || 4
+}
+
+/**
  * Get tasks already completed in a phase
  * @param {Array} completedTaskIds - Array of completed task IDs
  * @param {Array} tasksInPhase - Tasks in the current/next phase
@@ -70,13 +113,18 @@ function getCompletedInPhase(completedTaskIds, tasksInPhase) {
 
 /**
  * Main recommendation function
- * @param {Object} user - User context with productType
+ * @param {Object} user - User context with productType and experienceLevel
  * @param {Array} completedTaskIds - Array of completed task IDs
  * @returns {Object} Recommendation with next task and progress info
  */
 export function getNextTaskRecommendation(user, completedTaskIds = []) {
+  // Ensure completedTaskIds is always an array
+  const completed = Array.isArray(completedTaskIds) ? completedTaskIds : []
+  const experienceLevel = user.experienceLevel || 'beginner'
+  const maxPhase = getMaxPhaseForLevel(experienceLevel)
+
   // Determine current phase
-  const currentPhase = getCurrentPhase(completedTaskIds)
+  const currentPhase = getCurrentPhase(completed)
 
   // If no tasks completed, start with Phase 1
   let nextPhase = currentPhase === 0 ? 1 : currentPhase
@@ -84,39 +132,64 @@ export function getNextTaskRecommendation(user, completedTaskIds = []) {
   // Get tasks in the next phase
   let nextPhaseTasks = getTasksInPhase(nextPhase)
 
-  // If next phase has no applicable tasks, move to next phase
+  // Apply both filters: business model AND experience level
   let filteredTasks = filterByBusinessModel(nextPhaseTasks, user.productType)
-  if (filteredTasks.length === 0 && nextPhase < 4) {
+  filteredTasks = filterByExperienceLevel(filteredTasks, experienceLevel)
+
+  // If next phase has no applicable tasks, move to next phase (respecting maxPhase)
+  if (filteredTasks.length === 0 && nextPhase < maxPhase) {
     nextPhase++
     nextPhaseTasks = getTasksInPhase(nextPhase)
     filteredTasks = filterByBusinessModel(nextPhaseTasks, user.productType)
+    filteredTasks = filterByExperienceLevel(filteredTasks, experienceLevel)
   }
 
   // Get the first available task (not yet completed)
-  const nextTask = filteredTasks.find(task => !completedTaskIds.includes(task.id))
+  const nextTask = filteredTasks.find(task => !completed.includes(task.id))
 
   if (!nextTask) {
-    // User has completed all tasks in this phase, suggest next phase
-    if (nextPhase < 4) {
-      return getNextTaskRecommendation(user, completedTaskIds.concat([]))
+    // Check if there are more phases available for this experience level
+    if (nextPhase < maxPhase) {
+      // Try next phase
+      for (let phase = nextPhase + 1; phase <= maxPhase; phase++) {
+        const phaseTasks = getTasksInPhase(phase)
+        let available = filterByBusinessModel(phaseTasks, user.productType)
+        available = filterByExperienceLevel(available, experienceLevel)
+        const uncompletedTask = available.find(task => !completed.includes(task.id))
+        if (uncompletedTask) {
+          return {
+            nextTask: {
+              id: uncompletedTask.id,
+              name: uncompletedTask.name,
+              phase: phase
+            },
+            currentPhase: currentPhase || 1,
+            experienceLevel,
+            maxPhase,
+            phaseProgress: calculatePhaseProgress(currentPhase || 1, user, completed, experienceLevel),
+            overallProgress: calculateOverallProgress(user, completed, experienceLevel, maxPhase),
+            alternatives: getAlternativeTasksInPhase(phase, uncompletedTask.id, user.productType, completed, experienceLevel)
+          }
+        }
+      }
     }
-    // All phases complete
+
+    // All phases complete for this experience level
     return {
       nextTask: null,
       currentPhase,
+      experienceLevel,
+      maxPhase,
       isComplete: true,
-      message: 'Congratulations! You\'ve completed all phases of the strategic journey.'
+      message: experienceLevel === 'beginner'
+        ? 'Great progress! You\'ve completed all beginner tasks. Switch to Intermediate mode to unlock more advanced tasks.'
+        : 'Congratulations! You\'ve completed all phases of the strategic journey.'
     }
   }
 
   // Calculate progress
-  const tasksInCurrentPhase = getTasksInPhase(currentPhase || 1)
-  const filteredCurrentPhase = filterByBusinessModel(tasksInCurrentPhase, user.productType)
-  const completedInPhase = getCompletedInPhase(completedTaskIds, filteredCurrentPhase)
-
-  const totalTasks = TASK_MAP.phases.reduce((sum, phase) => {
-    return sum + filterByBusinessModel(phase.tasks, user.productType).length
-  }, 0)
+  const phaseProgress = calculatePhaseProgress(currentPhase || 1, user, completed, experienceLevel)
+  const overallProgress = calculateOverallProgress(user, completed, experienceLevel, maxPhase)
 
   return {
     nextTask: {
@@ -125,17 +198,50 @@ export function getNextTaskRecommendation(user, completedTaskIds = []) {
       phase: nextPhase
     },
     currentPhase: currentPhase || 1,
-    phaseProgress: {
-      completed: completedInPhase.length,
-      total: filteredCurrentPhase.length,
-      percentage: filteredCurrentPhase.length > 0 ? Math.round((completedInPhase.length / filteredCurrentPhase.length) * 100) : 0
-    },
-    overallProgress: {
-      completed: completedTaskIds.length,
-      total: totalTasks,
-      percentage: totalTasks > 0 ? Math.round((completedTaskIds.length / totalTasks) * 100) : 0
-    },
-    alternatives: getAlternativeTasksInPhase(nextPhase, nextTask.id, user.productType, completedTaskIds)
+    experienceLevel,
+    maxPhase,
+    phaseProgress,
+    overallProgress,
+    alternatives: getAlternativeTasksInPhase(nextPhase, nextTask.id, user.productType, completed, experienceLevel)
+  }
+}
+
+/**
+ * Calculate phase progress
+ */
+function calculatePhaseProgress(phaseNumber, user, completedTaskIds, experienceLevel) {
+  const tasksInPhase = getTasksInPhase(phaseNumber)
+  let filtered = filterByBusinessModel(tasksInPhase, user.productType)
+  filtered = filterByExperienceLevel(filtered, experienceLevel)
+  const completedInPhase = getCompletedInPhase(completedTaskIds, filtered)
+
+  return {
+    completed: completedInPhase.length,
+    total: filtered.length,
+    percentage: filtered.length > 0 ? Math.round((completedInPhase.length / filtered.length) * 100) : 0
+  }
+}
+
+/**
+ * Calculate overall progress across all phases for the experience level
+ */
+function calculateOverallProgress(user, completedTaskIds, experienceLevel, maxPhase) {
+  let totalTasks = 0
+  let completedTasks = 0
+
+  for (const phase of TASK_MAP.phases) {
+    if (phase.phase > maxPhase) continue
+
+    let filtered = filterByBusinessModel(phase.tasks, user.productType)
+    filtered = filterByExperienceLevel(filtered, experienceLevel)
+    totalTasks += filtered.length
+    completedTasks += filtered.filter(t => completedTaskIds.includes(t.id)).length
+  }
+
+  return {
+    completed: completedTasks,
+    total: totalTasks,
+    percentage: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
   }
 }
 
@@ -145,11 +251,13 @@ export function getNextTaskRecommendation(user, completedTaskIds = []) {
  * @param {string} excludeTaskId - Task ID to exclude (already recommended)
  * @param {string} userBusinessModel - User's product type
  * @param {Array} completedTaskIds - Completed task IDs
+ * @param {string} experienceLevel - User's experience level
  * @returns {Array} Alternative tasks
  */
-function getAlternativeTasksInPhase(phaseNumber, excludeTaskId, userBusinessModel, completedTaskIds) {
+function getAlternativeTasksInPhase(phaseNumber, excludeTaskId, userBusinessModel, completedTaskIds, experienceLevel = 'beginner') {
   const tasksInPhase = getTasksInPhase(phaseNumber)
-  const filtered = filterByBusinessModel(tasksInPhase, userBusinessModel)
+  let filtered = filterByBusinessModel(tasksInPhase, userBusinessModel)
+  filtered = filterByExperienceLevel(filtered, experienceLevel)
 
   return filtered
     .filter(task => task.id !== excludeTaskId && !completedTaskIds.includes(task.id))
@@ -168,8 +276,10 @@ function getAlternativeTasksInPhase(phaseNumber, excludeTaskId, userBusinessMode
  * @returns {Array} Available tasks
  */
 export function getTasksForPhase(phaseNumber, user, completedTaskIds = []) {
+  const experienceLevel = user.experienceLevel || 'beginner'
   const tasksInPhase = getTasksInPhase(phaseNumber)
-  const filtered = filterByBusinessModel(tasksInPhase, user.productType)
+  let filtered = filterByBusinessModel(tasksInPhase, user.productType)
+  filtered = filterByExperienceLevel(filtered, experienceLevel)
 
   return filtered
     .filter(task => !completedTaskIds.includes(task.id))
@@ -177,4 +287,98 @@ export function getTasksForPhase(phaseNumber, user, completedTaskIds = []) {
       id: task.id,
       name: task.name
     }))
+}
+
+/**
+ * Get task counts by experience level (for UI display)
+ * @param {string} userBusinessModel - User's product type
+ * @returns {Object} Task counts per experience level
+ */
+export function getTaskCountsByExperienceLevel(userBusinessModel) {
+  const counts = {}
+
+  for (const [level, config] of Object.entries(TASK_MAP.experienceLevels)) {
+    let total = 0
+    for (const phase of TASK_MAP.phases) {
+      if (phase.phase > config.maxPhase) continue
+      let filtered = filterByBusinessModel(phase.tasks, userBusinessModel)
+      filtered = filterByExperienceLevel(filtered, level)
+      total += filtered.length
+    }
+    counts[level] = {
+      ...config,
+      taskCount: total
+    }
+  }
+
+  return counts
+}
+
+/**
+ * Check if a task is visible for a given experience level
+ * @param {string} taskId - Task ID to check
+ * @param {string} experienceLevel - Experience level (beginner, intermediate, advanced)
+ * @returns {boolean} Whether the task is visible for this level
+ */
+export function isTaskVisibleForLevel(taskId, experienceLevel = 'beginner') {
+  // Search through all phases for this task
+  for (const phase of TASK_MAP.phases) {
+    const task = phase.tasks.find(t => t.id === taskId)
+    if (task) {
+      // If no experienceLevels defined, visible for all
+      if (!task.experienceLevels || task.experienceLevels.length === 0) {
+        return true
+      }
+      return task.experienceLevels.includes(experienceLevel)
+    }
+  }
+  // Task not found in map - default to visible (legacy tasks)
+  return true
+}
+
+/**
+ * Get task experience level configuration by task ID
+ * @param {string} taskId - Task ID
+ * @returns {Object|null} Task config with experienceLevels array, or null if not found
+ */
+export function getTaskExperienceLevels(taskId) {
+  for (const phase of TASK_MAP.phases) {
+    const task = phase.tasks.find(t => t.id === taskId)
+    if (task) {
+      return {
+        id: task.id,
+        name: task.name,
+        experienceLevels: task.experienceLevels || ['beginner', 'intermediate', 'advanced'],
+        phase: phase.phase
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Get all tasks that are hidden for a given experience level
+ * @param {string} experienceLevel - Experience level (beginner, intermediate, advanced)
+ * @returns {Array} Array of hidden task objects with id, name, phase
+ */
+export function getHiddenTasksForLevel(experienceLevel = 'beginner') {
+  const hiddenTasks = []
+
+  for (const phase of TASK_MAP.phases) {
+    for (const task of phase.tasks) {
+      // Task is hidden if it has experienceLevels but doesn't include current level
+      if (task.experienceLevels &&
+          task.experienceLevels.length > 0 &&
+          !task.experienceLevels.includes(experienceLevel)) {
+        hiddenTasks.push({
+          id: task.id,
+          name: task.name,
+          phase: phase.phase,
+          phaseName: phase.name
+        })
+      }
+    }
+  }
+
+  return hiddenTasks
 }

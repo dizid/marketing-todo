@@ -29,14 +29,14 @@
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "premium-intro-1",
-          "name": "Audience Research",
+          "id": "setup-1",
+          "name": "Define Target Audience",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
           "id": "growth-3",
-          "name": "Competitor Intelligence",
+          "name": "Competitor Analysis",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         }
@@ -49,37 +49,37 @@
       "tasks": [
         {
           "id": "growth-1",
-          "name": "Lead Magnet Ideas",
+          "name": "Lead Magnet Builder",
           "businessModels": ["saas", "service", "info-product"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "premium-1",
+          "id": "sales-2",
           "name": "High-Converting Offer Builder",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "premium-2",
-          "name": "Sales Page Audit & Optimizer",
+          "id": "sales-5",
+          "name": "Sales Page Audit",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-4",
-          "name": "Email Sales Sequence Builder",
+          "id": "sales-4",
+          "name": "Email Sequence Designer",
           "businessModels": ["saas", "service", "info-product"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-5",
-          "name": "Cold Outreach Templates",
+          "id": "growth-2",
+          "name": "Cold Outreach Campaigns",
           "businessModels": ["saas", "service"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-6",
-          "name": "Sales Objection Handler",
+          "id": "sales-3",
+          "name": "Objection Handling",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         }
@@ -91,50 +91,50 @@
       "description": "Create and distribute content",
       "tasks": [
         {
-          "id": "growth-2",
-          "name": "A/B Test Idea Generator",
+          "id": "growth-4",
+          "name": "A/B Testing Ideas",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "growth-4",
-          "name": "Blog Post Generator",
+          "id": "content-1",
+          "name": "Write Blog Post",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "growth-6",
-          "name": "Create Email Newsletter",
+          "id": "sales-4",
+          "name": "Email Sequence Designer",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "growth-7",
-          "name": "Social Media Content Plan",
+          "id": "social-1",
+          "name": "Schedule Posts",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "premium-7",
-          "name": "Webinar Planning Checklist",
+          "id": "acq-3",
+          "name": "Host Webinar/Q&A",
           "businessModels": ["saas", "service", "info-product"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-8",
-          "name": "Community Engagement Strategy",
+          "id": "acq-1",
+          "name": "Post in Communities",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         },
         {
-          "id": "premium-9",
-          "name": "Paid Ads Strategy",
+          "id": "advertising-1",
+          "name": "Launch Paid Ads",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-10",
-          "name": "Landing Page Creator",
+          "id": "setup-2",
+          "name": "Set Up Landing Page",
           "businessModels": ["all"],
           "experienceLevels": ["beginner", "intermediate", "advanced"]
         }
@@ -146,38 +146,38 @@
       "description": "Measure and improve results",
       "tasks": [
         {
-          "id": "premium-11",
-          "name": "A/B Test Results Analyzer",
+          "id": "advertising-2",
+          "name": "Optimize Paid Ads",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-12",
-          "name": "Analytics Setup Guide",
+          "id": "analytics-1",
+          "name": "Set Up Analytics",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-13",
-          "name": "Channel Performance Analyzer",
+          "id": "analytics-2",
+          "name": "Optimize Channels",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-14",
-          "name": "Conversion Rate Optimizer",
+          "id": "feedback-3",
+          "name": "Iterate on Features",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-15",
-          "name": "ROI Calculator & Forecaster",
+          "id": "analytics-3",
+          "name": "Review ROI",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         },
         {
-          "id": "premium-intro-3",
-          "name": "Annual Marketing Plan",
+          "id": "sales-1",
+          "name": "Sales Funnel Blueprint",
           "businessModels": ["all"],
           "experienceLevels": ["intermediate", "advanced"]
         }

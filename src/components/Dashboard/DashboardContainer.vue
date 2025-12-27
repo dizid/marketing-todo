@@ -11,6 +11,9 @@
       <!-- Experience Mode Toggle (Beginner/Intermediate) -->
       <ExperienceModeToggle v-if="projectStore.currentProject" />
 
+      <!-- Welcome Banner (for beginners) -->
+      <WelcomeBanner v-if="projectStore.currentProject" />
+
       <!-- No Project State -->
       <div v-if="!projectStore.currentProject" class="card p-12 text-center animate-fade-in">
         <p class="text-muted mb-4">No project selected. Create a new project to get started.</p>
@@ -33,16 +36,6 @@
           :percentage="progressPercentage"
           :completed="completedTasks"
           :total="totalTasks"
-        />
-
-        <!-- Search and Filter -->
-        <SearchFilterBar
-          :search-query="searchQuery"
-          :selected-category="selectedCategory"
-          :selected-status="selectedStatus"
-          @search="searchQuery = $event"
-          @category-change="selectedCategory = $event"
-          @status-change="selectedStatus = $event"
         />
 
         <!-- Task Checklist -->
@@ -137,7 +130,6 @@ import { globalPollingControl } from '@/composables/usePollingControl'
 import ProjectHeader from '../Project/ProjectHeader.vue'
 import QuotaStatusCard from '../QuotaStatusCard.vue'
 import ProgressCard from './ProgressCard.vue'
-import SearchFilterBar from './SearchFilterBar.vue'
 import TaskChecklistView from './TaskChecklistView.vue'
 import ExecutiveSummarySection from './ExecutiveSummarySection.vue'
 import ActionButtonsSection from './ActionButtonsSection.vue'
@@ -147,16 +139,12 @@ import NextTaskCard from '../TaskRecommendation/NextTaskCard.vue'
 import ExperienceModeToggle from './ExperienceModeToggle.vue'
 import LevelUpNotification from './LevelUpNotification.vue'
 import GraduationPrompt from './GraduationPrompt.vue'
+import WelcomeBanner from './WelcomeBanner.vue'
 
 // Stores
 const projectStore = useProjectStore()
 const quotaStore = useQuotaStore()
 const onboardingStore = useOnboardingStore()
-
-// STATE - Filters
-const searchQuery = ref('')
-const selectedCategory = ref('')
-const selectedStatus = ref('')
 
 // STATE - Summary Generation
 const executiveSummary = ref(null)
@@ -507,39 +495,20 @@ const taskCategories = ref([
   }
 ])
 
-// COMPUTED - Filtered categories based on search, filters, AND experience level
+// COMPUTED - Filtered categories based on experience level only (simplified UX)
 const filteredCategories = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
 
   return taskCategories.value
-    .filter(cat => !selectedCategory.value || cat.name === selectedCategory.value)
     .map(category => ({
       ...category,
-      items: category.items
-        .filter(item => {
-          // Experience level filter - hide tasks not available for current level
-          if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
-            return false
-          }
-
-          // Search filter
-          if (searchQuery.value) {
-            const query = searchQuery.value.toLowerCase()
-            if (!item.name.toLowerCase().includes(query) &&
-                !item.description.toLowerCase().includes(query)) {
-              return false
-            }
-          }
-
-          // Status filter
-          if (selectedStatus.value) {
-            const isCompleted = projectStore.currentProjectTasks[item.id]?.checked || false
-            if (selectedStatus.value === 'completed' && !isCompleted) return false
-            if (selectedStatus.value === 'pending' && isCompleted) return false
-          }
-
-          return true
-        })
+      items: category.items.filter(item => {
+        // Experience level filter - hide tasks not available for current level
+        if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
+          return false
+        }
+        return true
+      })
     }))
     .filter(cat => cat.items.length > 0)
 })

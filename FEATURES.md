@@ -9,7 +9,7 @@
 Launchpilot is an all-in-one AI marketing platform that turns blank pages into launch-ready campaigns. Built for entrepreneurs, freelancers, webshop- and website owners who need professional results without the agency price tag.
 
 **What you get:**
-- 32 AI-powered marketing tasks covering sales, content, ads, and analytics (NYI all 32, WIP, beta)
+- 32 AI-powered marketing tasks covering sales, content, ads, and analytics
 - Interactive tools: Landing Page Builder, A/B Testing, Competitive Benchmarking
 - Smart recommendations that guide you through a proven 4-phase marketing journey
 - Business context system that makes AI outputs increasingly personalized
@@ -91,12 +91,13 @@ Create compelling offers that sell. Generate complete offer structures including
 - Urgency and scarcity elements
 
 **Sales Page Audit & Optimizer**
-Paste your sales page URL for a comprehensive audit:
+Paste your sales page URL for a comprehensive 12-section audit:
 - Conversion scorecard (headline, CTA, social proof, trust elements)
 - Mobile responsiveness check
 - Load time impact analysis
 - Specific copy improvements with before/after examples
 - Revenue impact calculations
+- 8 pro tips for iterative testing and optimization
 
 **Email Sales Sequence Builder**
 Generate complete email sequences for any scenario:
@@ -298,12 +299,14 @@ Identify and fix bottlenecks:
 - Implementation guides per fix
 
 **ROI Calculator & Forecaster**
-Financial analysis for campaigns:
-- Actual ROI calculations
-- Scenario modeling ("what if we 2x ad spend?")
-- Break-even analysis
-- Trend projections
-- Budget optimization recommendations
+Interactive financial analysis for marketing channels:
+- **Dynamic Channel Tracking**: Add unlimited marketing channels with spend, customers acquired, and revenue data
+- **Real-Time Calculations**: Instant CAC, LTV, LTV:CAC ratio, and payback period per channel
+- **Visual Comparison**: Bar chart ranking channels by efficiency with color-coded health status
+- **Metrics Dashboard**: Total spend, blended CAC, overall LTV:CAC, best/worst channel insights
+- **AI Budget Optimizer**: Get personalized recommendations for budget reallocation, growth scenarios, and ROI projections
+- **Scenario Modeling**: "What if we 2x ad spend?" with projected outcomes
+- **Export Reports**: Download complete ROI analysis with channel rankings
 
 ---
 
@@ -425,12 +428,65 @@ Multi-step visual content creation:
 
 ### ROI Calculator
 
-Financial planning tool:
-- Input campaign costs
-- Track revenue attribution
-- Calculate actual ROI
-- Model scenarios
-- Export reports
+Interactive marketing ROI analysis with real-time calculations:
+
+**Channel Management:**
+- Add/remove marketing channels dynamically
+- Input monthly spend per channel
+- Track customers acquired per channel
+- Set average revenue per customer
+- Configure customer lifetime and gross margins
+
+**Real-Time Metrics (Calculated Instantly):**
+- **CAC** (Customer Acquisition Cost) per channel
+- **LTV** (Lifetime Value) based on revenue × lifetime × margin
+- **LTV:CAC Ratio** with health status indicators
+- **Payback Period** in months
+- **ROI Percentage** per channel
+
+**Visual Dashboard:**
+- Metrics grid: Total Spend, Total Customers, Blended CAC, Overall LTV:CAC
+- Channel comparison bar chart (sorted by efficiency)
+- Color-coded health status (green = excellent, yellow = good, red = needs attention)
+- Best/Worst channel callouts with specific insights
+
+**AI Analysis:**
+- 10-section comprehensive report
+- Channel efficiency rankings
+- Budget reallocation recommendations
+- Growth scenario projections (conservative, moderate, aggressive)
+- Payback period optimization
+- Risk assessment and action priorities
+
+### Feedback Collection & Survey Generator
+
+AI-powered custom survey question generation:
+
+**What You Provide:**
+- Research goal (what you want to learn)
+- Target audience description
+- Survey type (NPS, customer satisfaction, product feedback, churn analysis, etc.)
+- Distribution channels (email, in-app, social, website popup, etc.)
+- Response goal and incentive budget
+- Existing hypotheses to validate
+
+**What AI Generates:**
+1. **Custom Survey Questions** (5-7 tailored questions with rationale for each)
+2. **Question Type Recommendations** (scale, open-text, multiple choice, ranking)
+3. **Question Flow Strategy** (easy → hard → sensitive progression)
+4. **Distribution Plan** (channel-specific tactics for your audience)
+5. **Outreach Templates** (email/message copy for each channel)
+6. **Incentive Recommendations** (based on audience and budget)
+7. **Response Analysis Framework** (how to categorize and prioritize feedback)
+8. **Hypothesis Validation Plan** (connecting questions to your assumptions)
+9. **Common Pitfalls** (specific to your survey type)
+10. **Action Plan Checklist** (next steps after collection)
+
+**Built-In Resources:**
+- Pre-made survey templates (NPS, CSAT, product feedback, churn)
+- Distribution strategy guides with pros/cons
+- Tool setup tutorials (Typeform, Google Forms, SurveyMonkey, Hotjar)
+- Best practices for each survey type
 
 ---
 
@@ -746,6 +802,9 @@ One task = one AI generation. Examples:
 - Performance analytics
 - AI image generation
 - Enhanced quota management
+- **ROI Calculator upgrade**: Interactive channel tracking with real-time CAC/LTV calculations, visual comparison charts, and AI budget optimization
+- **Feedback Collection upgrade**: AI-powered custom survey question generation with 10-section analysis, distribution strategies, and outreach templates
+- **Sales Page Audit enhancement**: Added 8 pro tips for iterative testing methodology
 
 ---
 

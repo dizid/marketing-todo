@@ -190,7 +190,7 @@ watch(() => projectStore.currentProjectSettings, (settings) => {
       // Use stored settings, then onboarding data, then extract from description
       targetAudience: settings.targetAudience || onboardingStore.wizardData.targetAudience || extractTargetAudienceFromDescription(props.project.description),
       goals: settings.goals || onboardingStore.wizardData.mainGoal || '',
-      techStack: settings.techStack || (onboardingStore.wizardData.techStack?.join(', ') || ''),
+      techStack: settings.techStack || (Array.isArray(onboardingStore.wizardData.techStack) ? onboardingStore.wizardData.techStack.join(', ') : (onboardingStore.wizardData.techStack || '')),
       timeline: settings.timeline || onboardingStore.wizardData.timeline || ''
     }
   }

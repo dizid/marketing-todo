@@ -1,19 +1,26 @@
 /**
  * Logger Utility - Environment-aware logging with security
  * Prevents logging of sensitive data in production
- * Integrates with error tracking services
+ * Integrates with Sentry for error tracking
  */
 
+import * as Sentry from '@sentry/vue'
+
 /**
- * Production error tracking - implement with your service (Sentry, LogRocket, etc)
+ * Production error tracking via Sentry
  * @param {string} message - Error message
  * @param {Error} err - Error object
- * @param {object} context - Additional context
+ * @param {object} context - Additional context (safe data only)
  */
 function trackErrorInService(message, err, context = {}) {
-  // TODO: Integrate with error tracking service
-  // Example: Sentry.captureException(err, { extra: context })
-  // For now, silently fail in production (don't expose in console)
+  if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.captureException(err || new Error(message), {
+      extra: {
+        message,
+        ...context
+      }
+    })
+  }
 }
 
 export const logger = {

@@ -692,7 +692,6 @@ const handleTaskSave = async (saveData) => {
     await projectStore.updateTaskData(taskId, data)
 
     recordSaveSuccess()
-    console.log(`[DashboardContainer] Task ${taskId} saved successfully`)
   } catch (error) {
     setSaveError(error.message || 'Failed to save task')
     console.error('[DashboardContainer] Save error:', error)
@@ -731,9 +730,7 @@ const handleStartRecommendedTask = (task) => {
  * Handle view roadmap button
  */
 const handleViewRoadmap = () => {
-  // TODO: Implement in v1.1 - for now just show a toast
-  console.log('[Task DNA] Roadmap view requested - implement in v1.1')
-  // Show toast: "Roadmap view coming in v1.1"
+  // TODO: Implement in v1.1
 }
 
 /**
@@ -799,7 +796,7 @@ const generateExecutiveSummary = async () => {
  * Handle upgrade button click
  */
 const handleUpgradeClick = () => {
-  console.log('[Dashboard] Upgrade button clicked')
+  // Triggers upgrade modal via QuotaStatusCard
 }
 
 /**
@@ -814,7 +811,6 @@ const handleUpgradeToIntermediate = async () => {
 
     // Show level-up notification after successful upgrade
     showLevelUpNotification.value = true
-    console.log('[Dashboard] Upgraded to intermediate experience level')
   } catch (error) {
     console.error('Error upgrading experience level:', error)
     showLevelUpNotification.value = false
@@ -827,7 +823,6 @@ const handleUpgradeToIntermediate = async () => {
  */
 const handleStayBeginner = () => {
   showGraduationPrompt.value = false
-  console.log('[Dashboard] User chose to stay on beginner mode')
 }
 
 /**

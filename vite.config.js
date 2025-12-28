@@ -17,18 +17,26 @@ export default defineConfig({
     proxy: {
       '/.netlify/functions': {
         target: 'http://localhost:9999',
-        changeOrigin: true,
-        // Fallback if port 9999 isn't available
-        rewrite: (path) => {
-          console.log('[proxy] Rewriting path:', path);
-          return path;
-        }
+        changeOrigin: true
       }
     }
   },
   build: {
     target: 'esnext',
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        // Code splitting - separate vendor chunks for better caching
+        manualChunks: {
+          // Vue core - always loaded
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          // Supabase - auth and database
+          'supabase': ['@supabase/supabase-js']
+        }
+      }
+    },
+    // Increase chunk size warning limit (default 500kb)
+    chunkSizeWarningLimit: 600
   }
 })

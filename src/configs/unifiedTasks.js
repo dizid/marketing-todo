@@ -348,46 +348,29 @@ Start each post on a new line after the separator.`,
     // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
 
     responseParser: (response) => {
-      console.log('[responseParser] Input response:', response.substring(0, 300))
       const posts = []
-
-      // Split by platform blocks
       const platformBlocks = response.split('[PLATFORM:')
-      console.log('[responseParser] platformBlocks count:', platformBlocks.length)
 
       for (let i = 1; i < platformBlocks.length; i++) {
         const block = platformBlocks[i]
-        console.log('[responseParser] Processing block', i, ':', block.substring(0, 150))
-
-        // Extract platform name (everything until the first newline)
         const platformMatch = block.match(/^([^\n]+)/)?.[1]?.trim()
-        console.log('[responseParser] platformMatch:', platformMatch)
 
-        if (!platformMatch) {
-          console.log('[responseParser] No platform match, skipping')
-          continue
-        }
+        if (!platformMatch) continue
 
-        // Get posts for this platform
-        // If there are --- separators, split by those, otherwise treat the whole block as one post
         let postTexts = []
         if (block.includes('---')) {
           postTexts = block
             .split('---')
-            .slice(1) // Skip the platform header line
+            .slice(1)
             .map(p => p.trim())
             .filter(p => p.length > 0)
         } else {
-          // No separators, treat everything after the platform line as one post
           const contentAfterPlatform = block.split('\n').slice(1).join('\n').trim()
           if (contentAfterPlatform) {
             postTexts = [contentAfterPlatform]
           }
         }
 
-        console.log('[responseParser] Found', postTexts.length, 'post texts for', platformMatch)
-
-        // Add each post
         for (const postText of postTexts) {
           posts.push({
             platform: platformMatch,
@@ -398,8 +381,7 @@ Start each post on a new line after the separator.`,
         }
       }
 
-      console.log('[responseParser] Final posts:', posts.length, posts)
-      return posts.length > 0 ? posts : response // Return raw response if parsing fails
+      return posts.length > 0 ? posts : response
     }
   },
 

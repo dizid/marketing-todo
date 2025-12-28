@@ -153,8 +153,6 @@ QUALITY STANDARDS:
           }
         }
 
-        console.log('[ExecutiveSummary] Parsed tasks:', tasks)
-
         return {
           summary: summary || responseText.substring(0, 300),
           tasks: tasks.slice(0, 5) // Limit to 5 tasks

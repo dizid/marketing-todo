@@ -100,7 +100,7 @@ describe('Experience Mode Feature', () => {
 
     it('should filter out intermediate-only tasks for beginners', () => {
       // Complete all Phase 1 beginner tasks
-      const phase1Completed = ['growth-5', 'premium-intro-1'] // Positioning + Audience Research
+      const phase1Completed = ['growth-5', 'setup-1'] // Positioning + Audience Research
       const result = getNextTaskRecommendation(beginnerUser, phase1Completed)
 
       // Should NOT recommend growth-3 (Competitor Intelligence) which is intermediate only
@@ -165,7 +165,7 @@ describe('Experience Mode Feature', () => {
 
     it('should include intermediate-only tasks', () => {
       // Complete Phase 1 beginner tasks to force engine to consider intermediate tasks
-      const phase1Completed = ['growth-5', 'premium-intro-1']
+      const phase1Completed = ['growth-5', 'setup-1']
       const result = getNextTaskRecommendation(intermediateUser, phase1Completed)
 
       // Should include growth-3 (Competitor Intelligence) which is intermediate
@@ -276,7 +276,7 @@ describe('Experience Mode Feature', () => {
       expect(result1.overallProgress.completed).toBe(1)
 
       // Complete two tasks
-      const result2 = getNextTaskRecommendation(beginnerUser, ['growth-5', 'premium-intro-1'])
+      const result2 = getNextTaskRecommendation(beginnerUser, ['growth-5', 'setup-1'])
       expect(result2.overallProgress.completed).toBe(2)
     })
   })

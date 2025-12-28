@@ -46,7 +46,7 @@ describe('Experience Mode Integration', () => {
       const intermediateUser = { productType: 'saas', experienceLevel: 'intermediate' }
 
       // Same completed tasks
-      const completed = ['growth-5', 'premium-intro-1']
+      const completed = ['growth-5', 'setup-1']
 
       const beginnerResult = getNextTaskRecommendation(beginnerUser, completed)
       const intermediateResult = getNextTaskRecommendation(intermediateUser, completed)
@@ -81,7 +81,7 @@ describe('Experience Mode Integration', () => {
 
   describe('Mode Switch Simulation', () => {
     it('should correctly handle mode switch mid-progress', () => {
-      const completedTasks = ['growth-5', 'premium-intro-1', 'premium-1']
+      const completedTasks = ['growth-5', 'setup-1', 'sales-2']
 
       // Start as beginner
       const beginnerResult = getNextTaskRecommendation(
@@ -131,7 +131,7 @@ describe('Experience Mode Integration', () => {
       expect(result1.currentPhase).toBeLessThanOrEqual(3)
 
       // Complete all Phase 1 beginner tasks
-      const phase1BeginnerTasks = ['growth-5', 'premium-intro-1']
+      const phase1BeginnerTasks = ['growth-5', 'setup-1']
       const result2 = getNextTaskRecommendation(user, phase1BeginnerTasks)
 
       // Should still be within phases 1-3
@@ -180,9 +180,9 @@ describe('Experience Mode Integration', () => {
       // Simulate completing all beginner tasks
       // (We need to get the actual task IDs)
       const allBeginnerTaskIds = [
-        'growth-5', 'premium-intro-1', // Phase 1
-        'growth-1', 'premium-1', // Phase 2
-        'growth-4', 'growth-6', 'growth-7', 'premium-8', 'premium-10' // Phase 3
+        'growth-5', 'setup-1', // Phase 1
+        'growth-1', 'sales-2', // Phase 2
+        'content-1', 'social-1', 'acq-1', 'setup-2' // Phase 3
       ]
 
       const user = { productType: 'saas', experienceLevel: 'beginner' }

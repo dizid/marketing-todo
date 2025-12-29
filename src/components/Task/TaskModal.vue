@@ -90,7 +90,13 @@
           @click="handleClose"
           class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition font-medium text-sm"
         >
-          Done
+          Close
+        </button>
+        <button
+          @click="handleMarkComplete"
+          class="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition font-medium text-sm"
+        >
+          ✓ Mark Complete
         </button>
       </div>
     </div>
@@ -218,7 +224,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'complete'])
 
 // Stores
 const projectStore = useProjectStore()
@@ -315,6 +321,15 @@ const confirmDiscard = () => {
  */
 const cancelClose = () => {
   showUnsavedWarning.value = false
+}
+
+/**
+ * Mark task as complete and close modal
+ */
+const handleMarkComplete = () => {
+  emit('complete', { taskId: props.taskId })
+  notes.value = ''
+  emit('close')
 }
 </script>
 

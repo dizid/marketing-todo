@@ -94,14 +94,18 @@ const props = defineProps({
   tasks: {
     type: Object,
     default: () => ({})
+  },
+  initialExpanded: {
+    type: Boolean,
+    default: false
   }
 })
 
 // Emits
 const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened', 'show-add-tasks'])
 
-// State
-const isExpanded = ref(false)
+// State - initialize from prop
+const isExpanded = ref(props.initialExpanded)
 
 /**
  * Update task state and emit changes

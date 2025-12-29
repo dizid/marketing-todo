@@ -21,9 +21,9 @@
 
       <!-- Project Content -->
       <template v-else>
-        <!-- Task Recommendation Card (Task DNA) -->
+        <!-- Task Recommendation Card (Task DNA) - hidden when playbook is active -->
         <NextTaskCard
-          v-if="showRecommendation && taskRecommendation"
+          v-if="showRecommendation && taskRecommendation && !projectStore.activePlaybook"
           :recommendation="taskRecommendation"
           @start-task="handleStartRecommendedTask"
           @view-roadmap="handleViewRoadmap"
@@ -38,10 +38,11 @@
           :total="totalTasks"
         />
 
-        <!-- Task Checklist -->
+        <!-- Task Checklist (Accordion) -->
         <TaskChecklistView
           :filtered-categories="filteredCategories"
           :project-tasks="projectStore.currentProjectTasks"
+          :current-phase-category="currentPhaseCategory"
           :hidden-task-count="hiddenTaskCount"
           :hidden-task-preview="hiddenTaskPreview"
           :experience-level="projectStore.experienceLevel"
@@ -77,6 +78,7 @@
       :last-save-time="lastSaveTime"
       @close="handleTaskModalClosed"
       @save="handleTaskSave"
+      @complete="handleTaskComplete"
     />
 
     <!-- Add Tasks Modal (for empty categories) -->
@@ -513,6 +515,22 @@ const filteredCategories = computed(() => {
     .filter(cat => cat.items.length > 0)
 })
 
+// COMPUTED - Current phase category (first category with incomplete tasks - for accordion auto-expand)
+const currentPhaseCategory = computed(() => {
+  const tasks = projectStore.currentProjectTasks || {}
+  for (const category of filteredCategories.value) {
+    const hasIncomplete = category.items.some(item => {
+      const taskData = tasks[item.id]
+      return !taskData?.checked && !taskData?.removed
+    })
+    if (hasIncomplete) {
+      return category.name
+    }
+  }
+  // All complete - return first category
+  return filteredCategories.value[0]?.name || ''
+})
+
 // COMPUTED - Hidden tasks (only for beginners - shows what's available in intermediate)
 const hiddenTasks = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
@@ -712,6 +730,39 @@ const handleTaskModalClosed = () => {
   showTaskModal.value = false
   selectedTaskId.value = null
   // Note: Don't dismiss recommendation here - let it stay visible or auto-dismiss naturally
+}
+
+/**
+ * Handle task marked complete from TaskModal
+ */
+const handleTaskComplete = async ({ taskId }) => {
+  if (!taskId) return
+
+  try {
+    // Mark the task as checked
+    const updatedTasks = {
+      ...projectStore.currentProjectTasks,
+      [taskId]: {
+        ...projectStore.currentProjectTasks[taskId],
+        checked: true
+      }
+    }
+    await projectStore.updateProjectTasks(updatedTasks)
+
+    // Get task recommendation after completion (Task DNA feature)
+    try {
+      const recommendation = await projectStore.getTaskRecommendation()
+      if (recommendation && recommendation.nextTask) {
+        taskRecommendation.value = recommendation
+        showRecommendation.value = true
+        clearTimeout(recommendationDismissTimer.value)
+      }
+    } catch (err) {
+      console.warn('Could not fetch task recommendation:', err)
+    }
+  } catch (error) {
+    console.error('Error marking task complete:', error)
+  }
 }
 
 /**

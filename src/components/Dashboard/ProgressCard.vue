@@ -9,7 +9,7 @@
       <div
         class="h-full transition-all duration-500"
         :style="{
-          background: 'linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-accent))',
+          background: 'linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-primary-light))',
           width: percentage + '%'
         }"
       ></div>

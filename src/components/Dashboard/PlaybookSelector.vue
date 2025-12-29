@@ -107,7 +107,7 @@
             >
               {{ task.name }}
             </p>
-            <p v-if="isNextTask(task.taskId)" class="text-xs text-orange-400">
+            <p v-if="isNextTask(task.taskId)" class="text-xs text-cyan-400">
               {{ task.why }}
             </p>
           </div>
@@ -116,7 +116,7 @@
           <button
             v-if="isNextTask(task.taskId)"
             @click.stop="goToTask(task.taskId)"
-            class="px-3 py-1 text-xs font-medium rounded bg-orange-600 text-white hover:bg-orange-500 transition-colors"
+            class="px-3 py-1 text-xs font-medium rounded bg-cyan-600 text-white hover:bg-cyan-500 transition-colors"
           >
             Go
           </button>

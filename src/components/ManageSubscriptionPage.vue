@@ -20,6 +20,26 @@
 
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Quota Exceeded Banner -->
+      <div
+        v-if="isQuotaExceeded"
+        class="mb-6 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg shadow-lg text-white"
+      >
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">Monthly AI Quota Reached</h3>
+            <p class="mt-1 text-white/90">
+              You've used all {{ quotaStore.currentQuotaLimit }} AI generations for this month.
+              Upgrade to Premium to get 10x more generations and keep building your marketing!
+            </p>
+            <p class="mt-2 text-sm text-white/70">
+              Quota resets on {{ quotaStore.formattedResetDate }}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Subscription Status Card -->
       <div class="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-8">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6 sm:mb-8">
@@ -281,8 +301,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { useAuthStore } from '@/stores/authStore'
 import { StripeService } from '@/services/stripeService'
@@ -291,6 +311,10 @@ import StripePaymentModal from '@/components/StripePaymentModal.vue'
 
 // Router
 const router = useRouter()
+const route = useRoute()
+
+// Check if redirected due to quota exceeded
+const isQuotaExceeded = computed(() => route.query.reason === 'quota_exceeded')
 
 // Stores
 const quotaStore = useQuotaStore()

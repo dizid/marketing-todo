@@ -1,4 +1,23 @@
 {
+  "playbooks": {
+    "first-10-customers": {
+      "id": "first-10-customers",
+      "name": "First 10 Customers",
+      "tagline": "From zero to first paying customers",
+      "description": "A focused 7-step journey for indie SaaS founders who need customers NOW.",
+      "targetUser": "Indie SaaS founders",
+      "icon": "rocket",
+      "tasks": [
+        { "step": 1, "taskId": "setup-1", "name": "Define Target Audience", "why": "Know exactly who you're selling to" },
+        { "step": 2, "taskId": "growth-5", "name": "Positioning & Messaging Map", "why": "Why should they choose you?" },
+        { "step": 3, "taskId": "sales-2", "name": "High-Converting Offer Builder", "why": "Create an irresistible launch offer" },
+        { "step": 4, "taskId": "setup-2", "name": "Set Up Landing Page", "why": "Where they sign up" },
+        { "step": 5, "taskId": "growth-2", "name": "Cold Outreach Campaigns", "why": "Direct outreach templates" },
+        { "step": 6, "taskId": "acq-1", "name": "Post in Communities", "why": "Find and engage your tribe" },
+        { "step": 7, "taskId": "sales-3", "name": "Objection Handling", "why": "Close the sale" }
+      ]
+    }
+  },
   "experienceLevels": {
     "beginner": {
       "name": "Beginner",

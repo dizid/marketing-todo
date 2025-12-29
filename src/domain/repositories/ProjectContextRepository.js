@@ -45,7 +45,7 @@ export class ProjectContextRepository {
 
       if (!data) return null
 
-      return ProjectContext.fromJSON(data)
+      return ProjectContext.fromJSON(this._fromDbPayload(data))
     } catch (error) {
       if (error instanceof NotFoundError) return null
       const wrappedError = wrapError(error, DatabaseError, { projectId })
@@ -71,7 +71,7 @@ export class ProjectContextRepository {
 
       if (error) throw error
 
-      return (data || []).map(item => ProjectContext.fromJSON(item))
+      return (data || []).map(item => ProjectContext.fromJSON(this._fromDbPayload(item)))
     } catch (error) {
       const wrappedError = wrapError(error, DatabaseError, { userId })
       this.logger.logError(wrappedError)
@@ -98,7 +98,7 @@ export class ProjectContextRepository {
       if (error) throw error
       if (!data) throw new NotFoundError('ProjectContext', contextId)
 
-      return ProjectContext.fromJSON(data)
+      return ProjectContext.fromJSON(this._fromDbPayload(data))
     } catch (error) {
       if (error instanceof NotFoundError) throw error
       const wrappedError = wrapError(error, DatabaseError, { contextId })
@@ -119,18 +119,20 @@ export class ProjectContextRepository {
       this.logger.debug('Creating context', { projectId, userId })
 
       const context = ProjectContext.fromOnboarding(projectId, userId, contextData)
-      const json = context.toJSON()
+
+      // Convert to database format (snake_case, no internal fields)
+      const payload = this._toDbPayload(context.toJSON())
 
       const { data, error } = await this.supabase
         .from(SUPABASE_CONFIG.TABLES.PROJECT_CONTEXTS)
-        .insert([json])
+        .insert([payload])
         .select()
         .single()
 
       if (error) throw error
 
       this.logger.info('Context created', { contextId: context.id, projectId })
-      return ProjectContext.fromJSON(data)
+      return ProjectContext.fromJSON(this._fromDbPayload(data))
     } catch (error) {
       const wrappedError = wrapError(error, DatabaseError, { projectId, userId })
       this.logger.logError(wrappedError)
@@ -156,10 +158,12 @@ export class ProjectContextRepository {
       }
 
       const now = new Date().toISOString()
-      const payload = {
+
+      // Convert updates to database format (snake_case, no internal fields)
+      const payload = this._toDbPayload({
         ...updates,
-        updated_at: now
-      }
+        updatedAt: now
+      })
 
       const { data, error } = await this.supabase
         .from(SUPABASE_CONFIG.TABLES.PROJECT_CONTEXTS)
@@ -172,7 +176,7 @@ export class ProjectContextRepository {
       if (!data) throw new NotFoundError('ProjectContext', `project_id:${projectId}`)
 
       this.logger.info('Context updated', { projectId, fields: Object.keys(updates) })
-      return ProjectContext.fromJSON(data)
+      return ProjectContext.fromJSON(this._fromDbPayload(data))
     } catch (error) {
       if (error instanceof NotFoundError) throw error
       const wrappedError = wrapError(error, DatabaseError, { projectId, updates })
@@ -703,5 +707,54 @@ export class ProjectContextRepository {
    */
   _toCamelCase(str) {
     return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+  }
+
+  /**
+   * Convert camelCase to snake_case
+   * @private
+   */
+  _toSnakeCase(str) {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+  }
+
+  /**
+   * Convert model data to database payload format
+   * - Converts camelCase to snake_case
+   * - Removes internal fields like _customFields
+   * @private
+   */
+  _toDbPayload(data) {
+    const payload = {}
+    const internalFields = ['_customFields']
+
+    for (const [key, value] of Object.entries(data)) {
+      // Skip internal fields
+      if (internalFields.includes(key)) continue
+      // Skip undefined values
+      if (value === undefined) continue
+
+      // Convert camelCase to snake_case
+      const dbKey = this._toSnakeCase(key)
+      payload[dbKey] = value
+    }
+
+    return payload
+  }
+
+  /**
+   * Convert database row to model-friendly format
+   * - Converts snake_case to camelCase
+   * @private
+   */
+  _fromDbPayload(row) {
+    if (!row) return row
+
+    const data = {}
+    for (const [key, value] of Object.entries(row)) {
+      const modelKey = this._toCamelCase(key)
+      data[modelKey] = value
+    }
+
+    return data
   }
 }

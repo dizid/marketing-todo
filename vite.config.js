@@ -17,7 +17,8 @@ export default defineConfig({
     proxy: {
       '/.netlify/functions': {
         target: 'http://localhost:9999',
-        changeOrigin: true
+        changeOrigin: true,
+        timeout: 120000 // 2 minute timeout for AI generation
       }
     }
   },

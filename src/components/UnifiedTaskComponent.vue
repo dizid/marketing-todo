@@ -326,9 +326,13 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProjectStore } from '../stores/projectStore'
 import { generateAIContent } from '@/services/aiGeneration'
+import { isQuotaExceededError, handleQuotaExceededError } from '@/services/aiQuotaService'
 import HelpPanel from '@/components/TaskMiniApps/shared/HelpPanel.vue'
+
+const router = useRouter()
 
 const props = defineProps({
   taskId: {
@@ -558,12 +562,12 @@ const generateAI = async () => {
     }
   } catch (err) {
     console.error('AI generation error:', err)
-    // Check if it's a quota error
-    if (err.message && err.message.includes('quota')) {
-      aiError.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
-    } else {
-      aiError.value = err.message || 'Error generating content'
+    // Check if it's a quota exceeded error - redirect to subscription page
+    if (isQuotaExceededError(err)) {
+      handleQuotaExceededError(router, err)
+      return
     }
+    aiError.value = err.message || 'Error generating content'
   } finally {
     isGenerating.value = false
   }

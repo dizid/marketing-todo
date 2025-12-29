@@ -5,11 +5,11 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Quota Status Card -->
-      <QuotaStatusCard @upgrade-clicked="handleUpgradeClick" />
-
       <!-- Experience Mode Toggle (Beginner/Intermediate) -->
       <ExperienceModeToggle v-if="projectStore.currentProject" />
+
+      <!-- Playbook Selector (First 10 Customers, etc.) -->
+      <PlaybookSelector v-if="projectStore.currentProject" @task-opened="handleTaskOpened" />
 
       <!-- Welcome Banner (for beginners) -->
       <WelcomeBanner v-if="projectStore.currentProject" />
@@ -128,7 +128,6 @@ import { globalPollingControl } from '@/composables/usePollingControl'
 
 // Child components
 import ProjectHeader from '../Project/ProjectHeader.vue'
-import QuotaStatusCard from '../QuotaStatusCard.vue'
 import ProgressCard from './ProgressCard.vue'
 import TaskChecklistView from './TaskChecklistView.vue'
 import ExecutiveSummarySection from './ExecutiveSummarySection.vue'
@@ -137,6 +136,7 @@ import TaskModal from '../Task/TaskModal.vue'
 import AddTasksModal from '../Project/AddTasksModal.vue'
 import NextTaskCard from '../TaskRecommendation/NextTaskCard.vue'
 import ExperienceModeToggle from './ExperienceModeToggle.vue'
+import PlaybookSelector from './PlaybookSelector.vue'
 import LevelUpNotification from './LevelUpNotification.vue'
 import GraduationPrompt from './GraduationPrompt.vue'
 import WelcomeBanner from './WelcomeBanner.vue'
@@ -792,12 +792,6 @@ const generateExecutiveSummary = async () => {
   }
 }
 
-/**
- * Handle upgrade button click
- */
-const handleUpgradeClick = () => {
-  // Triggers upgrade modal via QuotaStatusCard
-}
 
 /**
  * Handle upgrade to intermediate experience level

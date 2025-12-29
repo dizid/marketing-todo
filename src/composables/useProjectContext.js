@@ -80,7 +80,7 @@ export function useProjectContext() {
       }
 
       // Save to database
-      const saved = await repo.upsertByProjectId(projectId, userId, {
+      const saved = await repo.upsert(projectId, userId, {
         productName: ctx.productName,
         productType: ctx.productType,
         productDescription: ctx.productDescription,

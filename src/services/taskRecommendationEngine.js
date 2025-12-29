@@ -382,3 +382,105 @@ export function getHiddenTasksForLevel(experienceLevel = 'beginner') {
 
   return hiddenTasks
 }
+
+// ============================================
+// PLAYBOOK FUNCTIONS
+// ============================================
+
+/**
+ * Get all available playbooks
+ * @returns {Object} All playbooks keyed by ID
+ */
+export function getPlaybooks() {
+  return TASK_MAP.playbooks || {}
+}
+
+/**
+ * Get a specific playbook by ID
+ * @param {string} playbookId - The playbook ID
+ * @returns {Object|null} The playbook or null if not found
+ */
+export function getPlaybook(playbookId) {
+  return TASK_MAP.playbooks?.[playbookId] || null
+}
+
+/**
+ * Get playbook progress based on completed tasks
+ * @param {string} playbookId - The playbook ID
+ * @param {Array} completedTaskIds - Array of completed task IDs
+ * @returns {Object} Progress info with completed, total, percentage, and task statuses
+ */
+export function getPlaybookProgress(playbookId, completedTaskIds = []) {
+  const playbook = getPlaybook(playbookId)
+  if (!playbook) {
+    return { completed: 0, total: 0, percentage: 0, tasks: [] }
+  }
+
+  const completed = Array.isArray(completedTaskIds) ? completedTaskIds : []
+  const tasks = playbook.tasks.map(task => ({
+    ...task,
+    isCompleted: completed.includes(task.taskId)
+  }))
+
+  const completedCount = tasks.filter(t => t.isCompleted).length
+  const total = tasks.length
+
+  return {
+    completed: completedCount,
+    total,
+    percentage: total > 0 ? Math.round((completedCount / total) * 100) : 0,
+    tasks,
+    isComplete: completedCount === total
+  }
+}
+
+/**
+ * Get the next task in a playbook
+ * @param {string} playbookId - The playbook ID
+ * @param {Array} completedTaskIds - Array of completed task IDs
+ * @returns {Object|null} Next task info or null if playbook complete
+ */
+export function getPlaybookNextTask(playbookId, completedTaskIds = []) {
+  const playbook = getPlaybook(playbookId)
+  if (!playbook) {
+    return null
+  }
+
+  const completed = Array.isArray(completedTaskIds) ? completedTaskIds : []
+
+  // Find first uncompleted task in sequence
+  const nextTask = playbook.tasks.find(task => !completed.includes(task.taskId))
+
+  if (!nextTask) {
+    return {
+      isComplete: true,
+      message: `Congratulations! You've completed the "${playbook.name}" playbook.`
+    }
+  }
+
+  return {
+    step: nextTask.step,
+    taskId: nextTask.taskId,
+    name: nextTask.name,
+    why: nextTask.why,
+    totalSteps: playbook.tasks.length,
+    isComplete: false
+  }
+}
+
+/**
+ * Get playbook list for display (simplified)
+ * @returns {Array} Array of playbook summaries
+ */
+export function getPlaybookList() {
+  const playbooks = getPlaybooks()
+  return Object.values(playbooks).map(pb => ({
+    id: pb.id,
+    name: pb.name,
+    tagline: pb.tagline,
+    description: pb.description,
+    targetUser: pb.targetUser,
+    icon: pb.icon,
+    taskCount: pb.tasks.length
+  }))
+}

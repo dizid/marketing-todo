@@ -98,6 +98,11 @@ export const useProjectStore = defineStore('project', () => {
     currentProjectSettings.value?.experienceLevel || 'beginner'
   )
 
+  // Active playbook (e.g., 'first-10-customers')
+  const activePlaybook = computed(() =>
+    currentProjectSettings.value?.activePlaybook || null
+  )
+
   /**
    * Fetch all projects for current user
    */
@@ -400,6 +405,59 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * Set active playbook (or null to clear)
+   * @param {string|null} playbookId - Playbook ID to activate or null to deactivate
+   */
+  const setActivePlaybook = async (playbookId) => {
+    if (!currentProjectId.value) throw new Error('No project selected')
+
+    try {
+      const updatedSettings = {
+        ...currentProjectSettings.value,
+        activePlaybook: playbookId
+      }
+      await updateProjectSettings(updatedSettings)
+      logger.info(`[ProjectStore] Active playbook set to: ${playbookId || 'none'}`)
+    } catch (err) {
+      error.value = err.message
+      console.error('Error setting active playbook:', err)
+      throw err
+    }
+  }
+
+  /**
+   * Get playbook progress and next task recommendation
+   * @returns {Object} Playbook progress with next task
+   */
+  const getPlaybookRecommendation = async () => {
+    if (!currentProjectId.value) throw new Error('No project selected')
+    if (!activePlaybook.value) return null
+
+    try {
+      const { getPlaybookProgress, getPlaybookNextTask } = await import('@/services/taskRecommendationEngine.js')
+
+      // Get completed task IDs
+      const tasks = currentProjectTasks.value || {}
+      const completedTaskIds = Object.entries(tasks)
+        .filter(([_, task]) => task.checked && !task.removed)
+        .map(([id, _]) => id)
+
+      const progress = getPlaybookProgress(activePlaybook.value, completedTaskIds)
+      const nextTask = getPlaybookNextTask(activePlaybook.value, completedTaskIds)
+
+      return {
+        playbookId: activePlaybook.value,
+        progress,
+        nextTask
+      }
+    } catch (err) {
+      error.value = err.message
+      console.error('Error getting playbook recommendation:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     projects,
@@ -424,6 +482,7 @@ export const useProjectStore = defineStore('project', () => {
     marketingBudget,
     teamSize,
     experienceLevel,
+    activePlaybook,
 
     // Actions
     fetchProjects,
@@ -440,6 +499,8 @@ export const useProjectStore = defineStore('project', () => {
     getTaskData,
     addContent,
     getTaskRecommendation,
-    setExperienceLevel
+    setExperienceLevel,
+    setActivePlaybook,
+    getPlaybookRecommendation
   }
 })

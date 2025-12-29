@@ -11,6 +11,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   // State
   const currentStep = ref(1)
   const startTime = ref(Date.now())
+  const isNewProjectMode = ref(false) // When true, skip auth step (user is logged in)
 
   const wizardData = ref({
     // Step 1: Product type
@@ -102,9 +103,12 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     }
   }
 
+  // Total steps depends on mode (5 for new project mode, 6 for full onboarding)
+  const totalSteps = computed(() => isNewProjectMode.value ? 5 : 6)
+
   // Navigation
   const nextStep = () => {
-    if (currentStep.value < 6) {
+    if (currentStep.value < totalSteps.value) {
       currentStep.value++
       saveToStorage()
     }
@@ -118,9 +122,14 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   }
 
   const goToStep = (step) => {
-    if (step >= 1 && step <= currentStep.value) {
+    if (step >= 1 && step <= totalSteps.value) {
       currentStep.value = step
     }
+  }
+
+  // Set new project mode (for logged-in users creating a new project)
+  const setNewProjectMode = (enabled) => {
+    isNewProjectMode.value = enabled
   }
 
   // Update data
@@ -156,7 +165,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   // Progress
   const progressPercentage = computed(() => {
-    return Math.round((currentStep.value / 6) * 100)
+    return Math.round((currentStep.value / totalSteps.value) * 100)
   })
 
   // Time spent
@@ -222,8 +231,10 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     currentStep,
     wizardData,
     startTime,
+    isNewProjectMode,
 
     // Computed
+    totalSteps,
     isStepValid,
     progressPercentage,
     timeSpentMinutes,
@@ -238,6 +249,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     clearWizard,
     saveToStorage,
     loadFromStorage,
-    syncToSupabase
+    syncToSupabase,
+    setNewProjectMode
   }
 })

@@ -5,7 +5,7 @@
       <!-- Progress bar -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-gray-600">Step {{ currentStep }} of 6</span>
+          <span class="text-sm font-medium text-gray-600">Step {{ currentStep }} of {{ totalSteps }}</span>
           <span class="text-sm font-medium text-indigo-600">{{ progressPercentage }}% complete</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -58,8 +58,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useAuthStore } from '@/stores/authStore'
 
 // Import step components
 import Step1ProductType from './Steps/Step1ProductType.vue'
@@ -69,13 +70,37 @@ import Step3Goals from './Steps/Step3Goals.vue'
 import Step4Details from './Steps/Step4Details.vue'
 import Step5Signup from './Steps/Step5Signup.vue'
 
+const props = defineProps({
+  isNewProject: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const onboardingStore = useOnboardingStore()
+const authStore = useAuthStore()
 const showRestoreModal = ref(false)
 
 const currentStep = computed(() => onboardingStore.currentStep)
+const totalSteps = computed(() => onboardingStore.totalSteps)
 const progressPercentage = computed(() => onboardingStore.progressPercentage)
 
+// In new project mode with logged-in user, step 5 becomes the final step (skips signup)
 const currentStepComponent = computed(() => {
+  // Normal onboarding: 6 steps including signup
+  // New project mode (logged in): 5 steps, step 5 is Step4Details which handles project creation
+  if (onboardingStore.isNewProjectMode) {
+    const components = {
+      1: Step1ProductType,
+      2: StepExperience,
+      3: Step2Audience,
+      4: Step3Goals,
+      5: Step4Details  // This becomes the final step, modified to create project directly
+    }
+    return components[currentStep.value] || Step1ProductType
+  }
+
+  // Default full onboarding flow
   const components = {
     1: Step1ProductType,
     2: StepExperience,
@@ -96,8 +121,22 @@ const startFresh = () => {
   showRestoreModal.value = false
 }
 
+// Set up new project mode when prop changes or on mount
+watch(() => props.isNewProject, (newValue) => {
+  if (newValue && authStore.isAuthenticated) {
+    onboardingStore.setNewProjectMode(true)
+  }
+}, { immediate: true })
+
 onMounted(() => {
-  // Check if there's saved wizard data
+  // Set new project mode if user is logged in and creating new project
+  if (props.isNewProject && authStore.isAuthenticated) {
+    onboardingStore.setNewProjectMode(true)
+    onboardingStore.clearWizard() // Start fresh for new project
+    return // Don't show restore modal for new project
+  }
+
+  // Check if there's saved wizard data (for regular onboarding)
   const hasSavedData = localStorage.getItem('onboarding_wizard_data')
   if (hasSavedData && onboardingStore.currentStep > 1) {
     showRestoreModal.value = true

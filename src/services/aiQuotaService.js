@@ -17,6 +17,44 @@ const FREE_TIER_QUOTA = 20
 const PREMIUM_TIER_QUOTA = 200
 
 /**
+ * Custom error class for quota exceeded errors
+ * Allows components to detect and handle quota errors specifically
+ */
+export class QuotaExceededError extends Error {
+  constructor(message, tier, resetDate) {
+    super(message)
+    this.name = 'QuotaExceededError'
+    this.tier = tier
+    this.resetDate = resetDate
+  }
+}
+
+/**
+ * Check if an error is a quota exceeded error
+ * @param {Error} error - The error to check
+ * @returns {boolean} True if quota exceeded error
+ */
+export const isQuotaExceededError = (error) => {
+  return error instanceof QuotaExceededError || error?.name === 'QuotaExceededError'
+}
+
+/**
+ * Handle quota exceeded error by redirecting to subscription page
+ * @param {Object} router - Vue router instance
+ * @param {Error} error - The quota exceeded error
+ */
+export const handleQuotaExceededError = (router, error) => {
+  if (isQuotaExceededError(error)) {
+    router.push({
+      name: 'ManageSubscription',
+      query: { reason: 'quota_exceeded' }
+    })
+    return true
+  }
+  return false
+}
+
+/**
  * Check if user can generate AI content
  * @returns {boolean} Whether user has quota remaining
  */
@@ -132,24 +170,23 @@ export const trackGeneration = async (
 
 /**
  * Check quota before generating AI
- * Throws error if user doesn't have quota
+ * Throws QuotaExceededError if user doesn't have quota
  * @param {string} taskId - Task attempting to generate
- * @throws {Error} If quota exceeded
+ * @throws {QuotaExceededError} If quota exceeded
  */
 export const checkQuotaBeforeGeneration = (taskId) => {
   const quotaStore = useQuotaStore()
 
   if (!canGenerateAI()) {
     const tier = quotaStore.tier
-    const remaining = quotaStore.remainingQuota
     const limit = quotaStore.currentQuotaLimit
     const resetDate = quotaStore.formattedResetDate
 
-    throw new Error(
-      tier === 'free'
-        ? `Free tier quota exceeded. You've used ${limit} AI generations this month. Quota resets on ${resetDate}.`
-        : `Premium quota exceeded. You've used ${limit} AI generations this month. Quota resets on ${resetDate}.`
-    )
+    const message = tier === 'free'
+      ? `You've used all ${limit} free AI generations this month. Upgrade to Premium for 10x more generations.`
+      : `You've used all ${limit} premium AI generations this month. Quota resets on ${resetDate}.`
+
+    throw new QuotaExceededError(message, tier, resetDate)
   }
 }
 

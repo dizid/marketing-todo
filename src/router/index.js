@@ -48,6 +48,18 @@ const routes = [
     }
   },
   {
+    path: '/onboarding',
+    name: 'OnboardingNewProject',
+    component: OnboardingWizard,
+    meta: {
+      requiresAuth: true, // Requires auth for new project mode
+      layout: 'clean'
+    },
+    props: route => ({
+      isNewProject: route.query.mode === 'new-project'
+    })
+  },
+  {
     path: '/landing',
     name: 'Landing',
     component: LandingPage,

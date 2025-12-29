@@ -144,10 +144,20 @@ const generate = async () => {
     emit('output', result)
     successMessage.value = 'Generated successfully! Click "✓ Use This" to save.'
   } catch (err) {
+    // Clear progress interval on error
+    if (progressInterval) {
+      clearInterval(progressInterval)
+      progressInterval = null
+    }
     console.error('[AIPanel] Generation error:', err)
     error.value = err.message || 'Failed to generate. Please try again.'
     console.error('Full error details:', err)
   } finally {
+    // Ensure interval is cleared and state is reset
+    if (progressInterval) {
+      clearInterval(progressInterval)
+      progressInterval = null
+    }
     isGenerating.value = false
     generationProgress.value = 0
   }

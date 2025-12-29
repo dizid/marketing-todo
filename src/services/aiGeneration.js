@@ -175,6 +175,13 @@ function processFormData(formData) {
  * @throws {Error} If API call fails
  */
 async function callGrokAPI(prompt, aiConfig, taskId, userId) {
+  // Client-side timeout to prevent hanging requests (90 seconds to allow for Netlify's 60s timeout)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    logger.warn('[AIGeneration] Request timed out after 90 seconds')
+    controller.abort()
+  }, 90000)
+
   try {
     logger.debug('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
 
@@ -197,9 +204,11 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
         max_tokens: aiConfig.maxTokens || 2000,
         taskId,      // Send for server-side tracking
         userId       // Send for server-side tracking
-      })
+      }),
+      signal: controller.signal
     })
 
+    clearTimeout(timeoutId)
     logger.debug('[AIGeneration] API response status:', response.status)
 
     if (!response.ok) {
@@ -213,6 +222,8 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
         throw new Error('Too many requests. Please wait a moment and try again.')
       } else if (response.status === 503) {
         throw new Error('Grok API is temporarily unavailable. Please try again later.')
+      } else if (response.status === 504) {
+        throw new Error('AI generation timed out. Please try again with a shorter prompt.')
       } else {
         throw new Error(errorData.error || `API error: ${response.status}`)
       }
@@ -240,6 +251,14 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       tokensOutput
     }
   } catch (err) {
+    clearTimeout(timeoutId)
+
+    // Handle abort error with user-friendly message
+    if (err.name === 'AbortError') {
+      logger.error('[AIGeneration] Request was aborted (timeout)')
+      throw new Error('AI generation timed out. Please try again.')
+    }
+
     logger.error('[AIGeneration] AI generation error', err)
     throw err
   }

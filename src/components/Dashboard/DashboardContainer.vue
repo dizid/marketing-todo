@@ -127,6 +127,7 @@ import { generateAIContent } from '@/services/aiGeneration.js'
 import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
 import { useSaveState } from '@/composables/useSaveState'
 import { globalPollingControl } from '@/composables/usePollingControl'
+import { getTaskCountsByExperienceLevel } from '@/services/taskRecommendationEngine'
 
 // Child components
 import ProjectHeader from '../Project/ProjectHeader.vue'
@@ -532,6 +533,7 @@ const currentPhaseCategory = computed(() => {
 })
 
 // COMPUTED - Hidden tasks (only for beginners - shows what's available in intermediate)
+// Uses JSON-based task counts for accuracy (from TASK_DEPENDENCY_MAP.json)
 const hiddenTasks = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
   if (currentLevel !== 'beginner') return []
@@ -551,7 +553,22 @@ const hiddenTasks = computed(() => {
   return hidden
 })
 
-const hiddenTaskCount = computed(() => hiddenTasks.value.length)
+// Use JSON-based task counts for accurate hidden task count
+const hiddenTaskCount = computed(() => {
+  const currentLevel = projectStore.experienceLevel || 'beginner'
+  if (currentLevel !== 'beginner') return 0
+
+  try {
+    const productType = projectStore.currentProjectSettings?.productType
+    const counts = getTaskCountsByExperienceLevel(productType)
+    const beginnerCount = counts['beginner']?.taskCount || 0
+    const intermediateCount = counts['intermediate']?.taskCount || 0
+    return intermediateCount - beginnerCount
+  } catch (err) {
+    // Fallback to legacy count if JSON-based count fails
+    return hiddenTasks.value.length
+  }
+})
 
 const hiddenTaskPreview = computed(() => {
   return hiddenTasks.value.slice(0, 3).map(t => t.name)

@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/utils/supabase'
 
 /**
  * useBusinessContext Composable

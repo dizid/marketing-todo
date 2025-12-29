@@ -3,5 +3,6 @@
  */
 
 export * from './errors.js'
-export { default as logger, LOG_LEVELS, Logger } from './logger.js'
 export * from './validators.js'
+// Logger consolidated to single source at src/utils/logger.js
+export { logger } from '../../utils/logger.js'

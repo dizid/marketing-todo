@@ -1,6 +1,6 @@
 # Launchpilot Features
 
-> **AI-Powered Sales & Marketing Command Center** | v0.7
+> **AI-Powered Sales & Marketing Command Center** | v0.8
 
 ---
 
@@ -9,7 +9,7 @@
 Launchpilot is an all-in-one AI marketing platform that turns blank pages into launch-ready campaigns. Built for entrepreneurs, freelancers, webshop- and website owners who need professional results without the agency price tag.
 
 **What you get:**
-- 32 AI-powered marketing tasks covering sales, content, ads, and analytics
+- 33 AI-powered marketing tasks covering sales, content, ads, and analytics
 - Interactive tools: Landing Page Builder, A/B Testing, Competitive Benchmarking
 - Smart recommendations that guide you through a proven 4-phase marketing journey
 - Business context system that makes AI outputs increasingly personalized
@@ -24,7 +24,7 @@ No coding. No design skills. Just results.
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [32 AI-Powered Tasks](#32-ai-powered-tasks)
+2. [33 AI-Powered Tasks](#33-ai-powered-tasks)
 3. [Interactive Tools & Mini-Apps](#interactive-tools--mini-apps)
 4. [Analytics & Optimization Suite](#analytics--optimization-suite)
 5. [Smart Productivity Features](#smart-productivity-features)
@@ -77,7 +77,7 @@ The more context you provide, the better AI outputs become. Complete tiers unloc
 
 ---
 
-## 32 AI-Powered Tasks
+## 33 AI-Powered Tasks
 
 ### Sales & Revenue (5 Premium Tasks)
 
@@ -307,6 +307,19 @@ Interactive financial analysis for marketing channels:
 - **AI Budget Optimizer**: Get personalized recommendations for budget reallocation, growth scenarios, and ROI projections
 - **Scenario Modeling**: "What if we 2x ad spend?" with projected outcomes
 - **Export Reports**: Download complete ROI analysis with channel rankings
+
+---
+
+### Strategy (1 Premium Task)
+
+**Competitive Positioning Brief**
+Create a comprehensive competitive positioning strategy:
+- Market positioning analysis
+- Competitor landscape mapping
+- Differentiation strategy
+- Messaging framework for key segments
+- Go-to-market positioning recommendations
+- Strategic narrative development
 
 ---
 
@@ -687,14 +700,14 @@ Complete separation:
 
 ### Free Plan
 - **40 AI tasks per month**
-- All 32 task templates
+- All 33 task templates
 - Unlimited projects
 - Full data access
 - Community support
 
 ### Professional Plan ($19/month)
 - **200 AI tasks per month**
-- All 32 tasks fully unlocked
+- All 33 tasks fully unlocked
 - Priority support
 - Early access to new features
 - Best for freelancers & small businesses
@@ -724,7 +737,7 @@ One task = one AI generation. Examples:
 |---------|------|--------------|----------|
 | AI Tasks/Month | 40 | 200 | Unlimited |
 | Projects | Unlimited | Unlimited | Unlimited |
-| All 32 Tasks | Yes | Yes | Yes |
+| All 33 Tasks | Yes | Yes | Yes |
 | A/B Testing Dashboard | Yes | Yes | Yes |
 | Competitive Benchmarking | Yes | Yes | Yes |
 | Landing Page Builder | Yes | Yes | Yes |
@@ -781,7 +794,7 @@ One task = one AI generation. Examples:
 
 | Provider | Use Case | Model |
 |----------|----------|-------|
-| Grok (xAI) | Text generation | grok-2 |
+| Grok (xAI) | Text generation | grok-3 |
 | Grok (xAI) | Image generation | grok-2-image-1212 |
 | Replicate | Image fallback | FLUX 1.1 Pro |
 
@@ -792,8 +805,11 @@ One task = one AI generation. Examples:
 - **Vitest test framework**
 - Phase 3 SSOT compliance
 
-### Recent Updates (v0.7)
+### Recent Updates (v0.8)
 
+- **33 marketing tasks** across 10 categories (added Strategy category)
+- **25 mini-app components** with custom UX beyond simple forms
+- Upgraded to **grok-3** AI model for text generation
 - Field inheritance system consolidated
 - Real-time sync with conflict detection
 - Unsaved changes protection
@@ -805,6 +821,7 @@ One task = one AI generation. Examples:
 - **ROI Calculator upgrade**: Interactive channel tracking with real-time CAC/LTV calculations, visual comparison charts, and AI budget optimization
 - **Feedback Collection upgrade**: AI-powered custom survey question generation with 10-section analysis, distribution strategies, and outreach templates
 - **Sales Page Audit enhancement**: Added 8 pro tips for iterative testing methodology
+- **Competitive Positioning Brief**: New strategic task for market positioning analysis
 
 ---
 
@@ -815,9 +832,27 @@ One task = one AI generation. Examples:
 3. **Create project** - Name your campaign
 4. **Fill business context** - Better context = better AI
 5. **Follow recommendations** - AI guides your journey
-6. **Generate content** - Use any of 32 tasks
+6. **Generate content** - Use any of 33 tasks
 7. **Export and use** - Copy, download, implement
 
 ---
 
-*Launchpilot v0.7 - AI-powered marketing for everyone*
+### Task Categories Summary
+
+| Category | Tasks | AI-Powered |
+|----------|-------|------------|
+| Setup | 5 | 2 |
+| Social Media | 3 | 1 |
+| Content Creation | 3 | 2 |
+| Lead Acquisition | 3 | 1 |
+| Feedback & Iteration | 3 | 1 |
+| Analytics & Optimization | 3 | 1 |
+| Advertising | 2 | 2 |
+| Sales & Revenue | 5 | 5 |
+| Growth & Positioning | 5 | 5 |
+| Strategy | 1 | 1 |
+| **Total** | **33** | **21** |
+
+---
+
+*Launchpilot v0.8 - AI-powered marketing for everyone*

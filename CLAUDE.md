@@ -31,6 +31,7 @@ This starts:
 - Supabase (auth + DB)
 - Netlify Functions (serverless)
 - Grok AI API (grok-3, via proxy function)
+- Deployment: Github → Netlify (webhook)
 
 ## Key Directories
 
@@ -49,10 +50,27 @@ This starts:
 **SAFE TO MODIFY**: `/src/`, `/netlify/functions/`, config files
 **NEVER MODIFY**: `/node_modules/`, `/.git/`, `/dist/`, `.env` files
 
+---
+
 ## Code Style
 
 - Variables/Functions: camelCase
 - Components: PascalCase
 - Files: kebab-case
+- Constants: SCREAMING_SNAKE_CASE
 - Use `<script setup>` in Vue components
 - Pinia for state management
+
+## Implementation Guidelines
+
+- DIRECT IMPLEMENTATION: Complete, working code - no mocks, stubs, or TODOs
+- Keep existing working code intact when adding features
+- Use extensive comments in code
+- Modular, maintainable code structure
+
+## Framework-Specific
+
+- Component files: `<template>`, `<script setup>`, `<style>`
+- Router in `src/router/index.js`
+- Stores in `src/stores/` directory
+- Tailwind v4: Different config than older versions - web search if needed

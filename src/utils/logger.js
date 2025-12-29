@@ -118,5 +118,45 @@ export const logger = {
     }
 
     return result
+  },
+
+  /**
+   * Create a child logger with a namespace prefix
+   * @param {string} namespace - The namespace for the child logger
+   * @returns {object} A new logger with prefixed messages
+   */
+  child: (namespace) => {
+    const createChildLogger = (ns) => ({
+      info: (message, data = null) => {
+        if (import.meta.env.DEV) {
+          const timestamp = new Date().toISOString().split('T')[1]
+          console.log(`[${timestamp}] [${ns}] [INFO] ${message}`, data || '')
+        }
+      },
+      error: (message, err = null, context = {}) => {
+        if (import.meta.env.DEV) {
+          const timestamp = new Date().toISOString().split('T')[1]
+          console.error(`[${timestamp}] [${ns}] [ERROR] ${message}`, err, context)
+        }
+        if (import.meta.env.PROD) {
+          trackErrorInService(`[${ns}] ${message}`, err, context)
+        }
+      },
+      warn: (message) => {
+        if (import.meta.env.DEV) {
+          const timestamp = new Date().toISOString().split('T')[1]
+          console.warn(`[${timestamp}] [${ns}] [WARN] ${message}`)
+        }
+      },
+      debug: (message, data = null) => {
+        if (import.meta.env.DEV && import.meta.env.VITE_DEBUG === 'true') {
+          const timestamp = new Date().toISOString().split('T')[1]
+          console.log(`[${timestamp}] [${ns}] [DEBUG] ${message}`, data || '')
+        }
+      },
+      // Allow nested child loggers
+      child: (childNamespace) => createChildLogger(`${ns}:${childNamespace}`)
+    })
+    return createChildLogger(namespace)
   }
 }

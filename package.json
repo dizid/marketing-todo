@@ -1,14 +1,18 @@
 {
-  "name": "marketing-todo",
+  "name": "launchpilot",
   "version": "1.0.0",
-  "description": "Marketing To-Do List Webapp - Comprehensive checklist for product launches",
+  "description": "Launchpilot - AI-powered marketing command center for entrepreneurs",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest tests/unit",
+    "test:integration": "vitest tests/integration"
   },
   "keywords": [
     "marketing",
@@ -22,14 +26,25 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/vue": "^10.32.1",
     "@supabase/supabase-js": "^2.76.1",
     "@tailwindcss/vite": "^4.1.15",
     "@vitejs/plugin-vue": "^6.0.1",
     "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
     "pinia": "^3.0.3",
+    "stripe": "^20.0.0",
     "tailwindcss": "^4.1.15",
     "vite": "^7.1.11",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@pinia/testing": "^1.0.3",
+    "@vitest/coverage-v8": "^4.0.13",
+    "@vitest/ui": "^4.0.13",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^27.2.0",
+    "vitest": "^4.0.13"
   }
 }

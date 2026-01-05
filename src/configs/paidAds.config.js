@@ -744,5 +744,28 @@ export const paidAdsTask = {
   budgetWizardForm: budgetWizardForm,
   adPlatforms: adPlatforms,
   customComponent: 'PaidAdsLaunchMiniApp',
-  output: { enabled: false }
+  output: { enabled: false },
+
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS launching first Google Ads campaign with $1500/month budget',
+        input: { monthly_budget: 1500, primary_goal: 'signups', platform_preference: 'google-ads', target_audience: 'Marketing directors at B2B companies' },
+        output: 'Complete Google Ads launch plan: $50/day budget split across 3 campaigns (branded search $10, competitor keywords $20, solution keywords $20), 15 high-intent keywords with estimated CPC $2-4, 5 ad copy variations with CTAs, landing page requirements, conversion tracking setup guide, negative keyword list, and week-by-week optimization roadmap. Expected 300-400 clicks, 15-25 trial signups in first month.'
+      },
+      {
+        scenario: 'E-commerce store starting Facebook Ads for product sales with $500/month budget',
+        input: { monthly_budget: 500, primary_goal: 'sales', platform_preference: 'meta', target_audience: 'Women 25-45 interested in sustainable living' },
+        output: 'Meta Ads strategy: $15/day budget for carousel product ads, detailed audience targeting (interests: sustainability, eco-friendly, zero waste; demographics: women 25-45, income $50K+), 3 ad creative templates with product photos and benefit-focused copy, retargeting pixel setup, catalog integration guide, and scaling framework. Includes creative best practices (video > static image, UGC-style > studio photos) and first-month benchmarks: expect $40-60 CPA, 8-12 purchases.'
+      }
+    ],
+    commonMistakes: [
+      'Starting with too many platforms at once - launching Google, Facebook, LinkedIn, and TikTok simultaneously spreads budget too thin. Pick ONE platform, master it, then expand.',
+      'No conversion tracking installed - spending money on ads without tracking who converts. Install tracking pixels BEFORE launching. You can\'t optimize what you don\'t measure.',
+      'Targeting too broadly - running ads to "everyone in the United States." Narrow targeting (specific interests, demographics, behaviors) typically performs 3-5x better despite smaller audience size.',
+      'Writing boring ad copy - generic "Check out our product" with no compelling hook. Test curiosity gaps, social proof, pain-point agitation, and benefit-focused copy. A/B test everything.',
+      'Sending traffic to homepage - ads pointing to generic homepage instead of dedicated landing pages matching ad message. Conversion rates drop 50%+ with mismatched landing pages.',
+      'Giving up too early - testing for 3 days with $50 total spend and declaring "ads don\'t work." Most platforms need 2-4 weeks and $500-1000 minimum to gather statistically significant data and optimize.'
+    ]
+  }
 }

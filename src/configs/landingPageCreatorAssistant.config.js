@@ -501,5 +501,28 @@ export const landingPageTemplates = {
       signup_button_text: 'Schedule Consultation',
       footer_company_name: 'Design & Growth Agency'
     }
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS creating first landing page for free trial signups',
+        input: { brand_name: 'FlowTask', tagline: 'Project management for distributed teams', hero_headline: 'Manage Projects Without the Chaos', pricing_model: 'freemium' },
+        output: '5-step wizard output with brand basics configured (logo upload, primary color #4A90E2), hero section copy optimized for B2B audiences, 3 benefit-focused features with emoji icons, signup section with "Start Free Trial" CTA and trust elements, footer with company info. Includes AI-generated headline alternatives and benefit descriptions.'
+      },
+      {
+        scenario: 'E-commerce business creating product launch landing page',
+        input: { brand_name: 'EcoBottles', tagline: 'Sustainable water bottles for active lifestyles', hero_headline: 'Stay Hydrated. Save the Planet.', pricing_model: 'one-time' },
+        output: 'Complete landing page flow with brand colors (earth tones), hero image placement guide for product photography, 4 product benefits (BPA-free, keeps drinks cold 24hrs, eco-friendly, lifetime warranty), prominent "Shop Now" CTAs, social proof section template, and footer with shipping/return info. E-commerce-specific copy focusing on urgency and scarcity.'
+      }
+    ],
+    commonMistakes: [
+      'Feature-focused instead of benefit-focused - writing "Real-time collaboration" instead of "Work with your team instantly." Always translate features into outcomes users care about.',
+      'Too many CTAs with different actions - having "Sign Up," "Learn More," "Watch Demo," and "Contact Sales" all above the fold. Pick ONE primary action per page section.',
+      'Weak headlines that don\'t grab attention - generic "Welcome to Our Product" headlines. Test curiosity-driven, benefit-focused, or problem-agitating headlines that make visitors want to read more.',
+      'No mobile preview - designing for desktop and never checking mobile. 60%+ of traffic is mobile. Always preview and optimize for small screens with readable text (min 16px) and tap-friendly buttons.',
+      'Skipping social proof section - launching with no testimonials, logos, or trust indicators. Even if new, add "As seen on [publications]," beta tester quotes, or founder credibility.',
+      'Generic placeholder copy - using Lorem Ipsum or vague copy like "Achieve your goals faster." Be specific with numbers, timeframes, and concrete outcomes users will experience.'
+    ]
   }
 }

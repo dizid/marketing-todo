@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -88,6 +88,9 @@ const error = ref('')
 const message = ref('')
 const isLoading = ref(false)
 const resetSuccess = ref(false)
+
+// Timeout tracking
+let redirectTimeout = null
 
 /**
  * Handle password reset
@@ -122,7 +125,7 @@ const handleReset = async () => {
     message.value = 'Password reset successfully!'
 
     // Redirect to login after 2 seconds
-    setTimeout(() => {
+    redirectTimeout = setTimeout(() => {
       router.push('/auth')
     }, 2000)
   } catch (err) {
@@ -143,6 +146,11 @@ onMounted(async () => {
     error.value = 'Invalid or expired reset link. Please request a new password reset.'
     isLoading.value = true
   }
+})
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (redirectTimeout) clearTimeout(redirectTimeout)
 })
 </script>
 

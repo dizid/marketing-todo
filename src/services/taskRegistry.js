@@ -44,7 +44,11 @@ const taskComponentMap = {
   // Analytics & Optimization
   'analytics-1': () => import('@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'),
   'analytics-2': () => import('@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'),
-  'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue')
+  'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'),
+
+  // Paid Advertising
+  'advertising-1': () => import('@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'),
+  'advertising-2': () => import('@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue')
 }
 
 /**
@@ -76,30 +80,30 @@ const taskMetadata = {
 
   // NOTE: Old setup-1 and social-1 metadata removed - replaced with mini-app versions above
   'setup-2': {
-    name: 'Landing Page Creator',
+    name: 'Landing Page Planning Wizard',
     type: 'miniapp',
     category: 'setup',
     icon: '🚀',
-    description: 'Build a professional landing page in 5 minutes. No coding required. AI-assisted copy suggestions included.',
+    description: 'Step-by-step wizard to plan and structure your landing page. Get organized copy and design layout before building.',
     hasAI: true,
     miniAppId: 'landing-page-creator',
     fields: ['brand_name', 'tagline', 'hero_headline', 'hero_subheadline', 'features', 'signup_headline', 'footer_company_name']
   },
   'setup-3': {
-    name: 'Connect Accounts',
+    name: 'Account Connection Guide',
     type: 'miniapp',
     category: 'setup',
     icon: '🔗',
-    description: 'Link your social media, email, and analytics accounts. Takes 5 minutes per platform.',
+    description: 'Step-by-step guide to manually connect social media, email, and analytics accounts with API keys.',
     hasAI: false,
     miniAppId: 'connect-accounts'
   },
   'setup-4': {
-    name: 'Prepare Assets',
+    name: 'Asset Preparation Checklist',
     type: 'miniapp',
     category: 'setup',
     icon: '🎨',
-    description: 'Create logos, images, videos, and brand guidelines.',
+    description: 'Checklist for organizing your brand assets. Get specifications and tool recommendations for each asset type.',
     hasAI: false,
     miniAppId: 'prepare-assets'
   },
@@ -113,11 +117,11 @@ const taskMetadata = {
     miniAppId: 'tracking-sheet'
   },
   'social-2': {
-    name: 'Engage Followers',
+    name: 'Response Template Library',
     type: 'miniapp',
     category: 'social',
     icon: '💬',
-    description: 'Template responses for common interactions. Build community by engaging followers.',
+    description: 'Pre-written response templates for common follower interactions. Customize and copy-paste to engage followers.',
     hasAI: false,
     miniAppId: 'engage-followers',
     fields: ['completed']
@@ -143,21 +147,21 @@ const taskMetadata = {
     fields: ['topic', 'audience', 'keywords', 'tone', 'wordCount', 'sections', 'fullBlog']
   },
   'content-2': {
-    name: 'Create Video Tutorial',
+    name: 'Video Script Outline Generator',
     type: 'miniapp',
     category: 'content',
     icon: '🎥',
-    description: 'Script a 2-minute product demo. Section-by-section guidance with timing targets.',
+    description: 'Generate a structured script outline for a 2-minute product demo video with timing targets.',
     hasAI: false,
     miniAppId: 'video-script',
     fields: ['hook', 'problem', 'demo', 'features', 'cta']
   },
   'content-3': {
-    name: 'Design Graphics',
+    name: 'Design Brief Generator',
     type: 'miniapp',
     category: 'content',
     icon: '🖼️',
-    description: 'Create graphics with AI-guided design briefs and step-by-step tutorials',
+    description: 'Generate design briefs for graphics with AI guidance and links to Canva templates for DIY creation.',
     hasAI: true,
     miniAppId: 'design-graphics',
     fields: ['purpose', 'style', 'message', 'brief', 'designHistory']
@@ -251,6 +255,26 @@ const taskMetadata = {
     hasAI: false,
     miniAppId: 'roi-calculator',
     fields: ['items']
+  },
+  'advertising-1': {
+    name: 'Launch Paid Ads',
+    type: 'miniapp',
+    category: 'advertising',
+    icon: '💰',
+    description: 'Create and launch profitable paid advertising campaigns on Facebook, Google, and Instagram with AI-guided strategy.',
+    hasAI: true,
+    miniAppId: 'paid-ads-launch',
+    fields: ['campaign_name', 'platform', 'budget', 'audience', 'ad_copy', 'landing_page']
+  },
+  'advertising-2': {
+    name: 'Optimize Paid Ads',
+    type: 'miniapp',
+    category: 'advertising',
+    icon: '📊',
+    description: 'Analyze ad performance, optimize spend allocation, and scale winning campaigns with advanced analytics.',
+    hasAI: true,
+    miniAppId: 'paid-ads-optimize',
+    fields: ['campaigns', 'metrics', 'optimization_strategy', 'budget_allocation']
   }
 }
 

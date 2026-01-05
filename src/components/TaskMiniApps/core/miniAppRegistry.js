@@ -12,12 +12,14 @@ import { webinarConfig } from '../configs/webinar.config.js'
 import { feedbackConfig } from '../configs/feedback.config.js'
 import { publishUpdatesConfig } from '../configs/publishUpdates.config.js'
 import { iterateFeaturesConfig } from '../configs/iterateFeatures.config.js'
+import { emailSequenceConfig } from '../configs/emailSequence.config.js'
 
 export const miniAppRegistry = {
   'define-audience': defineAudienceConfig,
   'generate-posts': generatePostsConfig,
   'outreach': outreachConfig,
   'webinar': webinarConfig,
+  'email-sequence': emailSequenceConfig,
   'feedback': feedbackConfig,
   'publish-updates': publishUpdatesConfig,
   'iterate-features': iterateFeaturesConfig

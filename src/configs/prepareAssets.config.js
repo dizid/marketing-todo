@@ -89,15 +89,15 @@ export const assets = [
 
 export const prepareAssetsTask = {
   id: 'setup-4',
-  name: 'Prepare Assets',
-  description: 'Create logos, images, videos, and brand guidelines',
+  name: 'Asset Preparation Checklist',
+  description: 'Checklist for organizing your brand assets and tools',
   category: 'setup',
 
   // Freemium model - Premium tier task
   tier: 'premium',
-  what: 'Organize and create all your brand assets—logos, hero images, demo videos, color palettes, and social media templates. One central place for all brand materials.',
-  why: 'Consistent branding across all channels builds recognition and trust. Disorganized assets waste time when you need them fast. A brand guideline saves hundreds of hours.',
-  how: 'Follow the 5-step asset checklist. Create or upload each asset (logo, hero image, videos, colors, social templates). Export as ready-to-use files for any channel.',
+  what: 'Complete the 5-asset checklist for your brand: logo, hero image, demo video, brand colors, and social templates. Get tool recommendations and specifications for each.',
+  why: 'Consistent branding across all channels builds recognition and trust. A clear checklist of what you need saves time and ensures nothing is forgotten.',
+  how: 'Go through the 5-step checklist, get specifications for each asset type (dimensions, file formats), and see tool recommendations for creating each asset.',
 
   form: [],
   ai: null,
@@ -107,5 +107,28 @@ export const prepareAssetsTask = {
   },
 
   customComponent: 'PrepareAssetsMiniApp',
-  assets: assets
+  assets: assets,
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS startup creating brand assets from scratch',
+        input: { assets_needed: ['logo', 'hero-image', 'demo-video', 'color-palette', 'social-templates'] },
+        output: 'Complete asset package: Logo in SVG and PNG (1000x1000px transparent), hero screenshot showing app dashboard with sample data, 45-second Loom demo video, color palette with 3 colors (primary #4A90E2, accent #F5A623, neutral #F8F9FA), and social media templates for Twitter/LinkedIn sized correctly. Includes export checklist ensuring all files are web-optimized (under 2MB), organized in folders, and accessible to team.'
+      },
+      {
+        scenario: 'E-commerce brand organizing product photography',
+        input: { assets_needed: ['product-photos', 'lifestyle-images', 'social-templates', 'brand-colors'] },
+        output: 'Asset organization system: 10 professional product photos on white background (1500x1500px), 5 lifestyle photos showing products in use, Instagram/Pinterest templates with brand colors, color palette extracted from products (3 complementary colors), sizing guide for each platform. File naming convention (product-name-angle-001.jpg) and folder structure for easy access. Compression guide to keep files under 500KB without quality loss.'
+      }
+    ],
+    commonMistakes: [
+      'Low-resolution files - using 500x500px images that pixelate when enlarged. Always create assets at 2x intended size minimum. Logo should be 1000x1000px+, hero images 1920x1080px+.',
+      'Inconsistent brand colors - using slightly different blues (#4A90E2 vs #5B9BD5) across assets. Define exact hex codes once and use everywhere. Document in a brand guide.',
+      'Massive file sizes - uploading 5MB PNGs to website that slow page load. Compress images to under 500KB for web (use TinyPNG, Squoosh). Page speed affects SEO and conversions.',
+      'No organized file structure - dumping all assets in one folder with names like "final-FINAL-v3.png." Create folders by asset type, use clear naming conventions (logo-transparent-1000px.png).',
+      'Missing asset variations - having only a dark logo that\'s invisible on dark backgrounds. Create logo variations: light background, dark background, monochrome, and horizontal/stacked layouts.',
+      'Not testing on actual platforms - creating social graphics without checking how they look when posted. Preview assets on actual Twitter/LinkedIn/Instagram before finalizing to ensure text is readable and images aren\'t cropped awkwardly.'
+    ]
+  }
 }

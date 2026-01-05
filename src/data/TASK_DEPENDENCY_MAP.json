@@ -1,0 +1,206 @@
+{
+  "playbooks": {
+    "first-10-customers": {
+      "id": "first-10-customers",
+      "name": "First 10 Customers",
+      "tagline": "From zero to first paying customers",
+      "description": "A focused 7-step journey for indie SaaS founders who need customers NOW.",
+      "targetUser": "Indie SaaS founders",
+      "icon": "rocket",
+      "tasks": [
+        { "step": 1, "taskId": "setup-1", "name": "Define Target Audience", "why": "Know exactly who you're selling to" },
+        { "step": 2, "taskId": "growth-5", "name": "Positioning & Messaging Map", "why": "Why should they choose you?" },
+        { "step": 3, "taskId": "sales-2", "name": "High-Converting Offer Builder", "why": "Create an irresistible launch offer" },
+        { "step": 4, "taskId": "setup-2", "name": "Set Up Landing Page", "why": "Where they sign up" },
+        { "step": 5, "taskId": "growth-2", "name": "Cold Outreach Campaigns", "why": "Direct outreach templates" },
+        { "step": 6, "taskId": "acq-1", "name": "Post in Communities", "why": "Find and engage your tribe" },
+        { "step": 7, "taskId": "sales-3", "name": "Objection Handling", "why": "Close the sale" }
+      ]
+    }
+  },
+  "experienceLevels": {
+    "beginner": {
+      "name": "Beginner",
+      "description": "Essential tasks for those new to sales & marketing",
+      "maxPhase": 3
+    },
+    "intermediate": {
+      "name": "Intermediate",
+      "description": "Full toolkit for those with marketing experience",
+      "maxPhase": 4
+    },
+    "advanced": {
+      "name": "Advanced",
+      "description": "Expert-level optimization and scaling (coming soon)",
+      "maxPhase": 4
+    }
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Discovery",
+      "description": "Define your market position",
+      "tasks": [
+        {
+          "id": "growth-5",
+          "name": "Positioning & Messaging Map",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "setup-1",
+          "name": "Define Target Audience",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "growth-3",
+          "name": "Competitor Analysis",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Conversion",
+      "description": "Turn traffic into customers",
+      "tasks": [
+        {
+          "id": "growth-1",
+          "name": "Lead Magnet Builder",
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "sales-2",
+          "name": "High-Converting Offer Builder",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "sales-5",
+          "name": "Sales Page Audit",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "sales-4",
+          "name": "Email Sequence Designer",
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "growth-2",
+          "name": "Cold Outreach Campaigns",
+          "businessModels": ["saas", "service"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "sales-3",
+          "name": "Objection Handling",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Execution",
+      "description": "Create and distribute content",
+      "tasks": [
+        {
+          "id": "growth-4",
+          "name": "A/B Testing Ideas",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "content-1",
+          "name": "Write Blog Post",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "sales-4",
+          "name": "Email Sequence Designer",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "social-1",
+          "name": "Schedule Posts",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "acq-3",
+          "name": "Host Webinar/Q&A",
+          "businessModels": ["saas", "service", "info-product"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "acq-1",
+          "name": "Post in Communities",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        },
+        {
+          "id": "advertising-1",
+          "name": "Launch Paid Ads",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "setup-2",
+          "name": "Set Up Landing Page",
+          "businessModels": ["all"],
+          "experienceLevels": ["beginner", "intermediate", "advanced"]
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Optimization",
+      "description": "Measure and improve results",
+      "tasks": [
+        {
+          "id": "advertising-2",
+          "name": "Optimize Paid Ads",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "analytics-1",
+          "name": "Set Up Analytics",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "analytics-2",
+          "name": "Optimize Channels",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "feedback-3",
+          "name": "Iterate on Features",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "analytics-3",
+          "name": "Review ROI",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        },
+        {
+          "id": "sales-1",
+          "name": "Sales Funnel Blueprint",
+          "businessModels": ["all"],
+          "experienceLevels": ["intermediate", "advanced"]
+        }
+      ]
+    }
+  ]
+}

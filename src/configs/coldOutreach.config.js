@@ -9,6 +9,16 @@ export const coldOutreachTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_persona': 'targetAudience',
+    'value_proposition': 'productDescription',
+    // Fields without canonical mapping (task-specific)
+    'outreach_channel': null,
+    'campaign_goal': null,
+    'email_count': null
+  },
+
   what: 'Get proven cold outreach templates for email, LinkedIn, and DMs. Includes 5 email variations, 4 LinkedIn message templates, follow-up sequences, personalization strategies, icebreaker tactics, and response handling scripts. Designed for high open rates and replies.',
 
   why: 'Cold outreach done right can generate 20-50+ qualified leads per month. But most cold messages get ignored or marked as spam. The difference between 0% and 30% response rates is the template structure, personalization level, and follow-up strategy.',
@@ -522,21 +532,8 @@ Format with ready-to-use templates and specific tactics.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context now auto-injected
+    // from projectStore in aiGeneration.js (app_description, company_name, etc.)
   },
 
   output: {
@@ -547,5 +544,28 @@ Format with ready-to-use templates and specific tactics.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS reaching out to marketing directors',
+        input: { target_persona: 'Marketing Directors at 50-200 person B2B companies', outreach_channel: 'email', message_angle: 'time-saving automation', outreach_goal: 'meeting', follow_up_strategy: 'moderate' },
+        output: '5 email template variations (problem-aware, value-first, mutual connection, pattern interrupt, direct), 3-4 touchpoint follow-up sequence over 14 days, subject line formulas optimized for B2B decision-makers, personalization tokens for company size and industry, and response handling scripts for common objections.'
+      },
+      {
+        scenario: 'Agency owner targeting e-commerce founders on LinkedIn',
+        input: { target_persona: 'E-commerce founders doing $500K-5M revenue', outreach_channel: 'linkedin', message_angle: 'revenue growth', outreach_goal: 'demo', follow_up_strategy: 'light' },
+        output: 'LinkedIn connection request message (under 300 chars), post-connection follow-up template, InMail template for premium outreach, comment-to-DM warm-up strategy, icebreakers referencing their recent posts or company news, 1-2 touchpoint follow-up cadence to respect LinkedIn norms.'
+      }
+    ],
+    commonMistakes: [
+      'Leading with your product instead of their problem - "We help companies automate..." gets ignored. Start with "Are you still manually doing [task] each week?" Focus on THEIR pain first.',
+      'Sending generic mass emails - "Hi there" and "Dear Sir/Madam" scream template. Always personalize with their name, company, and a specific observation about them or their business.',
+      'Writing walls of text - 5-paragraph cold emails never get read. Keep it to 3-4 sentences max. Make them WANT to reply to learn more instead of explaining everything upfront.',
+      'Not following up - 80% of replies come after the 3rd+ touchpoint, but most people send one email and quit. Have a 3-5 email follow-up sequence ready before you start outreaching.',
+      'Asking for too much too soon - first email asking for a 60-minute call or to "hop on a quick chat this week." Start with low-commitment asks like "Worth a 10-minute conversation?" or share value first.',
+      'Ignoring deliverability setup - sending from a new domain without SPF/DKIM/DMARC or sending 500 emails on day one. Warm up your domain gradually and set up authentication to avoid spam folders.'
+    ]
   }
 }

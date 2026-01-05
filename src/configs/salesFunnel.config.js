@@ -98,7 +98,7 @@ INPUTS:
 Product: {product_description}
 Target Audience: {target_audience}
 Main Problem: {main_problem}
-Price: ${price_point}
+Price: {price_point}
 Payment Model: {offer_structure}
 Primary Goal: {sales_goal}
 Existing Assets: {existing_assets}
@@ -130,7 +130,7 @@ Generate this exact structure:
 - Revenue per customer: Expected $[X]
 
 **Why This Funnel Works for Your Price Point:**
-[Explain why ${price_point} products need this specific approach]
+[Explain why {price_point} products need this specific approach]
 
 ---
 
@@ -350,7 +350,7 @@ Generate this exact structure:
    - Bonus 1: $[value]
    - Bonus 2: $[value]
    - Total value: $[X]
-   - **Your price: ${price_point}**
+   - **Your price: {price_point}**
 
 6. **Guarantee** (65-70% scroll)
    - [Recommend specific guarantee based on {offer_structure}]
@@ -375,7 +375,7 @@ Generate this exact structure:
 - Secondary: "[Alternative framing]"
 - Final: "[Urgency-based CTA]"
 
-### Pricing Psychology for ${price_point}
+### Pricing Psychology for {price_point}
 [Specific tactics based on price point - anchoring, framing, payment options]
 
 ### Upsell/Downsell Strategy
@@ -442,7 +442,7 @@ Generate this exact structure:
 ### Upsell/Cross-Sell Opportunities
 **Ascension Ladder:**
 1. Entry: $[lower price point product]
-2. Core: ${price_point} ← You are here
+2. Core: {price_point} ← You are here
 3. Premium: $[higher price point upgrade]
 
 **Timing:** Upsell after [X days/milestones]
@@ -545,7 +545,7 @@ Track these weekly:
 
 **Your Target Funnel Math:**
 - 1,000 visitors → [X] leads → [X] customers
-- Revenue: [X] customers × ${price_point} = $[X]
+- Revenue: [X] customers × {price_point} = $[X]
 - Cost: 1,000 visitors × $[X] CPC = $[X]
 - Profit: $[Revenue - Cost]
 - ROI: [X]%
@@ -642,7 +642,7 @@ Track these weekly:
 
 ## 💡 PRO TIPS FOR YOUR FUNNEL
 
-**For ${price_point} Products:**
+**For {price_point} Products:**
 [Specific advice based on price point - e.g., high-ticket needs more trust-building, low-ticket needs volume]
 
 **For {offer_structure} Model:**
@@ -706,21 +706,7 @@ A: [Advice on what's essential vs optional for {price_point}]
     temperature: 0.7,
     maxTokens: 4000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -731,5 +717,28 @@ A: [Advice on what's essential vs optional for {price_point}]
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS building funnel from cold traffic to paid customer',
+        input: { business_model: 'saas', product_price: 49, funnel_type: 'free-trial', traffic_sources: ['google-ads', 'content'] },
+        output: 'Complete 5-stage funnel: Awareness (blog posts + Google Ads driving 1000 visitors/month), Interest (lead magnet converting at 25% = 250 leads), Consideration (7-day email sequence + free trial, 40% start trial = 100 trials), Intent (in-app onboarding + upgrade prompts, 20% convert = 20 paid), Purchase (checkout flow with multiple payment options). Includes conversion benchmarks, bottleneck identification (biggest drop: trial-to-paid), and specific tactics to improve each stage.'
+      },
+      {
+        scenario: 'Course creator mapping funnel from webinar to course sale',
+        input: { business_model: 'info-product', product_price: 997, funnel_type: 'webinar', traffic_sources: ['social-organic', 'email'] },
+        output: 'Webinar funnel blueprint: Top of funnel (social posts + email promoting free webinar, 500 registrants), Webinar (60% show rate = 300 attendees, 90-min training), Pitch (last 20 mins, introducing $997 course with bonuses and 3-day deadline), Cart open (50 sales during webinar = 10% conversion, follow-up emails for non-buyers), Cart close (urgency sequence, additional 30 sales, total 80 sales = $79,760 revenue). Includes email sequences, webinar slide outline, and replay strategy.'
+      }
+    ],
+    commonMistakes: [
+      'Skipping stages - going straight from awareness to purchase without nurturing. Most buyers need 7-13 touchpoints before buying. Build the full funnel.',
+      'Not measuring each stage - knowing 1000 visitors turned into 10 customers but not knowing where the drop-off happens. Track conversion at EVERY stage to identify bottlenecks.',
+      'Optimizing wrong stage - focusing on traffic when the real problem is 1% trial-to-paid conversion. Fix the biggest leak first (usually middle/bottom of funnel), then drive more traffic.',
+      'One-size-fits-all funnel - treating cold traffic the same as warm leads. Segment funnels by traffic temperature: cold needs more nurturing, warm can go straight to offers.',
+      'No retargeting for drop-offs - losing 90% of visitors who don\'t convert and never following up. Set up retargeting ads and email sequences for people who exit at each stage.',
+      'Ignoring funnel velocity - optimizing for conversion rate but ignoring that funnel takes 90 days. Sometimes a faster, lower-converting funnel generates more revenue than a slow, high-converting one.'
+    ]
   }
 }

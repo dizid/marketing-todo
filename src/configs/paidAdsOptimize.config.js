@@ -1023,5 +1023,28 @@ export const paidAdsOptimizeTask = {
   advancedStrategies: advancedStrategies,
 
   customComponent: 'PaidAdsOptimizeMiniApp',
-  output: { enabled: false }
+  output: { enabled: false },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Google Ads campaign with high CPC and low Quality Score',
+        input: { platforms: ['google'], total_spend: 2000, total_clicks: 400, conversions: 12, main_issue: 'high cost per click' },
+        output: 'Optimization audit showing poor Quality Score driving high CPC ($5 avg vs $2-3 benchmark). Prioritized action plan: 1) Tighten ad groups (break 50 keywords into 5 tight groups of 10), 2) Improve ad copy relevance (include target keyword in headline 1), 3) Optimize landing page (add target keyword to H1), 4) Add 20+ negative keywords. Expected impact: 20-30% CPC reduction within 2 weeks, Quality Score 4->7, maintaining conversion rate.'
+      },
+      {
+        scenario: 'Facebook Ads with high spend but poor ROAS',
+        input: { platforms: ['meta'], total_spend: 3000, total_clicks: 1500, conversions: 15, revenue: 2250, main_issue: 'low ROAS' },
+        output: 'Performance diagnosis: 0.75 ROAS (spending $3K to make $2.25K = losing money). Root cause analysis reveals high CTR (2%) but low landing page conversion (1% vs 3-5% benchmark). Optimization roadmap: 1) Audit landing page (likely mismatch with ad promise), 2) Test 3 new landing page headlines, 3) Add social proof and guarantee, 4) Set up retargeting for 98% who didn\'t convert. Secondary: test lookalike audiences, refresh creative to combat fatigue. Target: 2x ROAS within 30 days by fixing conversion funnel.'
+      }
+    ],
+    commonMistakes: [
+      'Optimizing too early - making changes after 2 days and 50 clicks. Wait for statistical significance: minimum 100 clicks per ad variation or 30 conversions per campaign before making decisions.',
+      'Changing too many variables at once - simultaneously updating ad copy, targeting, budget, and landing page. Change ONE thing at a time or you won\'t know what worked.',
+      'Only looking at clicks - celebrating 5% CTR while ignoring that 0% convert. Optimize for CONVERSIONS and REVENUE, not vanity metrics like impressions or CTR.',
+      'Killing ads prematurely - pausing ads after one bad day. Ad performance fluctuates daily. Evaluate over 7-14 day windows, not single days.',
+      'Ignoring ad fatigue - running the same creative for 60+ days wondering why performance declined. Refresh creative every 30-45 days as audiences see ads multiple times.',
+      'Not testing audiences - setting one audience and never testing alternatives. Continuously test new interest groups, lookalikes at different percentages (1%, 2-3%, 4-5%), and exclude converters.'
+    ]
+  }
 }

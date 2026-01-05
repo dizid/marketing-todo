@@ -492,21 +492,7 @@ Format with specific test ideas and implementation steps.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -517,5 +503,28 @@ Format with specific test ideas and implementation steps.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'E-commerce product page with low conversion rate',
+        input: { asset_type: 'landing-page', current_performance: '2000 visitors/week, 1.5% conversion rate', traffic_volume: 'medium', conversion_goal: 'purchases' },
+        output: 'Prioritized test backlog starting with headline variations (problem-focused vs benefit-focused), followed by CTA button text changes, product image carousel tests, and social proof placement experiments. Includes sample size calculations and expected 2-week test duration for statistical significance.'
+      },
+      {
+        scenario: 'SaaS signup page optimization',
+        input: { asset_type: 'signup-flow', current_performance: '500 signups/week, 8% conversion, 60% bounce', traffic_volume: 'medium', conversion_goal: 'signups' },
+        output: 'Test roadmap focusing on reducing form fields (test 3 fields vs 7 fields), changing CTA copy from "Sign Up" to "Start Free Trial", adding trust badges, and testing multi-step vs single-page forms. Each test includes hypothesis, expected impact, and traffic requirements.'
+      }
+    ],
+    commonMistakes: [
+      'Testing too many variables at once - changing headline, CTA, and images simultaneously makes it impossible to know what drove the results. Test ONE element at a time.',
+      'Stopping tests too early - seeing 20 conversions and declaring victory leads to false positives. Always wait for statistical significance AND run for at least 1 full week to account for day-of-week variance.',
+      'Testing minor details before major elements - don\'t test button shades of blue before testing your headline. Follow the priority order: Headline > CTA > Social Proof > Visuals > Micro-copy.',
+      'Not having a clear hypothesis - random testing wastes time and traffic. Always start with "We believe [X] will increase [metric] by [%] because [psychological reason]".',
+      'Ignoring mobile performance - 50%+ of traffic is mobile, but many only preview tests on desktop. Always check how variants look and perform on mobile devices.',
+      'Not documenting learnings - running tests without keeping a log means you forget insights and repeat mistakes. Maintain a testing log with hypotheses, results, and learnings for institutional knowledge.'
+    ]
   }
 }

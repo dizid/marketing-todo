@@ -222,6 +222,30 @@ Have questions? Email us at support@example.com or [LINK_TO_COMMUNITY]`
     }
   },
 
+  // Help content for users
+  help: {
+    examples: [
+      {
+        scenario: 'Major feature release announcement',
+        input: { update_title: 'Real-Time Collaboration Released', key_features: 'Multi-user editing, live comments, version history', target_channels: 'Email, Twitter, Blog, Changelog' },
+        output: 'Email highlights time-saving benefits, Twitter threads show GIF demo, blog post details technical changes, changelog shows version numbers'
+      },
+      {
+        scenario: 'Bug fix / performance improvement',
+        input: { update_title: 'Performance Improvements: 40% Faster Load Times', key_features: '40% faster queries, optimized caching, database indexing' },
+        output: 'Short, focused announcement: "We made it faster" is the headline, technical details in blog only, social media just celebrates the benefit'
+      }
+    ],
+    commonMistakes: [
+      'Too much technical detail for general audience - "Index optimization" means nothing to most users. Say "It\'s 40% faster"',
+      'No consistent messaging across channels - Email says one thing, Twitter another. Write one message, then adapt for each channel.',
+      'Announcing without proof - "Faster now!" without metrics gets ignored. "40% faster (measured on 10k requests)" gets believed.',
+      'Forgetting the "why" - Users care about what you changed, but they LOVE why it matters to them.',
+      'No call-to-action - Don\'t end with "Let us know what you think". End with "Try it now" or "Read the blog" or "Share your thoughts".',
+      'Launching on one channel only - Even a great announcement gets lost. Use email + blog + Twitter + Slack + in-app (5 channels minimum).'
+    ]
+  },
+
   // Tool recommendations
   tools: [
     {

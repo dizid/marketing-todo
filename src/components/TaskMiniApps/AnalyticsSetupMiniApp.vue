@@ -585,7 +585,7 @@ mixpanel.people.set({
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
 import { supabase } from '@/utils/supabase'
 
@@ -630,6 +630,9 @@ const wizardData = ref({
 const isGeneratingPlan = ref(false)
 const planError = ref('')
 const copiedCode = ref('')
+
+// Timeout ID for copy feedback cleanup
+let copyTimeout
 
 // Load saved data on mount
 onMounted(() => {
@@ -775,7 +778,7 @@ const copyCode = async (codeId) => {
     const code = codeElement.textContent
     await navigator.clipboard.writeText(code)
     copiedCode.value = codeId
-    setTimeout(() => {
+    copyTimeout = setTimeout(() => {
       copiedCode.value = ''
     }, 2000)
   } catch (err) {
@@ -860,6 +863,12 @@ const markComplete = () => {
   saveProgress()
   // Optionally close modal or show success message
 }
+
+// Cleanup timers on component unmount
+onBeforeUnmount(() => {
+  if (copyTimeout) clearTimeout(copyTimeout)
+})
+
 </script>
 
 <style scoped>

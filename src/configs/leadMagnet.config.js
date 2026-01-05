@@ -9,6 +9,16 @@ export const leadMagnetTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_audience': 'targetAudience',
+    'main_problem': 'primaryGoal',
+    // Fields without canonical mapping (task-specific)
+    'industry': null,
+    'business_model': null,
+    'lead_quality': null
+  },
+
   what: 'Get 10 lead magnet ideas tailored to your audience and business model. For each idea, receive conversion-optimized landing page copy, delivery mechanisms, follow-up nurture sequences, and promotion strategies. Transform cold traffic into qualified leads.',
 
   why: 'Your email list is your most valuable asset - subscribers convert 10x higher than social followers. But generic "newsletter signups" get 1-2% opt-in rates. The right lead magnet can achieve 30-60% opt-in rates and attract pre-qualified buyers.',
@@ -389,21 +399,7 @@ Format with specific, ready-to-implement ideas and copy examples.`,
     temperature: 0.8,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -414,5 +410,28 @@ Format with specific, ready-to-implement ideas and copy examples.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'B2B SaaS creating lead magnet for cold traffic',
+        input: { industry: 'B2B SaaS', target_audience: 'Marketing directors at 50-200 person companies', main_problem: 'Marketing attribution is broken', business_model: 'saas' },
+        output: '10 lead magnet concepts including "7-Day Attribution Audit Checklist" (checklist format, 40% estimated opt-in), "Marketing Attribution Calculator" (interactive tool, 50% opt-in), "Attribution Mistakes Cheat Sheet" (PDF, 35% opt-in). Each includes landing page templates (minimal, standard, long-form), delivery mechanism recommendations, 7-email nurture sequence, and promotion strategy for paid ads.'
+      },
+      {
+        scenario: 'Online course creator targeting existing audience',
+        input: { industry: 'Education/Courses', target_audience: 'Aspiring freelance writers', main_problem: 'Can\'t find high-paying clients', business_model: 'info-product', distribution_channels: ['social-organic', 'existing-traffic'] },
+        output: 'Lead magnet strategy featuring "50 High-Paying Client Outreach Templates" (templates/swipe files, 45% opt-in for organic), "Client Pricing Calculator" (tool, 55% opt-in), "Freelance Writer Starter Kit" (multi-part guide, 30% opt-in). Includes landing page copy emphasizing social proof, immediate delivery via email, tripwire offer strategy ($27 mini-course upsell), and organic promotion tactics for Twitter and Instagram.'
+      }
+    ],
+    commonMistakes: [
+      'Creating lead magnets that are too broad - "Ultimate Guide to Marketing" attracts everyone but converts nobody. Make it laser-specific: "5-Step Email Sequence for SaaS Trials" targets exactly who you want.',
+      'Making it too long or complex - 50-page ebook nobody reads. Best performing lead magnets are quick wins: checklists, templates, calculators that deliver value in 10-15 minutes.',
+      'Not connecting lead magnet to paid offer - giving away random valuable content unrelated to your product. Your lead magnet should solve step 1 of the problem your paid product fully solves.',
+      'Terrible landing page copy - focusing on features "Get 20 templates" instead of outcome "Land your first $5K client this month." Always lead with the transformation, not the deliverable.',
+      'No follow-up sequence - someone opts in, gets the lead magnet, never hears from you again. Have a 5-7 email nurture sequence ready that builds trust and introduces your paid offer.',
+      'Not testing opt-in rate - creating one lead magnet and assuming it works. Benchmark: 15-30% opt-in is good, 30-60% is excellent for paid traffic. If under 15%, your value proposition is weak.'
+    ]
   }
 }

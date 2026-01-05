@@ -11,6 +11,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   // State
   const currentStep = ref(1)
   const startTime = ref(Date.now())
+  const isNewProjectMode = ref(false) // When true, skip auth step (user is logged in)
 
   const wizardData = ref({
     // Step 1: Product type
@@ -18,14 +19,17 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     productName: '',
     productDescription: '',
 
-    // Step 2: Target audience
+    // Step 2: Experience level
+    experienceLevel: null, // 'beginner' or 'intermediate'
+
+    // Step 3: Target audience
     targetAudience: '',
 
-    // Step 3: Goals
+    // Step 4: Goals
     mainGoal: null,
     timeline: null,
 
-    // Step 4: Optional details
+    // Step 5: Optional details
     budget: null,
     teamSize: 'solo',
     techStack: [],
@@ -87,6 +91,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       productType: null,
       productName: '',
       productDescription: '',
+      experienceLevel: null,
       targetAudience: '',
       mainGoal: null,
       timeline: null,
@@ -98,9 +103,12 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     }
   }
 
+  // Total steps depends on mode (5 for new project mode, 6 for full onboarding)
+  const totalSteps = computed(() => isNewProjectMode.value ? 5 : 6)
+
   // Navigation
   const nextStep = () => {
-    if (currentStep.value < 5) {
+    if (currentStep.value < totalSteps.value) {
       currentStep.value++
       saveToStorage()
     }
@@ -114,9 +122,14 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   }
 
   const goToStep = (step) => {
-    if (step >= 1 && step <= currentStep.value) {
+    if (step >= 1 && step <= totalSteps.value) {
       currentStep.value = step
     }
+  }
+
+  // Set new project mode (for logged-in users creating a new project)
+  const setNewProjectMode = (enabled) => {
+    isNewProjectMode.value = enabled
   }
 
   // Update data
@@ -136,12 +149,14 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       case 1:
         return !!(wizardData.value.productType && wizardData.value.productName?.trim())
       case 2:
-        return !!(wizardData.value.targetAudience?.trim())
+        return !!(wizardData.value.experienceLevel) // Experience level selection
       case 3:
-        return !!(wizardData.value.mainGoal && wizardData.value.timeline)
+        return !!(wizardData.value.targetAudience?.trim())
       case 4:
-        return true // Optional step
+        return !!(wizardData.value.mainGoal && wizardData.value.timeline)
       case 5:
+        return true // Optional step
+      case 6:
         return true // Validation in component
       default:
         return false
@@ -150,7 +165,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   // Progress
   const progressPercentage = computed(() => {
-    return Math.round((currentStep.value / 5) * 100)
+    return Math.round((currentStep.value / totalSteps.value) * 100)
   })
 
   // Time spent
@@ -175,6 +190,39 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     }
   })
 
+  // Sync wizard data to Supabase (called on wizard completion)
+  const syncToSupabase = async (projectId) => {
+    try {
+      if (!projectId) throw new Error('No project ID provided')
+
+      // Import dynamically to avoid circular dependencies
+      const { useProjectStore } = await import('./projectStore.js')
+      const projectStore = useProjectStore()
+
+      // Map onboarding fields to project settings
+      const settingsToSync = {
+        productType: wizardData.value.productType,
+        productName: wizardData.value.productName,
+        productDescription: wizardData.value.productDescription,
+        experienceLevel: wizardData.value.experienceLevel,
+        targetAudience: wizardData.value.targetAudience,
+        mainGoal: wizardData.value.mainGoal,
+        timeline: wizardData.value.timeline,
+        budget: wizardData.value.budget,
+        teamSize: wizardData.value.teamSize,
+        techStack: wizardData.value.techStack,
+        currentStage: wizardData.value.currentStage,
+        launchDate: wizardData.value.launchDate
+      }
+
+      // Save to Supabase via project store
+      await projectStore.updateProjectSettings(settingsToSync)
+    } catch (e) {
+      console.error('Failed to sync wizard data to Supabase:', e)
+      throw e
+    }
+  }
+
   // Initialize on store creation
   loadFromStorage()
 
@@ -183,8 +231,10 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     currentStep,
     wizardData,
     startTime,
+    isNewProjectMode,
 
     // Computed
+    totalSteps,
     isStepValid,
     progressPercentage,
     timeSpentMinutes,
@@ -198,6 +248,8 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     updateMultiple,
     clearWizard,
     saveToStorage,
-    loadFromStorage
+    loadFromStorage,
+    syncToSupabase,
+    setNewProjectMode
   }
 })

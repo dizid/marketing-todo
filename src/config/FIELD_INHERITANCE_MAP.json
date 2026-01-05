@@ -1,0 +1,346 @@
+{
+  "canonical_fields": {
+    "productName": {
+      "description": "What you're selling",
+      "canonical_path": "projectContext.productName",
+      "data_type": "string",
+      "example": "Launchpilot - Marketing Task Manager",
+      "frequency_across_tasks": 8
+    },
+    "productType": {
+      "description": "Category of what you're selling",
+      "canonical_path": "projectContext.productType",
+      "data_type": "enum",
+      "options": ["SaaS", "Course", "Service", "Physical Product", "App", "Other"],
+      "frequency_across_tasks": 4
+    },
+    "productDescription": {
+      "description": "Detailed description of the product",
+      "canonical_path": "projectContext.productDescription",
+      "data_type": "string",
+      "example": "AI-powered marketing task manager with 32+ mini-apps for sales and growth",
+      "frequency_across_tasks": 6
+    },
+    "targetAudience": {
+      "description": "Who you're selling to",
+      "canonical_path": "projectContext.targetAudience",
+      "data_type": "string",
+      "example": "SaaS founders, marketing managers, freelance marketers",
+      "frequency_across_tasks": 12,
+      "note": "HIGHEST DUPLICATION - appears in 12+ tasks"
+    },
+    "primaryGoal": {
+      "description": "Main marketing objective",
+      "canonical_path": "projectContext.primaryGoal",
+      "data_type": "enum",
+      "options": ["Awareness", "Lead Generation", "Sales", "Retention", "Scaling"],
+      "frequency_across_tasks": 8
+    },
+    "targetTimeline": {
+      "description": "When you want to launch or complete",
+      "canonical_path": "projectContext.targetTimeline",
+      "data_type": "date_or_duration",
+      "example": "Q1 2025 or 90 days",
+      "frequency_across_tasks": 5
+    },
+    "marketingBudget": {
+      "description": "Total monthly marketing budget",
+      "canonical_path": "projectContext.marketingBudget",
+      "data_type": "number",
+      "currency": "USD",
+      "example": 5000,
+      "frequency_across_tasks": 4
+    },
+    "teamSize": {
+      "description": "How many people on the marketing team",
+      "canonical_path": "projectContext.teamSize",
+      "data_type": "enum",
+      "options": ["Solo", "2-3", "4-10", "10+"],
+      "frequency_across_tasks": 3
+    },
+    "currentStage": {
+      "description": "Where you are in the business lifecycle",
+      "canonical_path": "projectContext.currentStage",
+      "data_type": "enum",
+      "options": ["Ideation", "MVP", "Launching", "Scaling", "Mature"],
+      "frequency_across_tasks": 2
+    },
+    "techStack": {
+      "description": "Tools and platforms you use",
+      "canonical_path": "projectContext.techStack",
+      "data_type": "array",
+      "example": ["Shopify", "Stripe", "Google Analytics"],
+      "frequency_across_tasks": 1
+    }
+  },
+  "task_field_mappings": {
+    "offer-builder": {
+      "task_id": "sales-2",
+      "task_name": "High-Converting Offer Builder",
+      "priority": 1,
+      "mappings": {
+        "core_product": "productName",
+        "product_description": "productDescription",
+        "customer_description": "targetAudience",
+        "primary_outcome": "primaryGoal",
+        "target_audience_level": null,
+        "pricing_flexibility": null,
+        "guarantee_level": null
+      },
+      "notes": "High duplication - uses 4 canonical fields"
+    },
+    "paid-ads": {
+      "task_id": "growth-1",
+      "task_name": "Paid Ads Strategy",
+      "priority": 2,
+      "mappings": {
+        "product_positioning": "productName",
+        "audience_targeting": "targetAudience",
+        "primary_goal": "primaryGoal",
+        "monthly_budget": "marketingBudget",
+        "campaign_timeline": "targetTimeline",
+        "experience_level": null,
+        "ad_platforms": null
+      },
+      "notes": "Critical task - uses 5 canonical fields"
+    },
+    "webinar": {
+      "task_id": "growth-3",
+      "task_name": "Webinar Planning Checklist",
+      "priority": 3,
+      "mappings": {
+        "product_name": "productName",
+        "target_audience": "targetAudience",
+        "primary_goal": "primaryGoal",
+        "webinar_topic": null,
+        "expected_attendees": null,
+        "duration_hours": null,
+        "launch_date": "targetTimeline"
+      },
+      "notes": "Uses 4 canonical fields"
+    },
+    "sales-page-audit": {
+      "task_id": "sales-5",
+      "task_name": "Sales Page Audit & Optimizer",
+      "priority": 4,
+      "mappings": {
+        "product_price": "marketingBudget",
+        "traffic_sources": null,
+        "main_objections": null,
+        "current_conversion_rate": null
+      },
+      "notes": "Implicit canonical field usage - price relates to audience segment"
+    },
+    "cold-outreach": {
+      "task_id": "sales-3",
+      "task_name": "Cold Outreach Templates",
+      "priority": 5,
+      "mappings": {
+        "target_audience": "targetAudience",
+        "product_description": "productDescription",
+        "key_value_propositions": "primaryGoal",
+        "outreach_type": null,
+        "campaign_duration": "targetTimeline"
+      },
+      "notes": "Uses 3 canonical fields directly"
+    },
+    "email-sequence": {
+      "task_id": "sales-4",
+      "task_name": "Email Sales Sequence Builder",
+      "priority": 6,
+      "mappings": {
+        "product_description": "productDescription",
+        "audience_context": "targetAudience",
+        "sequence_goal": "primaryGoal",
+        "offer_details": null,
+        "existing_relationship": null,
+        "tone": null
+      },
+      "notes": "Uses 3 canonical fields"
+    },
+    "landing-page-creator": {
+      "task_id": "setup-2",
+      "task_name": "Landing Page Creator",
+      "priority": 7,
+      "mappings": {
+        "brand_name": "productName",
+        "product_details": "productDescription",
+        "target_audience_detail": "targetAudience",
+        "main_benefit": "primaryGoal",
+        "page_purpose": null,
+        "call_to_action": null
+      },
+      "notes": "Uses 4 canonical fields"
+    },
+    "community-engagement": {
+      "task_id": "growth-2",
+      "task_name": "Community Engagement Strategy",
+      "priority": 8,
+      "mappings": {
+        "target_community": null,
+        "audience_segment": "targetAudience",
+        "key_messages": "productDescription",
+        "engagement_goal": "primaryGoal",
+        "tone": null
+      },
+      "notes": "Uses 3 canonical fields"
+    },
+    "lead-magnet-ideas": {
+      "task_id": "growth-6",
+      "task_name": "Lead Magnet Ideas",
+      "priority": 9,
+      "mappings": {
+        "target_audience": "targetAudience",
+        "product_positioning": "productName",
+        "primary_goal": "primaryGoal",
+        "budget_for_promotion": "marketingBudget",
+        "lead_quality_target": null,
+        "delivery_format": null
+      },
+      "notes": "Uses 4 canonical fields"
+    },
+    "positioning-map": {
+      "task_id": "growth-5",
+      "task_name": "Positioning & Messaging Map",
+      "priority": 10,
+      "mappings": {
+        "product_description": "productDescription",
+        "target_audience": "targetAudience",
+        "primary_goal": "primaryGoal",
+        "market_stage": "currentStage",
+        "positioning_angle": null,
+        "unique_value_prop": null
+      },
+      "notes": "Strategic task - uses 4 canonical fields"
+    },
+    "audience-research": {
+      "task_id": "setup-1",
+      "task_name": "Audience Research",
+      "priority": 11,
+      "mappings": {
+        "target_audience_overview": "targetAudience",
+        "industry": null,
+        "pain_points": null,
+        "demographics": null,
+        "psychographics": null,
+        "buying_triggers": null
+      },
+      "notes": "Entry point task - defines targetAudience"
+    },
+    "competitor-intelligence": {
+      "task_id": "growth-7",
+      "task_name": "Competitor Intelligence",
+      "priority": 12,
+      "mappings": {
+        "product_category": "productType",
+        "target_market": "targetAudience",
+        "competitor_positioning": null,
+        "competitor_pricing": "marketingBudget",
+        "competitor_messaging": null
+      },
+      "notes": "Uses 3 canonical fields"
+    }
+  },
+  "inheritance_rules": {
+    "rule_1": {
+      "name": "Circular dependency prevention",
+      "description": "If a task is the primary entry point for a field, it should not inherit it back",
+      "example": "Audience Research defines targetAudience, so it doesn't inherit it"
+    },
+    "rule_2": {
+      "name": "Override preservation",
+      "description": "If user creates task-specific override, preserve it even if source updates",
+      "implementation": "Use task_field_overrides table with source tracking"
+    },
+    "rule_3": {
+      "name": "Empty field handling",
+      "description": "Show inherited value even if target field is empty",
+      "implementation": "Always populate form with inherited value, but allow override"
+    },
+    "rule_4": {
+      "name": "Data type compatibility",
+      "description": "Only inherit if data types match or can be converted",
+      "example": "Cannot inherit marketingBudget (number) into targetAudience (string)"
+    }
+  },
+  "duplication_analysis": {
+    "highest_duplication": [
+      {
+        "field": "targetAudience",
+        "canonical_field": "targetAudience",
+        "appearances": 12,
+        "tasks": [
+          "offer-builder (customer_description)",
+          "paid-ads (audience_targeting)",
+          "webinar (target_audience)",
+          "email-sequence (audience_context)",
+          "landing-page-creator (target_audience_detail)",
+          "community-engagement (audience_segment)",
+          "lead-magnet-ideas (target_audience)",
+          "positioning-map (target_audience)",
+          "audience-research (target_audience_overview)",
+          "competitor-intelligence (target_market)",
+          "blog (target_audience)",
+          "video-script (audience)"
+        ],
+        "impact": "CRITICAL - each entry reduces duplication by ~33% time saved"
+      },
+      {
+        "field": "productName",
+        "canonical_field": "productName",
+        "appearances": 8,
+        "tasks": [
+          "offer-builder (core_product)",
+          "paid-ads (product_positioning)",
+          "webinar (product_name)",
+          "landing-page-creator (brand_name)",
+          "lead-magnet-ideas (product_positioning)",
+          "positioning-map (product_name)",
+          "competitor-intelligence (product_category)",
+          "newsletter (product_name)"
+        ],
+        "impact": "HIGH - consolidates product identity across tasks"
+      },
+      {
+        "field": "primaryGoal",
+        "canonical_field": "primaryGoal",
+        "appearances": 8,
+        "tasks": [
+          "offer-builder (primary_outcome)",
+          "paid-ads (primary_goal)",
+          "webinar (primary_goal)",
+          "cold-outreach (key_value_propositions)",
+          "email-sequence (sequence_goal)",
+          "lead-magnet-ideas (primary_goal)",
+          "positioning-map (primary_goal)",
+          "community-engagement (engagement_goal)"
+        ],
+        "impact": "HIGH - ensures consistent goal alignment across channels"
+      }
+    ],
+    "consolidation_opportunity": "47% reduction in data entry if canonical fields inherited across all tasks"
+  },
+  "implementation_priority": {
+    "phase_1_tasks": [
+      "offer-builder",
+      "paid-ads",
+      "webinar",
+      "sales-page-audit",
+      "cold-outreach",
+      "email-sequence",
+      "landing-page-creator",
+      "community-engagement",
+      "lead-magnet-ideas",
+      "positioning-map"
+    ],
+    "phase_1_estimated_duplication_reduction": "40-50%",
+    "phase_2_tasks": [
+      "audience-research",
+      "competitor-intelligence",
+      "analytics-setup",
+      "channel-analyzer",
+      "roi-calculator"
+    ],
+    "phase_2_estimated_additional_reduction": "10-15%"
+  }
+}

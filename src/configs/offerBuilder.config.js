@@ -9,6 +9,17 @@ export const offerBuilderTask = {
   category: 'sales',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'core_product': 'productName',
+    'customer_outcome': 'primaryGoal',
+    // Fields without canonical mapping (task-specific)
+    'existing_assets': null,
+    'target_price': null,
+    'guarantee_preference': null,
+    'urgency_approach': null
+  },
+
   what: 'Create a complete offer package that makes buying a no-brainer. Get product naming ideas, value stacking formulas, bonus recommendations, guarantee templates, pricing psychology tactics, and ready-to-use sales copy. Turn your product into an irresistible offer.',
 
   why: 'The same product can convert at 1% or 15% based purely on HOW you package and present it. Most entrepreneurs leave money on the table by under-pricing, weak guarantees, and no bonuses. A well-structured offer can 3-5x your conversion rate overnight without changing your product.',
@@ -118,11 +129,11 @@ INPUTS:
 Core Product: {core_product}
 Customer Outcome: {customer_outcome}
 Available Bonus Assets: {existing_assets}
-Target Price: ${target_price}
+Target Price: {target_price}
 Pricing Flexibility: {pricing_flexibility}
 Guarantee Level: {guarantee_level}
 Audience Experience: {target_audience_level}
-Competitor Pricing: ${competitors_price}
+Competitor Pricing: {competitors_price}
 
 CRITICAL OUTPUT REQUIREMENTS:
 - Provide SPECIFIC copy, not generic templates
@@ -201,15 +212,15 @@ Your product name should promise an outcome, not describe features.
 "Unlike [typical solutions/competitors] that [what they do wrong], [Product Name] [what you do differently] which means [benefit to customer]."
 
 **YOUR DIFFERENTIATION:**
-[Write based on ${competitors_price} and their unique approach]
+[Write based on {competitors_price} and their unique approach]
 
 ---
 
-## 4. VALUE STACK (Make ${target_price} Feel Like a Steal)
+## 4. VALUE STACK (Make {target_price} Feel Like a Steal)
 
 ### The Formula: Core + Bonuses = 5-10x Your Price
 
-**CORE OFFER:** ${target_price} Value
+**CORE OFFER:** {target_price} Value
 [Describe what's included in {core_product}]
 
 Based on your available assets ({existing_assets}), here are your best bonuses:
@@ -239,26 +250,26 @@ Based on your available assets ({existing_assets}), here are your best bonuses:
 - **Urgency angle:** "Lifetime access locked at this price"
 
 ### VALUE STACK MATH:
-- Core Product: ${target_price}
+- Core Product: {target_price}
 - Bonus 1: $[X]
 - Bonus 2: $[X]
 - Bonus 3: $[X]
 - Bonus 4: $[X]
 - **TOTAL VALUE: $[Sum it up]**
 
-**YOUR INVESTMENT TODAY: ${target_price}**
+**YOUR INVESTMENT TODAY: {target_price}**
 **YOU SAVE: $[Total - Price]**
 
 ### HOW TO PRESENT THIS:
 "When you invest in [Product Name] today, you get:
 
-✓ [Core product] (Value: ${target_price})
+✓ [Core product] (Value: {target_price})
 ✓ [Bonus 1 name] (Value: $X)
 ✓ [Bonus 2 name] (Value: $X)
 ✓ [Bonus 3 name] (Value: $X)
 
 **Total Value: $[X]**
-**Your Investment: ${target_price}**
+**Your Investment: {target_price}**
 
 That's [X]% off the total value - but only if you act now."
 
@@ -266,7 +277,7 @@ That's [X]% off the total value - but only if you act now."
 
 ## 5. PRICING PSYCHOLOGY TACTICS
 
-### For ${target_price} Products:
+### For {target_price} Products:
 [Provide specific tactics based on their price point]
 
 **IF PRICE < $100:** Volume play, impulse buy
@@ -299,9 +310,9 @@ That's [X]% off the total value - but only if you act now."
 [Recommend specific payment structure based on their selection]
 
 **Anchoring Tactics:**
-1. Show total value ($[X]) first, then reveal price (${target_price})
+1. Show total value ($[X]) first, then reveal price ({target_price})
 2. Compare to cost of NOT solving problem: "Staying stuck costs you $[X] per month"
-3. [If competitors_price provided] Compare to competitor pricing: "Others charge ${competitors_price} for similar"
+3. [If competitors_price provided] Compare to competitor pricing: "Others charge {competitors_price} for similar"
 
 ---
 
@@ -331,7 +342,7 @@ That's [X]% off the total value - but only if you act now."
 **WARNING:** Only use if you have proof this works for most people. This is a bold claim.
 
 **IF SUGGEST:**
-For ${target_price} products targeting {target_audience_level} audience, we recommend: [STRONG guarantee]
+For {target_price} products targeting {target_audience_level} audience, we recommend: [STRONG guarantee]
 
 ### HOW TO PRESENT YOUR GUARANTEE:
 
@@ -375,8 +386,8 @@ The risk is entirely on us. All you have to do is show up and implement.
 ### Urgency Copy Examples:
 
 **COUNTDOWN TIMER:**
-"[Product Name] at ${target_price} ends in: [Timer]
-After that, it's ${target_price * 1.3} forever."
+"[Product Name] at {target_price} ends in: [Timer]
+After that, it's {target_price * 1.3} forever."
 
 **ENROLLMENT CAP:**
 "[X/Y] spots filled. Only [Y-X] remaining before we close enrollment."
@@ -393,14 +404,14 @@ After that, it's ${target_price * 1.3} forever."
 
 Address these BEFORE they ask:
 
-### "Is this worth ${target_price}?"
+### "Is this worth {target_price}?"
 **PRE-HANDLE ON SALES PAGE:**
-- Show value stack (total value $[X] vs price ${target_price})
+- Show value stack (total value $[X] vs price {target_price})
 - Include ROI calculator or case study
 - Testimonial about "best investment I made"
 
 **COPY:**
-"Is [Product Name] worth ${target_price}? Here's the math: [Quick ROI calculation based on {customer_outcome}]. This pays for itself when you [specific first win]."
+"Is [Product Name] worth {target_price}? Here's the math: [Quick ROI calculation based on {customer_outcome}]. This pays for itself when you [specific first win]."
 
 ### "Will this actually work for me?"
 **PRE-HANDLE:**
@@ -427,7 +438,7 @@ Address these BEFORE they ask:
 - Value time vs money
 
 **COPY:**
-"Could you figure this out yourself? Maybe. In [X months/years]. Or you could [get result] in [your timeframe] with a proven system. Your time is worth more than ${target_price}."
+"Could you figure this out yourself? Maybe. In [X months/years]. Or you could [get result] in [your timeframe] with a proven system. Your time is worth more than {target_price}."
 
 ### "I'm worried about [specific concern]"
 **PRE-HANDLE:**
@@ -484,7 +495,7 @@ Address these BEFORE they ask:
 - "When you join today, you get:"
 - [List core + all bonuses with values]
 - "Total Value: $[X]"
-- "Your Investment: ${target_price}"
+- "Your Investment: {target_price}"
 - **BIG CTA BUTTON**
 
 **SCROLL SECTION 6: Guarantee (65-75%)**
@@ -520,7 +531,7 @@ Address these BEFORE they ask:
 
 **URGENCY-DRIVEN:**
 ✓ "Claim My Spot Before [Deadline]!"
-✓ "Lock In ${target_price} Pricing Now"
+✓ "Lock In {target_price} Pricing Now"
 ✓ "Get [Bonus] Before It's Gone"
 
 **RISK-REVERSAL:**
@@ -624,7 +635,7 @@ Test these in ads, emails, and landing pages:
 - Expected: 20% of sales
 
 **TIER 2: "PROFESSIONAL" (MOST POPULAR)**
-- Price: ${target_price} ← Your target price
+- Price: {target_price} ← Your target price
 - What's included: Core + Bonuses 1-2
 - Best for: Serious buyers who want full value
 - Expected: 60% of sales
@@ -646,8 +657,8 @@ Test these in ads, emails, and landing pages:
 
 ### Revenue Impact:
 With 100 customers:
-- All buy Tier 2: 100 × ${target_price} = $[X]
-- 20/60/20 split: (20 × $[Tier 1]) + (60 × ${target_price}) + (20 × $[Tier 3]) = $[X]
+- All buy Tier 2: 100 × {target_price} = $[X]
+- 20/60/20 split: (20 × $[Tier 1]) + (60 × {target_price}) + (20 × $[Tier 3]) = $[X]
 - **Potential increase: [X]%** just from offering tiers!
 
 ---
@@ -664,13 +675,13 @@ Use this to build your offer:
 
 **STEP 2: VALUE STACK (1 hour)**
 - [ ] List everything in core product
-- [ ] Assign value to core (${target_price})
+- [ ] Assign value to core ({target_price})
 - [ ] Choose 3-4 bonuses from available assets
 - [ ] Assign credible values to bonuses
 - [ ] Calculate total value (aim for 5-10x price)
 
 **STEP 3: PRICING & GUARANTEE (30 minutes)**
-- [ ] Set final price (${target_price})
+- [ ] Set final price ({target_price})
 - [ ] Decide on payment options
 - [ ] Write guarantee copy
 - [ ] Calculate payment plan options if applicable
@@ -704,7 +715,7 @@ Use this to build your offer:
 
 Set these targets:
 
-**For ${target_price} Products:**
+**For {target_price} Products:**
 
 **Cold Traffic (From Ads):**
 - Landing page opt-in: 20-40%
@@ -737,7 +748,7 @@ Set these targets:
 
 ## 💡 PRO TIPS FOR YOUR OFFER
 
-**For ${target_price} Price Point:**
+**For {target_price} Price Point:**
 [Specific advice based on their price - e.g., under $100 = volume game, over $1000 = high-touch]
 
 **For {target_audience_level} Audience:**
@@ -780,21 +791,7 @@ Set these targets:
     temperature: 0.8,
     maxTokens: 4000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -805,5 +802,28 @@ Set these targets:
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Building offer for $297 online course',
+        input: { core_product: '8-week course with 24 video lessons on email marketing', customer_outcome: 'Build email list from 0 to 1000 subscribers and make first $5K', target_price: 297, existing_assets: ['templates', 'community', 'content'], pricing_flexibility: 'payment-plan', guarantee_level: 'strong' },
+        output: 'Complete offer package: product naming options ("Email Growth Blueprint"), value stack totaling $1,847 (course $297 + email templates $497 + private community $997/year + swipe file $197), 3-pay option at $99/month, 60-day guarantee with bonus retention, urgency via founding member pricing deadline, sales page structure with 9 sections, and 5 CTA variations tested for conversion.'
+      },
+      {
+        scenario: 'Packaging consulting offer with tiered pricing',
+        input: { core_product: 'Monthly marketing consulting for B2B SaaS', customer_outcome: 'Generate 50 qualified leads per month', target_price: 3000, pricing_flexibility: 'tiered', guarantee_level: 'basic' },
+        output: 'Good/Better/Best tier structure: Starter $1,800 (monthly calls only), Professional $3,000 (calls + strategy docs + implementation), Premium $5,400 (full-service + priority support). Value stacking showing $8K+ monthly value at Professional tier, positioning statement for each audience segment, guarantee copy for B2B context, objection pre-handling for FAQ section, and ROI calculator showing breakeven after 2 clients.'
+      }
+    ],
+    commonMistakes: [
+      'Weak value stacking - core product $500, one mediocre bonus worth $50, total "value" $550. Stack should be 5-10x your price with genuinely valuable bonuses that support the main offer.',
+      'Generic product naming - calling it "Marketing Course" instead of outcome-focused "90-Day List Building System." Name should promise the transformation, not describe the format.',
+      'Wimpy guarantees - no guarantee or weak "15-day money back." Strong guarantees (60-90 days, keep bonuses) dramatically increase conversion and rarely increase refunds.',
+      'No strategic pricing - picking random numbers. Use psychology: $997 converts better than $1000, payment plans increase sales 30-50%, tiered pricing captures more buyer types.',
+      'Buried CTAs - one "buy now" button at the bottom. Include minimum 3 CTAs: above fold, after value stack, and final section. Each additional CTA increases conversion 5-10%.',
+      'Not testing urgency - evergreen offers with no deadline or scarcity underperform. Add real deadlines (enrollment closes Friday), limited spots (30 per cohort), or price increases (early bird ends).'
+    ]
   }
 }

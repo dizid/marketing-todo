@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   isValid: {
@@ -112,6 +112,10 @@ const output = ref(null)
 const hasCopied = ref(false)
 const generationProgress = ref(0)
 
+// Interval tracking
+let progressInterval = null
+let copyResetTimeout = null
+
 const generate = async () => {
   console.log('[AIPanel] Generate button clicked')
   console.log('[AIPanel] generateFn:', props.generateFn)
@@ -126,13 +130,13 @@ const generate = async () => {
   try {
     console.log('[AIPanel] Calling generateFn...')
     // Simulate progress
-    const progressInterval = setInterval(() => {
+    progressInterval = setInterval(() => {
       generationProgress.value = Math.min(generationProgress.value + Math.random() * 30, 90)
     }, 200)
 
     const result = await props.generateFn()
 
-    clearInterval(progressInterval)
+    if (progressInterval) clearInterval(progressInterval)
     generationProgress.value = 100
 
     console.log('[AIPanel] Result received:', result)
@@ -140,10 +144,20 @@ const generate = async () => {
     emit('output', result)
     successMessage.value = 'Generated successfully! Click "✓ Use This" to save.'
   } catch (err) {
+    // Clear progress interval on error
+    if (progressInterval) {
+      clearInterval(progressInterval)
+      progressInterval = null
+    }
     console.error('[AIPanel] Generation error:', err)
     error.value = err.message || 'Failed to generate. Please try again.'
     console.error('Full error details:', err)
   } finally {
+    // Ensure interval is cleared and state is reset
+    if (progressInterval) {
+      clearInterval(progressInterval)
+      progressInterval = null
+    }
     isGenerating.value = false
     generationProgress.value = 0
   }
@@ -163,7 +177,7 @@ const copyToClipboard = async () => {
     const textToCopy = typeof output.value === 'string' ? output.value : JSON.stringify(output.value)
     await navigator.clipboard.writeText(textToCopy)
     hasCopied.value = true
-    setTimeout(() => {
+    copyResetTimeout = setTimeout(() => {
       hasCopied.value = false
     }, 2000)
   } catch (err) {
@@ -178,6 +192,12 @@ const useOutput = () => {
 
 defineExpose({
   generate
+})
+
+// Cleanup intervals and timeouts on unmount
+onBeforeUnmount(() => {
+  if (progressInterval) clearInterval(progressInterval)
+  if (copyResetTimeout) clearTimeout(copyResetTimeout)
 })
 </script>
 

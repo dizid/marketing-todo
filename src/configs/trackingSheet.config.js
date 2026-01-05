@@ -117,5 +117,28 @@ export const trackingSheetTask = {
 
   customComponent: 'TrackingSheetMiniApp',
   templates: templates,
-  metricsGuide: metricsGuide
+  metricsGuide: metricsGuide,
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS tracking daily signups and conversion sources',
+        input: { tracking_goals: ['daily signups', 'traffic sources', 'trial-to-paid conversion'], tools: 'google-sheets' },
+        output: 'Google Sheets template with 5 tabs: Daily Metrics (date, signups, trials started, upgrades, churn), Traffic Sources (source, visitors, signups, conversion rate - auto-calculated), Revenue (MRR, new revenue, churned revenue, net growth), Cohort Analysis (monthly signup cohorts with retention %), Dashboard (charts showing trends). Pre-built formulas calculate conversion rates, growth rate, and highlight anomalies. Data entry takes 5 mins/day.'
+      },
+      {
+        scenario: 'E-commerce tracking sales by product and marketing channel',
+        input: { tracking_goals: ['sales by product', 'revenue by channel', 'customer acquisition cost'], tools: 'excel' },
+        output: 'Excel workbook with Product Performance sheet (SKU, units sold, revenue, profit margin), Channel Attribution (channel, spend, orders, revenue, ROI, CAC - auto-calculated), Daily Sales (date, orders, revenue, avg order value), and Summary Dashboard (pivot tables and charts). Conditional formatting highlights profitable vs unprofitable channels. Weekly review takes 15 mins to identify trends.'
+      }
+    ],
+    commonMistakes: [
+      'Tracking too many metrics - monitoring 50 different KPIs and drowning in data. Start with 5-7 core metrics that directly impact revenue: signups, conversions, revenue, churn, and CAC.',
+      'Inconsistent data entry - entering data daily for 2 weeks, then forgetting for a month. Set phone reminders or automate with Zapier to maintain consistency.',
+      'No goal benchmarks - tracking numbers without targets. For each metric, set realistic goals: "Increase signups from 50/week to 75/week by March" gives context to raw numbers.',
+      'Manual calculations instead of formulas - copying numbers and calculating by hand instead of using spreadsheet formulas. Set up formulas once, then just update raw data daily.',
+      'Not reviewing regularly - collecting data but never analyzing it. Schedule weekly 30-min reviews to identify trends, spot problems early, and make data-driven decisions.',
+      'Tracking vanity metrics - focusing on total visitors or social followers instead of metrics that predict revenue. Track leading indicators: trial starts predict revenue better than website visitors.'
+    ]
+  }
 }

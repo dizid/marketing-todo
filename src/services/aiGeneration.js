@@ -8,9 +8,11 @@
  * NOTE: Usage tracking now happens server-side in grok-proxy function (with service role permissions)
  */
 
+import { logger } from '@/utils/logger'
 import { checkQuotaBeforeGeneration } from './aiQuotaService'
 import { useAuthStore } from '@/stores/authStore'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
+import { useProjectStore } from '@/stores/projectStore'
 
 /**
  * Generate AI content based on configuration
@@ -50,10 +52,10 @@ export async function generateAIContent(config, formData, options = {}) {
 
   // Refresh quota after successful generation (UI will update reactively)
   try {
-    const subscriptionStore = useSubscriptionStore()
-    await subscriptionStore.fetchAIUsage()
+    const quotaStore = useQuotaStore()
+    await quotaStore.fetchAIUsage()
   } catch (err) {
-    console.warn('[AIGeneration] Failed to refresh quota after generation:', err)
+    logger.warn('[AIGeneration] Failed to refresh quota after generation')
     // Don't throw - quota refresh is non-critical
   }
 
@@ -64,6 +66,31 @@ export async function generateAIContent(config, formData, options = {}) {
   }
 
   return output
+}
+
+/**
+ * Get project context from Pinia store (SSOT Phase 5)
+ * Replaces localStorage.getItem('marketing-app-data') pattern
+ * @returns {Object} Project context with common AI placeholders
+ */
+function getProjectContext() {
+  try {
+    const projectStore = useProjectStore()
+    const settings = projectStore.currentProjectSettings || {}
+
+    return {
+      // Common placeholders used by AI prompts
+      app_description: settings.productDescription || settings.appDescription || settings.description || '',
+      company_name: settings.productName || settings.name || projectStore.projectName || '',
+      target_audience: settings.targetAudience || '',
+      primary_goal: settings.primaryGoal || settings.mainGoal || settings.goals || '',
+      product_name: settings.productName || projectStore.projectName || '',
+      product_description: settings.productDescription || settings.description || ''
+    }
+  } catch (err) {
+    logger.warn('[AIGeneration] Error getting project context from store:', err)
+    return {}
+  }
 }
 
 /**
@@ -87,7 +114,17 @@ function buildPrompt(template, formData, contextProvider) {
     }
   }
 
-  // Replace placeholders from context provider
+  // SSOT Phase 5: Inject project context from store (replaces localStorage)
+  // This provides common values like app_description, company_name, etc.
+  const projectContext = getProjectContext()
+  for (const [key, value] of Object.entries(projectContext)) {
+    const placeholder = `{${key}}`
+    if (prompt.includes(placeholder) && value) {
+      prompt = prompt.replace(new RegExp(placeholder, 'g'), value)
+    }
+  }
+
+  // Replace placeholders from context provider (can override project context)
   if (contextProvider && typeof contextProvider === 'function') {
     try {
       const context = contextProvider()
@@ -96,7 +133,7 @@ function buildPrompt(template, formData, contextProvider) {
         prompt = prompt.replace(new RegExp(placeholder, 'g'), value || '')
       }
     } catch (err) {
-      console.warn('[AIGeneration] Error calling contextProvider:', err)
+      logger.warn('[AIGeneration] Error calling contextProvider')
       // Continue anyway - context provider is optional
     }
   }
@@ -138,8 +175,15 @@ function processFormData(formData) {
  * @throws {Error} If API call fails
  */
 async function callGrokAPI(prompt, aiConfig, taskId, userId) {
+  // Client-side timeout to prevent hanging requests (90 seconds to allow for Netlify's 60s timeout)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    logger.warn('[AIGeneration] Request timed out after 90 seconds')
+    controller.abort()
+  }, 90000)
+
   try {
-    console.log('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
+    logger.debug('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
 
     const messages = [
       {
@@ -154,20 +198,22 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'grok-2',
+        model: 'grok-3',
         messages,
         temperature: aiConfig.temperature || 0.8,
         max_tokens: aiConfig.maxTokens || 2000,
         taskId,      // Send for server-side tracking
         userId       // Send for server-side tracking
-      })
+      }),
+      signal: controller.signal
     })
 
-    console.log('[AIGeneration] API response status:', response.status)
+    clearTimeout(timeoutId)
+    logger.debug('[AIGeneration] API response status:', response.status)
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('[AIGeneration] API error response:', errorData)
+      logger.error('[AIGeneration] API error response', errorData)
 
       // Provide helpful error messages
       if (response.status === 500 && errorData.error?.includes('API key')) {
@@ -176,13 +222,15 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
         throw new Error('Too many requests. Please wait a moment and try again.')
       } else if (response.status === 503) {
         throw new Error('Grok API is temporarily unavailable. Please try again later.')
+      } else if (response.status === 504) {
+        throw new Error('AI generation timed out. Please try again with a shorter prompt.')
       } else {
         throw new Error(errorData.error || `API error: ${response.status}`)
       }
     }
 
     const data = await response.json()
-    console.log('[AIGeneration] API response received, parsing...')
+    logger.debug('[AIGeneration] API response received, parsing...')
 
     const responseText = data.choices?.[0]?.message?.content
 
@@ -194,8 +242,8 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
     const tokensInput = data.usage?.prompt_tokens || prompt.length / 4 // Rough estimate if not provided
     const tokensOutput = data.usage?.completion_tokens || responseText.length / 4 // Rough estimate if not provided
 
-    console.log('[AIGeneration] Response text obtained, length:', responseText.length)
-    console.log(`[AIGeneration] Token usage - Input: ${tokensInput}, Output: ${tokensOutput}`)
+    logger.debug('[AIGeneration] Response text obtained, length:', responseText.length)
+    logger.debug('[AIGeneration] Token usage', { input: tokensInput, output: tokensOutput })
 
     return {
       responseText,
@@ -203,7 +251,15 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       tokensOutput
     }
   } catch (err) {
-    console.error('[AIGeneration] AI generation error:', err)
+    clearTimeout(timeoutId)
+
+    // Handle abort error with user-friendly message
+    if (err.name === 'AbortError') {
+      logger.error('[AIGeneration] Request was aborted (timeout)')
+      throw new Error('AI generation timed out. Please try again.')
+    }
+
+    logger.error('[AIGeneration] AI generation error', err)
     throw err
   }
 }

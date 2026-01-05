@@ -9,7 +9,7 @@
  * - Enforce tier-based limits (Free: 20/month, Premium: 200/month)
  */
 
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/utils/supabase'
 
@@ -17,19 +17,57 @@ const FREE_TIER_QUOTA = 20
 const PREMIUM_TIER_QUOTA = 200
 
 /**
+ * Custom error class for quota exceeded errors
+ * Allows components to detect and handle quota errors specifically
+ */
+export class QuotaExceededError extends Error {
+  constructor(message, tier, resetDate) {
+    super(message)
+    this.name = 'QuotaExceededError'
+    this.tier = tier
+    this.resetDate = resetDate
+  }
+}
+
+/**
+ * Check if an error is a quota exceeded error
+ * @param {Error} error - The error to check
+ * @returns {boolean} True if quota exceeded error
+ */
+export const isQuotaExceededError = (error) => {
+  return error instanceof QuotaExceededError || error?.name === 'QuotaExceededError'
+}
+
+/**
+ * Handle quota exceeded error by redirecting to subscription page
+ * @param {Object} router - Vue router instance
+ * @param {Error} error - The quota exceeded error
+ */
+export const handleQuotaExceededError = (router, error) => {
+  if (isQuotaExceededError(error)) {
+    router.push({
+      name: 'ManageSubscription',
+      query: { reason: 'quota_exceeded' }
+    })
+    return true
+  }
+  return false
+}
+
+/**
  * Check if user can generate AI content
  * @returns {boolean} Whether user has quota remaining
  */
 export const canGenerateAI = () => {
-  const subscriptionStore = useSubscriptionStore()
+  const quotaStore = useQuotaStore()
 
   // Premium users always can
-  if (subscriptionStore.isPremium) {
+  if (quotaStore.isPremium) {
     return true
   }
 
   // Free users need quota remaining
-  return subscriptionStore.hasQuotaRemaining
+  return quotaStore.hasQuotaRemaining
 }
 
 /**
@@ -37,8 +75,8 @@ export const canGenerateAI = () => {
  * @returns {number} Number of remaining generations
  */
 export const getRemainingQuota = () => {
-  const subscriptionStore = useSubscriptionStore()
-  return subscriptionStore.remainingQuota
+  const quotaStore = useQuotaStore()
+  return quotaStore.remainingQuota
 }
 
 /**
@@ -46,8 +84,8 @@ export const getRemainingQuota = () => {
  * @returns {number} Total monthly quota
  */
 export const getQuotaLimit = () => {
-  const subscriptionStore = useSubscriptionStore()
-  return subscriptionStore.currentQuotaLimit
+  const quotaStore = useQuotaStore()
+  return quotaStore.currentQuotaLimit
 }
 
 /**
@@ -55,8 +93,8 @@ export const getQuotaLimit = () => {
  * @returns {number} Number of generations used this month
  */
 export const getCurrentUsage = () => {
-  const subscriptionStore = useSubscriptionStore()
-  return subscriptionStore.currentMonthUsage
+  const quotaStore = useQuotaStore()
+  return quotaStore.currentMonthUsage
 }
 
 /**
@@ -64,8 +102,8 @@ export const getCurrentUsage = () => {
  * @returns {Date} Date when quota resets (first of next month)
  */
 export const getResetDate = () => {
-  const subscriptionStore = useSubscriptionStore()
-  return subscriptionStore.quotaResetDate
+  const quotaStore = useQuotaStore()
+  return quotaStore.quotaResetDate
 }
 
 /**
@@ -73,8 +111,8 @@ export const getResetDate = () => {
  * @returns {number} Percentage of quota used (0-100)
  */
 export const getQuotaPercentage = () => {
-  const subscriptionStore = useSubscriptionStore()
-  return subscriptionStore.quotaPercentage
+  const quotaStore = useQuotaStore()
+  return quotaStore.quotaPercentage
 }
 
 /**
@@ -94,7 +132,7 @@ export const trackGeneration = async (
   costEstimate = 0
 ) => {
   const authStore = useAuthStore()
-  const subscriptionStore = useSubscriptionStore()
+  const quotaStore = useQuotaStore()
 
   if (!authStore.user) {
     throw new Error('User not authenticated')
@@ -121,7 +159,7 @@ export const trackGeneration = async (
     }
 
     // Refresh quota data
-    await subscriptionStore.fetchAIUsage()
+    await quotaStore.fetchAIUsage()
 
     return data?.[0] || null
   } catch (err) {
@@ -132,24 +170,23 @@ export const trackGeneration = async (
 
 /**
  * Check quota before generating AI
- * Throws error if user doesn't have quota
+ * Throws QuotaExceededError if user doesn't have quota
  * @param {string} taskId - Task attempting to generate
- * @throws {Error} If quota exceeded
+ * @throws {QuotaExceededError} If quota exceeded
  */
 export const checkQuotaBeforeGeneration = (taskId) => {
-  const subscriptionStore = useSubscriptionStore()
+  const quotaStore = useQuotaStore()
 
   if (!canGenerateAI()) {
-    const tier = subscriptionStore.tier
-    const remaining = subscriptionStore.remainingQuota
-    const limit = subscriptionStore.currentQuotaLimit
-    const resetDate = subscriptionStore.formattedResetDate
+    const tier = quotaStore.tier
+    const limit = quotaStore.currentQuotaLimit
+    const resetDate = quotaStore.formattedResetDate
 
-    throw new Error(
-      tier === 'free'
-        ? `Free tier quota exceeded. You've used ${limit} AI generations this month. Quota resets on ${resetDate}.`
-        : `Premium quota exceeded. You've used ${limit} AI generations this month. Quota resets on ${resetDate}.`
-    )
+    const message = tier === 'free'
+      ? `You've used all ${limit} free AI generations this month. Upgrade to Premium for 10x more generations.`
+      : `You've used all ${limit} premium AI generations this month. Quota resets on ${resetDate}.`
+
+    throw new QuotaExceededError(message, tier, resetDate)
   }
 }
 
@@ -158,11 +195,11 @@ export const checkQuotaBeforeGeneration = (taskId) => {
  * @returns {Object} Message object with status and text
  */
 export const getQuotaMessage = () => {
-  const subscriptionStore = useSubscriptionStore()
+  const quotaStore = useQuotaStore()
 
-  const remaining = subscriptionStore.remainingQuota
-  const limit = subscriptionStore.currentQuotaLimit
-  const tier = subscriptionStore.tier
+  const remaining = quotaStore.remainingQuota
+  const limit = quotaStore.currentQuotaLimit
+  const tier = quotaStore.tier
 
   if (remaining === 0) {
     return {
@@ -189,17 +226,17 @@ export const getQuotaMessage = () => {
  * @returns {Object} Quota status object
  */
 export const getQuotaStatus = () => {
-  const subscriptionStore = useSubscriptionStore()
+  const quotaStore = useQuotaStore()
 
   return {
-    remaining: subscriptionStore.remainingQuota,
-    limit: subscriptionStore.currentQuotaLimit,
-    used: subscriptionStore.currentMonthUsage,
-    percentage: subscriptionStore.quotaPercentage,
-    hasRemaining: subscriptionStore.hasQuotaRemaining,
-    resetDate: subscriptionStore.formattedResetDate,
-    tier: subscriptionStore.tier,
-    canGenerate: subscriptionStore.canGenerateAI,
+    remaining: quotaStore.remainingQuota,
+    limit: quotaStore.currentQuotaLimit,
+    used: quotaStore.currentMonthUsage,
+    percentage: quotaStore.quotaPercentage,
+    hasRemaining: quotaStore.hasQuotaRemaining,
+    resetDate: quotaStore.formattedResetDate,
+    tier: quotaStore.tier,
+    canGenerate: quotaStore.canGenerateAI,
     message: getQuotaMessage()
   }
 }
@@ -217,8 +254,8 @@ export const estimateCost = (tokensOutput) => {
   const GROK_2_COST = 15 / 1000000
 
   // For free tier, use cheaper model
-  const subscriptionStore = useSubscriptionStore()
-  const costPerToken = subscriptionStore.isFree ? GROK_4_FAST_COST : GROK_2_COST
+  const quotaStore = useQuotaStore()
+  const costPerToken = quotaStore.isFree ? GROK_4_FAST_COST : GROK_2_COST
 
   return tokensOutput * costPerToken
 }
@@ -228,9 +265,9 @@ export const estimateCost = (tokensOutput) => {
  * Forces fresh fetch from Supabase
  */
 export const refreshQuota = async () => {
-  const subscriptionStore = useSubscriptionStore()
-  await subscriptionStore.fetchSubscriptionStatus(true)
-  await subscriptionStore.fetchAIUsage()
+  const quotaStore = useQuotaStore()
+  await quotaStore.fetchSubscriptionStatus(true)
+  await quotaStore.fetchAIUsage()
 }
 
 /**
@@ -238,8 +275,8 @@ export const refreshQuota = async () => {
  * Called when user authenticates
  */
 export const initializeQuotaService = async () => {
-  const subscriptionStore = useSubscriptionStore()
-  await subscriptionStore.initialize()
+  const quotaStore = useQuotaStore()
+  await quotaStore.initialize()
 }
 
 /**
@@ -247,6 +284,6 @@ export const initializeQuotaService = async () => {
  * Called when user logs out
  */
 export const resetQuotaService = () => {
-  const subscriptionStore = useSubscriptionStore()
-  subscriptionStore.reset()
+  const quotaStore = useQuotaStore()
+  quotaStore.reset()
 }

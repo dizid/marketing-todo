@@ -7,7 +7,7 @@
 
 export const writeBlogTask = {
   id: 'content-1',
-  name: 'Write Blog Post',
+  name: 'Blog Post Outline & Structure Guide',
   description: 'Create a compelling blog post with AI-guided structure and research',
   category: 'content',
 
@@ -144,6 +144,34 @@ export const writeBlogTask = {
   },
 
   output: {
-    enabled: false
+    enabled: true,
+    exportFilename: 'blog-post-outline',
+    displayFormat: 'markdown',
+    editable: true,
+    copyable: true,
+    exportable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Educational "How-to" blog post',
+        input: { blog_topic: 'How to Build a SaaS Product from Scratch', target_audience: 'Startup founders', keywords: 'SaaS development, MVP, product launch', tone: 'educational' },
+        output: 'AI generates outline: Introduction (why this matters), 5 main sections (idea validation, MVP building, pricing strategy, launch prep, growth tactics), real examples from Stripe/Notion, conclusion with CTA to read your case study.'
+      },
+      {
+        scenario: 'Thought leadership opinion piece',
+        input: { blog_topic: 'The Future of AI in Marketing', target_audience: 'Marketing professionals', keywords: 'AI, automation, personalization', tone: 'thought-leadership' },
+        output: 'AI generates structure: Hook with trend data, 3 contrarian insights, real examples of companies doing it right, anticipated challenges, conclusion with your unique perspective. Result: 2000+ word authority piece.'
+      }
+    ],
+    commonMistakes: [
+      'No clear headline - "Thoughts on marketing" won\'t get clicks. Use specific, benefit-driven headlines: "How Company X Grew 10x with These 5 Tactics"',
+      'Writing without research - pull random ideas from your head. Write with data, quotes, examples. Makes you credible, SEO-friendly.',
+      'Ignoring structure - giant wall of text loses readers. Use headers, short paragraphs (2-3 sentences), bullet points to break it up.',
+      'Not optimizing for search - you write for humans, but search engines help humans find it. Put primary keyword in first 100 words, use H2/H3 headers naturally.',
+      'Weak introduction - lose readers in the first 2 sentences. Hook them with a question, surprising stat, or problem they care about.',
+      'No call-to-action - blog ends and nothing happens next. Tell readers what to do: sign up, read another post, download resource, schedule call.'
+    ]
   }
 }

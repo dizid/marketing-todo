@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import LandingPageWizardStep from './components/LandingPageWizardStep.vue'
 import LandingPagePreview from './components/LandingPagePreview.vue'
 import { generateLandingPageHTML } from '../../services/landingPageExporter'
@@ -224,6 +224,9 @@ const aiSuggestions = ref(null)
 const currentAIField = ref(null)
 const isGeneratingAI = ref(false)
 const aiError = ref(null)
+
+// Timeout tracking
+let copyTimeout = null
 
 const formData = ref({
   brand_name: '',
@@ -343,7 +346,7 @@ const copyHTMLCode = async () => {
     const html = generateLandingPageHTML(formData.value)
     await navigator.clipboard.writeText(html)
     copySuccess.value = true
-    setTimeout(() => {
+    copyTimeout = setTimeout(() => {
       copySuccess.value = false
     }, 3000)
   } catch (err) {
@@ -369,6 +372,11 @@ const downloadHTMLFile = () => {
     alert('Failed to download. Please try again.')
   }
 }
+
+// Cleanup timeout on unmount
+onBeforeUnmount(() => {
+  if (copyTimeout) clearTimeout(copyTimeout)
+})
 </script>
 
 <style scoped>

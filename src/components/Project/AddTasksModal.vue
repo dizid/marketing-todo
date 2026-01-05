@@ -5,7 +5,7 @@
       <!-- Modal Header -->
       <div class="sticky top-0 px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
         <h3 class="text-lg font-semibold text-gray-900">
-          Add Tasks Back to Project
+          {{ modalTitle }}
         </h3>
         <button
           @click="$emit('close')"
@@ -84,6 +84,10 @@ const props = defineProps({
   isOpen: {
     type: Boolean,
     default: false
+  },
+  categoryName: {
+    type: String,
+    default: null
   }
 })
 
@@ -233,20 +237,109 @@ const allTaskCategories = [
         description: 'Calculate cost-per-user (even if organic).'
       }
     ]
+  },
+  {
+    name: 'sales',
+    label: 'Sales Optimization',
+    items: [
+      {
+        id: 'sales-1',
+        name: 'Sales Funnel Blueprint',
+        description: 'Design your complete sales funnel with proven conversion stages and psychology tactics.'
+      },
+      {
+        id: 'sales-2',
+        name: 'High-Converting Offer Builder',
+        description: 'Build a compelling offer including bonuses, guarantee, positioning, and pricing psychology.'
+      },
+      {
+        id: 'sales-3',
+        name: 'Objection Handling',
+        description: 'Create powerful responses to every objection. Pre-emptively address common buyer hesitations.'
+      },
+      {
+        id: 'sales-4',
+        name: 'Email Sequence Designer',
+        description: 'Write an automated email funnel that nurtures leads and drives conversions.'
+      },
+      {
+        id: 'sales-5',
+        name: 'Sales Page Audit',
+        description: 'Get a conversion-focused audit of your sales page with specific optimization recommendations.'
+      }
+    ]
+  },
+  {
+    name: 'growth',
+    label: 'Growth Strategy',
+    items: [
+      {
+        id: 'growth-1',
+        name: 'Lead Magnet Builder',
+        description: 'Create an irresistible lead magnet to build your email list 10x faster.'
+      },
+      {
+        id: 'growth-2',
+        name: 'Cold Outreach Campaigns',
+        description: 'Design personalized cold outreach campaigns that get responses and build relationships.'
+      },
+      {
+        id: 'growth-3',
+        name: 'Competitor Analysis',
+        description: 'Analyze competitors\' strategies, positioning, and vulnerabilities to find your competitive edge.'
+      },
+      {
+        id: 'growth-4',
+        name: 'A/B Testing Ideas',
+        description: 'Generate powerful testing hypotheses to improve every metric that matters.'
+      },
+      {
+        id: 'growth-5',
+        name: 'Positioning Map',
+        description: 'Map your unique position in the market and craft positioning statements that stand out.'
+      }
+    ]
   }
 ]
 
 // Computed properties
+const modalTitle = computed(() => {
+  if (props.categoryName) {
+    const category = allTaskCategories.find(c => c.name === props.categoryName)
+    return category ? `Add Tasks to ${category.label}` : 'Add Tasks Back to Project'
+  }
+  return 'Add Tasks Back to Project'
+})
+
 const removedTasks = computed(() => {
-  return allTaskCategories
+  const filtered = allTaskCategories
     .flatMap(cat =>
       cat.items
         .filter(item => projectStore.currentProjectTasks[item.id]?.removed)
         .map(item => ({ ...item, categoryName: cat.name }))
     )
+
+  // If categoryName prop is provided, filter to that category only
+  if (props.categoryName) {
+    return filtered.filter(item => item.categoryName === props.categoryName)
+  }
+  return filtered
 })
 
 const removedTasksByCategory = computed(() => {
+  // If categoryName is provided, show only that category
+  if (props.categoryName) {
+    const category = allTaskCategories.find(c => c.name === props.categoryName)
+    if (!category) return []
+
+    return [{
+      name: category.name,
+      label: category.label,
+      removedItems: category.items.filter(item => projectStore.currentProjectTasks[item.id]?.removed)
+    }].filter(cat => cat.removedItems.length > 0)
+  }
+
+  // Otherwise show all categories with removed items
   return allTaskCategories
     .map(cat => ({
       name: cat.name,

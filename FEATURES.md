@@ -1,833 +1,858 @@
-# Complete Feature List & Documentation
+# Launchpilot Features
 
-**Marketing To-Do App v0.5**
-**Comprehensive Feature Guide with Implementation Details**
+> **AI-Powered Sales & Marketing Command Center** | v0.8
+
+---
+
+## Quick Summary
+
+Launchpilot is an all-in-one AI marketing platform that turns blank pages into launch-ready campaigns. Built for entrepreneurs, freelancers, webshop- and website owners who need professional results without the agency price tag.
+
+**What you get:**
+- 33 AI-powered marketing tasks covering sales, content, ads, and analytics
+- Interactive tools: Landing Page Builder, A/B Testing, Competitive Benchmarking
+- Smart recommendations that guide you through a proven 4-phase marketing journey
+- Business context system that makes AI outputs increasingly personalized
+- Multi-project support for managing multiple campaigns simultaneously
+- Real-time sync across devices with conflict detection
+- Stripe + PayPal subscription management
+
+No coding. No design skills. Just results.
 
 ---
 
 ## Table of Contents
 
-1. [Core Features](#core-features)
-2. [Task System (21 Tasks)](#task-system)
-3. [Project Management](#project-management)
-4. [AI Integration](#ai-integration)
-5. [User Experience Features](#user-experience-features)
-6. [Data Management](#data-management)
-7. [Technical Features](#technical-features)
-8. [Integration Capabilities](#integration-capabilities)
+1. [Getting Started](#getting-started)
+2. [33 AI-Powered Tasks](#33-ai-powered-tasks)
+3. [Interactive Tools & Mini-Apps](#interactive-tools--mini-apps)
+4. [Analytics & Optimization Suite](#analytics--optimization-suite)
+5. [Smart Productivity Features](#smart-productivity-features)
+6. [Project Management](#project-management)
+7. [Pricing & Plans](#pricing--plans)
+8. [Security & Data](#security--data)
+9. [Technical Notes](#technical-notes)
 
 ---
 
-## Core Features
+## Getting Started
 
-### 1. Multi-Project Management System
+### 5-Step Onboarding Wizard
 
-#### Overview
-Users can create unlimited marketing projects with complete data isolation and independent configurations.
+New users are guided through a streamlined onboarding process:
 
-#### Features
-- **Project Creation**: Create new projects with custom names and descriptions
-- **Project Deletion**: Remove projects and associated data
-- **Project Settings**: Customize project-specific configurations
-- **Project Selection**: Switch between projects in the dashboard
-- **Data Isolation**: All project data is separated and user-authenticated
+| Step | What You Do | Why It Matters |
+|------|-------------|----------------|
+| 1. Product Type | Select your product/service category | Tailors task recommendations |
+| 2. Audience | Define your ideal customer | Personalizes AI-generated content |
+| 3. Goals | Set marketing objectives | Prioritizes relevant tasks |
+| 4. Details | Add business specifics | Enriches AI context |
+| 5. Account | Create your account | Secures your data |
 
-#### Database Tables
-- `projects` - Project metadata (id, user_id, name, description, created_at)
-- `project_data` - Flexible key-value store for project-specific data
-- `category_notes` - Per-category notes within each project
+**Session restoration**: Close the browser mid-wizard? Pick up exactly where you left off.
 
-#### Use Cases
-- Running multiple concurrent marketing campaigns
-- Testing different strategies simultaneously
-- Managing different product launches independently
-- Organizing by team or department
+### Project Setup
 
----
+After onboarding, create your first project:
+- **Project name** - Identify your campaign
+- **Product/service description** - What you're marketing
+- **Target audience** - Who you're reaching
+- **Primary goal** - What success looks like
 
-### 2. User Authentication & Account Management
+### 7-Tier Business Context System
 
-#### Registration & Login
-- **Email-based signup** with validation
-- **Password encryption** via Supabase
-- **Email verification** workflow
-- **Login with email and password**
-- **Session management** with automatic expiry
+The more context you provide, the better AI outputs become. Complete tiers unlock increasingly personalized content:
 
-#### Password & Account Security
-- **Password reset** via email link
-- **Secure password hashing** (bcrypt via Supabase)
-- **Token-based authentication** using JWT
-- **Account logout** with session cleanup
+| Tier | Focus | Impact |
+|------|-------|--------|
+| 1. Business & Product | Company basics, product details | Foundation for all AI outputs |
+| 2. Market & Audience | Customer profiles, pain points | Targeted messaging |
+| 3. Brand Identity | Voice, tone, visual style | Consistent brand presence |
+| 4. Goals & Metrics | KPIs, targets, timelines | Actionable recommendations |
+| 5. Marketing Channels | Active platforms, preferences | Platform-optimized content |
+| 6. Content Library | Past content, templates | Builds on existing assets |
+| 7. Integrations | Connected tools | Workflow automation |
 
-#### Database Tables
-- `user_profiles` - User account information
-- `user_settings` - User preferences and configuration
-- Authentication handled by Supabase Auth
-
-#### Security Measures
-- Row Level Security (RLS) on all tables
-- User-scoped queries (all filtered by user_id)
-- Secure API endpoints with auth verification
-- Email verification before account activation
-- Password reset token expiration
-
-#### Components Involved
-- `AuthForm.vue` - Login/signup interface
-- `ResetPassword.vue` - Password recovery form
-- `authStore` (Pinia) - Authentication state management
+**Completion scoring**: Dashboard shows your context completion percentage with recommendations for improvement.
 
 ---
 
-### 3. Comprehensive Task System (21 Tasks)
+## 33 AI-Powered Tasks
 
-#### Task Categories
+### Sales & Revenue (5 Premium Tasks)
 
-##### Category 1: Setup Basics (5 tasks)
-Focus on foundational marketing setup and preparation.
+**High-Converting Offer Builder**
+Create compelling offers that sell. Generate complete offer structures including:
+- Value proposition and positioning
+- Pricing strategy (tiers, anchoring, bundles)
+- Bonus stacking for perceived value
+- Guarantee frameworks (risk reversal)
+- Objection pre-handling
+- Urgency and scarcity elements
 
-**Task 1.1: Define Audience & Goals**
-- **Type**: Form + AI Generation
-- **Description**: Define target audience, market research, and campaign goals
-- **Form Fields**:
-  - Product/service description
-  - Target audience description
-  - Marketing goal
-  - Success metrics
-- **AI Features**:
-  - Auto-generate audience insights
-  - Suggest marketing angles
-  - Generate goal recommendations
-- **Output**: Audience profile, marketing angles, objectives
-- **Data Storage**: Persisted in project_data with task ID reference
+**Sales Page Audit & Optimizer**
+Paste your sales page URL for a comprehensive 12-section audit:
+- Conversion scorecard (headline, CTA, social proof, trust elements)
+- Mobile responsiveness check
+- Load time impact analysis
+- Specific copy improvements with before/after examples
+- Revenue impact calculations
+- 8 pro tips for iterative testing and optimization
 
-**Task 1.2: Landing Page Creator**
-- **Type**: Visual Builder + AI Assistance
-- **Description**: Create responsive landing pages with drag-and-drop interface
-- **Features**:
-  - Drag-and-drop component builder
-  - AI-powered copy suggestions
-  - Real-time preview
-  - Mobile responsiveness testing
-  - HTML export functionality
-- **Supported Elements**:
-  - Hero section
-  - Feature highlights
-  - Call-to-action buttons
-  - Form elements
-  - Image galleries
-- **AI Features**:
-  - Generate hero headlines
-  - Create button copy
-  - Write feature descriptions
-  - Suggest layout improvements
-- **Output**: HTML code, visual preview, exported landing page files
-- **Data Storage**: Full builder state persisted to Supabase
+**Email Sales Sequence Builder**
+Generate complete email sequences for any scenario:
+- Welcome series (5-7 emails)
+- Product launch sequences
+- Cart abandonment recovery
+- Reactivation campaigns
+- Evergreen funnels
+Includes: subject lines, preview text, send timing, A/B test variants
 
-**Task 1.3: Connect Accounts**
-- **Type**: Configuration Form
-- **Description**: Document and manage connected marketing accounts
-- **Form Fields**:
-  - Social media platforms
-  - Email service providers
-  - Analytics platforms
-  - CRM systems
-- **Features**:
-  - Account connection status tracking
-  - Credentials management (stored securely)
-  - Connection testing
-- **Output**: Connected accounts inventory
-- **Data Storage**: Encrypted in project_data
+**Cold Outreach Templates**
+AI creates personalized outreach for:
+- LinkedIn connection requests and follow-ups
+- Cold email sequences (3-5 touch points)
+- Twitter/X DM templates
+- Follow-up timing recommendations
+Templates feel personal, not spammy. Includes personalization variables.
 
-**Task 1.4: Prepare Assets**
-- **Type**: Checklist + File Management
-- **Description**: Gather and organize marketing assets
-- **Form Fields**:
-  - Brand guidelines
-  - Logo files
-  - Product images
-  - Video clips
-  - Music/audio files
-- **Features**:
-  - Asset upload and storage
-  - File organization
-  - Version control
-  - Asset library access
-- **Output**: Organized asset inventory
-- **Data Storage**: File references in project_data
-
-**Task 1.5: Setup Tracking Sheet**
-- **Type**: Form + Template Generator
-- **Description**: Create metrics tracking spreadsheet
-- **Form Fields**:
-  - Key metrics to track
-  - Tracking frequency
-  - Data sources
-  - Reporting schedule
-- **Features**:
-  - Pre-built templates
-  - CSV/Excel export
-  - Dashboard preview
-- **AI Features**:
-  - Suggest relevant metrics
-  - Generate formulas
-  - Create dashboard layouts
-- **Output**: Spreadsheet template, tracking guidelines
-- **Data Storage**: Template configuration in project_data
-
-##### Category 2: Social Media Marketing (3 tasks)
-
-**Task 2.1: Generate Posts**
-- **Type**: Form + AI Generation
-- **Description**: Create social media content
-- **Form Fields**:
-  - Platform (Instagram, Twitter, LinkedIn, TikTok)
-  - Post topic
-  - Tone/style preference
-  - Hashtags (optional)
-  - Media description
-- **AI Features**:
-  - Generate captions
-  - Suggest hashtags
-  - Create variations
-  - Optimize for platform
-- **Output**: Multiple post variations, best practices
-- **Data Storage**: Generated posts in project_data with timestamp
-
-**Task 2.2: Engage Followers**
-- **Type**: Action Plan + Template
-- **Description**: Community engagement strategy
-- **Form Fields**:
-  - Engagement type (comments, DMs, shares)
-  - Target communities
-  - Message templates
-  - Frequency
-- **Features**:
-  - Engagement templates
-  - Best time to post recommendations
-  - Response templates
-- **Output**: Engagement plan, message templates
-- **Data Storage**: Strategy in project_data
-
-**Task 2.3: Giveaway Campaign**
-- **Type**: Form + AI Generation
-- **Description**: Plan and execute giveaway campaigns
-- **Form Fields**:
-  - Prize description
-  - Campaign duration
-  - Entry requirements
-  - Platforms
-- **AI Features**:
-  - Generate promotional copy
-  - Create entry rules
-  - Draft winner announcement
-- **Output**: Campaign plan, promotional materials
-- **Data Storage**: Campaign details in project_data
-
-##### Category 3: Content Creation (3 tasks)
-
-**Task 3.1: Write Blog Post**
-- **Type**: Form + AI Generation + Editor
-- **Description**: Create comprehensive blog posts
-- **Form Fields**:
-  - Topic/keyword
-  - Target audience
-  - Post length preference
-  - Style/tone
-  - SEO keywords
-- **AI Features**:
-  - Generate article outline
-  - Write full article
-  - Optimize for SEO
-  - Suggest keywords
-  - Create meta descriptions
-- **Output**: Full blog post, outline, SEO suggestions
-- **Data Storage**: Article in project_data with metadata
-
-**Task 3.2: Create Video Script**
-- **Type**: Form + AI Generation
-- **Description**: Write scripts for video content
-- **Form Fields**:
-  - Video topic
-  - Target duration
-  - Audience
-  - Video type (demo, testimonial, educational)
-  - Call-to-action
-- **AI Features**:
-  - Generate script outline
-  - Write full script
-  - Add timing notes
-  - Suggest B-roll descriptions
-- **Output**: Video script with timings, B-roll notes
-- **Data Storage**: Script in project_data
-
-**Task 3.3: Design Graphics**
-- **Type**: Form + AI Generation + Design Brief
-- **Description**: Brief for graphic design needs
-- **Form Fields**:
-  - Design type (social, blog header, infographic)
-  - Dimensions
-  - Color preferences
-  - Key message
-  - Target platform
-- **AI Features**:
-  - Generate design brief
-  - Suggest design elements
-  - Create style guide suggestions
-- **Output**: Design brief, style recommendations
-- **Data Storage**: Design specifications in project_data
-
-##### Category 4: User Acquisition & Engagement (3 tasks)
-
-**Task 4.1: Community Posts**
-- **Type**: Form + AI Generation
-- **Description**: Create posts for communities and forums
-- **Form Fields**:
-  - Community/forum name
-  - Topic category
-  - Tone
-  - Call-to-action
-- **AI Features**:
-  - Generate community-appropriate posts
-  - Create discussion starters
-  - Draft follow-up responses
-- **Output**: Community posts, engagement strategies
-- **Data Storage**: Posts in project_data
-
-**Task 4.2: Outreach Campaign**
-- **Type**: Form + AI Generation
-- **Description**: Plan outreach to potential customers
-- **Form Fields**:
-  - Target audience segment
-  - Outreach type (email, LinkedIn, etc.)
-  - Key value propositions
-  - Campaign duration
-- **AI Features**:
-  - Generate outreach email templates
-  - Create personalization variables
-  - Draft follow-up sequences
-- **Output**: Email templates, outreach sequence
-- **Data Storage**: Campaign templates in project_data
-
-**Task 4.3: Webinar Setup**
-- **Type**: Checklist + Planning Form
-- **Description**: Plan and execute webinars
-- **Form Fields**:
-  - Webinar topic
-  - Target audience
-  - Date/time
-  - Duration
-  - Speakers
-  - Required platform
-- **Features**:
-  - Pre-webinar checklist
-  - Promotion templates
-  - Registration page template
-  - Post-webinar follow-up plan
-- **AI Features**:
-  - Generate promotional copy
-  - Create presentation outline suggestions
-  - Draft follow-up emails
-- **Output**: Webinar plan, checklists, templates
-- **Data Storage**: Webinar details in project_data
-
-##### Category 5: Feedback & Iteration (3 tasks)
-
-**Task 5.1: Feedback Collection**
-- **Type**: Form + Survey Template
-- **Description**: Set up customer feedback mechanisms
-- **Form Fields**:
-  - Feedback collection method
-  - Target respondents
-  - Key questions
-  - Incentives
-- **Features**:
-  - Survey template builder
-  - Distribution planning
-  - Response tracking setup
-- **AI Features**:
-  - Generate survey questions
-  - Suggest response options
-  - Create analysis templates
-- **Output**: Survey, distribution plan
-- **Data Storage**: Survey configuration in project_data
-
-**Task 5.2: Changelog Management**
-- **Type**: Form + Template
-- **Description**: Document product updates and changes
-- **Form Fields**:
-  - Update/feature name
-  - Description
-  - Impact level
-  - Release date
-- **Features**:
-  - Changelog templates
-  - Version management
-  - Announcement generation
-- **AI Features**:
-  - Generate changelog entries
-  - Create user-friendly descriptions
-  - Draft announcement copy
-- **Output**: Changelog, announcements
-- **Data Storage**: Changelog entries in project_data
-
-**Task 5.3: Feature Prioritization**
-- **Type**: Framework + Scoring Form
-- **Description**: Prioritize features and improvements
-- **Form Fields**:
-  - Feature name
-  - User impact score
-  - Implementation effort
-  - Strategic alignment
-  - User feedback score
-- **Features**:
-  - Scoring framework
-  - Priority matrix visualization
-  - Roadmap generation
-- **AI Features**:
-  - Suggest prioritization criteria
-  - Analyze feature trade-offs
-  - Generate roadmap recommendations
-- **Output**: Priority ranking, roadmap
-- **Data Storage**: Feature scores in project_data
-
-##### Category 6: Analytics & Optimization (3 tasks)
-
-**Task 6.1: Setup Analytics**
-- **Type**: Configuration Form + Checklist
-- **Description**: Configure analytics tracking
-- **Form Fields**:
-  - Analytics platform (Google Analytics, Mixpanel, etc.)
-  - Key metrics to track
-  - Conversion events
-  - Custom events
-- **Features**:
-  - Platform setup guides
-  - Tracking code snippets
-  - Event configuration templates
-- **AI Features**:
-  - Recommend relevant metrics
-  - Generate tracking plan
-- **Output**: Analytics setup guide, tracking plan
-- **Data Storage**: Configuration in project_data
-
-**Task 6.2: Channel Analyzer**
-- **Type**: Form + Analysis Template
-- **Description**: Analyze marketing channel performance
-- **Form Fields**:
-  - Channels to analyze
-  - Time period
-  - Key metrics
-  - Comparison basis
-- **Features**:
-  - Performance comparison
-  - Trend analysis templates
-  - Recommendation generation
-- **AI Features**:
-  - Analyze channel effectiveness
-  - Generate insights
-  - Suggest optimizations
-- **Output**: Channel analysis, recommendations
-- **Data Storage**: Analysis results in project_data
-
-**Task 6.3: ROI Calculator**
-- **Type**: Form + Calculator
-- **Description**: Calculate marketing ROI
-- **Form Fields**:
-  - Campaign investment
-  - Revenue generated
-  - Time period
-  - Attribution model
-- **Features**:
-  - Built-in ROI formulas
-  - Scenario planning
-  - Historical comparison
-- **AI Features**:
-  - Analyze ROI trends
-  - Forecast future ROI
-  - Suggest improvements
-- **Output**: ROI report, trend analysis
-- **Data Storage**: Calculations in project_data
+**Sales Objection Handler**
+Interactive training tool (see [Objection Handling Chatbot](#objection-handling-chatbot) below):
+- Maps common objections for your product
+- Generates response scripts for each objection
+- Practice mode with AI-powered feedback
+- Channel-specific responses (phone, email, chat)
 
 ---
 
-### 4. AI-Powered Content Generation
+### Growth & Positioning (5 Premium Tasks)
 
-#### Grok API Integration
+**Positioning & Messaging Map**
+Define what makes you different:
+- Positioning statement generator
+- Messaging angles for different audience segments
+- Competitive differentiation points
+- Brand voice guidelines
+- Tagline and slogan variations
 
-**Capabilities**
-- Natural language processing for content generation
-- Customizable temperature (creativity level)
-- Token limits for output control
-- Response parsing and validation
-- Error handling and fallbacks
+**A/B Test Idea Generator**
+Generate winning test hypotheses:
+- Test framework templates
+- Hypothesis statements with expected impact
+- Sample size calculations
+- Implementation guides
+- Prioritization scoring (impact vs. effort)
 
-**Supported Models**
-- Grok 2 (latest with improved reasoning)
+**Competitor Intelligence**
+Analyze 3-5 competitors:
+- Positioning and messaging breakdown
+- Pricing analysis
+- Marketing channel presence
+- Unique selling propositions
+- Gap analysis (opportunities they're missing)
 
-**Configuration per Task**
-- Custom prompt templates
-- Temperature range (0.0 - 1.0)
-- Max tokens per request
-- Response validation rules
-- Parsing functions for structured output
+**Lead Magnet Ideas**
+Generate 5-10 lead magnet concepts:
+- Topic variations matched to audience pain points
+- Format options (guides, checklists, templates, quizzes, tools)
+- Title optimization for conversions
+- Promotion tactics for each magnet
+- Landing page hook suggestions
 
-**Features**
-- Real-time generation with loading states
-- Multiple generation runs for variations
-- Regenerate single outputs
-- Copy to clipboard
-- Edit and improve functionality
-- Generation history tracking
-
-#### AI Panel Component
-Shared across all tasks for consistent AI interaction:
-- Input form for generation prompts
-- Loading indicators
-- Error messages
-- Generation controls
-- Output preview
-
-#### Content History
-- All generated content stored with timestamp
-- Associated task and project
-- Generation parameters
-- User edit history
-- Ability to restore previous versions
+**Funnel Blueprint**
+Map your complete customer journey:
+- Awareness stage (content, ads, SEO)
+- Consideration stage (nurture, comparison)
+- Decision stage (sales, conversion)
+- Retention stage (onboarding, loyalty)
+Includes: key messages per stage, tactics, metrics to track
 
 ---
 
-### 5. Landing Page Creator
+### Content Creation (5 Premium Tasks)
 
-#### Visual Builder Interface
+**Write Blog Post**
+AI drafts complete, SEO-optimized posts:
+- Topic research and angle selection
+- Full outline with H2/H3 structure
+- Complete draft (1500-3000 words)
+- Meta title and description
+- Target keywords and variations
+- Internal linking suggestions
 
-**Features**
-- **Drag-and-Drop Builder**
-  - Add/remove components
-  - Reorder sections
-  - Resize and position elements
-  - Visual feedback during drag
+**Create Email Newsletter**
+Design newsletters that get opened:
+- Hook/story opener
+- 3 key tips or insights
+- Clear CTA
+- Subject line variations (5+)
+- Preview text optimization
+- Send time recommendations
 
-- **Responsive Design**
-  - Mobile-first approach
-  - Tablet preview
-  - Desktop preview
-  - Responsive unit system
+**Design Graphics Brief**
+Generate detailed briefs for designers:
+- Dimensions and platform specs
+- Color palette and style direction
+- Typography recommendations
+- Messaging hierarchy
+- Reference image suggestions
+- File format requirements
 
-- **Component Types**
-  - Hero section (image + headline + CTA)
-  - Feature highlights (icon cards)
-  - Testimonials (quote sections)
-  - Call-to-action buttons
-  - Forms (email capture, etc.)
-  - Image galleries
-  - Text sections
-  - Video embeds
+**Video Script & Storyboard**
+Complete video production scripts:
+- Hook and intro (first 3 seconds critical)
+- Full script with timing notes
+- B-roll suggestions
+- Shot descriptions and angles
+- Music/mood recommendations
+- CTA placement strategy
 
-#### AI Assistance
-- AI-powered headline generation
-- Button copy optimization
-- Feature description writing
-- Layout suggestions
-- SEO recommendations
+**Social Media Content Plan**
+30-day content calendar:
+- Daily post ideas with captions
+- Platform-specific optimization
+- Hashtag research per post
+- Posting time recommendations
+- Content pillar distribution
+- Engagement prompt suggestions
 
-#### Export & Publishing
-- Export as standalone HTML
-- Download CSS (Tailwind)
-- Copy embed code
-- Live preview URL
-- Data persistence to database
+---
 
-#### Data Persistence
-- Full builder state saved to Supabase
-- Auto-save after changes
+### Traffic & Lead Generation (5 Premium Tasks)
+
+**Paid Ads Strategy**
+Plan campaigns that convert:
+- Audience targeting (demographics, interests, behaviors)
+- Ad creative angles (3-5 variations)
+- Budget allocation by platform
+- Testing roadmap
+- Optimization checkpoints
+- ROAS projections
+
+**Landing Page Creator**
+Full visual builder (see [Landing Page Builder](#landing-page-builder) below):
+- 5-step wizard interface
+- Live desktop/mobile preview
+- No-code drag-and-drop
+- HTML export for any platform
+- Template library
+
+**Community Engagement Strategy**
+Find and engage relevant communities:
+- Platform identification (Reddit, Facebook Groups, Discord, forums)
+- Community-approved messaging
+- Discussion starter templates
+- Response scripts for common questions
+- Engagement calendar
+
+**Webinar Planning Checklist**
+Complete webinar execution:
+- Promotion timeline (4-week countdown)
+- Registration page template
+- Technical setup checklist
+- Speaker preparation guide
+- Engagement tactics during live
+- Follow-up email sequence
+
+**Referral Program Designer**
+Create programs that grow:
+- Incentive structure options
+- Referral tracking setup guide
+- Email/SMS templates for referrers
+- Social sharing assets
+- Success metrics and KPIs
+
+---
+
+### Analytics & Optimization (5 Premium Tasks)
+
+**A/B Test Results Analyzer**
+Paste your test data for analysis:
+- Statistical significance calculation
+- Winner determination with confidence level
+- Why it won/lost analysis
+- Next test recommendations
+- Implementation guidance
+
+**Analytics Setup Guide**
+Step-by-step tracking implementation:
+- GA4 property configuration
+- Key event setup
+- Custom dimension planning
+- Dashboard creation
+- UTM parameter strategy
+
+**Channel Performance Analyzer**
+Compare marketing channels:
+- Performance breakdown by channel
+- Trend analysis (week over week, month over month)
+- Benchmarking against industry standards
+- Resource allocation recommendations
+- Optimization priorities
+
+**Conversion Rate Optimizer**
+Identify and fix bottlenecks:
+- Funnel drop-off analysis
+- Form abandonment insights
+- Page-by-page conversion rates
+- Prioritized fix recommendations (impact/effort)
+- Implementation guides per fix
+
+**ROI Calculator & Forecaster**
+Interactive financial analysis for marketing channels:
+- **Dynamic Channel Tracking**: Add unlimited marketing channels with spend, customers acquired, and revenue data
+- **Real-Time Calculations**: Instant CAC, LTV, LTV:CAC ratio, and payback period per channel
+- **Visual Comparison**: Bar chart ranking channels by efficiency with color-coded health status
+- **Metrics Dashboard**: Total spend, blended CAC, overall LTV:CAC, best/worst channel insights
+- **AI Budget Optimizer**: Get personalized recommendations for budget reallocation, growth scenarios, and ROI projections
+- **Scenario Modeling**: "What if we 2x ad spend?" with projected outcomes
+- **Export Reports**: Download complete ROI analysis with channel rankings
+
+---
+
+### Strategy (1 Premium Task)
+
+**Competitive Positioning Brief**
+Create a comprehensive competitive positioning strategy:
+- Market positioning analysis
+- Competitor landscape mapping
+- Differentiation strategy
+- Messaging framework for key segments
+- Go-to-market positioning recommendations
+- Strategic narrative development
+
+---
+
+### Introduction Tasks (Free Tier)
+
+**Audience Research**
+Define your ideal customer avatar:
+- Demographics (age, location, income, job title)
+- Psychographics (values, fears, aspirations)
+- Pain points and frustrations
+- Buying triggers
+- Common objections
+
+**Executive Summary**
+One-page marketing overview:
+- Current state assessment
+- Goals and objectives
+- Strategy summary
+- Key tactics
+- Success metrics
+
+**Annual Marketing Plan**
+12-month strategy outline:
+- Quarterly focus areas
+- Key campaigns per quarter
+- Resource allocation
+- Revenue targets
+- Milestone checkpoints
+
+**Define Your Business**
+Business foundation context:
+- Company overview
+- Product/service descriptions
+- Unique value propositions
+- Competitive advantages
+
+**Set Your Goals**
+Goal-setting framework:
+- SMART goal templates
+- KPI definitions
+- Tracking recommendations
+- Milestone planning
+
+**Marketing Channels Setup**
+Channel strategy foundation:
+- Channel prioritization
+- Resource allocation
+- Content distribution plan
+- Cross-channel integration
+
+**Content Library Setup**
+Asset organization:
+- Content inventory
+- Template creation
+- Brand asset management
+- Reusable component library
+
+---
+
+## Interactive Tools & Mini-Apps
+
+### Landing Page Builder
+
+Full visual landing page creation without code:
+
+**5-Step Wizard:**
+1. **Hero Section** - Headline, subheadline, CTA button
+2. **Features/Benefits** - Value proposition blocks
+3. **Social Proof** - Testimonials, logos, numbers
+4. **Offer Details** - Pricing, bonuses, guarantees
+5. **Final CTA** - Conversion-focused close
+
+**Features:**
+- Live split-view preview (desktop/mobile toggle)
+- AI-powered field suggestions ("Generate headline")
+- Real-time preview updates as you type
+- Export options:
+  - Copy HTML to clipboard
+  - Download .html file
+  - Deployment guide for popular platforms
+
+### Objection Handling Chatbot
+
+Interactive sales training tool:
+
+**Setup:**
+- Select difficulty level (1-3)
+- Choose channel (phone, email, chat)
+- Define your product context
+
+**Practice Session:**
+- AI presents 5 realistic objections
+- You type your response
+- Get instant feedback with scoring
+- Explanation of what worked/didn't
+- Suggested improvements
+
+**Progress Tracking:**
+- Session history
+- Improvement trends
+- Weak area identification
+
+### AI Image Generation
+
+Multi-step visual content creation:
+
+**Workflow:**
+1. **Brief Form** - Describe what you need
+2. **Style Selection** - Modern-minimal, bold-vibrant, professional, playful, luxury, tech
+3. **Generation** - AI creates images (Grok or Replicate FLUX)
+4. **Gallery** - Browse and select from variations
+5. **Export** - Download in multiple formats
+
+**Capabilities:**
+- Aspect ratio support (1:1, 16:9, 9:16, 4:3, 3:2)
+- Multiple image generation per request
+- Style modifiers for consistent branding
+- Fallback to Canva templates if needed
+
+### ROI Calculator
+
+Interactive marketing ROI analysis with real-time calculations:
+
+**Channel Management:**
+- Add/remove marketing channels dynamically
+- Input monthly spend per channel
+- Track customers acquired per channel
+- Set average revenue per customer
+- Configure customer lifetime and gross margins
+
+**Real-Time Metrics (Calculated Instantly):**
+- **CAC** (Customer Acquisition Cost) per channel
+- **LTV** (Lifetime Value) based on revenue × lifetime × margin
+- **LTV:CAC Ratio** with health status indicators
+- **Payback Period** in months
+- **ROI Percentage** per channel
+
+**Visual Dashboard:**
+- Metrics grid: Total Spend, Total Customers, Blended CAC, Overall LTV:CAC
+- Channel comparison bar chart (sorted by efficiency)
+- Color-coded health status (green = excellent, yellow = good, red = needs attention)
+- Best/Worst channel callouts with specific insights
+
+**AI Analysis:**
+- 10-section comprehensive report
+- Channel efficiency rankings
+- Budget reallocation recommendations
+- Growth scenario projections (conservative, moderate, aggressive)
+- Payback period optimization
+- Risk assessment and action priorities
+
+### Feedback Collection & Survey Generator
+
+AI-powered custom survey question generation:
+
+**What You Provide:**
+- Research goal (what you want to learn)
+- Target audience description
+- Survey type (NPS, customer satisfaction, product feedback, churn analysis, etc.)
+- Distribution channels (email, in-app, social, website popup, etc.)
+- Response goal and incentive budget
+- Existing hypotheses to validate
+
+**What AI Generates:**
+1. **Custom Survey Questions** (5-7 tailored questions with rationale for each)
+2. **Question Type Recommendations** (scale, open-text, multiple choice, ranking)
+3. **Question Flow Strategy** (easy → hard → sensitive progression)
+4. **Distribution Plan** (channel-specific tactics for your audience)
+5. **Outreach Templates** (email/message copy for each channel)
+6. **Incentive Recommendations** (based on audience and budget)
+7. **Response Analysis Framework** (how to categorize and prioritize feedback)
+8. **Hypothesis Validation Plan** (connecting questions to your assumptions)
+9. **Common Pitfalls** (specific to your survey type)
+10. **Action Plan Checklist** (next steps after collection)
+
+**Built-In Resources:**
+- Pre-made survey templates (NPS, CSAT, product feedback, churn)
+- Distribution strategy guides with pros/cons
+- Tool setup tutorials (Typeform, Google Forms, SurveyMonkey, Hotjar)
+- Best practices for each survey type
+
+---
+
+## Analytics & Optimization Suite
+
+### A/B Testing Dashboard
+
+Full experiment management:
+
+**Create Tests:**
+- Test name and hypothesis
+- Variant setup (control vs. challenger)
+- Traffic allocation
+- Sample size calculator
+- Duration estimation
+
+**Run Tests:**
+- Real-time data collection
+- Progress monitoring
+- Early stopping alerts
+- Traffic distribution verification
+
+**Analyze Results:**
+- Statistical significance (p-value display)
+- Confidence intervals
+- Winner determination
+- Variant comparison metrics
+- "Apply Winner" one-click implementation
+
+### Competitive Benchmarking
+
+Industry comparison tools:
+
+**Channels Analyzed:**
+- Email (open rates, click rates)
+- Web (bounce rate, time on site, conversion)
+- Social (engagement rate, follower growth)
+- Paid Ads (CTR, CPC, ROAS)
+
+**Outputs:**
+- Your metrics vs. industry benchmarks
+- Competitive positioning score
+- Circular progress visualizations
+- Gap analysis
+- Improvement recommendations
+
+### Performance Analytics
+
+Tier-based content performance:
+
+**Metrics Tracked:**
+- Total content generated
+- Average quality rating
+- Views and engagement
+- Conversion rates
+
+**Analysis Features:**
+- Per-task performance breakdown
+- Tier impact analysis (which profile completeness drives quality)
+- Quality improvement recommendations
+- Trend visualization
+
+### Channel Analyzer
+
+Multi-channel comparison:
+- Performance by channel
+- Audience overlap analysis
+- Cross-channel attribution
+- Budget reallocation suggestions
+
+---
+
+## Smart Productivity Features
+
+### Intelligent Task Recommendations
+
+AI-powered guidance through a 4-phase marketing journey:
+
+**Phase 1: Foundation**
+- Business definition
+- Audience research
+- Goal setting
+
+**Phase 2: Strategy**
+- Positioning
+- Funnel blueprint
+- Channel selection
+
+**Phase 3: Content & Campaigns**
+- Content creation
+- Ad strategy
+- Landing pages
+
+**Phase 4: Optimization**
+- A/B testing
+- Analytics
+- Performance optimization
+
+**Features:**
+- "Next Task" card with AI reasoning
+- Alternative task suggestions
+- Phase progress tracking
+- Journey completion celebration
+- Dismissible recommendations
+
+### Smart Field Inheritance
+
+Forms auto-populate from your project context:
+
+**How it works:**
+- You enter "Target Audience" once in project settings
+- Every task form with an audience field auto-fills
+- Override any auto-filled value if needed
+- Changes sync back to project context
+
+**Fields Inherited:**
+- Product name and description
+- Target audience
+- Primary goals
+- Brand voice
+- Key differentiators
+- And more...
+
+### Auto-Save System
+
+Never lose work:
+- Saves as you type (debounced)
+- Visual save status indicator
+- Last save time display
+- Error recovery
+- Offline queue (saves when reconnected)
+
+### Unsaved Changes Protection
+
+Prevents accidental data loss:
+- Warning dialog on navigation
+- "Save" or "Discard" options
+- Works on browser close
+- Modal close protection
+
+### Real-Time Sync & Conflict Detection
+
+Multi-device support:
+- Changes sync across devices
+- Concurrent edit detection
+- Conflict resolution options
+- Optimistic locking
 - Version history
-- Restore previous versions
-
----
-
-### 6. Progress Tracking System
-
-#### Visual Progress Indicators
-- **Overall Project Progress**
-  - Total tasks completion percentage
-  - Visual progress bar
-  - Task completion count
-  - Estimated time remaining
-
-- **Category Progress**
-  - Per-category completion status
-  - Category-level progress bars
-  - Quick glance at weak areas
-
-#### Progress Data Structure
-- Tasks marked as completed/not completed
-- Timestamps for completion tracking
-- Category-level aggregation
-- Historical progress data
-
-#### Features
-- Progress persistence to database
-- Real-time updates on task completion
-- Progress notifications
-- Milestone celebrations
-- Export progress reports
-
----
-
-### 7. Form System & Validation
-
-#### Form Builder Component
-Unified form rendering across all tasks:
-- Text inputs
-- Textareas
-- Select dropdowns
-- Multi-select checkboxes
-- Radio buttons
-- Email inputs
-- URL inputs
-- Number inputs
-- Date/time inputs
-
-#### Validation Rules
-- Required field validation
-- Email format validation
-- URL format validation
-- Number range validation
-- Custom validation functions
-- Real-time validation feedback
-- Error message display
-
-#### Features
-- Dynamic form fields
-- Conditional field visibility
-- Field dependencies
-- Auto-save draft forms
-- Clear/reset functionality
-- Submit success messages
-
----
-
-### 8. Data Persistence & Storage
-
-#### Database Structure
-
-**Primary Tables**
-1. `projects` - Project metadata
-2. `project_data` - Flexible key-value data store
-3. `user_profiles` - User accounts
-4. `user_settings` - User preferences
-5. `category_notes` - Per-category notes
-6. `generated_content` - AI content history
-
-**Data Organization**
-- All data encrypted in transit (HTTPS)
-- Row Level Security for user isolation
-- Automatic timestamps on all records
-- Efficient indexing for fast queries
-
-#### Caching & Performance
-- Pinia store caching
-- Lazy loading of large datasets
-- Pagination support
-- Query optimization with proper indexes
-
-#### Backup & Recovery
-- Supabase automated backups
-- Point-in-time recovery available
-- Export data functionality
-- User data export (GDPR compliance)
 
 ---
 
 ## Project Management
 
-### Project Lifecycle
+### Multi-Project Support
 
-**Creation**
-- Create new project with name and description
-- Auto-assigned to authenticated user
-- Initial settings configuration
-- Ready for task setup
+Run unlimited campaigns:
+- Each project fully isolated
+- Independent settings and data
+- Quick project switching
+- Project-specific task progress
 
-**Configuration**
-- Edit project name
-- Update description
-- Manage project settings
-- Configure per-project preferences
+**Use Cases:**
+- Multiple product launches
+- A/B testing positioning approaches
+- Agency: different clients
+- Different customer segments
 
-**Operation**
-- Add/remove tasks
-- Track progress
-- Generate content
-- Manage data
+### Project Settings
 
-**Archival/Deletion**
-- Archive inactive projects
-- Delete projects with confirmation
-- Permanent data removal option
+Configure each project:
+- Product name and description
+- Target audience definition
+- Primary marketing goals
+- Timeline and budget
+- Tech stack (for SaaS)
+- Team size
 
-### Project Header & Navigation
-- Quick project switcher
-- Current project name/status
-- User profile access
-- Logout functionality
-- Navigation breadcrumbs
+### Export Options
 
----
+Get your data out:
+- **Markdown** - Documentation-ready
+- **Copy to clipboard** - Paste anywhere
+- **JSON backup** - Full data export
+- **HTML** - Landing pages
+- **PDF reports** - Shareable documents
 
-## User Experience Features
+### Data Isolation
 
-### Dashboard Interface
-- Clean, intuitive layout
-- Task category organization
-- Visual progress tracking
-- Quick action buttons
-- Mobile-responsive design
-
-### Task Management UI
-- Expandable task categories
-- Task status indicators
-- Quick-start buttons
-- Help/documentation links
-- Back navigation
-
-### Visual Feedback
-- Loading states
-- Success messages
-- Error notifications
-- Confirmation dialogs
-- Toast notifications
-
-### Responsive Design
-- Mobile-first approach
-- Tablet optimization
-- Desktop experience
-- Touch-friendly interfaces
-- Readable typography
+Complete separation:
+- No data sharing between projects
+- Independent AI context per project
+- Separate task progress tracking
+- Individual export per project
 
 ---
 
-## Technical Features
+## Pricing & Plans
 
-### Frontend Architecture
-- **Vue 3 Composition API**
-  - Modern reactive system
-  - Composable logic
-  - Reusable hooks patterns
+### Free Plan
+- **40 AI tasks per month**
+- All 33 task templates
+- Unlimited projects
+- Full data access
+- Community support
 
-- **Component Structure**
-  - Atomic design principles
-  - Reusable components
-  - Single responsibility
-  - Props-based configuration
+### Professional Plan ($19/month)
+- **200 AI tasks per month**
+- All 33 tasks fully unlocked
+- Priority support
+- Early access to new features
+- Best for freelancers & small businesses
 
-- **State Management with Pinia**
-  - Centralized state
-  - Actions for mutations
-  - Computed properties
-  - Devtools integration
+### Business Plan ($49/month)
+- **Unlimited AI tasks**
+- All features unlocked
+- 24/7 priority support
+- Team collaboration (coming soon)
+- For agencies & growing companies
 
-- **Routing with Vue Router**
-  - Route guards
-  - Protected routes
-  - Meta information
-  - Query parameters
+### What Counts as a "Task"?
 
-### Styling System
-- **Tailwind CSS v4**
-  - Utility-first approach
-  - Dark mode support
-  - Responsive prefixes
-  - Custom configuration
-  - Minimal CSS output
+One task = one AI generation. Examples:
+| Action | Tasks Used |
+|--------|------------|
+| Write blog post | 1 |
+| Generate 3 email subject lines | 1 |
+| Create sales page audit | 1 |
+| Build landing page (with AI) | 1 |
+| Generate image | 1 |
+| Read guides/checklists | 0 (free) |
 
-### Build System
-- **Vite**
-  - Fast module reloading
-  - Optimized production builds
-  - Code splitting
-  - Asset optimization
-  - CSS preprocessing
+### Feature Comparison
 
----
+| Feature | Free | Professional | Business |
+|---------|------|--------------|----------|
+| AI Tasks/Month | 40 | 200 | Unlimited |
+| Projects | Unlimited | Unlimited | Unlimited |
+| All 33 Tasks | Yes | Yes | Yes |
+| A/B Testing Dashboard | Yes | Yes | Yes |
+| Competitive Benchmarking | Yes | Yes | Yes |
+| Landing Page Builder | Yes | Yes | Yes |
+| AI Image Generation | Yes | Yes | Yes |
+| Export Options | Yes | Yes | Yes |
+| Support | Community | Priority | 24/7 |
 
-## Integration Capabilities
+### Payment Methods
 
-### Supabase Integration
-- PostgreSQL database
-- Real-time subscriptions
-- Authentication
-- Row Level Security
-- Serverless functions
-
-### Grok API Integration
-- Content generation
-- Multi-model support
-- Custom parameters
-- Error handling
-- Rate limiting
-
-### Netlify Functions
-- Serverless backend
-- API proxy for Grok
-- Environment variable management
-- Automatic deployment
-
-### Email Services
-- Email verification (via Supabase)
-- Password reset emails
-- Campaign notifications
-- User communications
+- Credit/debit cards (Stripe)
+- PayPal
+- Subscription management portal
+- Cancel anytime
 
 ---
 
-## Feature Status & Roadmap
+## Security & Data
 
-### Implemented (v0.5)
-- ✅ All 21 core tasks
-- ✅ Multi-project support
-- ✅ AI integration
-- ✅ Landing Page Creator
-- ✅ Authentication
-- ✅ Progress tracking
-- ✅ Responsive design
-- ✅ Data persistence
+### Your Data, Your Control
 
-### Planned for Future Versions
-- 🔄 Team collaboration
-- 🔄 Advanced analytics dashboard
-- 🔄 Content calendar
-- 🔄 Multi-language support
-- 🔄 Custom branding
-- 🔄 API webhooks
-- 🔄 Mobile app
-- 🔄 Template library
+- **You own everything** you create
+- **Download anytime** - full JSON export
+- **Delete anytime** - remove all data
+- **No vendor lock-in** - standard formats
 
----
+### Security Measures
 
-## Performance Characteristics
+- **Supabase Row Level Security** - Users only access their own data
+- **Encrypted transmission** - HTTPS everywhere
+- **Secure API keys** - Server-side only, never exposed
+- **Authentication** - Supabase Auth with session management
+- **Payment security** - Stripe handles all card data (PCI compliant)
 
-### Load Times
-- Initial page load: < 3 seconds
-- Task rendering: < 500ms
-- Form submission: < 1 second
-- AI generation: 2-10 seconds (varies by prompt)
+### Privacy
 
-### Database Performance
-- Query optimization via indexes
-- Lazy loading of large datasets
-- Pagination for list views
-- Real-time updates with Supabase
-
-### Frontend Performance
-- Code splitting by route
-- Lazy component loading
-- Efficient re-rendering
-- Minimal bundle size (250KB gzipped)
+- No selling of user data
+- AI prompts don't train models
+- Data stored in secure cloud infrastructure
+- GDPR-friendly data export/deletion
 
 ---
 
-## Conclusion
+## Technical Notes
 
-The Marketing To-Do App provides a comprehensive, feature-rich platform for managing marketing workflows with modern technology, scalable architecture, and excellent user experience. Each of the 21 tasks is fully functional with AI support where applicable, and the system is designed for easy extension and customization.
+### Architecture
+
+- **Frontend**: Vue 3 + Vite + Tailwind CSS + Pinia
+- **Backend**: Netlify Functions (serverless)
+- **Database**: Supabase (PostgreSQL + Row Level Security)
+- **Payments**: Stripe + PayPal
+- **AI**: Grok (xAI) + Replicate FLUX
+
+### AI Providers
+
+| Provider | Use Case | Model |
+|----------|----------|-------|
+| Grok (xAI) | Text generation | grok-3 |
+| Grok (xAI) | Image generation | grok-2-image-1212 |
+| Replicate | Image fallback | FLUX 1.1 Pro |
+
+### Quality Assurance
+
+- **130+ automated tests**
+- **97% code coverage**
+- **Vitest test framework**
+- Phase 3 SSOT compliance
+
+### Recent Updates (v0.8)
+
+- **33 marketing tasks** across 10 categories (added Strategy category)
+- **25 mini-app components** with custom UX beyond simple forms
+- Upgraded to **grok-3** AI model for text generation
+- Field inheritance system consolidated
+- Real-time sync with conflict detection
+- Unsaved changes protection
+- A/B testing dashboard
+- Competitive benchmarking
+- Performance analytics
+- AI image generation
+- Enhanced quota management
+- **ROI Calculator upgrade**: Interactive channel tracking with real-time CAC/LTV calculations, visual comparison charts, and AI budget optimization
+- **Feedback Collection upgrade**: AI-powered custom survey question generation with 10-section analysis, distribution strategies, and outreach templates
+- **Sales Page Audit enhancement**: Added 8 pro tips for iterative testing methodology
+- **Competitive Positioning Brief**: New strategic task for market positioning analysis
+
+---
+
+## Getting Started
+
+1. **Sign up** - Create free account (no credit card)
+2. **Complete onboarding** - 5 quick steps
+3. **Create project** - Name your campaign
+4. **Fill business context** - Better context = better AI
+5. **Follow recommendations** - AI guides your journey
+6. **Generate content** - Use any of 33 tasks
+7. **Export and use** - Copy, download, implement
+
+---
+
+### Task Categories Summary
+
+| Category | Tasks | AI-Powered |
+|----------|-------|------------|
+| Setup | 5 | 2 |
+| Social Media | 3 | 1 |
+| Content Creation | 3 | 2 |
+| Lead Acquisition | 3 | 1 |
+| Feedback & Iteration | 3 | 1 |
+| Analytics & Optimization | 3 | 1 |
+| Advertising | 2 | 2 |
+| Sales & Revenue | 5 | 5 |
+| Growth & Positioning | 5 | 5 |
+| Strategy | 1 | 1 |
+| **Total** | **33** | **21** |
+
+---
+
+*Launchpilot v0.8 - AI-powered marketing for everyone*

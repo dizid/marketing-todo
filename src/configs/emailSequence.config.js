@@ -301,21 +301,7 @@ Format with ready-to-use email templates, not just outlines.`,
     temperature: 0.8,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -326,5 +312,28 @@ Format with ready-to-use email templates, not just outlines.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Welcome sequence for new SaaS trial users',
+        input: { sequence_goal: 'welcome', product_description: 'Project management SaaS, $49/month', audience_awareness: 'product-aware', sequence_length: '7-email', tone: 'friendly' },
+        output: '7-email welcome sequence: Email 1 (immediate) - welcome and quick start guide, Email 2 (day 2) - feature highlight with video tutorial, Email 3 (day 4) - case study showing results, Email 4 (day 7) - address common objections, Email 5 (day 10) - upgrade reminder with bonus, Email 6 (day 13) - urgency and scarcity, Email 7 (day 14) - final call before trial ends. Each with 3 subject line options, preview text, P.S. tactics, and segmentation triggers.'
+      },
+      {
+        scenario: 'Product launch sequence for existing email list',
+        input: { sequence_goal: 'launch', product_description: 'Online course on email marketing, $297', audience_awareness: 'solution-aware', sequence_length: '10-email', tone: 'storytelling' },
+        output: '10-email launch sequence with pre-launch hype (3 emails), cart open phase (4 emails), and cart close urgency (3 emails). Includes curiosity-building subject lines, value-stacking in email body, social proof integration points, price justification messaging, bonus reveals, countdown timers, and cart close urgency tactics. A/B test suggestions for subject lines and CTA placement.'
+      }
+    ],
+    commonMistakes: [
+      'Selling too hard too fast - email 1 is a hard pitch for purchase. Build trust first through value delivery, then introduce the offer around email 3-4 in a welcome sequence.',
+      'Using boring subject lines - "Newsletter #5" or "Weekly Update" get ignored. Use curiosity, benefit, or urgency-driven subject lines that make people want to open.',
+      'Sending all emails at once - scheduling the entire sequence to send within 24 hours overwhelms subscribers. Space emails 2-3 days apart for nurture sequences, closer for launches.',
+      'Not segmenting based on behavior - sending the same emails to people who opened vs didn\'t open, clicked vs didn\'t click. Segment and send different follow-ups based on engagement.',
+      'Forgetting the P.S. - the P.S. is the second-most read part of emails but many skip it. Use it to reinforce your CTA, add urgency, or tease the next email.',
+      'No clear call-to-action - emails that inform but don\'t ask for any action. Every email should have ONE clear next step: click, reply, book a call, or purchase.'
+    ]
   }
 }

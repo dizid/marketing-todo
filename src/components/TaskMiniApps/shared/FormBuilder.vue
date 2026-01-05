@@ -6,20 +6,29 @@
       <div v-for="field in fields" :key="field.id" class="form-field">
         <!-- Text Input -->
         <div v-if="field.type === 'text'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-          <input
-            :value="formData[field.id]"
-            type="text"
-            :placeholder="field.placeholder"
-            @input="updateField(field.id, $event.target.value)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
-          />
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
+          <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <div class="flex gap-2">
+            <input
+              :value="formData[field.id]"
+              type="text"
+              :placeholder="field.placeholder"
+              @input="updateField(field.id, $event.target.value)"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+            />
+            <button
+              v-if="field.globalFieldName && hasGlobalValue(field.globalFieldName)"
+              @click="useGlobalInField(field.id, field.globalFieldName)"
+              type="button"
+              class="px-3 py-2 bg-indigo-50 border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-100 transition text-xs font-medium whitespace-nowrap"
+            >
+              ↓ Use Setup
+            </button>
+          </div>
         </div>
 
         <!-- Number Input -->
         <div v-else-if="field.type === 'number'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
           <div class="flex items-center gap-2">
             <input
               :value="formData[field.id]"
@@ -32,12 +41,21 @@
             />
             <span v-if="field.suffix" class="text-sm text-gray-600">{{ field.suffix }}</span>
           </div>
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
         </div>
 
         <!-- Textarea -->
         <div v-else-if="field.type === 'textarea'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <div class="flex items-start justify-between">
+            <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <button
+              v-if="field.globalFieldName && hasGlobalValue(field.globalFieldName)"
+              @click="useGlobalInField(field.id, field.globalFieldName)"
+              type="button"
+              class="px-2 py-1 bg-indigo-50 border border-indigo-300 text-indigo-700 rounded text-xs font-medium hover:bg-indigo-100 transition"
+            >
+              ↓ Use Setup
+            </button>
+          </div>
           <textarea
             :value="formData[field.id]"
             :placeholder="field.placeholder"
@@ -45,12 +63,11 @@
             @input="updateField(field.id, $event.target.value)"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical"
           ></textarea>
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
         </div>
 
         <!-- Select -->
         <div v-else-if="field.type === 'select'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
           <select
             :value="formData[field.id]"
             @change="updateField(field.id, $event.target.value)"
@@ -61,12 +78,11 @@
               {{ option.label }}
             </option>
           </select>
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
         </div>
 
         <!-- Checkbox Group -->
         <div v-else-if="field.type === 'checkboxes'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
           <div class="space-y-2">
             <label v-for="option in field.options" :key="option.value" class="flex items-center gap-2 cursor-pointer">
               <input
@@ -79,12 +95,11 @@
               <span class="text-sm text-gray-700">{{ option.label }}</span>
             </label>
           </div>
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
         </div>
 
         <!-- Radio Group -->
         <div v-else-if="field.type === 'radio'" class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+          <label class="text-sm font-medium text-gray-700">{{ field.label }}</label>
           <div class="space-y-2">
             <label v-for="option in field.options" :key="option.value" class="flex items-center gap-2 cursor-pointer">
               <input
@@ -97,7 +112,6 @@
               <span class="text-sm text-gray-700">{{ option.label }}</span>
             </label>
           </div>
-          <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
         </div>
       </div>
     </div>
@@ -110,7 +124,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useOnboardingStore } from '@/stores/onboardingStore'
 
 const props = defineProps({
   title: String,
@@ -128,6 +143,28 @@ const emit = defineEmits(['update:data', 'change'])
 
 const formData = ref({ ...props.initialData })
 const errors = ref([])
+const onboardingStore = useOnboardingStore()
+
+// Helper to get values from onboarding store
+const getGlobalValue = (fieldName) => {
+  return onboardingStore.wizardData[fieldName] || ''
+}
+
+// Helper to check if value exists in onboarding store
+const hasGlobalValue = (fieldName) => {
+  const value = getGlobalValue(fieldName)
+  return value && String(value).trim().length > 0
+}
+
+// Auto-populate fields from onboarding store on mount
+onMounted(() => {
+  for (const field of props.fields) {
+    if (field.globalFieldName && hasGlobalValue(field.globalFieldName)) {
+      const value = getGlobalValue(field.globalFieldName)
+      formData.value[field.id] = value
+    }
+  }
+})
 
 // Watch initial data changes
 watch(
@@ -142,6 +179,14 @@ const updateField = (fieldId, value) => {
   formData.value[fieldId] = value
   emit('update:data', { ...formData.value })
   emit('change')
+}
+
+// Use global value in a field
+const useGlobalInField = (fieldId, globalFieldName) => {
+  const value = getGlobalValue(globalFieldName)
+  if (value) {
+    updateField(fieldId, value)
+  }
 }
 
 // Update checkbox field (array)

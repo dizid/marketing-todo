@@ -88,17 +88,40 @@ export const interactionTypes = [
 
 export const engageFollowersTask = {
   id: 'social-2',
-  name: 'Engage Followers',
-  description: 'Template responses for common interactions',
+  name: 'Response Template Library',
+  description: 'Pre-written response templates for common follower interactions',
   category: 'social',
 
   // Freemium model - Premium tier task
   tier: 'premium',
-  what: 'Build a systematic engagement strategy with templated responses for comments, DMs, and community interactions. Turn followers into brand advocates through consistent, authentic engagement.',
-  why: 'Social media algorithms favor engagement. Posts with replies/comments get 5x more reach. Communities with engaged followers become word-of-mouth growth engines.',
-  how: 'Review the 10 response templates (for compliments, questions, complaints, feedback requests, etc). Customize them with your voice, then copy-paste when responding to comments.',
+  what: 'Get a library of 10 templated responses for different interaction types (compliments, questions, complaints, feedback requests, etc). Customize each with your voice, then copy-paste when responding to comments.',
+  why: 'Consistent, thoughtful engagement builds brand loyalty. Responding to every comment signals you care. But writing unique responses to every interaction is time-consuming.',
+  how: 'Review the response templates organized by interaction type. Copy each one, customize with your voice/details, then save to use when responding to comments on your posts.',
 
   interactionTypes: interactionTypes,
   customComponent: 'EngageFollowersMiniApp',
-  output: { enabled: false }
+  output: { enabled: false },
+
+  help: {
+    examples: [
+      {
+        scenario: 'Responding to positive feedback on social media',
+        input: { interaction_type: 'compliments', comment: 'This tool is amazing! Saved me so much time.' },
+        output: 'Template response: "Thank you so much! We\'re thrilled it\'s saving you time. Your feedback means everything to us. Let us know if you need anything!" Includes personalization tips to reference specific features they mentioned and invitation to join community or beta program.'
+      },
+      {
+        scenario: 'Handling feature requests from engaged users',
+        input: { interaction_type: 'feature-requests', comment: 'Would love to see dark mode added!' },
+        output: 'Template response: "Great suggestion! Dark mode is something we\'ve been thinking about. We track feature requests at [link] - upvote there so we can prioritize based on demand. What\'s your main use case for dark mode?" Acknowledges request, provides tracking mechanism, and asks follow-up to understand need better.'
+      }
+    ],
+    commonMistakes: [
+      'Using generic copy-paste responses - replying "Thanks for the feedback!" to everything feels robotic. Personalize each response by referencing something specific they said.',
+      'Responding too slowly - taking 2-3 days to reply to comments. Aim to respond within 2-4 hours, especially in the first 24 hours after posting when engagement signals matter most to algorithms.',
+      'Only responding to positive comments - ignoring questions or concerns and only thanking compliments. Engage with ALL comments, especially questions and constructive criticism.',
+      'Getting defensive about criticism - arguing with users who report bugs or suggest improvements. Always thank them for feedback and explain you\'re looking into it, even if you disagree.',
+      'Not asking follow-up questions - one-and-done replies that end conversations. Ask questions back to keep the conversation going and learn more about your users.',
+      'Forgetting to engage with other people\'s content - only replying to comments on your posts. Spend time commenting on followers\' posts too to build reciprocal relationships and community.'
+    ]
+  }
 }

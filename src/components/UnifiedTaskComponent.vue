@@ -8,6 +8,13 @@
       </p>
     </div>
 
+    <!-- Help Panel -->
+    <HelpPanel
+      v-if="taskConfig.help"
+      :help="taskConfig.help"
+      :task-id="taskConfig.id"
+    />
+
     <!-- Form Section -->
     <div v-if="taskConfig.form && taskConfig.form.length" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
       <h4 class="font-semibold text-gray-900 mb-4">Configuration</h4>
@@ -20,7 +27,7 @@
         >
           <!-- Text Input -->
           <div v-if="field.type === 'text'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -31,13 +38,12 @@
               @input="updateField(field.id, $event.target.value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
             />
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Number Input -->
           <div v-else-if="field.type === 'number'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -53,13 +59,12 @@
               />
               <span v-if="field.suffix" class="text-sm text-gray-600">{{ field.suffix }}</span>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Textarea -->
           <div v-else-if="field.type === 'textarea'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -70,13 +75,12 @@
               @input="updateField(field.id, $event.target.value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-vertical"
             ></textarea>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Select -->
           <div v-else-if="field.type === 'select'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -90,13 +94,12 @@
                 {{ option.label }}
               </option>
             </select>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Checkboxes -->
           <div v-else-if="field.type === 'checkboxes'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -116,13 +119,12 @@
                 <span class="text-sm text-gray-700">{{ option.label }}</span>
               </label>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
 
           <!-- Radio -->
           <div v-else-if="field.type === 'radio'" class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="text-sm font-medium text-gray-700">
               {{ field.label }}
               <span v-if="field.required" class="text-red-600">*</span>
             </label>
@@ -142,7 +144,6 @@
                 <span class="text-sm text-gray-700">{{ option.label }}</span>
               </label>
             </div>
-            <p v-if="field.description" class="text-xs text-gray-500">{{ field.description }}</p>
             <p v-if="fieldErrors[field.id]" class="text-xs text-red-600">{{ fieldErrors[field.id] }}</p>
           </div>
         </div>
@@ -325,8 +326,13 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProjectStore } from '../stores/projectStore'
 import { generateAIContent } from '@/services/aiGeneration'
+import { isQuotaExceededError, handleQuotaExceededError } from '@/services/aiQuotaService'
+import HelpPanel from '@/components/TaskMiniApps/shared/HelpPanel.vue'
+
+const router = useRouter()
 
 const props = defineProps({
   taskId: {
@@ -345,11 +351,49 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'update'])
 
+// Load FIELD_INHERITANCE_MAP for automatic value population
+let inheritanceMap = null
+try {
+  inheritanceMap = require('@/config/FIELD_INHERITANCE_MAP.json')
+} catch (e) {
+  console.log('Field inheritance map not found - skipping auto-population')
+}
+
 const projectStore = useProjectStore()
 
 // Form State
 const formData = ref({ ...props.initialData?.formData || {} })
 const fieldErrors = ref({})
+
+// Auto-populate inherited fields from ProjectContext
+const populateInheritedFields = () => {
+  if (!inheritanceMap?.task_field_mappings) return
+
+  const taskMapping = inheritanceMap.task_field_mappings[props.taskId]
+  if (!taskMapping?.mappings) return
+
+  // For each mapped field, populate from ProjectContext if empty
+  Object.entries(taskMapping.mappings).forEach(([taskFieldId, canonicalField]) => {
+    if (!formData.value[taskFieldId] && canonicalField) {
+      const parts = canonicalField.split('.')
+      let value = projectStore.projectData
+      for (const part of parts) {
+        if (value && typeof value === 'object') {
+          value = value[part]
+        } else {
+          value = undefined
+          break
+        }
+      }
+      if (value !== undefined) {
+        formData.value[taskFieldId] = value
+      }
+    }
+  })
+}
+
+// Populate fields on mount
+populateInheritedFields()
 
 // AI State
 const aiOutput = ref(null)
@@ -518,12 +562,12 @@ const generateAI = async () => {
     }
   } catch (err) {
     console.error('AI generation error:', err)
-    // Check if it's a quota error
-    if (err.message && err.message.includes('quota')) {
-      aiError.value = 'AI generation quota exceeded. Please upgrade your plan or try again later.'
-    } else {
-      aiError.value = err.message || 'Error generating content'
+    // Check if it's a quota exceeded error - redirect to subscription page
+    if (isQuotaExceededError(err)) {
+      handleQuotaExceededError(router, err)
+      return
     }
+    aiError.value = err.message || 'Error generating content'
   } finally {
     isGenerating.value = false
   }

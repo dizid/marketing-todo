@@ -69,7 +69,7 @@
               @click="removeMessage(idx)"
               class="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition"
             >
-              🗑️ Remove
+              🗑️ Archive
             </button>
           </div>
         </div>

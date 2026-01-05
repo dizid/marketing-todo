@@ -13,7 +13,30 @@
             {{ taskMetadata?.icon }} {{ taskMetadata?.name }}
           </h3>
           <p class="text-sm text-gray-600 mt-1 hidden md:block">{{ taskMetadata?.description }}</p>
+
+          <!-- Phase 3 Task 3.2: Save Status Feedback -->
+          <!-- Saving Indicator -->
+          <div v-if="isSaving" class="mt-3 flex items-center gap-2 text-sm text-indigo-600">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Saving...</span>
+          </div>
+
+          <!-- Error Message -->
+          <div v-else-if="saveError" class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-start gap-2">
+            <span class="text-lg">⚠️</span>
+            <span>{{ saveError }}</span>
+          </div>
+
+          <!-- Success Message -->
+          <div v-else-if="lastSaveTime" class="mt-3 flex items-center gap-2 text-sm text-green-600">
+            <span>✓ Saved</span>
+            <span class="text-gray-500">({{ formatSaveTime(lastSaveTime) }})</span>
+          </div>
         </div>
+
         <button
           @click="handleClose"
           class="text-gray-500 hover:text-gray-700 text-2xl ml-4 flex-shrink-0"
@@ -27,6 +50,7 @@
         <!-- Custom Component (e.g., Landing Page Creator) -->
         <component
           v-if="customComponent"
+          ref="taskComponentRef"
           :is="customComponent"
           :task-config="taskConfig"
           :task-data="currentTaskData"
@@ -36,6 +60,7 @@
         <!-- Default: Unified Task Component -->
         <UnifiedTaskComponent
           v-else
+          ref="taskComponentRef"
           :task-id="taskId"
           :task-config="taskConfig"
           :initial-data="currentTaskData"
@@ -65,7 +90,38 @@
           @click="handleClose"
           class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition font-medium text-sm"
         >
-          Done
+          Close
+        </button>
+        <button
+          @click="handleMarkComplete"
+          class="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition font-medium text-sm"
+        >
+          ✓ Mark Complete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unsaved Changes Warning (Phase 3 Task 3.5) -->
+  <div v-if="showUnsavedWarning" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Unsaved Changes</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        You have unsaved changes in this task. Are you sure you want to leave without saving?
+      </p>
+
+      <div class="space-y-3">
+        <button
+          @click="confirmDiscard"
+          class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm"
+        >
+          Discard Changes
+        </button>
+        <button
+          @click="cancelClose"
+          class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm"
+        >
+          Keep Editing
         </button>
       </div>
     </div>
@@ -112,6 +168,7 @@ import ChannelAnalyzerMiniApp from '@/components/TaskMiniApps/ChannelAnalyzerMin
 import RoiCalculatorMiniApp from '@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'
 import PaidAdsLaunchMiniApp from '@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'
 import PaidAdsOptimizeMiniApp from '@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue'
+import ObjectionHandlingChatbot from '@/components/TaskMiniApps/ObjectionHandlingChatbot.vue'
 
 // Map of custom component names to their imported components
 const customComponentMap = {
@@ -137,7 +194,8 @@ const customComponentMap = {
   'ChannelAnalyzerMiniApp': ChannelAnalyzerMiniApp,
   'RoiCalculatorMiniApp': RoiCalculatorMiniApp,
   'PaidAdsLaunchMiniApp': PaidAdsLaunchMiniApp,
-  'PaidAdsOptimizeMiniApp': PaidAdsOptimizeMiniApp
+  'PaidAdsOptimizeMiniApp': PaidAdsOptimizeMiniApp,
+  'ObjectionHandlingChatbot': ObjectionHandlingChatbot
 }
 
 // Props
@@ -149,17 +207,33 @@ const props = defineProps({
   taskId: {
     type: [String, null],
     default: null
+  },
+  // Phase 3 Task 3.2: Save state tracking props
+  isSaving: {
+    type: Boolean,
+    default: false
+  },
+  saveError: {
+    type: [String, null],
+    default: null
+  },
+  lastSaveTime: {
+    type: [Date, null],
+    default: null
   }
 })
 
 // Emits
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'complete'])
 
 // Stores
 const projectStore = useProjectStore()
 
 // State
 const notes = ref('')
+// Phase 3 Task 3.5: Unsaved changes warning
+const showUnsavedWarning = ref(false)
+const taskComponentRef = ref(null)
 
 // Computed
 const taskMetadata = computed(() => getTaskMetadata(props.taskId))
@@ -189,6 +263,28 @@ const handleBackdropClick = (e) => {
   }
 }
 
+/**
+ * Format last save time for display (Phase 3 Task 3.2)
+ * Shows relative time like "just now", "2 minutes ago", etc.
+ */
+const formatSaveTime = (saveTime) => {
+  if (!saveTime) return null
+
+  const now = new Date()
+  const diff = Math.floor((now - saveTime) / 1000) // Difference in seconds
+
+  if (diff < 30) {
+    return 'just now'
+  } else if (diff < 60) {
+    return '1 minute ago'
+  } else if (diff < 300) {
+    const minutes = Math.floor(diff / 60)
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else {
+    return saveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+}
+
 const handleSave = async (data) => {
   // This is called on every form change (auto-save)
   // Don't close the modal - only close on explicit user action
@@ -196,8 +292,42 @@ const handleSave = async (data) => {
   emit('save', { taskId: props.taskId, data })
 }
 
+/**
+ * Phase 3 Task 3.5: Handle close with unsaved changes check
+ */
 const handleClose = () => {
+  // Check if task component has unsaved changes
+  if (taskComponentRef.value?.hasUnsavedChanges?.()) {
+    showUnsavedWarning.value = true
+    return
+  }
+
   // Reset local state
+  notes.value = ''
+  emit('close')
+}
+
+/**
+ * Phase 3 Task 3.5: Confirm discard of unsaved changes
+ */
+const confirmDiscard = () => {
+  showUnsavedWarning.value = false
+  notes.value = ''
+  emit('close')
+}
+
+/**
+ * Phase 3 Task 3.5: Cancel close and keep editing
+ */
+const cancelClose = () => {
+  showUnsavedWarning.value = false
+}
+
+/**
+ * Mark task as complete and close modal
+ */
+const handleMarkComplete = () => {
+  emit('complete', { taskId: props.taskId })
   notes.value = ''
   emit('close')
 }

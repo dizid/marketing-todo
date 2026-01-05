@@ -52,8 +52,19 @@
       </div>
     </div>
 
+    <!-- Error message -->
+    <div v-if="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Loading state (for new project mode) -->
+    <div v-if="isCreating" class="text-center py-8">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+      <p class="text-gray-600">Creating your project...</p>
+    </div>
+
     <!-- Navigation -->
-    <div class="flex justify-between">
+    <div v-if="!isCreating" class="flex justify-between">
       <button
         @click="onboardingStore.prevStep()"
         class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition"
@@ -62,16 +73,16 @@
       </button>
       <div class="flex gap-3">
         <button
-          @click="onboardingStore.nextStep()"
+          @click="handleNext"
           class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition"
         >
           Skip →
         </button>
         <button
-          @click="onboardingStore.nextStep()"
+          @click="handleNext"
           class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition"
         >
-          Save & Next →
+          {{ isNewProjectMode ? 'Create Project →' : 'Save & Next →' }}
         </button>
       </div>
     </div>
@@ -79,9 +90,68 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useProjectStore } from '@/stores/projectStore'
+import { formatGoal, formatTimeline } from '@/utils/onboardingFormatters'
 
+const router = useRouter()
 const onboardingStore = useOnboardingStore()
+const projectStore = useProjectStore()
+
 const wizardData = computed(() => onboardingStore.wizardData)
+const isNewProjectMode = computed(() => onboardingStore.isNewProjectMode)
+
+const isCreating = ref(false)
+const errorMessage = ref('')
+
+const handleNext = async () => {
+  // If not in new project mode, just go to next step (signup)
+  if (!isNewProjectMode.value) {
+    onboardingStore.nextStep()
+    return
+  }
+
+  // In new project mode, create the project directly
+  isCreating.value = true
+  errorMessage.value = ''
+
+  try {
+    const data = wizardData.value
+    const projectName = data.productName || 'My Product Launch'
+    const projectDescription = `
+${data.productDescription || ''}
+Target Audience: ${data.targetAudience}
+Goal: ${formatGoal(data.mainGoal)}
+Timeline: ${formatTimeline(data.timeline)}
+    `.trim()
+
+    // Create the project
+    await projectStore.createProject(projectName, projectDescription)
+
+    // Save wizard data to project settings
+    await projectStore.updateProjectSettings({
+      productType: data.productType,
+      experienceLevel: data.experienceLevel,
+      targetAudience: data.targetAudience,
+      mainGoal: data.mainGoal,
+      timeline: data.timeline,
+      budget: data.budget,
+      teamSize: data.teamSize,
+      currentStage: data.currentStage
+    })
+
+    // Clear wizard state
+    onboardingStore.clearWizard()
+    onboardingStore.setNewProjectMode(false)
+
+    // Navigate to dashboard
+    router.push('/app')
+  } catch (error) {
+    console.error('Failed to create project:', error)
+    errorMessage.value = error.message || 'Failed to create project. Please try again.'
+    isCreating.value = false
+  }
+}
 </script>

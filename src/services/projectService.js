@@ -193,6 +193,11 @@ export async function addProjectContent(projectId, contentType, content) {
 
 /**
  * Initialize project with default data (called when project is created)
+ * Expert/Advanced tasks (12 total) are marked as "removed" by default:
+ * - Sales Optimization (5 tasks)
+ * - Growth Strategy (5 tasks)
+ * - Paid Advertising (2 tasks)
+ * These appear in the "+ Add Tasks" modal instead of the main dashboard
  */
 export async function initializeProject(projectId) {
   const defaultSettings = {
@@ -203,7 +208,28 @@ export async function initializeProject(projectId) {
     description: ''
   }
 
-  const defaultTasks = {}
+  // Initialize all tasks with their default state
+  // Expert/Advanced tasks (12) - marked as removed by default
+  // These appear in the "+ Add Tasks" modal for advanced users
+  const defaultTasks = {
+    // Sales Optimization Category - removed by default (expert level)
+    'sales-1': { checked: false, removed: true },   // Sales Funnel Blueprint
+    'sales-2': { checked: false, removed: true },   // High-Converting Offer Builder
+    'sales-3': { checked: false, removed: true },   // Objection Handling
+    'sales-4': { checked: false, removed: true },   // Email Sequence Designer
+    'sales-5': { checked: false, removed: true },   // Sales Page Audit
+
+    // Growth Strategy Category - removed by default (expert level)
+    'growth-1': { checked: false, removed: true },  // Lead Magnet Builder
+    'growth-2': { checked: false, removed: true },  // Cold Outreach Campaigns
+    'growth-3': { checked: false, removed: true },  // Competitor Analysis
+    'growth-4': { checked: false, removed: true },  // A/B Testing Ideas
+    'growth-5': { checked: false, removed: true },  // Positioning Map
+
+    // Paid Advertising Category - removed by default (expert level)
+    'advertising-1': { checked: false, removed: true },  // Launch Paid Ads
+    'advertising-2': { checked: false, removed: true }   // Optimize Paid Ads
+  }
 
   await Promise.all([
     saveProjectSettings(projectId, defaultSettings),

@@ -9,6 +9,15 @@ export const salesPageAuditTask = {
   category: 'sales',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    // Fields without canonical mapping (task-specific, requires existing page)
+    'page_url': null,
+    'current_conversion_rate': null,
+    'traffic_sources': null,
+    'main_objections': null
+  },
+
   what: 'Receive a comprehensive audit of your sales page or landing page. Get a conversion scorecard, headline optimization suggestions, CTA improvements, trust element recommendations, mobile UX fixes, and heatmap interpretation guidance.',
 
   why: 'Most sales pages convert at 1-3%. Small changes can double or triple conversions. But most entrepreneurs don\'t know what to fix first. A systematic audit identifies the highest-impact improvements and prioritizes them.',
@@ -92,7 +101,7 @@ export const salesPageAuditTask = {
 Page URL: {page_url}
 Current Conversion Rate: {current_conversion_rate}%
 Traffic Sources: {traffic_sources}
-Price Point: ${price_point}
+Price Point: {price_point}
 Main Objections: {main_objections}
 Existing Sections: {page_sections}
 
@@ -116,7 +125,7 @@ Generate a comprehensive sales page audit:
 
 **Conversion Rate Analysis:**
 - Current: {current_conversion_rate}%
-- Industry Benchmark: [X]% for ${price_point} products
+- Industry Benchmark: [X]% for {price_point} products
 - Potential After Fixes: [X]% (estimated)
 - Revenue Impact: [Calculate potential $ increase]
 
@@ -175,7 +184,7 @@ Supporting Text: "[Guarantee reminder]"
 
 ## 4. TRUST ELEMENT ADDITIONS
 
-Based on ${price_point} price point, you need strong trust signals.
+Based on {price_point} price point, you need strong trust signals.
 
 **Missing Trust Elements to Add:**
 
@@ -354,7 +363,7 @@ If you have heatmap data, look for:
 
 ## 11. PAGE STRUCTURE RECOMMENDATION
 
-**Optimized Flow for ${price_point} Product:**
+**Optimized Flow for {price_point} Product:**
 
 1. **Hero Section:**
    - Headline + Subheadline
@@ -436,21 +445,7 @@ Format with specific copy examples and actionable fixes, not just theory.`,
     temperature: 0.7,
     maxTokens: 3000,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -461,5 +456,38 @@ Format with specific copy examples and actionable fixes, not just theory.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS sales page converting at 2% wants to hit 5%',
+        input: { page_url: 'https://example.com/pricing', current_conversion: 2, monthly_visitors: 1000, product_price: 99 },
+        output: 'Comprehensive audit identifying 12 conversion killers: weak headline (generic "Pricing" instead of benefit-driven), no social proof above fold, buried CTA (first CTA at 60% scroll), unclear value prop, no guarantee, poor mobile experience (16% of layout), vague feature descriptions, missing FAQ section, no urgency/scarcity, slow page load (4.2s), missing trust badges. Prioritized action plan: 1) Rewrite headline (potential +30% lift), 2) Add guarantee (potential +20%), 3) Move CTA above fold (potential +15%). Expected new conversion rate: 3.9-4.5%.'
+      },
+      {
+        scenario: 'Course sales page with high traffic but low sales',
+        input: { page_url: 'https://example.com/course', current_conversion: 1, monthly_visitors: 5000, product_price: 497 },
+        output: 'Audit reveals traffic quality mismatch and offer positioning issues: High bounce rate (78%) suggests wrong audience or unclear value prop, long page (4000 words) likely overwhelming visitors, price seems high without justification (no value stack or ROI calculator), testimonials are generic without specific results, no payment plan offered for $497 price point. Recommendations ranked by impact: 1) Add value stack showing $2500+ total value, 2) Offer 3-pay option ($177/mo), 3) Include 3 result-specific testimonials with numbers, 4) Add "results not typical" case study showing realistic outcomes, 5) Shorten page 30% focusing on transformation.'
+      }
+    ],
+    commonMistakes: [
+      'Auditing without traffic data - analyzing page in isolation without knowing where visitors drop off. Install heatmaps (Hotjar) and scroll tracking before auditing to identify real vs imagined problems.',
+      'Changing everything at once - implementing all 15 recommendations simultaneously and not knowing what worked. Test top 3 highest-impact changes first, measure results, then iterate.',
+      'Focusing on design over copy - making page "prettier" while ignoring that headline is feature-focused instead of benefit-focused. Copy improvements typically drive 3-5x more lift than design tweaks.',
+      'Not checking mobile - auditing only desktop when 60% of traffic is mobile. Always audit mobile experience separately - different pain points emerge.',
+      'Comparing to wrong benchmarks - expecting 10% conversion on a $5K product when 2-3% is excellent for high-ticket. Know your industry benchmarks before setting goals.',
+      'Ignoring page speed - beautiful page that takes 5+ seconds to load loses 40% of visitors before they see anything. Run PageSpeed Insights first - speed improvements often have highest ROI.'
+    ],
+    proTips: [
+      'Test one change at a time: Make a single high-impact change, measure for 2 weeks with at least 500 visitors, then iterate. Changing multiple elements simultaneously makes it impossible to know what worked.',
+      'Screenshot your page before changes: Create a dated archive of every version. When conversion drops, you can quickly identify what changed and revert if needed.',
+      'Use session recordings over heatmaps: Heatmaps show aggregate behavior, but session recordings show WHY people leave. Watch 20-30 recordings of non-buyers to find patterns.',
+      'Prioritize above-the-fold: 50% of visitors never scroll past the first screen. Your headline, subheadline, and first CTA must do the heavy lifting.',
+      'Match landing page to ad creative: If your ad promises "5 easy steps", your landing page headline should reinforce that exact promise. Mismatched expectations kill conversions.',
+      'Add a price anchor: Before revealing your price, show the value of what they\'re getting. "$5,000 value for just $497" converts better than "$497" alone.',
+      'Test guarantee placement: Some pages convert better with guarantee near price, others with guarantee near CTA. Test both positions.',
+      'Remove navigation on sales pages: Every link is a potential exit. Remove header navigation and footer links on dedicated sales pages.'
+    ]
   }
 }

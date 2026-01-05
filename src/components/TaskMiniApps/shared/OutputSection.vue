@@ -14,7 +14,7 @@
             @click="removeItem(index)"
             class="text-red-500 hover:text-red-700 text-xs font-medium"
           >
-            Remove
+            Archive
           </button>
         </div>
         <p class="text-xs text-gray-600 whitespace-pre-wrap bg-gray-50 p-2 rounded border border-gray-100">

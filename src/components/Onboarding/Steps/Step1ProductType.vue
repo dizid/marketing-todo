@@ -65,7 +65,7 @@
             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
         ]"
       >
-        Next: Tell us more →
+        Next: Your Experience →
       </button>
     </div>
   </div>

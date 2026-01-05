@@ -3,15 +3,16 @@
        Accordion-style category container with expandable task items
        Features: Task list, checkboxes, notes, progress indicator
   -->
-  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="bg-surface rounded-0 overflow-hidden border border-border animate-fade-in-up">
     <!-- Category Header / Toggle -->
     <button
       @click="isExpanded = !isExpanded"
-      class="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white transition"
+      class="w-full px-6 py-4 flex items-center justify-between bg-surface-light hover:bg-surface hover:border-l-4 hover:border-primary transition border-l-4 border-border"
+      style="border-bottom: 1px solid var(--cyberpunk-border)"
     >
       <div class="flex items-center gap-4">
         <svg
-          class="w-6 h-6 transition-transform"
+          class="w-6 h-6 transition-transform text-primary"
           :class="{ 'rotate-90': isExpanded }"
           fill="none"
           stroke="currentColor"
@@ -20,16 +21,17 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
         <div class="text-left">
-          <h3 class="font-semibold text-lg">{{ category.label }}</h3>
+          <h3 class="font-semibold text-lg font-display text-primary">{{ category.label }}</h3>
         </div>
       </div>
       <div class="text-right">
-        <span class="text-sm font-medium">
+        <span class="text-sm font-medium text-secondary">
           {{ categoryCompletedCount }}/{{ activeCategoryCount }}
         </span>
-        <div class="w-24 h-2 bg-indigo-400 rounded-full mt-2 overflow-hidden">
+        <div class="w-24 h-2 bg-surface border border-border rounded-0 mt-2 overflow-hidden">
           <div
-            class="h-full bg-white transition-all duration-300"
+            class="h-full transition-all duration-300"
+            style="background: linear-gradient(90deg, var(--cyberpunk-primary), var(--cyberpunk-accent))"
             :style="{ width: categoryProgressPercentage + '%' }"
           ></div>
         </div>
@@ -37,22 +39,34 @@
     </button>
 
     <!-- Category Items (Expanded) -->
-    <div v-if="isExpanded" class="divide-y divide-gray-200">
+    <div v-if="isExpanded" class="divide-y" style="divide-color: var(--cyberpunk-border)">
       <ChecklistItem
-        v-for="item in category.items.filter(i => !tasks[i.id]?.removed)"
+        v-for="item in visibleItems"
         :key="item.id"
         :item="item"
         :task-data="tasks[item.id] || {}"
         @task-checked="(updates) => updateTask(item.id, updates)"
         @notes-updated="(updates) => updateTask(item.id, updates)"
-        @task-removed="(data) => removeTask(item.id)"
+        @task-removed="removeTask(item.id)"
         @task-opened="(data) => emit('task-opened', data)"
       />
     </div>
 
-    <!-- Empty State -->
-    <div v-if="isExpanded && category.items.length === 0" class="px-6 py-8 text-center text-gray-500">
-      <p>No items to display</p>
+    <!-- Empty State with Add Tasks Button -->
+    <div v-if="isExpanded && visibleItems.length === 0" class="px-6 py-8 text-center">
+      <div v-if="hasOnlyRemovedTasks">
+        <p class="text-sm text-muted mb-4">All tasks in this category have been removed.</p>
+        <button
+          @click="emit('show-add-tasks', { categoryLabel: category.label, categoryName: category.name })"
+          class="btn-highlight text-xs sm:text-sm"
+          title="Add previously removed tasks back to this category"
+        >
+          + Add Tasks
+        </button>
+      </div>
+      <div v-else class="text-muted">
+        <p>No items to display</p>
+      </div>
     </div>
   </div>
 </template>
@@ -80,14 +94,18 @@ const props = defineProps({
   tasks: {
     type: Object,
     default: () => ({})
+  },
+  initialExpanded: {
+    type: Boolean,
+    default: false
   }
 })
 
 // Emits
-const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened'])
+const emit = defineEmits(['task-checked', 'notes-updated', 'task-removed', 'task-opened', 'show-add-tasks'])
 
-// State
-const isExpanded = ref(false)
+// State - initialize from prop
+const isExpanded = ref(props.initialExpanded)
 
 /**
  * Update task state and emit changes
@@ -114,6 +132,27 @@ const updateTask = (taskId, updates) => {
 const removeTask = (taskId) => {
   emit('task-removed', { taskId })
 }
+
+/**
+ * Computed: Visible items (not removed)
+ */
+const visibleItems = computed(() => {
+  return props.category.items.filter(item => !props.tasks[item.id]?.removed)
+})
+
+/**
+ * Computed: Removed items in this category
+ */
+const removedItems = computed(() => {
+  return props.category.items.filter(item => props.tasks[item.id]?.removed)
+})
+
+/**
+ * Computed: Should show "+Add Tasks" button (no visible items but has removed items)
+ */
+const hasOnlyRemovedTasks = computed(() => {
+  return visibleItems.value.length === 0 && removedItems.value.length > 0
+})
 
 /**
  * Computed: Count of completed tasks in this category (excluding removed)

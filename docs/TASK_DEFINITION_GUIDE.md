@@ -2,6 +2,38 @@
 
 This guide shows how to define tasks in the Sales & Marketing app using configurations instead of writing Vue components.
 
+## Overview
+
+The app has **33 marketing tasks** across 10 categories, implemented as mini-apps:
+
+| Category | Tasks | Examples |
+|----------|-------|----------|
+| Setup | 5 | Define Audience, Landing Page Creator |
+| Social Media | 3 | Generate Posts, Engage Followers |
+| Content Creation | 3 | Write Blog, Video Script |
+| Lead Acquisition | 3 | Community Posts, Outreach |
+| Feedback & Iteration | 3 | Collect Feedback, Iterate Features |
+| Analytics & Optimization | 3 | Setup Analytics, ROI Calculator |
+| Advertising | 2 | Paid Ads Launch, Paid Ads Optimize |
+| Sales & Revenue | 5 | Offer Builder, Objection Handling |
+| Growth & Positioning | 5 | Lead Magnet, Competitor Analysis |
+| Strategy | 1 | Competitive Positioning Brief |
+
+### Architecture
+
+Tasks are implemented using two main systems:
+
+1. **Unified Task Configs** (`src/configs/unifiedTasks.js`) - Central registry of all 33 task definitions with form fields, AI prompts, and metadata.
+
+2. **Mini-App Components** (`src/components/TaskMiniApps/`) - 25 Vue components that provide enhanced UX beyond simple forms (wizards, calculators, multi-step flows).
+
+### Task Types
+
+- **Config-driven** - Simple form + AI generation, rendered by MiniAppShell
+- **Custom mini-app** - Complex UX (wizards, multi-tab, interactive tools)
+
+---
+
 ## Quick Start
 
 Tasks are defined as JavaScript objects in a **configuration file**. Once defined, they automatically render through the mini-app framework with no additional component code needed.
@@ -123,24 +155,6 @@ formFields: [
     }
   },
 
-  // EMAIL INPUT
-  {
-    id: 'email',
-    type: 'email',
-    label: 'Contact Email',
-    required: true
-    // Built-in email validation
-  },
-
-  // URL INPUT
-  {
-    id: 'website',
-    type: 'url',
-    label: 'Website',
-    placeholder: 'https://example.com'
-    // Built-in URL validation
-  },
-
   // NUMBER INPUT
   {
     id: 'monthly_budget',
@@ -212,14 +226,42 @@ formFields: [
 
 | Type | Input | Use Case | Validation |
 |------|-------|----------|-----------|
-| `text` | Single line | Names, IDs, short values | Custom via `validate()` |
-| `email` | Email field | Email addresses | Built-in regex |
-| `url` | URL field | Websites, links | Built-in URL validation |
-| `number` | Number spinner | Quantities, amounts | Min/max constraints |
-| `textarea` | Multi-line | Long descriptions, content | Custom via `validate()` |
+| `text` | Single line | Names, IDs, short values, emails, URLs | Custom via `validate()` |
+| `number` | Number spinner | Quantities, amounts, budgets | Min/max constraints |
+| `textarea` | Multi-line | Long descriptions, content, notes | Custom via `validate()` |
 | `select` | Dropdown | Single choice from list | Option validation |
-| `checkboxes` | Checkboxes | Multiple selections | Min/max count validation |
+| `checkboxes` | Checkboxes | Multiple selections (returns array) | Min/max count validation |
 | `radio` | Radio buttons | Single choice, visible options | Option validation |
+
+> **Note**: Only these 6 field types are implemented in the form renderer. For email or URL validation, use the `text` type with a custom `validate()` function.
+
+### Common Field Properties
+
+All field types support these properties:
+
+```javascript
+{
+  id: 'field_id',              // Required: unique identifier (snake_case)
+  type: 'text',                // Required: one of the 6 supported types
+  label: 'Display Label',      // Required: shown to user
+  description: 'Help text',    // Optional: shown below field
+  placeholder: 'Example...',   // Optional: placeholder text
+  required: true,              // Optional: adds asterisk, enforces validation
+  tooltip: 'More info...',     // Optional: hover tooltip
+  example: 'Sample value',     // Optional: example value for reference
+}
+```
+
+**Type-specific properties:**
+
+| Type | Additional Properties |
+|------|----------------------|
+| `text` | `maxLength` |
+| `number` | `min`, `max`, `suffix` (displayed after input) |
+| `textarea` | `rows` (default: 3) |
+| `select` | `options` (array of `{value, label}`) |
+| `checkboxes` | `options` (array of `{value, label}`) |
+| `radio` | `options` (array of `{value, label}`) |
 
 ---
 
@@ -527,10 +569,18 @@ export const collectFeedbackConfig = {
     },
     {
       id: 'reporter_email',
-      type: 'email',
+      type: 'text',
       label: 'Your Email',
+      placeholder: 'email@example.com',
       required: false,
-      description: 'Optional: for follow-up'
+      description: 'Optional: for follow-up',
+      validate: (value) => {
+        // Custom email validation
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Please enter a valid email address'
+        }
+        return true
+      }
     },
     {
       id: 'priority',
@@ -698,10 +748,32 @@ When migrating a task from legacy component to new config system:
 
 ---
 
+## Business Context System
+
+Tasks automatically receive business context from the 7-tier system stored in `projectStore`:
+
+| Tier | Data | Auto-Injected |
+|------|------|---------------|
+| 1 | Business & Product | Company name, product description, industry |
+| 2 | Market & Audience | Customer profiles, pain points, personas |
+| 3 | Brand Identity | Voice, tone, visual style guidelines |
+| 4 | Goals & Metrics | KPIs, targets, timelines |
+| 5 | Marketing Channels | Active platforms, email list, followers |
+| 6 | Content Library | Past content, templates, brand assets |
+| 7 | Integrations | Connected tools (Stripe, analytics, etc.) |
+
+**How it works:**
+- AI prompts automatically receive relevant context from the project store
+- No need to manually specify `contextProvider` in most cases
+- Form fields can map to canonical context fields for data inheritance
+
+---
+
 ## Questions?
 
 Refer to:
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - System design
+- [FEATURES.md](../FEATURES.md) - Complete feature documentation
 - [CODE_REVIEW_CHECKLIST.md](./CODE_REVIEW_CHECKLIST.md) - Review criteria
-- Example configs in `src/components/TaskMiniApps/configs/`
+- Example configs in `src/configs/` (unified task definitions)
 - Example mini-apps in `src/components/TaskMiniApps/`
+- Task registry in `src/services/taskRegistry.js`

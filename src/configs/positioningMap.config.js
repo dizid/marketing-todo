@@ -9,6 +9,18 @@ export const positioningMapTask = {
   category: 'growth',
   tier: 'free',
 
+  // Phase 6: Field inheritance mappings (form field → canonical field)
+  fieldMappings: {
+    'target_market': 'targetAudience',
+    'transformation': 'primaryGoal',
+    'product_category': 'productType',
+    // Fields without canonical mapping (task-specific)
+    'competitors': null,
+    'unique_mechanism': null,
+    'proof_points': null,
+    'audience_sophistication': null
+  },
+
   what: 'Generate a complete positioning and messaging framework including positioning statement, unique value proposition, messaging pillars, elevator pitch variations, tagline options, problem/solution framework, before/after messaging, audience-specific messaging, objection-proof copy, and brand voice guidelines.',
 
   why: 'Positioning is the foundation of all marketing. Weak positioning = generic messaging = blending in. Strong positioning = instant clarity = standing out. Get this right and every marketing campaign becomes easier and more effective. Get it wrong and you\'ll compete on price alone.',
@@ -410,21 +422,7 @@ Format as actionable messaging frameworks with specific copy examples.`,
     temperature: 0.7,
     maxTokens: 3500,
 
-    contextProvider: () => {
-      try {
-        const stored = localStorage.getItem('marketing-app-data')
-        if (stored) {
-          const data = JSON.parse(stored)
-          return {
-            app_description: data.appDescription || '',
-            company_name: data.companyName || ''
-          }
-        }
-      } catch (e) {
-        console.error('Error loading context:', e)
-      }
-      return {}
-    }
+    // SSOT Phase 5: Removed contextProvider - project context auto-injected from projectStore
   },
 
   output: {
@@ -435,5 +433,28 @@ Format as actionable messaging frameworks with specific copy examples.`,
     deletable: true,
     exportable: true,
     copyable: true
+  },
+
+  help: {
+    examples: [
+      {
+        scenario: 'SaaS product positioning against enterprise competitors',
+        input: { product_category: 'CRM software', target_market: 'Small business owners, 1-25 employees, non-technical', transformation: 'From spreadsheet chaos to organized customer relationships', competitors: ['Salesforce', 'HubSpot', 'spreadsheets'], unique_mechanism: 'AI auto-populates contact info' },
+        output: 'Positioning statement: "The CRM built for non-technical small businesses who need organization without complexity." Messaging pillars: simplicity (setup in 5 mins), affordability (1/10th the price), and smart automation. Elevator pitch variations for different contexts. Differentiation framework vs Salesforce (too complex/expensive) and spreadsheets (manual/error-prone). Before/after messaging: "From hunting through spreadsheets to instant customer insights." Audience-specific copy for solopreneurs vs small teams.'
+      },
+      {
+        scenario: 'Coaching business positioning in saturated market',
+        input: { product_category: 'Business coaching', target_market: 'Female entrepreneurs, $50K-$200K revenue, service-based businesses', transformation: 'From working 60hr weeks to 30hr weeks at same revenue', competitors: ['Generic business coaches', 'courses', 'masterminds'], unique_mechanism: '4-day work week framework' },
+        output: 'Positioning: "The only coaching program designed for female service business owners who want to work less while earning the same (or more)." Core messaging angles: efficiency over hustle, systems over hours, sustainability over burnout. Tagline options: "Work Less. Earn More. Finally Breathe." Problem/solution framework addressing specific female entrepreneur challenges (mom guilt, perfectionism, pricing too low). Objection-proof copy for "But I need to work hard to succeed" belief. Brand voice: empowering but practical, warm but results-focused.'
+      }
+    ],
+    commonMistakes: [
+      'Positioning for everyone - trying to appeal to "all businesses" or "anyone who needs X." Narrow positioning actually expands your market because specific messaging resonates deeply with the right people.',
+      'Feature-based positioning - defining yourself by what you do ("We have feature X") instead of the outcome ("You\'ll achieve result Y"). Customers buy outcomes, not features.',
+      'Copying competitor positioning - being "like Salesforce but cheaper." Differentiate on a different axis entirely: simplicity, niche specialization, unique mechanism, or transformation speed.',
+      'No proof points - claiming "best results" or "most effective" without testimonials, case studies, or data. Back every positioning claim with evidence: "500+ clients, average 3x ROI in 90 days."',
+      'Inconsistent messaging across channels - saying different things on website, social media, and sales calls. Once you nail positioning, use it everywhere consistently for 6-12 months minimum.',
+      'Positioning for current sophistication level - targeting beginners when your market has evolved to advanced. Match positioning to where your audience actually is in their awareness journey, not where you wish they were.'
+    ]
   }
 }

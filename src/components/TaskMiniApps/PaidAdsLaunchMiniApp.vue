@@ -552,7 +552,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { paidAdsTask } from '@/configs/paidAds.config'
 
 const props = defineProps({
@@ -590,6 +590,9 @@ const isGenerating = ref(false)
 // Platform accordion
 const expandedPlatforms = ref({})
 
+// Interval tracking
+let generationInterval = null
+
 // Computed
 const isFormValid = computed(() => {
   return wizardData.value.monthly_budget >= 300 &&
@@ -619,7 +622,7 @@ const generateLaunchPlan = async () => {
   })
 
   // Generate mock plan for now
-  setTimeout(() => {
+  generationInterval = setTimeout(() => {
     generatedPlan.value = generateMockPlan()
     isGenerating.value = false
   }, 1500)
@@ -941,6 +944,11 @@ const copyToClipboard = async (copy) => {
     console.error('Failed to copy:', err)
   }
 }
+
+// Cleanup interval on unmount
+onBeforeUnmount(() => {
+  if (generationInterval) clearTimeout(generationInterval)
+})
 </script>
 
 <style scoped>

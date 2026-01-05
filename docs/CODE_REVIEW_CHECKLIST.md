@@ -2,6 +2,54 @@
 
 Use this checklist when reviewing pull requests or committing new code to ensure quality and consistency.
 
+## Architecture Quality Framework
+
+This section provides a structured approach to analyzing code architecture quality. Use this framework to conduct deeper reviews of significant changes.
+
+### 1. **Layering & Boundaries**
+- Are layers properly separated? (presentation, application, domain, infrastructure)
+- Do dependencies flow inward?
+- Are cross-layer dependencies justified?
+- [ ] Layer separation maintained
+- [ ] Inward dependency flow
+- [ ] No inappropriate cross-layer calls
+
+### 2. **SOLID Principles**
+- Single Responsibility: Clear module purpose?
+- Dependency Inversion: Abstractions vs implementations?
+- Interface Segregation: Appropriately sized contracts?
+- [ ] Single Responsibility: Each module has clear purpose
+- [ ] Open/Closed: Extensible without modification
+- [ ] Liskov Substitution: Implementations are substitutable
+- [ ] Interface Segregation: Properly sized contracts
+- [ ] Dependency Inversion: Depends on abstractions not concretions
+
+### 3. **Reusability & Duplication**
+- Composables/utilities with single responsibility?
+- Circular dependencies between modules?
+- Duplication that could be abstracted?
+- [ ] No circular dependencies
+- [ ] Duplication identified and abstracted
+- [ ] Reusable code in utilities/composables
+- [ ] DRY principle followed
+
+### 4. **Testability**
+- Dependency injection patterns used?
+- Test coverage gaps?
+- Mock/stub complexity?
+- [ ] Dependencies injected properly
+- [ ] Components/functions easily mockable
+- [ ] Adequate test coverage for changes
+- [ ] No tight coupling to external services
+
+### 5. **Anti-Patterns**
+- [ ] No god objects or oversized components
+- [ ] No feature envy (inappropriate data access)
+- [ ] No leaky abstractions
+- [ ] No workarounds without issues (TODOs should link to issues)
+
+---
+
 ## Architecture & Design
 
 ### Configuration-Driven Pattern

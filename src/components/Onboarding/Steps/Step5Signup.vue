@@ -1,29 +1,85 @@
 <template>
   <div class="bg-white rounded-xl shadow-lg p-8">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-2">🎉 Your launch plan is ready!</h2>
-      <p class="text-gray-600">Create a free account to save your personalized plan</p>
-    </div>
+    <!-- Email Confirmation Success State -->
+    <div v-if="showConfirmationScreen" class="text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Check your email!</h2>
+      <p class="text-gray-600 mb-6">
+        We sent a confirmation link to <strong class="text-indigo-600">{{ signedUpEmail }}</strong>
+      </p>
 
-    <!-- Value preview -->
-    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-6">
-      <h3 class="font-semibold text-gray-900 mb-3">📊 Your personalized plan includes:</h3>
-      <ul class="space-y-2 text-sm text-gray-700">
-        <li>✓ {{ taskCount }} high-impact marketing tasks</li>
-        <li>✓ AI-powered content generator</li>
-        <li>✓ Progress tracking dashboard</li>
-        <li>✓ Export & share capabilities</li>
-      </ul>
+      <!-- What happens next -->
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+        <h3 class="font-semibold text-gray-900 mb-2">What happens next:</h3>
+        <ol class="space-y-2 text-sm text-gray-700">
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+            <span>Click the confirmation link in your email</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+            <span>You'll be automatically signed in</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+            <span>Start working on your personalized launch plan!</span>
+          </li>
+        </ol>
+      </div>
 
-      <div class="mt-4 pt-4 border-t border-indigo-200">
-        <p class="text-sm text-gray-600">
-          ⏱️ <span class="font-medium">You've invested {{ timeSpent }} {{ timeSpent === 1 ? 'minute' : 'minutes' }}</span> planning - don't lose your work!
-        </p>
+      <!-- Didn't receive email -->
+      <div class="text-sm text-gray-500">
+        <p>Didn't receive the email? Check your spam folder or</p>
+        <button
+          @click="resendConfirmation"
+          :disabled="isResending || resendCooldown > 0"
+          class="text-indigo-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ isResending ? 'Sending...' : resendCooldown > 0 ? `resend in ${resendCooldown}s` : 'click here to resend' }}
+        </button>
+      </div>
+
+      <!-- Go to login -->
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <router-link
+          to="/auth?mode=login"
+          class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition"
+        >
+          Go to Sign In →
+        </router-link>
       </div>
     </div>
 
-    <!-- Signup form -->
-    <div v-if="!isSigningUp" class="mb-6">
+    <!-- Normal Signup Flow -->
+    <template v-else>
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">🎉 Your launch plan is ready!</h2>
+        <p class="text-gray-600">Create a free account to save your personalized plan</p>
+      </div>
+
+      <!-- Value preview -->
+      <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-6">
+        <h3 class="font-semibold text-gray-900 mb-3">📊 Your personalized plan includes:</h3>
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li>✓ {{ taskCount }} high-impact marketing tasks</li>
+          <li>✓ AI-powered content generator</li>
+          <li>✓ Progress tracking dashboard</li>
+          <li>✓ Export & share capabilities</li>
+        </ul>
+
+        <div class="mt-4 pt-4 border-t border-indigo-200">
+          <p class="text-sm text-gray-600">
+            ⏱️ <span class="font-medium">You've invested {{ timeSpent }} {{ timeSpent === 1 ? 'minute' : 'minutes' }}</span> planning - don't lose your work!
+          </p>
+        </div>
+      </div>
+
+      <!-- Signup form -->
+      <div v-if="!isSigningUp" class="mb-6">
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">Email:</label>
         <input
@@ -94,11 +150,12 @@
     </div>
 
     <!-- Already have account link -->
-    <div v-if="!isSigningUp" class="text-center mt-6">
-      <router-link to="/auth?mode=login" class="text-sm text-indigo-600 hover:underline">
-        Already have an account? Sign in
-      </router-link>
-    </div>
+      <div v-if="!isSigningUp" class="text-center mt-6">
+        <router-link to="/auth?mode=login" class="text-sm text-indigo-600 hover:underline">
+          Already have an account? Sign in
+        </router-link>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -121,6 +178,13 @@ const password = ref('')
 const agreedToTerms = ref(false)
 const isSigningUp = ref(false)
 const errorMessage = ref('')
+
+// Email confirmation state
+const showConfirmationScreen = ref(false)
+const signedUpEmail = ref('')
+const isResending = ref(false)
+const resendCooldown = ref(0)
+let resendInterval = null
 
 // Timeout tracking
 let sessionTimeout = null
@@ -169,8 +233,9 @@ const handleSignup = async () => {
 
     // 2. Check if email confirmation is required
     if (!authData.session) {
-      // Email confirmation required - keep wizard data in localStorage
-      errorMessage.value = '✉️ Please check your email to confirm your account. After confirmation, sign in to access your personalized plan.'
+      // Email confirmation required - show confirmation screen
+      signedUpEmail.value = email.value
+      showConfirmationScreen.value = true
       isSigningUp.value = false
       // Wizard data stays in localStorage for use after email confirmation + login
       return
@@ -235,8 +300,39 @@ Timeline: ${formatTimeline(wizardData.timeline)}
   }
 }
 
+// Resend confirmation email
+const resendConfirmation = async () => {
+  if (isResending.value || resendCooldown.value > 0) return
+
+  isResending.value = true
+
+  try {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: signedUpEmail.value
+    })
+
+    if (error) throw error
+
+    // Start cooldown (60 seconds)
+    resendCooldown.value = 60
+    resendInterval = setInterval(() => {
+      resendCooldown.value--
+      if (resendCooldown.value <= 0) {
+        clearInterval(resendInterval)
+      }
+    }, 1000)
+
+  } catch (err) {
+    errorMessage.value = err.message || 'Failed to resend confirmation email'
+  } finally {
+    isResending.value = false
+  }
+}
+
 // Cleanup timeout on unmount
 onBeforeUnmount(() => {
   if (sessionTimeout) clearTimeout(sessionTimeout)
+  if (resendInterval) clearInterval(resendInterval)
 })
 </script>

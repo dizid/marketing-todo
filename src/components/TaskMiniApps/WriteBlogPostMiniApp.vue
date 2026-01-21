@@ -248,6 +248,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { writeBlogTask } from '@/configs/writeBlog.config'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
+const milestoneStore = useMilestoneStore()
 
 // Props
 const props = defineProps({
@@ -457,6 +460,11 @@ const saveBlogPost = () => {
     savedAt: new Date().toISOString(),
     status: 'completed'
   })
+
+  // Trigger first-content milestone
+  if (!milestoneStore.isAchieved('first-content')) {
+    milestoneStore.achieveMilestone('first-content')
+  }
 }
 
 // Auto-save on content changes

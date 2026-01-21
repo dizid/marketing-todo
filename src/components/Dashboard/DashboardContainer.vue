@@ -5,6 +5,9 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Email Confirmation Banner (for unconfirmed users) -->
+      <EmailConfirmationBanner />
+
       <!-- Experience Mode Toggle (Beginner/Intermediate) -->
       <ExperienceModeToggle v-if="projectStore.currentProject" />
 
@@ -13,6 +16,9 @@
 
       <!-- Welcome Banner (for beginners) -->
       <WelcomeBanner v-if="projectStore.currentProject" />
+
+      <!-- Milestone Tracker (journey progress) -->
+      <MilestoneTracker v-if="projectStore.currentProject" />
 
       <!-- No Project State -->
       <div v-if="!projectStore.currentProject" class="card p-12 text-center animate-fade-in">
@@ -144,6 +150,8 @@ import PlaybookSelector from './PlaybookSelector.vue'
 import LevelUpNotification from './LevelUpNotification.vue'
 import GraduationPrompt from './GraduationPrompt.vue'
 import WelcomeBanner from './WelcomeBanner.vue'
+import EmailConfirmationBanner from './EmailConfirmationBanner.vue'
+import MilestoneTracker from './MilestoneTracker.vue'
 
 // Stores
 const projectStore = useProjectStore()

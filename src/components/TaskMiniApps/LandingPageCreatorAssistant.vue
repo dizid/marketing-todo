@@ -250,6 +250,10 @@ import LandingPagePreview from './components/LandingPagePreview.vue'
 import { generateLandingPageHTML } from '../../services/landingPageExporter'
 import { wizardSteps, fullPageAIPrompt } from '../../configs/landingPageCreatorAssistant.config'
 import { generateAIContent } from '../../services/aiGeneration'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+
+// Milestones
+const milestoneStore = useMilestoneStore()
 
 // Props
 const props = defineProps({
@@ -559,6 +563,11 @@ const publishToR2 = async () => {
     const data = await response.json()
     publishedUrl.value = data.url
     console.log('[LandingPageCreator] Published to:', data.url)
+
+    // Trigger first-landing-page milestone
+    if (!milestoneStore.isAchieved('first-landing-page')) {
+      milestoneStore.achieveMilestone('first-landing-page')
+    }
 
   } catch (err) {
     console.error('[LandingPageCreator] Publish error:', err)

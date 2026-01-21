@@ -128,6 +128,7 @@ import { executiveSummaryConfig } from '@/configs/executiveSummary.config.js'
 import { useSaveState } from '@/composables/useSaveState'
 import { globalPollingControl } from '@/composables/usePollingControl'
 import { getTaskCountsByExperienceLevel } from '@/services/taskRecommendationEngine'
+import { unifiedTasksMap } from '@/configs/unifiedTasks'
 
 // Child components
 import ProjectHeader from '../Project/ProjectHeader.vue'
@@ -498,7 +499,8 @@ const taskCategories = ref([
   }
 ])
 
-// COMPUTED - Filtered categories based on experience level only (simplified UX)
+// COMPUTED - Filtered categories based on experience level and advanced flag (simplified UX)
+// Advanced tasks are hidden by default (they're for scaling, not first 10 customers)
 const filteredCategories = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
 
@@ -508,6 +510,12 @@ const filteredCategories = computed(() => {
       items: category.items.filter(item => {
         // Experience level filter - hide tasks not available for current level
         if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
+          return false
+        }
+        // Advanced filter - hide tasks marked as advanced in unifiedTasksMap
+        // These are for scaling (paid ads, analytics, etc.), not for first 10 customers
+        const taskConfig = unifiedTasksMap[item.id]
+        if (taskConfig?.advanced) {
           return false
         }
         return true
@@ -574,13 +582,18 @@ const hiddenTaskPreview = computed(() => {
   return hiddenTasks.value.slice(0, 3).map(t => t.name)
 })
 
-// COMPUTED - Task progress metrics (only counts visible tasks for current experience level)
+// COMPUTED - Task progress metrics (only counts visible tasks for current experience level, excludes advanced)
 const totalTasks = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
   return taskCategories.value.reduce((sum, cat) => {
     const activeItems = cat.items.filter(item => {
       // Must be visible for current experience level
       if (item.experienceLevels && !item.experienceLevels.includes(currentLevel)) {
+        return false
+      }
+      // Must not be advanced (advanced tasks are for scaling, not first 10 customers)
+      const taskConfig = unifiedTasksMap[item.id]
+      if (taskConfig?.advanced) {
         return false
       }
       // Must not be removed
@@ -593,12 +606,16 @@ const totalTasks = computed(() => {
 const completedTasks = computed(() => {
   const currentLevel = projectStore.experienceLevel || 'beginner'
 
-  // Get all visible task IDs for current experience level
+  // Get all visible task IDs for current experience level (excluding advanced tasks)
   const visibleTaskIds = new Set()
   taskCategories.value.forEach(cat => {
     cat.items.forEach(item => {
       if (!item.experienceLevels || item.experienceLevels.includes(currentLevel)) {
-        visibleTaskIds.add(item.id)
+        // Also check if task is marked as advanced
+        const taskConfig = unifiedTasksMap[item.id]
+        if (!taskConfig?.advanced) {
+          visibleTaskIds.add(item.id)
+        }
       }
     })
   })

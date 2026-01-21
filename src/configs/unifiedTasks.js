@@ -24,11 +24,9 @@ import { communityPostsTask } from './communityPosts.config'
 import { outreachTask } from './outreach.config'
 import { webinarTask } from './webinar.config'
 import { feedbackCollectionTask } from './feedbackCollection.config'
-import { changelogTask } from './changelog.config'
-import { featurePrioritizationTask } from './featurePrioritization.config'
+// changelogTask, featurePrioritizationTask, channelAnalyzerTask removed - stub components deleted
 import { analyticsSetupTask } from './analyticsSetup.config'
 import { channelOptimizerTask } from './channelOptimizer.config'
-import { channelAnalyzerTask } from './channelAnalyzer.config'
 import { roiCalculatorTask } from './roiCalculator.config'
 import { paidAdsTask } from './paidAds.config'
 import { paidAdsOptimizeTask } from './paidAdsOptimize.config'
@@ -1615,35 +1613,36 @@ Please suggest:
 // ============================================================================
 
 // Export a map of all tasks by ID for easy lookup
+// Tasks marked with `advanced: true` are hidden from the default view (for scaling, not first 10 customers)
 export const unifiedTasksMap = {
   'setup-1': defineAudienceTask,
   'setup-2': landingPageCreatorTask,
-  'setup-3': connectAccountsTask,
-  'setup-4': prepareAssetsTask,
+  'setup-3': { ...connectAccountsTask, advanced: true },  // Low value: manual copy-paste, no OAuth
+  'setup-4': { ...prepareAssetsTask, advanced: true },  // Low value: checklist only, no AI
   'setup-5': trackingSheetTask,
 
   'social-1': generatePostsTask,
-  'social-2': engageFollowersTask,
-  'social-3': giveawayTask,
+  'social-2': { ...engageFollowersTask, advanced: true },  // Post-traction: engagement after you have followers
+  'social-3': { ...giveawayTask, advanced: true },  // Growth hacking: after you have a base
 
   'content-1': writeBlogTask,
-  'content-2': videoScriptTask,
+  'content-2': { ...videoScriptTask, advanced: true },  // Content scaling
   'content-3': designGraphicsTask,
 
   'acq-1': communityPostsTask,
   'acq-2': outreachTask,
-  'acq-3': webinarTask,
+  'acq-3': { ...webinarTask, advanced: true },  // Webinars: post-traction growth
 
   'feedback-1': collectFeedbackTask,
-  'feedback-2': publishUpdatesTask,
-  'feedback-3': iterateFeaturesTask,
+  'feedback-2': { ...publishUpdatesTask, advanced: true },  // Product updates: after you have users
+  'feedback-3': { ...iterateFeaturesTask, advanced: true },  // Feature iteration: after you have feedback
 
-  'analytics-1': setupAnalyticsTask,
-  'analytics-2': channelOptimizerTask,
-  'analytics-3': reviewROITask,
+  'analytics-1': { ...setupAnalyticsTask, advanced: true },  // Analytics: nice to have but not first priority
+  'analytics-2': { ...channelOptimizerTask, advanced: true },  // Optimization: after you have channels working
+  'analytics-3': { ...reviewROITask, advanced: true },  // ROI review: after you have revenue
 
-  'advertising-1': paidAdsTask,
-  'advertising-2': paidAdsOptimizeTask,
+  'advertising-1': { ...paidAdsTask, advanced: true },  // Paid ads: for scaling, not first 10 customers
+  'advertising-2': { ...paidAdsOptimizeTask, advanced: true },  // Ad optimization: post-traction
 
   'sales-1': funnelBlueprintTask,
   'sales-2': offerBuilderTask,

@@ -160,11 +160,8 @@ import WebinarMiniApp from '@/components/TaskMiniApps/WebinarMiniApp.vue'
 import FeedbackCollectionMiniApp from '@/components/TaskMiniApps/FeedbackCollectionMiniApp.vue'
 import PublishUpdatesMiniApp from '@/components/TaskMiniApps/PublishUpdatesMiniApp.vue'
 import IterateFeaturesMiniApp from '@/components/TaskMiniApps/IterateFeaturesMiniApp.vue'
-import ChangelogMiniApp from '@/components/TaskMiniApps/ChangelogMiniApp.vue'
-import FeaturePrioritizationMiniApp from '@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'
 import AnalyticsSetupMiniApp from '@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'
 import ChannelOptimizerMiniApp from '@/components/TaskMiniApps/ChannelOptimizerMiniApp.vue'
-import ChannelAnalyzerMiniApp from '@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'
 import RoiCalculatorMiniApp from '@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'
 import PaidAdsLaunchMiniApp from '@/components/TaskMiniApps/PaidAdsLaunchMiniApp.vue'
 import PaidAdsOptimizeMiniApp from '@/components/TaskMiniApps/PaidAdsOptimizeMiniApp.vue'
@@ -187,11 +184,8 @@ const customComponentMap = {
   'FeedbackCollectionMiniApp': FeedbackCollectionMiniApp,
   'PublishUpdatesMiniApp': PublishUpdatesMiniApp,
   'IterateFeaturesMiniApp': IterateFeaturesMiniApp,
-  'ChangelogMiniApp': ChangelogMiniApp,
-  'FeaturePrioritizationMiniApp': FeaturePrioritizationMiniApp,
   'AnalyticsSetupMiniApp': AnalyticsSetupMiniApp,
   'ChannelOptimizerMiniApp': ChannelOptimizerMiniApp,
-  'ChannelAnalyzerMiniApp': ChannelAnalyzerMiniApp,
   'RoiCalculatorMiniApp': RoiCalculatorMiniApp,
   'PaidAdsLaunchMiniApp': PaidAdsLaunchMiniApp,
   'PaidAdsOptimizeMiniApp': PaidAdsOptimizeMiniApp,

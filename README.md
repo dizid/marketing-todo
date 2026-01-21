@@ -1,131 +1,96 @@
-# Marketing To-Do App - Multi-Project System
+# Launchpilot
 
-A modern Vue 3 marketing task manager with per-project organization, Supabase authentication, and Grok AI integration.
+AI-powered sales & marketing command center for entrepreneurs. Get your first 10 customers with guided tasks, AI copy generation, and landing page publishing.
 
 ## Features
 
-- **Multi-Project System** - Create unlimited marketing projects with isolated task tracking
-- **Smart Checklist** - 20 pre-built marketing tasks across 6 categories
-- **Project Settings** - Define target audience, goals, tech stack, and timeline per project
-- **Progress Tracking** - Visual progress bars for overall and per-category completion
-- **Database Persistence** - All data saved to Supabase with Row Level Security
-- **Authentication** - Secure signup/login with email verification
-- **Grok AI Integration** - AI-powered marketing advice generation
-- **Export** - Export project data as Markdown or JSON
-- **Mobile-First** - Responsive design optimized for all devices
+- **33 AI-Powered Tasks** - Sales pages, email sequences, ad strategies, and more
+- **Landing Page Builder** - Visual builder with live preview and one-click publish
+- **Smart Recommendations** - 4-phase marketing journey tailored to your experience
+- **Multi-Project Support** - Manage multiple campaigns with isolated data
+- **7-Tier Business Context** - AI outputs improve as you add more context
+- **Stripe Subscriptions** - Free, Professional ($19/mo), and Business ($49/mo) tiers
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js v18+
-- Supabase account with project created
-- Grok API key from xAI console
+- Supabase account
+- Grok API key from [xAI Console](https://console.x.ai/)
 
-### Installation & Setup
-
-**For a complete rebuild from scratch, see [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md)**
-
-Quick setup for existing developers:
+### Setup
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 npm install
 
-# 2. Configure environment (.env file)
+# Create .env file
+cp .env.example .env
+# Edit .env with your credentials
+
+# Start development server
+netlify dev
+
+# Open http://localhost:3000
+```
+
+### Environment Variables
+
+```bash
 VITE_SUPABASE_URL=https://[project-id].supabase.co
 VITE_SUPABASE_ANON_KEY=[anon-key]
-VITE_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
+SUPABASE_SERVICE_ROLE_KEY=[service-role-key]
 GROK_API_KEY=xai-[your-key]
-
-# 3. Run development server (Terminal 1)
-npm run dev
-
-# 4. Run Netlify functions (Terminal 2)
-netlify functions:serve
-
-# 5. Visit http://localhost:3000
+VITE_STRIPE_PUBLIC_KEY=pk_[your-key]
+STRIPE_SECRET_KEY=sk_[your-key]
 ```
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Vue 3 + Vite |
-| Styling | Tailwind CSS |
-| State Management | Pinia |
-| Routing | Vue Router |
-| Database | Supabase (PostgreSQL) |
+| Frontend | Vue 3 + Vite + Tailwind CSS v4 |
+| State | Pinia |
+| Database | Supabase (Postgres + Auth) |
 | Serverless | Netlify Functions |
-| AI | Grok API |
-
-## Database Tables
-
-- **user_profiles** - User account data (synced with auth.users)
-- **projects** - User's marketing projects with metadata
-- **project_data** - Key-value store for project settings, tasks, and generated content
+| AI | Grok API (grok-3) |
+| Payments | Stripe |
+| Hosting | Netlify |
 
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── Project/
-│   │   ├── ProjectHeader.vue    # Navigation & project selector
-│   │   ├── ProjectSetup.vue     # Create project modal
-│   │   ├── ProjectForm.vue      # Edit project modal
-│   ├── AuthForm.vue             # Login/signup
-│   ├── Dashboard.vue            # Main app interface
-│   ├── ChecklistCategory.vue    # Task category accordion
-│   └── ChecklistItem.vue        # Individual task
-├── services/
-│   ├── projectService.js        # Project CRUD operations
-│   └── grok.js                  # Grok AI integration
-├── stores/
-│   ├── projectStore.js          # Project state management
-│   └── authStore.js             # Auth state management
-├── utils/
-│   └── supabase.js              # Supabase client
-└── router/
-    └── index.js                 # Route configuration
+│   ├── Dashboard/          # Main dashboard UI
+│   ├── TaskMiniApps/       # 25 task-specific mini-apps
+│   └── ...
+├── configs/                # Task definitions
+├── services/               # API services
+├── stores/                 # Pinia state management
+└── utils/                  # Utilities
 
 netlify/functions/
-└── grok-proxy.js                # Serverless Grok API proxy
+├── grok-proxy.cjs          # AI generation
+├── stripe-webhook.cjs      # Payment webhooks
+└── r2-publish.cjs          # Landing page publishing
 ```
 
-## Testing
-
-See [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md) Step 9 for comprehensive testing checklist.
-
-## Deployment
+## Commands
 
 ```bash
-npm run build
-netlify deploy --prod
+netlify dev          # Development (port 3000)
+npm run build        # Production build
+npm test             # Run 378 tests
 ```
-
-Set `GROK_API_KEY` in Netlify Site Settings → Environment variables.
 
 ## Documentation
 
-- **[REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md)** - Complete rebuild guide with step-by-step instructions, SQL schema, troubleshooting, and architecture decisions
-- **[claude.md](claude.md)** - Custom project notes
-
-## Phase Information
-
-**Current Phase:** Phase 1 - Multi-Project System ✅
-
-**Next Phase:** Phase 2 - Task Mini-Apps (modular task components)
-
-See REBUILD_FROM_SCRATCH.md for Phase 2 planning details.
-
-## Common Issues
-
-Consult [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md) Common Issues & Solutions section for:
-- Foreign key constraint errors
-- 406 Supabase REST API errors
-- CORS issues
-- Grok function 404 errors
-- Port conflicts
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System design and patterns
+- [FEATURES.md](FEATURES.md) - Complete feature documentation
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
+- [docs/TASK_DEFINITION_GUIDE.md](docs/TASK_DEFINITION_GUIDE.md) - How to add tasks
 
 ## License
 

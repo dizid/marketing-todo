@@ -14,15 +14,15 @@ This document provides a comprehensive guide to the testing patterns and infrast
 - **Presentation Layer (Vue Components)**: Target 60% - Focus on critical user flows and components
 - **Infrastructure Layer**: Minimal - Mock external services
 
-### Current Coverage (Phase 8)
+### Current Coverage
 
 | Layer | Files | Tests | Coverage |
 |-------|-------|-------|----------|
 | **Domain Models** | 2 | 90+ | 100% |
 | **Use Cases** | 1 | 35+ | 100% |
-| **Stores (Integration)** | 1 | 25+ | 90% |
-| **Components** | 2 | 19+ | 100% |
-| **Total** | 6+ | 170+ | 97% |
+| **Stores (Integration)** | 3 | 50+ | 90% |
+| **Components** | 10+ | 200+ | 85% |
+| **Total** | 16+ | 378 | 97% |
 
 ## Test Directory Structure
 
@@ -57,14 +57,14 @@ tests/
 │  - Vue Components                       │
 │  - User flows & interactions            │
 │  - Pinia store integration              │
-│  Status: 19+ tests, 100% passing        │
+│  Status: 200+ tests, 100% passing       │
 └─────────────────────────────────────────┘
            ↓ Uses ↓
 ┌─────────────────────────────────────────┐
 │  Integration Tests (Store Layer)        │
 │  - Pinia store actions & state          │
 │  - Computed properties reactivity       │
-│  Status: 25+ tests, 90% coverage        │
+│  Status: 50+ tests, 90% coverage        │
 └─────────────────────────────────────────┘
            ↓ Uses ↓
 ┌─────────────────────────────────────────┐
@@ -706,6 +706,6 @@ When adding new tests:
 
 ---
 
-**Last Updated**: December 2024
-**Test Framework Version**: Vitest 4.0.13
-**Total Tests**: 19 (Presentation Layer Integration Tests)
+**Last Updated**: January 2025
+**Test Framework**: Vitest
+**Total Tests**: 378

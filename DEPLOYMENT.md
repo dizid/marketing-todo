@@ -399,10 +399,9 @@ docs/database/migrations/
 
 ## 🆘 Need Help?
 
-- Check [REBUILD_FROM_SCRATCH.md](REBUILD_FROM_SCRATCH.md) for architecture details
+- Check [ARCHITECTURE.md](ARCHITECTURE.md) for system design details
 - Review [docs/](docs/) folder for technical documentation
 - Check GitHub Issues for known problems
-- Contact support: [your-email]
 
 ---
 

@@ -38,12 +38,11 @@ const taskComponentMap = {
 
   // Feedback & Iteration
   'feedback-1': () => import('@/components/TaskMiniApps/FeedbackCollectionMiniApp.vue'),
-  'feedback-2': () => import('@/components/TaskMiniApps/ChangelogMiniApp.vue'),
-  'feedback-3': () => import('@/components/TaskMiniApps/FeaturePrioritizationMiniApp.vue'),
+  // feedback-2 (Changelog) and feedback-3 (Feature Prioritization) removed - stubs deleted
 
   // Analytics & Optimization
   'analytics-1': () => import('@/components/TaskMiniApps/AnalyticsSetupMiniApp.vue'),
-  'analytics-2': () => import('@/components/TaskMiniApps/ChannelAnalyzerMiniApp.vue'),
+  // analytics-2 (Channel Analyzer) removed - stub deleted
   'analytics-3': () => import('@/components/TaskMiniApps/RoiCalculatorMiniApp.vue'),
 
   // Paid Advertising

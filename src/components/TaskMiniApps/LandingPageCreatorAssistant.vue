@@ -28,6 +28,31 @@
           @generate-ai="generateFieldSuggestions"
         />
 
+        <!-- AI Generate All Button (shown in Step 1) -->
+        <div v-if="currentStep === 1" class="generate-all-section">
+          <div class="generate-all-divider">
+            <span>or skip the details</span>
+          </div>
+          <button
+            :disabled="!canGenerateFullPage || isGeneratingFullPage"
+            class="btn btn-ai"
+            @click="generateFullPage"
+          >
+            <span v-if="isGeneratingFullPage" class="loading-dots">
+              ✨ Generating...
+            </span>
+            <span v-else>
+              ✨ Generate All Copy with AI
+            </span>
+          </button>
+          <p class="generate-all-tip">
+            Fill brand name & tagline above, then let AI write everything else
+          </p>
+          <div v-if="fullPageError" class="error-message small">
+            {{ fullPageError }}
+          </div>
+        </div>
+
         <!-- Navigation Buttons -->
         <div class="button-group">
           <button
@@ -77,8 +102,36 @@
         <h3 class="modal-title">🎉 Your Landing Page is Ready!</h3>
 
         <div class="export-options">
+          <!-- Option 1: Publish to Web (Featured) -->
+          <div class="export-option featured">
+            <h4>🚀 Option 1: Publish to Web (Instant)</h4>
+            <p>Get a live URL in seconds. Share your landing page immediately.</p>
+            <button
+              :disabled="isPublishing"
+              class="btn btn-success"
+              @click="publishToR2"
+            >
+              <span v-if="isPublishing">Publishing...</span>
+              <span v-else>🚀 Publish Now</span>
+            </button>
+
+            <!-- Published URL -->
+            <div v-if="publishedUrl" class="published-url">
+              <div class="url-display">
+                <a :href="publishedUrl" target="_blank" rel="noopener">{{ publishedUrl }}</a>
+              </div>
+              <button class="btn btn-small" @click="copyPublishedUrl">
+                📋 Copy URL
+              </button>
+            </div>
+
+            <div v-if="publishError" class="error-message small">
+              {{ publishError }}
+            </div>
+          </div>
+
           <div class="export-option">
-            <h4>Option 1: Copy HTML Code</h4>
+            <h4>Option 2: Copy HTML Code</h4>
             <p>Paste into your website builder (Wix, Squarespace, Wordpress block)</p>
             <button class="btn btn-primary" @click="copyHTMLCode">
               📋 Copy to Clipboard
@@ -86,7 +139,7 @@
           </div>
 
           <div class="export-option">
-            <h4>Option 2: Download HTML File</h4>
+            <h4>Option 3: Download HTML File</h4>
             <p>Download as standalone file (.html) - works on any domain</p>
             <button class="btn btn-primary" @click="downloadHTMLFile">
               ⬇️ Download File
@@ -94,7 +147,7 @@
           </div>
 
           <div class="export-option">
-            <h4>Option 3: View Deployment Guide</h4>
+            <h4>Option 4: View Deployment Guide</h4>
             <p>Step-by-step instructions for popular platforms</p>
             <button class="btn btn-secondary" @click="showDeploymentGuide = true">
               📖 Show Guide
@@ -103,7 +156,7 @@
         </div>
 
         <div v-if="copySuccess" class="success-message">
-          ✓ HTML code copied to clipboard!
+          ✓ Copied to clipboard!
         </div>
       </div>
     </div>
@@ -195,7 +248,7 @@ import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import LandingPageWizardStep from './components/LandingPageWizardStep.vue'
 import LandingPagePreview from './components/LandingPagePreview.vue'
 import { generateLandingPageHTML } from '../../services/landingPageExporter'
-import { wizardSteps } from '../../configs/landingPageCreatorAssistant.config'
+import { wizardSteps, fullPageAIPrompt } from '../../configs/landingPageCreatorAssistant.config'
 import { generateAIContent } from '../../services/aiGeneration'
 
 // Props
@@ -224,6 +277,15 @@ const aiSuggestions = ref(null)
 const currentAIField = ref(null)
 const isGeneratingAI = ref(false)
 const aiError = ref(null)
+
+// Full page generation state
+const isGeneratingFullPage = ref(false)
+const fullPageError = ref(null)
+
+// Publishing state
+const isPublishing = ref(false)
+const publishError = ref(null)
+const publishedUrl = ref(null)
 
 // Timeout tracking
 let copyTimeout = null
@@ -254,6 +316,9 @@ if (props.taskData && props.taskData.formData) {
 // Computed
 const totalSteps = computed(() => wizardSteps.length)
 const progressPercent = computed(() => (currentStep.value / totalSteps.value) * 100)
+const canGenerateFullPage = computed(() => {
+  return formData.value.brand_name?.trim() && formData.value.tagline?.trim()
+})
 
 // Watch for form data changes and auto-save to database
 watch(
@@ -370,6 +435,152 @@ const downloadHTMLFile = () => {
   } catch (err) {
     console.error('Failed to download HTML:', err)
     alert('Failed to download. Please try again.')
+  }
+}
+
+/**
+ * Generate full landing page copy with AI
+ * Uses brand name + tagline to create all sections
+ */
+const generateFullPage = async () => {
+  if (!canGenerateFullPage.value) {
+    fullPageError.value = 'Please fill in brand name and tagline first'
+    return
+  }
+
+  console.log('[LandingPageCreator] Generating full page copy...')
+  isGeneratingFullPage.value = true
+  fullPageError.value = null
+
+  try {
+    // Build the prompt with brand info
+    const prompt = fullPageAIPrompt
+      .replace('{brand_name}', formData.value.brand_name)
+      .replace('{tagline}', formData.value.tagline)
+
+    // Call Grok API via proxy
+    const response = await fetch('/.netlify/functions/grok-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'grok-3-fast',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1500
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const content = data.choices?.[0]?.message?.content
+
+    if (!content) {
+      throw new Error('No content in API response')
+    }
+
+    // Parse JSON from response (handle potential markdown code blocks)
+    let jsonStr = content
+    if (content.includes('```')) {
+      jsonStr = content.replace(/```json?\s*/g, '').replace(/```/g, '').trim()
+    }
+
+    const generated = JSON.parse(jsonStr)
+    console.log('[LandingPageCreator] Generated copy:', generated)
+
+    // Populate form data with generated content
+    formData.value.hero_headline = generated.hero_headline || formData.value.hero_headline
+    formData.value.hero_subheadline = generated.hero_subheadline || formData.value.hero_subheadline
+    formData.value.hero_cta_text = generated.hero_cta_text || formData.value.hero_cta_text
+    formData.value.signup_headline = generated.signup_headline || formData.value.signup_headline
+    formData.value.signup_button_text = generated.signup_button_text || formData.value.signup_button_text
+
+    // Populate features
+    if (generated.features && Array.isArray(generated.features)) {
+      generated.features.forEach((feature, index) => {
+        const num = index + 1
+        if (num <= 5) {
+          formData.value[`feature_${num}_title`] = feature.title
+          formData.value[`feature_${num}_description`] = feature.description
+          formData.value[`feature_${num}_icon`] = feature.icon
+        }
+      })
+
+      // Also update features array for preview
+      formData.value.features = generated.features.map(f => ({
+        title: f.title,
+        description: f.description,
+        icon: f.icon
+      }))
+    }
+
+    // Advance to step 2 to show generated content
+    if (currentStep.value === 1) {
+      currentStep.value = 2
+    }
+
+  } catch (err) {
+    console.error('[LandingPageCreator] Full page generation error:', err)
+    fullPageError.value = `Failed to generate: ${err.message}`
+  } finally {
+    isGeneratingFullPage.value = false
+  }
+}
+
+/**
+ * Publish landing page to Cloudflare R2
+ * Returns a live public URL
+ */
+const publishToR2 = async () => {
+  console.log('[LandingPageCreator] Publishing to R2...')
+  isPublishing.value = true
+  publishError.value = null
+  publishedUrl.value = null
+
+  try {
+    const html = generateLandingPageHTML(formData.value)
+
+    const response = await fetch('/.netlify/functions/r2-publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        html,
+        brandName: formData.value.brand_name
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || `Upload failed: ${response.status}`)
+    }
+
+    const data = await response.json()
+    publishedUrl.value = data.url
+    console.log('[LandingPageCreator] Published to:', data.url)
+
+  } catch (err) {
+    console.error('[LandingPageCreator] Publish error:', err)
+    publishError.value = `Failed to publish: ${err.message}`
+  } finally {
+    isPublishing.value = false
+  }
+}
+
+/**
+ * Copy published URL to clipboard
+ */
+const copyPublishedUrl = async () => {
+  if (!publishedUrl.value) return
+  try {
+    await navigator.clipboard.writeText(publishedUrl.value)
+    copySuccess.value = true
+    copyTimeout = setTimeout(() => {
+      copySuccess.value = false
+    }, 3000)
+  } catch (err) {
+    console.error('Failed to copy URL:', err)
   }
 }
 
@@ -529,9 +740,120 @@ onBeforeUnmount(() => {
   color: white;
 }
 
-.btn-success:hover {
+.btn-success:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-ai {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 14px 24px;
+}
+
+.btn-ai:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+}
+
+.btn-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* Generate All Section */
+.generate-all-section {
+  margin-top: 30px;
+  padding-top: 20px;
+}
+
+.generate-all-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.generate-all-divider::before,
+.generate-all-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.generate-all-divider span {
+  padding: 0 15px;
+  color: #999;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.generate-all-tip {
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Featured Export Option */
+.export-option.featured {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.export-option.featured h4 {
+  color: #047857;
+}
+
+/* Published URL */
+.published-url {
+  margin-top: 15px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #d1fae5;
+}
+
+.url-display {
+  margin-bottom: 10px;
+  word-break: break-all;
+}
+
+.url-display a {
+  color: #059669;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.url-display a:hover {
+  text-decoration: underline;
+}
+
+/* Small error message */
+.error-message.small {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  margin-top: 10px;
 }
 
 /* Modal Styles */

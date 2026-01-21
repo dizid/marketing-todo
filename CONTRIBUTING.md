@@ -36,23 +36,20 @@ cp .env.example .env
 # - VITE_SUPABASE_ANON_KEY
 # - GROK_API_KEY
 
-# Start dev server
-npm run dev
+# Start dev server (recommended)
+netlify dev
 
-# Open http://localhost:5173
+# Open http://localhost:3000
 ```
 
 ### Check It Works
 
 ```bash
-# Run tests (if implemented)
-npm run test
+# Run tests
+npm test
 
 # Build for production
 npm run build
-
-# Check for linting issues
-npm run lint
 ```
 
 ## Project Structure
@@ -308,11 +305,11 @@ For every new/modified task:
 - [ ] Copy to clipboard works
 - [ ] Works on mobile (if applicable)
 
-### Automated Tests (Future)
+### Automated Tests
 
 ```bash
-# Run tests
-npm run test
+# Run all tests (378 tests)
+npm test
 
 # Watch mode
 npm run test:watch

@@ -5,6 +5,38 @@
  * Each step contains field definitions, tips, and AI helpers.
  */
 
+/**
+ * AI Prompt for generating complete landing page copy
+ * Used by the "Generate All Copy" feature
+ */
+export const fullPageAIPrompt = `You are an expert landing page copywriter. Generate complete, compelling landing page copy for this product.
+
+PRODUCT INFO:
+Brand Name: {brand_name}
+Tagline: {tagline}
+
+REQUIREMENTS:
+- Write conversion-focused copy that speaks to benefits, not features
+- Use power words and emotional triggers
+- Be specific with numbers and outcomes when possible
+- Keep headlines punchy (under 10 words)
+- Keep subheadlines under 25 words
+- Feature descriptions should be 1-2 sentences max
+
+Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+{
+  "hero_headline": "A powerful, benefit-focused headline (max 10 words)",
+  "hero_subheadline": "Supporting text with social proof or key benefit (max 25 words)",
+  "hero_cta_text": "Action button text (3-5 words)",
+  "features": [
+    {"title": "Benefit 1 title (3-5 words)", "description": "Why this matters to the user (1-2 sentences)", "icon": "relevant emoji"},
+    {"title": "Benefit 2 title (3-5 words)", "description": "Why this matters to the user (1-2 sentences)", "icon": "relevant emoji"},
+    {"title": "Benefit 3 title (3-5 words)", "description": "Why this matters to the user (1-2 sentences)", "icon": "relevant emoji"}
+  ],
+  "signup_headline": "Compelling CTA section headline (max 8 words)",
+  "signup_button_text": "Action button text (2-4 words)"
+}`
+
 // Freemium model - Premium tier task
 export const landingPageCreatorConfig = {
   id: 'setup-2',

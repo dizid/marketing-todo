@@ -3,8 +3,8 @@
 ## What This App Is
 
 A **config-driven marketing task engine** for solopreneurs:
-- 45 task configs (JSON with AI prompt templates)
-- 1 form renderer (MiniAppShell.vue)
+- 33 task configs (JS with AI prompt templates)
+- MiniAppShell.vue + 25 custom mini-app components
 - Supabase for persistence
 - Grok AI (grok-3) for content generation
 - Experience-based task recommendation system
@@ -39,7 +39,7 @@ Experience levels control task visibility:
 | File | Purpose |
 |------|---------|
 | `src/stores/projectStore.js` | State management, save logic |
-| `src/components/TaskMiniApps/core/MiniAppShell.vue` | Renders all 45 tasks |
+| `src/components/TaskMiniApps/core/MiniAppShell.vue` | Renders config-driven tasks |
 | `src/services/aiGeneration.js` | Calls Grok API with prompts |
 | `src/services/taskRecommendationEngine.js` | Smart task sequencing |
 | `src/configs/*.config.js` | Task definitions (fields + AI prompts) |

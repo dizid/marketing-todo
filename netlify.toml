@@ -3,14 +3,17 @@
   functions = "netlify/functions"
   publish = "dist"
 
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@aws-sdk/*"]
+
 [dev]
   port = 3000
-  functions = "netlify/functions"
-  command = "npm run dev"
   targetPort = 3001
   functionsPort = 9999
-  timeout = 120
+  autoLaunch = false
 
+# SPA fallback - don't rewrite if file exists
 [[redirects]]
   from = "/*"
   to = "/index.html"

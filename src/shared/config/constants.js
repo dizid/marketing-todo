@@ -83,7 +83,7 @@ export const API_CONFIG = {
 }
 
 export const GROK_CONFIG = {
-  MODEL: 'grok-3',
+  MODEL: 'grok-3-fast',
   DEFAULT_TEMPERATURE: 0.8,
   DEFAULT_MAX_TOKENS: 1500,
   MIN_TOKENS: 100,

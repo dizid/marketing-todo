@@ -25,6 +25,18 @@
           </p>
         </div>
 
+        <!-- Selection Feedback Banner -->
+        <div v-if="selectedCommunities.length > 0" class="selection-feedback">
+          <div class="feedback-content">
+            <span class="feedback-badge">{{ selectedCommunities.length }} selected</span>
+            <span class="feedback-text">
+              Great choice! View the
+              <button @click="activeTab = 'guides'" class="feedback-link">Guides tab</button>
+              for posting tips on your selected communities.
+            </span>
+          </div>
+        </div>
+
         <!-- Community Selection Grid -->
         <div class="communities-grid">
           <div
@@ -71,9 +83,9 @@
         <!-- Community Guide Sections -->
         <div class="guides-container">
           <div
-            v-for="community in communities"
+            v-for="community in sortedCommunities"
             :key="`guide-${community.id}`"
-            class="guide-section"
+            :class="['guide-section', { 'guide-selected': selectedCommunities.includes(community.id) }]"
           >
             <!-- Guide Header (Clickable) -->
             <button
@@ -299,6 +311,17 @@ const tabs = [
 const communities = computed(() => communityPostsTask.communities)
 const schedulingTools = computed(() => communityPostsTask.schedulingTools)
 
+// Sort communities so selected ones appear first in guides tab
+const sortedCommunities = computed(() => {
+  return [...communities.value].sort((a, b) => {
+    const aSelected = selectedCommunities.value.includes(a.id)
+    const bSelected = selectedCommunities.value.includes(b.id)
+    if (aSelected && !bSelected) return -1
+    if (!aSelected && bSelected) return 1
+    return 0
+  })
+})
+
 // Methods
 const selectCommunity = (communityId) => {
   const index = selectedCommunities.value.indexOf(communityId)
@@ -416,6 +439,63 @@ const saveData = () => {
   margin: 0;
 }
 
+/* Selection Feedback Banner */
+.selection-feedback {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedback-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.feedback-badge {
+  background: #10b981;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.feedback-text {
+  font-size: 14px;
+  color: #065f46;
+}
+
+.feedback-link {
+  background: none;
+  border: none;
+  color: #059669;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 14px;
+}
+
+.feedback-link:hover {
+  color: #047857;
+}
+
 .communities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -443,6 +523,13 @@ const saveData = () => {
   border-color: #10b981;
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  animation: selectPulse 0.3s ease-out;
+}
+
+@keyframes selectPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 .community-icon {
@@ -562,6 +649,31 @@ const saveData = () => {
 .guide-section:hover {
   border-color: #6366f1;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.guide-section.guide-selected {
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.guide-section.guide-selected .guide-header {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.guide-section.guide-selected .guide-header::after {
+  content: '✓ Selected';
+  position: absolute;
+  right: 60px;
+  background: #10b981;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.guide-header {
+  position: relative;
 }
 
 .guide-header {

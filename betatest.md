@@ -38,7 +38,7 @@ Recruit 10-20 beta testers within 1-2 weeks, with $50-200 budget, focused on AI 
 Looking for 15 beta testers for Launchpilot
 
 I built an AI marketing tool that helps entrepreneurs create sales pages,
-email sequences, ad strategies, and 32 other marketing tasks.
+email sequences, ad strategies, and 33 marketing tasks total.
 
 What you get:
 - $10 Amazon gift card for 30 min of testing + feedback
@@ -65,7 +65,7 @@ Interested? [Link to signup form]
 - What's your experience level with marketing? (Beginner, Intermediate, Expert)
 
 **Section 2: Tasks Tested (4 questions)**
-- Which AI tasks did you test? (Checkbox list of all 32 tasks)
+- Which AI tasks did you test? (Checkbox list of all 33 tasks)
 - Which task was most useful to you? (Dropdown)
 - Which task was least useful? (Dropdown)
 - How many tasks did you complete? (1-3, 4-6, 7-10, 10+)

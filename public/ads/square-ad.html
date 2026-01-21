@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .ad-container {
+      width: 1200px;
+      height: 1200px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Subtle grid pattern */
+    .ad-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    /* Glow effects */
+    .glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+      bottom: 100px;
+      right: -100px;
+    }
+
+    .content {
+      z-index: 1;
+      max-width: 900px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 40px;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 30px;
+    }
+
+    h1 span {
+      display: block;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 26px;
+      line-height: 1.5;
+      margin-bottom: 50px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-bottom: 50px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #e2e8f0;
+      font-size: 20px;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+      color: white;
+      padding: 24px 48px;
+      border-radius: 16px;
+      font-size: 24px;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    .cta svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mockup {
+      margin-top: 60px;
+      z-index: 1;
+    }
+
+    .app-preview {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .mini-card {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      width: 280px;
+      text-align: left;
+      backdrop-filter: blur(10px);
+    }
+
+    .mini-card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .mini-card-title {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .mini-card-desc {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .ai-sparkle {
+      color: #a78bfa;
+    }
+  </style>
+</head>
+<body>
+  <div class="ad-container">
+    <div class="glow"></div>
+    <div class="glow-2"></div>
+
+    <div class="content">
+      <div class="badge">AI-POWERED LAUNCH PLATFORM</div>
+      <h1>Get Your First<span>10 Customers</span></h1>
+      <p class="subtitle">AI writes your marketing copy, builds landing pages, and tells you exactly what to do next.</p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">&#10024;</div>
+          <span>AI Copy</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#127760;</div>
+          <span>Landing Pages</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128640;</div>
+          <span>Launch Guide</span>
+        </div>
+      </div>
+
+      <div class="cta">
+        Start Free Today
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="app-preview">
+        <div class="mini-card">
+          <div class="mini-card-icon">&#9998;</div>
+          <div class="mini-card-title">Cold Outreach <span class="ai-sparkle">&#10024;</span></div>
+          <div class="mini-card-desc">AI generates personalized emails that actually get responses</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-icon">&#127912;</div>
+          <div class="mini-card-title">Landing Pages <span class="ai-sparkle">&#10024;</span></div>
+          <div class="mini-card-desc">Build & publish professional pages in minutes</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-icon">&#128202;</div>
+          <div class="mini-card-title">Launch Playbook</div>
+          <div class="mini-card-desc">Step-by-step tasks to get your first customers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

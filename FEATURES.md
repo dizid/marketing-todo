@@ -1,6 +1,6 @@
 # Launchpilot Features
 
-> **AI-Powered Sales & Marketing Command Center** | v0.8
+> **AI-Powered Sales & Marketing Command Center** | v0.9
 
 ---
 
@@ -50,6 +50,12 @@ New users are guided through a streamlined onboarding process:
 | 5. Account | Create your account | Secures your data |
 
 **Session restoration**: Close the browser mid-wizard? Pick up exactly where you left off.
+
+**Email Confirmation**: After signup, users see a dedicated confirmation screen with:
+- Clear instructions and next steps
+- Resend confirmation email button (with cooldown)
+- Direct link to sign-in page
+- Dashboard banner reminder for unconfirmed users
 
 ### Project Setup
 
@@ -574,6 +580,38 @@ Multi-channel comparison:
 
 ## Smart Productivity Features
 
+### Milestone Tracking
+
+Visual progress system celebrating your marketing journey:
+
+**Milestones Tracked:**
+- **First Content Published** - When you publish your first social post or blog
+- **First Landing Page Live** - When you publish your first landing page
+- Additional milestones for key marketing achievements
+
+**Features:**
+- Dashboard widget showing journey progress
+- Celebration animations on achievement
+- Persistent storage of completed milestones
+- Motivational progress indicators
+
+### Social Publishing (Twitter/X)
+
+Publish AI-generated content directly to social platforms:
+
+**Workflow:**
+1. Generate social posts using AI
+2. Review and edit content
+3. Click "Post to X" to publish directly
+4. View live post link after publishing
+
+**Features:**
+- One-click publishing from GeneratePostsMiniApp
+- Twitter/X OAuth connection
+- Copy-to-clipboard fallback for other platforms
+- Character limit warnings
+- Post status tracking (posted/not posted)
+
 ### Intelligent Task Recommendations
 
 AI-powered guidance through a 4-phase marketing journey:
@@ -805,7 +843,14 @@ One task = one AI generation. Examples:
 - **Vitest test framework**
 - Phase 3 SSOT compliance
 
-### Recent Updates (v0.8)
+### Recent Updates (v0.9)
+
+- **Social Publishing**: Post AI-generated content directly to Twitter/X from the app
+- **Milestone Tracking**: Visual journey progress with celebrations for first content, first landing page, etc.
+- **Email Confirmation UX**: Improved onboarding with dedicated confirmation screen and resend capability
+- **EmailConfirmationBanner**: Dashboard reminder for users who haven't confirmed their email
+
+### Previous Updates (v0.8)
 
 - **33 marketing tasks** across 10 categories (added Strategy category)
 - **25 mini-app components** with custom UX beyond simple forms
@@ -855,4 +900,4 @@ One task = one AI generation. Examples:
 
 ---
 
-*Launchpilot v0.8 - AI-powered marketing for everyone*
+*Launchpilot v0.9 - AI-powered marketing for everyone*

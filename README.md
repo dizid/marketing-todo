@@ -6,6 +6,8 @@ AI-powered sales & marketing command center for entrepreneurs. Get your first 10
 
 - **33 AI-Powered Tasks** - Sales pages, email sequences, ad strategies, and more
 - **Landing Page Builder** - Visual builder with live preview and one-click publish
+- **Social Publishing** - Post AI-generated content directly to Twitter/X
+- **Milestone Tracking** - Visual journey progress with achievement celebrations
 - **Smart Recommendations** - 4-phase marketing journey tailored to your experience
 - **Multi-Project Support** - Manage multiple campaigns with isolated data
 - **7-Tier Business Context** - AI outputs improve as you add more context
@@ -73,7 +75,8 @@ src/
 netlify/functions/
 ├── grok-proxy.cjs          # AI generation
 ├── stripe-webhook.cjs      # Payment webhooks
-└── r2-publish.cjs          # Landing page publishing
+├── r2-publish.cjs          # Landing page publishing
+└── social-post.cjs         # Social media publishing
 ```
 
 ## Commands

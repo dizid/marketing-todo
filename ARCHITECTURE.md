@@ -39,13 +39,18 @@ Experience levels control task visibility:
 | File | Purpose |
 |------|---------|
 | `src/stores/projectStore.js` | State management, save logic |
+| `src/stores/milestoneStore.js` | User journey milestone tracking |
 | `src/components/TaskMiniApps/core/MiniAppShell.vue` | Renders config-driven tasks |
+| `src/components/Dashboard/MilestoneTracker.vue` | Visual journey progress |
+| `src/components/Dashboard/EmailConfirmationBanner.vue` | Unconfirmed user prompts |
 | `src/services/aiGeneration.js` | Calls Grok API with prompts |
 | `src/services/taskRecommendationEngine.js` | Smart task sequencing |
+| `src/services/socialPublisher.js` | Twitter/X publishing integration |
 | `src/configs/*.config.js` | Task definitions (fields + AI prompts) |
 | `src/configs/unifiedTasks.js` | Task registry (id → config mapping) |
 | `src/data/TASK_DEPENDENCY_MAP.json` | Phase/task structure + experience filters |
 | `src/utils/logger.js` | Environment-aware logging + Sentry |
+| `netlify/functions/social-post.cjs` | Social media publishing endpoint |
 
 ## Database Schema
 

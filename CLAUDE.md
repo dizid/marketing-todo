@@ -22,11 +22,12 @@ Config in `netlify.toml`:
 
 ## Key Directories
 - `src/components/` - Vue components
+- `src/components/Dashboard/` - Dashboard UI (MilestoneTracker, EmailConfirmationBanner, etc.)
 - `src/components/TaskMiniApps/` - Task-specific mini-apps
 - `src/configs/` - Task configurations
-- `src/stores/` - Pinia stores
-- `src/services/` - API services
-- `netlify/functions/` - Serverless functions
+- `src/stores/` - Pinia stores (projectStore, milestoneStore, etc.)
+- `src/services/` - API services (aiGeneration, socialPublisher, etc.)
+- `netlify/functions/` - Serverless functions (grok-proxy, r2-publish, social-post)
 
 ## Commands
 - `netlify dev` - Start dev server

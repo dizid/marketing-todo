@@ -87,9 +87,7 @@
 
 <script setup>
 import { ref, watch, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRoute } from 'vue-router'
 import { generateAIContent } from '../../../services/aiGeneration.js'
-import { useFormFieldInheritance } from '../../../composables/useFormFieldInheritance'
 import { useUnsavedChanges } from '../../../composables/useUnsavedChanges'
 import FormBuilder from '../shared/FormBuilder.vue'
 import AIPanel from '../shared/AIPanel.vue'
@@ -111,7 +109,6 @@ const props = defineProps({
 const emit = defineEmits(['save', 'output'])
 
 const projectStore = useProjectStore()
-const route = useRoute()
 
 // State
 const formBuilder = ref(null)
@@ -126,49 +123,47 @@ const lastKnownSettingsSnapshot = ref(null)
 // Phase 3 Task 3.5: Track unsaved changes
 const unsavedChanges = useUnsavedChanges(props.taskData.formData || {})
 
-// Initialize field inheritance if fieldMappings are configured
-const initializeInheritance = async (forceReload = false) => {
+// Simple pre-fill from project settings (replaces complex inheritance system)
+// Reads directly from projectStore.currentProjectSettings for reliable data
+const prefillFromProject = (forceReload = false) => {
   if (!props.taskConfig.fieldMappings) return
 
-  const projectId = projectStore.currentProject?.id
-  const taskId = route.params.taskId
+  const settings = projectStore.currentProjectSettings || {}
+  const newFormData = { ...formData.value }
 
-  if (!projectId || !taskId) return
-
-  try {
-    // Use new useFormFieldInheritance adapter composable
-    const fieldInheritance = useFormFieldInheritance(projectId, {
-      fieldMappings: props.taskConfig.fieldMappings,
-      requiredFields: []
-    })
-
-    // Initialize the composable
-    await fieldInheritance.initialize()
-
-    // Merge inherited values with current form data (current values take precedence)
-    const currentData = formData.value
-    const inheritedFields = fieldInheritance.inheritedFields
-    const mergedData = { ...currentData }
-
-    // Apply inherited fields that aren't already in form data
-    // If forceReload, overwrite ALL inherited fields with new values
-    Object.entries(inheritedFields.value).forEach(([fieldId, fieldInfo]) => {
-      if (forceReload || !(fieldId in mergedData) || mergedData[fieldId] === null || mergedData[fieldId] === undefined) {
-        mergedData[fieldId] = fieldInfo.value
-      }
-    })
-    formData.value = mergedData
-
-    // Store inheritance metadata for UI indicators
-    inheritanceMetadata.value = fieldInheritance.getSummary
-
-    // Phase 6 Task 6.2: Snapshot current settings for change detection
-    lastKnownSettingsSnapshot.value = JSON.stringify(projectStore.currentProjectSettings || {})
-    inheritanceSourceChanged.value = false
-  } catch (err) {
-    console.error('[MiniAppShell] Error initializing field inheritance:', err)
-    // Silently fail - inheritance is optional enhancement
+  // Map canonical field names to settings properties
+  // These are the fields users fill in during onboarding
+  const settingsMap = {
+    'productDescription': settings.productDescription || settings.description || '',
+    'targetAudience': settings.targetAudience || '',
+    'primaryGoal': settings.primaryGoal || settings.goals || '',
+    'productName': settings.productName || projectStore.projectName || '',
+    'techStack': settings.techStack || '',
+    'marketingBudget': settings.marketingBudget || '',
+    'teamSize': settings.teamSize || '',
+    'targetTimeline': settings.targetTimeline || settings.timeline || ''
   }
+
+  // Pre-fill form fields based on config mappings
+  Object.entries(props.taskConfig.fieldMappings).forEach(([formFieldId, canonicalField]) => {
+    if (!canonicalField) return // null mapping = don't inherit this field
+
+    const currentValue = newFormData[formFieldId]
+    const inheritedValue = settingsMap[canonicalField]
+
+    // Only fill if: forceReload OR field is empty/null/undefined
+    if (forceReload || currentValue === null || currentValue === undefined || currentValue === '') {
+      if (inheritedValue) {
+        newFormData[formFieldId] = inheritedValue
+      }
+    }
+  })
+
+  formData.value = newFormData
+
+  // Snapshot settings for change detection
+  lastKnownSettingsSnapshot.value = JSON.stringify(settings)
+  inheritanceSourceChanged.value = false
 }
 const aiOutput = ref(null)
 const savedItems = ref([...(props.taskData.savedItems || [])])
@@ -228,16 +223,16 @@ const debouncedSave = (newData) => {
   }, 500)
 }
 
-// Initialize inheritance on mount
+// Pre-fill form fields from project settings on mount
 onMounted(() => {
-  initializeInheritance()
+  prefillFromProject()
 })
 
 // Watch for changes to taskConfig fieldMappings
 watch(
   () => props.taskConfig?.fieldMappings,
   () => {
-    initializeInheritance()
+    prefillFromProject()
   }
 )
 
@@ -263,10 +258,10 @@ watch(
   { deep: true }
 )
 
-// Phase 6 Task 6.2: Reload inherited fields with new values
-const reloadInheritedFields = async () => {
-  await initializeInheritance(true) // forceReload = true
-  console.log('[MiniAppShell] Inherited fields reloaded from updated project context')
+// Reload inherited fields with new values from project settings
+const reloadInheritedFields = () => {
+  prefillFromProject(true) // forceReload = true
+  console.log('[MiniAppShell] Form fields reloaded from project settings')
 }
 
 // Phase 6 Task 6.2: Dismiss the notification without reloading

@@ -142,6 +142,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { resetPassword } from '@/utils/supabase'
 import { formatGoal, formatTimeline } from '@/utils/onboardingFormatters'
+import { trackSignUp } from '@/utils/analytics'
 
 const router = useRouter()
 
@@ -251,6 +252,9 @@ const handleSubmit = async () => {
         error.value = result.error?.message || 'Sign up failed. Please check your email is valid.'
         return
       }
+
+      // Track successful signup in GA4
+      trackSignUp('email')
 
       // Handle both email confirmation and auto-confirmation scenarios
       if (result.requiresConfirmation) {

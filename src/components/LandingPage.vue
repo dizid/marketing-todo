@@ -40,22 +40,21 @@
         <!-- Neon Badge -->
         <div class="inline-block">
           <span class="px-4 py-2 border-2 border-cyberpunk-primary text-cyberpunk-primary font-mono text-sm font-bold bg-cyberpunk-primary/10 rounded-none">
-            ⚡ The Future of Sales & Marketing Automation
+            ⚡ AI Marketing for Solo Founders
           </span>
         </div>
 
         <!-- Hero Title -->
         <h1 class="text-6xl sm:text-7xl font-black leading-tight tracking-tighter">
-          <span class="block text-cyberpunk-text">Make Money.</span>
+          <span class="block text-cyberpunk-text">Get Your First</span>
           <span class="block bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
-            Take Action. Win.
+            10 Customers.
           </span>
         </h1>
 
         <!-- Hero Subtitle -->
         <p class="text-xl sm:text-2xl text-cyberpunk-text-secondary max-w-3xl mx-auto leading-relaxed font-light">
-          Your personal AI sales & marketing command center. Turn ideas into revenue. Get motivated. Take action daily.
-          Watch your profits grow with AI-powered assistance at every step.
+          Your AI marketing command center. 35+ mini-apps generate social posts, email sequences, landing pages, and more — so you focus on selling, not writing.
         </p>
 
         <!-- CTA Buttons -->
@@ -64,10 +63,10 @@
             @click="goToAuth('signup')"
             class="group px-10 py-4 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black text-lg rounded-none border-2 border-cyberpunk-primary hover:border-cyberpunk-accent hover:shadow-xl hover:shadow-cyberpunk-primary/60 transition duration-300 transform hover:scale-105 uppercase tracking-wider"
           >
-            Launch Dashboard →
+            Start Free →
           </button>
           <button
-            @click="scrollToSection('features')"
+            @click="() => { trackCtaClick('explore_features', 'hero'); scrollToSection('features') }"
             class="px-10 py-4 border-2 border-cyberpunk-accent text-cyberpunk-accent font-black text-lg rounded-none hover:bg-cyberpunk-accent hover:text-cyberpunk-dark transition duration-300 uppercase tracking-wider"
           >
             Explore Features
@@ -77,6 +76,65 @@
         <!-- Trust Badges -->
         <p class="text-cyberpunk-text-secondary font-mono text-sm pt-4">
           ✓ Free Forever Plan • ✓ 40 AI Generations/Month • ✓ No Credit Card
+        </p>
+      </div>
+    </section>
+
+    <!-- Lead Capture / Waitlist Section -->
+    <section class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <div class="bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 sm:p-12">
+        <h2 class="text-2xl sm:text-3xl font-black mb-4 tracking-tight">
+          <span class="bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent bg-clip-text text-transparent">
+            Get Early Access
+          </span>
+        </h2>
+        <p class="text-cyberpunk-text-secondary mb-8 max-w-lg mx-auto">
+          Join founders already using AI to land their first customers. Free forever plan included.
+        </p>
+
+        <!-- Success State -->
+        <div v-if="leadCaptureSuccess" class="py-8">
+          <div class="text-5xl mb-4">🚀</div>
+          <h3 class="text-xl font-black text-cyberpunk-primary mb-2">You're on the list!</h3>
+          <p class="text-cyberpunk-text-secondary">We'll notify you when new features drop.</p>
+        </div>
+
+        <!-- Form -->
+        <form
+          v-else
+          name="waitlist"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          @submit.prevent="handleLeadCapture"
+          class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto"
+        >
+          <input type="hidden" name="form-name" value="waitlist" />
+          <p class="hidden">
+            <label>Don't fill this out: <input name="bot-field" /></label>
+          </p>
+
+          <input
+            v-model="leadEmail"
+            type="email"
+            name="email"
+            placeholder="founder@example.com"
+            required
+            :disabled="leadCaptureLoading"
+            class="flex-1 px-4 py-3 bg-cyberpunk-dark border-2 border-cyberpunk-primary/40 text-cyberpunk-text placeholder-cyberpunk-text-secondary/50 font-mono focus:border-cyberpunk-primary focus:outline-none"
+            aria-label="Email address for waitlist"
+          />
+          <button
+            type="submit"
+            :disabled="leadCaptureLoading"
+            class="px-8 py-3 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black uppercase tracking-wider border-2 border-cyberpunk-primary hover:shadow-lg hover:shadow-cyberpunk-primary/50 transition duration-300 disabled:opacity-50"
+          >
+            {{ leadCaptureLoading ? 'Joining...' : 'Join Waitlist' }}
+          </button>
+        </form>
+
+        <p v-if="leadCaptureError" class="text-cyberpunk-accent mt-4 text-sm font-mono">
+          {{ leadCaptureError }}
         </p>
       </div>
     </section>
@@ -145,6 +203,65 @@
           <p class="text-cyberpunk-text-secondary leading-relaxed">
             See which tasks make you money. Analytics dashboard shows ROI on every action. Double down on winners.
           </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t-2 border-cyberpunk-primary/30">
+      <h2 class="text-5xl font-black text-center mb-4 tracking-tighter">
+        <span class="bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-highlight bg-clip-text text-transparent">
+          Built for Founders Like You
+        </span>
+      </h2>
+      <p class="text-center text-cyberpunk-text-secondary text-lg mb-16 max-w-2xl mx-auto">
+        Solo founders shipping products and landing customers
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div class="bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8">
+          <p class="text-cyberpunk-text leading-relaxed mb-6 italic">
+            "I went from zero marketing to a full content calendar in one afternoon. The AI generates posts that actually sound like me."
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent flex items-center justify-center font-black text-cyberpunk-dark">
+              JK
+            </div>
+            <div>
+              <p class="font-bold text-cyberpunk-text text-sm">Jake K.</p>
+              <p class="text-cyberpunk-text-secondary text-xs">SaaS Founder</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8">
+          <p class="text-cyberpunk-text leading-relaxed mb-6 italic">
+            "The milestone tracker kept me accountable. Went from idea to first paying customer in 3 weeks using the playbook."
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-cyberpunk-accent to-cyberpunk-highlight flex items-center justify-center font-black text-cyberpunk-dark">
+              SM
+            </div>
+            <div>
+              <p class="font-bold text-cyberpunk-text text-sm">Sarah M.</p>
+              <p class="text-cyberpunk-text-secondary text-xs">E-commerce Founder</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8">
+          <p class="text-cyberpunk-text leading-relaxed mb-6 italic">
+            "Best part: I don't need 5 different marketing tools anymore. LaunchPilot handles content, email sequences, and landing pages in one place."
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-cyberpunk-highlight to-cyberpunk-primary flex items-center justify-center font-black text-cyberpunk-dark">
+              AP
+            </div>
+            <div>
+              <p class="font-bold text-cyberpunk-text text-sm">Alex P.</p>
+              <p class="text-cyberpunk-text-secondary text-xs">Indie Developer</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -284,37 +401,84 @@
       </p>
 
       <div class="space-y-4">
-        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
-          <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I upgrade to Pro anytime?</h3>
-          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+        <!-- Product Questions -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(0)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">What marketing tasks can I do with LaunchPilot?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[0] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[0]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            LaunchPilot has 35+ AI-powered mini-apps covering everything: social media posts, email sequences, landing pages, blog posts, competitor analysis, sales funnels, ad copy, and more. Each task guides you step-by-step with AI generating the content.
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(1)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">How does the AI content generation work?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[1] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[1]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            You fill in a few details about your product and audience, and our AI generates ready-to-use marketing content in seconds. Edit, copy, and publish. It works for social posts, emails, landing page copy, blog drafts, and more.
+          </p>
+        </div>
+
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(2)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-highlight uppercase tracking-wide">Is my data secure?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[2] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[2]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            Yes. We use Supabase for authentication and data storage with row-level security. Your data is encrypted in transit and at rest. We never share your content or business information with third parties.
+          </p>
+        </div>
+
+        <!-- Pricing & Billing Questions -->
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(3)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I upgrade to Pro anytime?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[3] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[3]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
             Absolutely! Upgrade instantly anytime. You'll get immediate access to 400 generations/month and all Pro features. Billing resets on the 1st of each month.
           </p>
         </div>
 
-        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
-          <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Do unused generations carry over?</h3>
-          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(4)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Do unused generations carry over?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[4] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[4]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
             No, your monthly AI generation quota resets on the 1st of each month. Use them throughout the month or they reset. Pro tip: Plan your content calendar to maximize your allocations!
           </p>
         </div>
 
-        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
-          <h3 class="text-lg font-black text-cyberpunk-highlight uppercase tracking-wide">What payment methods do you accept?</h3>
-          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
-            We accept all major credit cards (Visa, Mastercard, AmEx), PayPal, Apple Pay, and Google Pay through Stripe. All payments are encrypted and secure. You can manage your payment method anytime.
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-highlight/40 p-8 rounded-none hover:border-cyberpunk-highlight hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(5)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-highlight uppercase tracking-wide">What payment methods do you accept?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[5] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[5]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+            We accept all major credit cards (Visa, Mastercard, AmEx), PayPal, Apple Pay, and Google Pay through Stripe. All payments are encrypted and secure.
           </p>
         </div>
 
-        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
-          <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I cancel Pro subscription?</h3>
-          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-primary/40 p-8 rounded-none hover:border-cyberpunk-primary hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(6)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-primary uppercase tracking-wide">Can I cancel my Pro subscription?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[6] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[6]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
             Yes, cancel anytime with zero penalties. No long-term contracts. You'll revert to the Free plan at the end of your billing cycle. Your tasks and history remain accessible.
           </p>
         </div>
 
-        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer">
-          <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Is there a trial for Pro?</h3>
-          <p class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
+        <div class="group bg-cyberpunk-surface border-2 border-cyberpunk-accent/40 p-8 rounded-none hover:border-cyberpunk-accent hover:bg-cyberpunk-surface/80 transition duration-300 cursor-pointer" @click="toggleFaq(7)">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-cyberpunk-accent uppercase tracking-wide">Is there a trial for Pro?</h3>
+            <span class="text-cyberpunk-text-secondary text-xl transition-transform duration-300" :class="{ 'rotate-180': faqOpen[7] }">&#9660;</span>
+          </div>
+          <p v-show="faqOpen[7]" class="text-cyberpunk-text-secondary mt-3 leading-relaxed">
             Your Free plan IS the trial! 40 AI generations/month + all core features. Try everything risk-free. When you're ready to scale, upgrade to Pro.
           </p>
         </div>
@@ -327,18 +491,18 @@
         <h2 class="text-6xl sm:text-7xl font-black mb-6 tracking-tighter">
           <span class="block text-cyberpunk-text mb-3">Ready to</span>
           <span class="bg-gradient-to-r from-cyberpunk-primary via-cyberpunk-accent to-cyberpunk-highlight bg-clip-text text-transparent">
-            Make Real Money?
+            Start Building?
           </span>
         </h2>
         <p class="text-xl sm:text-2xl text-cyberpunk-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-          Stop dreaming. Start doing. Launch your Launchpilot dashboard today and turn your sales & marketing into a revenue-generating machine.
+          Join founders using AI to build their marketing engine. Start with 40 free AI generations — no credit card required.
         </p>
 
         <button
           @click="goToAuth('signup')"
           class="group px-12 py-5 bg-gradient-to-r from-cyberpunk-primary to-cyberpunk-accent text-cyberpunk-dark font-black text-xl rounded-none border-2 border-cyberpunk-primary hover:border-cyberpunk-highlight hover:shadow-2xl hover:shadow-cyberpunk-primary/60 transition duration-300 transform hover:scale-110 uppercase tracking-widest"
         >
-          Launch Now →
+          Start Free →
         </button>
 
         <p class="text-cyberpunk-text-secondary font-mono text-sm mt-8">
@@ -350,10 +514,10 @@
     <!-- Footer -->
     <footer class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t-2 border-cyberpunk-primary/30 text-center">
       <p class="text-cyberpunk-text-secondary font-mono">
-        &copy; 2025 Launchpilot. Built for online revenue makers.
+        &copy; 2026 LaunchPilot. Built for founders who ship.
       </p>
       <p class="text-cyberpunk-text-secondary/60 text-sm mt-2 font-mono">
-        Make money. Take action. Win.
+        <a href="https://x.com/launchpilot_app" target="_blank" rel="noopener noreferrer" class="hover:text-cyberpunk-primary transition">@launchpilot_app</a>
       </p>
     </footer>
   </div>
@@ -362,12 +526,117 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { useHead } from '@unhead/vue'
+import { trackLeadCapture, trackCtaClick } from '@/utils/analytics'
+
+// SEO meta tags, Open Graph, Twitter Card, and JSON-LD structured data
+useHead({
+  title: 'LaunchPilot - AI Marketing Command Center for Founders',
+  meta: [
+    { name: 'description', content: 'Get your first 10 customers with AI-powered marketing. 35+ mini-apps for content, email, landing pages & more. Free forever plan.' },
+    { name: 'keywords', content: 'AI marketing tools, solo founder marketing, get first customers, marketing automation, startup marketing, AI content generation' },
+    { property: 'og:title', content: 'LaunchPilot - AI Marketing Command Center for Founders' },
+    { property: 'og:description', content: 'Get your first 10 customers with AI-powered marketing. 35+ mini-apps, guided tasks, and AI copy generation.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: 'https://launchpilot.marketing' },
+    { property: 'og:image', content: 'https://launchpilot.marketing/original-rocket-logo.png' },
+    { property: 'og:site_name', content: 'LaunchPilot' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:site', content: '@launchpilot_app' },
+    { name: 'twitter:title', content: 'LaunchPilot - AI Marketing Command Center for Founders' },
+    { name: 'twitter:description', content: 'Get your first 10 customers with AI-powered marketing. Free forever plan.' },
+    { name: 'twitter:image', content: 'https://launchpilot.marketing/original-rocket-logo.png' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://launchpilot.marketing' }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'LaunchPilot',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: 'https://launchpilot.marketing',
+        description: 'AI-powered marketing command center that helps founders get their first 10 customers with guided tasks, AI copy generation, and landing page publishing.',
+        offers: [
+          {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+            name: 'Starter',
+            description: '40 AI Generations/Month, AI Motivation Engine, Task Checklists'
+          },
+          {
+            '@type': 'Offer',
+            price: '19',
+            priceCurrency: 'USD',
+            name: 'Pro',
+            description: '400 AI Generations/Month, Advanced Analytics, Priority Support'
+          }
+        ],
+        creator: {
+          '@type': 'Organization',
+          name: 'LaunchPilot',
+          url: 'https://launchpilot.marketing'
+        }
+      })
+    }
+  ]
+})
 
 const router = useRouter()
 const pricingSection = ref(null)
 const featuresSection = ref(null)
 
+// FAQ toggle state
+const faqOpen = ref({})
+const toggleFaq = (index) => {
+  faqOpen.value[index] = !faqOpen.value[index]
+}
+
+// Lead capture form state
+const leadEmail = ref('')
+const leadCaptureSuccess = ref(false)
+const leadCaptureLoading = ref(false)
+const leadCaptureError = ref('')
+
+const handleLeadCapture = async () => {
+  leadCaptureError.value = ''
+  leadCaptureLoading.value = true
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(leadEmail.value)) {
+    leadCaptureError.value = 'Please enter a valid email address.'
+    leadCaptureLoading.value = false
+    return
+  }
+
+  try {
+    const formData = new URLSearchParams()
+    formData.append('form-name', 'waitlist')
+    formData.append('email', leadEmail.value)
+
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    })
+
+    trackLeadCapture('landing_waitlist')
+    leadCaptureSuccess.value = true
+  } catch (err) {
+    leadCaptureError.value = 'Something went wrong. Please try again.'
+    console.error('Lead capture error:', err)
+  } finally {
+    leadCaptureLoading.value = false
+  }
+}
+
 const goToAuth = (mode) => {
+  trackCtaClick(`${mode}_button`, 'navigation')
   // Redirect signup to onboarding wizard, login to auth page
   if (mode === 'signup') {
     router.push('/welcome')

@@ -14,6 +14,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import * as Sentry from '@sentry/vue'
 import App from './App.vue'
+import { createUnhead } from '@unhead/vue'
 import router from './router/index.js'
 import './assets/main.css'
 
@@ -44,6 +45,9 @@ app.use(createPinia())
 
 // Initialize Vue Router
 app.use(router)
+
+// Initialize @unhead/vue for SEO meta tag management
+app.use(createUnhead())
 
 // Mount app to DOM
 app.mount('#app')

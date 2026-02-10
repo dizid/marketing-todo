@@ -12,7 +12,10 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:unit": "vitest tests/unit",
-    "test:integration": "vitest tests/integration"
+    "test:integration": "vitest tests/integration",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
   },
   "keywords": [
     "marketing",
@@ -30,6 +33,7 @@
     "@sentry/vue": "^10.32.1",
     "@supabase/supabase-js": "^2.76.1",
     "@tailwindcss/vite": "^4.1.15",
+    "@unhead/vue": "^2.1.4",
     "@vitejs/plugin-vue": "^6.0.1",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
@@ -42,6 +46,7 @@
   },
   "devDependencies": {
     "@pinia/testing": "^1.0.3",
+    "@playwright/test": "^1.58.2",
     "@vitest/coverage-v8": "^4.0.13",
     "@vitest/ui": "^4.0.13",
     "@vue/test-utils": "^2.4.6",

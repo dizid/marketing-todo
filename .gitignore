@@ -1,5 +1,6 @@
 .env
 *.txt
+!public/robots.txt
 dev.txt
 # Logs
 logs
@@ -44,3 +45,8 @@ Thumbs.db
 
 # Personal notes (private)
 personalcoach.md
+
+# Playwright
+tests/e2e/playwright/.auth/
+test-results/
+playwright-report/

@@ -7,6 +7,8 @@
  * Acts as a synchronous fallback to the webhook (useful during local development when webhooks can't reach localhost).
  */
 
+const { verifyAuth, getCorsOrigin } = require('./utils/auth.cjs')
+
 if (!process.env.STRIPE_SECRET_KEY) {
   console.error('[stripe-confirm-payment] CRITICAL: STRIPE_SECRET_KEY not set')
   throw new Error('STRIPE_SECRET_KEY environment variable is required')
@@ -38,37 +40,69 @@ try {
   throw error
 }
 
-const jsonResponse = (statusCode, data) => ({
+const jsonResponse = (statusCode, data, event) => ({
   statusCode,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': getCorsOrigin(event)
+  },
   body: JSON.stringify(data)
 })
 
 exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+      body: ''
+    }
+  }
+
   if (event.httpMethod !== 'POST') {
-    return jsonResponse(405, { error: 'Method not allowed' })
+    return jsonResponse(405, { error: 'Method not allowed' }, event)
   }
 
   try {
-    let userId, paymentIntentId
+    // Verify authentication
+    let verifiedUserId
     try {
-      const parsed = JSON.parse(event.body || '{}')
-      userId = parsed.userId
-      paymentIntentId = parsed.paymentIntentId
-    } catch (error) {
-      console.error('[stripe-confirm-payment] Failed to parse request:', error.message)
-      return jsonResponse(400, { error: 'Invalid JSON in request body' })
+      const auth = await verifyAuth(event)
+      verifiedUserId = auth.userId
+      console.log('[stripe-confirm-payment] Request authenticated')
+    } catch (authError) {
+      console.error('[stripe-confirm-payment] Auth failed:', authError.message)
+      return jsonResponse(401, {
+        error: 'Unauthorized',
+        details: authError.message
+      }, event)
     }
 
+    let paymentIntentId
+    try {
+      const parsed = JSON.parse(event.body || '{}')
+      paymentIntentId = parsed.paymentIntentId
+    } catch (error) {
+      console.error('[stripe-confirm-payment] Failed to parse request')
+      return jsonResponse(400, { error: 'Invalid JSON in request body' }, event)
+    }
+
+    const userId = verifiedUserId
+
     if (!userId || !paymentIntentId) {
-      console.error('[stripe-confirm-payment] Missing userId or paymentIntentId')
+      console.error('[stripe-confirm-payment] Missing parameters')
       return jsonResponse(400, {
         error: 'Missing userId or paymentIntentId',
         received: { userId: !!userId, paymentIntentId: !!paymentIntentId }
-      })
+      }, event)
     }
 
-    console.log('[stripe-confirm-payment] Confirming payment for user:', userId, 'PaymentIntent:', paymentIntentId)
+    console.log('[stripe-confirm-payment] Confirming payment')
 
     // Retrieve the PaymentIntent from Stripe
     let paymentIntent
@@ -76,12 +110,11 @@ exports.handler = async (event) => {
       paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
       console.log('[stripe-confirm-payment] Retrieved PaymentIntent, status:', paymentIntent.status)
     } catch (error) {
-      console.error('[stripe-confirm-payment] Failed to retrieve PaymentIntent:', error.message)
+      console.error('[stripe-confirm-payment] Failed to retrieve PaymentIntent')
       return jsonResponse(400, {
         error: 'Failed to verify payment with Stripe',
-        code: 'PAYMENT_VERIFICATION_FAILED',
-        details: error.message
-      })
+        code: 'PAYMENT_VERIFICATION_FAILED'
+      }, event)
     }
 
     // Check if payment was successful
@@ -91,7 +124,7 @@ exports.handler = async (event) => {
         error: 'Payment did not succeed',
         code: 'PAYMENT_NOT_SUCCEEDED',
         details: `PaymentIntent status: ${paymentIntent.status}`
-      })
+      }, event)
     }
 
     console.log('[stripe-confirm-payment] Payment succeeded, updating subscription status')
@@ -106,12 +139,11 @@ exports.handler = async (event) => {
         .single()
 
       if (selectError) {
-        console.error('[stripe-confirm-payment] Failed to fetch subscription:', selectError)
+        console.error('[stripe-confirm-payment] Failed to fetch subscription')
         return jsonResponse(500, {
           error: 'Subscription not found',
-          code: 'SUBSCRIPTION_NOT_FOUND',
-          details: selectError.message
-        })
+          code: 'SUBSCRIPTION_NOT_FOUND'
+        }, event)
       }
 
       console.log('[stripe-confirm-payment] Found subscription with status:', subData?.status)
@@ -128,31 +160,29 @@ exports.handler = async (event) => {
         .select()
 
       if (updateError) {
-        console.error('[stripe-confirm-payment] Database update error:', updateError)
+        console.error('[stripe-confirm-payment] Database update error')
         throw updateError
       }
 
-      console.log('[stripe-confirm-payment] Successfully updated subscription:', data)
+      console.log('[stripe-confirm-payment] Successfully updated subscription')
 
       return jsonResponse(200, {
         success: true,
         message: 'Subscription activated',
         subscription: data?.[0] || null
-      })
+      }, event)
     } catch (dbError) {
-      console.error('[stripe-confirm-payment] Database operation failed:', dbError)
+      console.error('[stripe-confirm-payment] Database operation failed')
       return jsonResponse(500, {
         error: 'Failed to update subscription',
-        code: 'DATABASE_UPDATE_ERROR',
-        details: dbError.message
-      })
+        code: 'DATABASE_UPDATE_ERROR'
+      }, event)
     }
   } catch (error) {
     console.error('[stripe-confirm-payment] Unhandled error:', error.message)
-    console.error('[stripe-confirm-payment] Error stack:', error.stack)
     return jsonResponse(500, {
       error: 'Failed to confirm payment',
       code: 'INTERNAL_ERROR'
-    })
+    }, event)
   }
 }

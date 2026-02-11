@@ -96,8 +96,8 @@ export class QuotaRepository {
             user_id: userId,
             task_id: taskId,
             model,
-            tokens_in: tokensIn,
-            tokens_out: tokensOut,
+            tokens_input: tokensIn,
+            tokens_output: tokensOut,
             cost,
             created_at: new Date().toISOString()
           }
@@ -184,7 +184,7 @@ export class QuotaRepository {
 
       const { data, error } = await this.supabase
         .from(SUPABASE_CONFIG.TABLES.AI_USAGE)
-        .select('model, tokens_in, tokens_out, cost')
+        .select('model, tokens_input, tokens_output, cost')
         .eq('user_id', userId)
 
       if (error) throw error
@@ -197,7 +197,7 @@ export class QuotaRepository {
       }
 
       data?.forEach(record => {
-        stats.totalTokens += (record.tokens_in || 0) + (record.tokens_out || 0)
+        stats.totalTokens += (record.tokens_input || 0) + (record.tokens_output || 0)
         stats.totalCost += record.cost || 0
 
         if (!stats.byModel[record.model]) {
@@ -209,7 +209,7 @@ export class QuotaRepository {
         }
 
         stats.byModel[record.model].count++
-        stats.byModel[record.model].tokens += (record.tokens_in || 0) + (record.tokens_out || 0)
+        stats.byModel[record.model].tokens += (record.tokens_input || 0) + (record.tokens_output || 0)
         stats.byModel[record.model].cost += record.cost || 0
       })
 

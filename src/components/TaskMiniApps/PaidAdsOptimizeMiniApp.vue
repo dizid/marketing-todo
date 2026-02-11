@@ -460,6 +460,7 @@
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { paidAdsOptimizeTask } from '@/configs/paidAdsOptimize.config'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   taskConfig: {
@@ -789,7 +790,8 @@ const formatContent = (content) => {
   formatted = formatted.replace(/^- (.+)$/gm, '<li>$1</li>')
   formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
 
-  return formatted
+  // Sanitize HTML to prevent XSS
+  return DOMPurify.sanitize(formatted)
 }
 
 // Cleanup timeout on unmount

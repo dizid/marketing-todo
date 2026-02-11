@@ -10,9 +10,11 @@
 
 import { logger } from '@/utils/logger'
 import { checkQuotaBeforeGeneration } from './aiQuotaService'
+import { getAuthHeaders } from '@/utils/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useQuotaStore } from '@/stores/quotaStore'
 import { useProjectStore } from '@/stores/projectStore'
+import { withRetry } from '@/utils/retry'
 
 /**
  * Generate AI content based on configuration
@@ -59,10 +61,19 @@ export async function generateAIContent(config, formData, options = {}) {
     // Don't throw - quota refresh is non-critical
   }
 
-  // Parse response if configured
+  // Parse response if configured (with error handling)
   let output = responseText
   if (aiConfig.parseResponse) {
-    output = aiConfig.parseResponse(responseText)
+    try {
+      output = aiConfig.parseResponse(responseText)
+    } catch (parseErr) {
+      logger.error('[AIGeneration] parseResponse failed', parseErr, {
+        taskId: config.id,
+        responseLength: responseText.length
+      })
+      // Fallback to raw text on parse error
+      output = responseText
+    }
   }
 
   return output
@@ -175,38 +186,42 @@ function processFormData(formData) {
  * @throws {Error} If API call fails
  */
 async function callGrokAPI(prompt, aiConfig, taskId, userId) {
-  // Client-side timeout to prevent hanging requests (90 seconds to allow for Netlify's 60s timeout)
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => {
-    logger.warn('[AIGeneration] Request timed out after 90 seconds')
-    controller.abort()
-  }, 90000)
+  // Wrap API call in retry logic
+  return withRetry(async () => {
+    // Client-side timeout to prevent hanging requests (90 seconds to allow for Netlify's 60s timeout)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      logger.warn('[AIGeneration] Request timed out after 90 seconds')
+      controller.abort()
+    }, 90000)
 
-  try {
-    logger.debug('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
+    try {
+      logger.debug('[AIGeneration] Calling Grok API with prompt length:', prompt.length)
 
-    const messages = [
-      {
-        role: 'user',
-        content: prompt
-      }
-    ]
+      const messages = [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
 
-    const response = await fetch('/.netlify/functions/grok-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'grok-3-fast',
-        messages,
-        temperature: aiConfig.temperature || 0.8,
-        max_tokens: aiConfig.maxTokens || 1500,
-        taskId,      // Send for server-side tracking
-        userId       // Send for server-side tracking
-      }),
-      signal: controller.signal
-    })
+      const authHeaders = await getAuthHeaders()
+      const response = await fetch('/.netlify/functions/grok-proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders
+        },
+        body: JSON.stringify({
+          model: 'grok-3-fast',
+          messages,
+          temperature: aiConfig.temperature || 0.8,
+          max_tokens: aiConfig.maxTokens || 1500,
+          taskId,      // Send for server-side tracking
+          userId       // Send for server-side tracking
+        }),
+        signal: controller.signal
+      })
 
     clearTimeout(timeoutId)
     logger.debug('[AIGeneration] API response status:', response.status)
@@ -238,9 +253,9 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       throw new Error('No content received from AI API')
     }
 
-    // Extract token usage information
-    const tokensInput = data.usage?.prompt_tokens || prompt.length / 4 // Rough estimate if not provided
-    const tokensOutput = data.usage?.completion_tokens || responseText.length / 4 // Rough estimate if not provided
+    // Extract token usage information (improved estimation)
+    const tokensInput = data.usage?.prompt_tokens || Math.ceil(prompt.length / 3.5)
+    const tokensOutput = data.usage?.completion_tokens || Math.ceil(responseText.length / 3.5)
 
     logger.debug('[AIGeneration] Response text obtained, length:', responseText.length)
     logger.debug('[AIGeneration] Token usage', { input: tokensInput, output: tokensOutput })
@@ -250,18 +265,19 @@ async function callGrokAPI(prompt, aiConfig, taskId, userId) {
       tokensInput,
       tokensOutput
     }
-  } catch (err) {
-    clearTimeout(timeoutId)
+    } catch (err) {
+      clearTimeout(timeoutId)
 
-    // Handle abort error with user-friendly message
-    if (err.name === 'AbortError') {
-      logger.error('[AIGeneration] Request was aborted (timeout)')
-      throw new Error('AI generation timed out. Please try again.')
+      // Handle abort error with user-friendly message
+      if (err.name === 'AbortError') {
+        logger.error('[AIGeneration] Request was aborted (timeout)')
+        throw new Error('AI generation timed out. Please try again.')
+      }
+
+      logger.error('[AIGeneration] AI generation error', err)
+      throw err
     }
-
-    logger.error('[AIGeneration] AI generation error', err)
-    throw err
-  }
+  }, { maxRetries: 3, baseBackoff: 1000 })
 }
 
 /**

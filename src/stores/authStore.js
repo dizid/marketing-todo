@@ -21,7 +21,8 @@ import {
   signIn,
   signOut,
   getCurrentUser,
-  onAuthStateChanged
+  onAuthStateChanged,
+  supabase
 } from '@/utils/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -29,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const session = ref(null)
   const isLoading = ref(true)
+  const isInitialized = ref(false)
   const error = ref(null)
 
   // Computed
@@ -36,6 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Initialize auth state by checking for existing session
+   * Sets isInitialized AFTER auth state listener is set up to prevent race conditions
    */
   const initializeAuth = async () => {
     try {
@@ -46,9 +49,17 @@ export const useAuthStore = defineStore('auth', () => {
       const currentSession = await getCurrentUser()
       session.value = currentSession
       user.value = currentSession?.user || null
+
+      // Set up auth state listener
+      subscribeToAuthChanges()
+
+      // Mark as initialized AFTER listener is set up
+      // This ensures downstream systems (quota, etc) don't run before auth is ready
+      isInitialized.value = true
     } catch (err) {
       console.error('Auth initialization error:', err)
       error.value = err.message
+      isInitialized.value = true // Still mark as initialized to prevent blocking
     } finally {
       isLoading.value = false
     }
@@ -141,11 +152,32 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
+  /**
+   * Resend email confirmation
+   * @param {string} email - User email
+   */
+  const resendConfirmationEmail = async (email) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email
+      })
+
+      if (error) throw error
+
+      return { success: true }
+    } catch (err) {
+      console.error('Resend confirmation error:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     user,
     session,
     isLoading,
+    isInitialized,
     error,
 
     // Computed
@@ -157,6 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
     handleSignUp,
     handleSignIn,
     handleSignOut,
-    clearError
+    clearError,
+    resendConfirmationEmail
   }
 })

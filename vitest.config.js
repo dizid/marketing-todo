@@ -16,7 +16,8 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     exclude: [
       '**/node_modules/**',
-      '**/*.manual.test.js' // Manual tests run with node, not vitest
+      '**/*.manual.test.js', // Manual tests run with node, not vitest
+      'tests/e2e/playwright/**' // Playwright tests run via playwright, not vitest
     ],
     coverage: {
       provider: 'v8',

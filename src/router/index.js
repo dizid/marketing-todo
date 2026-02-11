@@ -27,6 +27,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useQuotaStore } from '@/stores/quotaStore'
 import { logger } from '@/utils/logger'
 import AuthForm from '@/components/AuthForm.vue'
 import { DashboardContainer } from '@/components/Dashboard'
@@ -140,17 +141,17 @@ const router = createRouter({
  */
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const quotaStore = useQuotaStore()
 
-  // ALWAYS initialize auth, even if session exists (to ensure session is fresh)
-  // This is critical for payment redirect flows where user is already logged in
-  if (authStore.isLoading) {
-    // Wait for auth to finish loading with timeout
+  // Wait for auth initialization to complete BEFORE proceeding
+  // This prevents race conditions with quota and other downstream systems
+  if (!authStore.isInitialized) {
     await new Promise((resolve, reject) => {
       const startTime = Date.now()
       const timeoutMs = 5000 // 5 second timeout
 
-      const checkAuth = () => {
-        if (!authStore.isLoading) {
+      const checkInitialized = () => {
+        if (authStore.isInitialized) {
           resolve()
           return
         }
@@ -160,20 +161,27 @@ router.beforeEach(async (to, from, next) => {
           return
         }
 
-        // Check every 100ms instead of 50ms for better performance
-        setTimeout(checkAuth, 100)
+        // Check every 100ms
+        setTimeout(checkInitialized, 100)
       }
 
-      checkAuth()
+      checkInitialized()
     }).catch(err => {
-      logger.warn(`Auth loading timeout: ${err.message}`)
+      logger.warn(`Auth initialization timeout: ${err.message}`)
     })
-  } else if (!authStore.session) {
-    // Only initialize if we don't have a session yet
-    await authStore.initializeAuth()
   }
 
   const isAuthenticated = !!authStore.user
+
+  // Initialize quota ONLY after auth is fully initialized and user is authenticated
+  // This prevents the race condition where quota defaults to free tier
+  if (isAuthenticated && authStore.isInitialized && !quotaStore.subscription) {
+    try {
+      await quotaStore.initialize()
+    } catch (err) {
+      logger.warn(`Quota initialization failed: ${err.message}`)
+    }
+  }
 
   // Route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {

@@ -5,6 +5,7 @@
  */
 
 import { logger } from '@/utils/logger'
+import { getAuthHeaders } from '@/utils/supabase'
 
 export class StripeService {
   constructor(stripeApiClient) {
@@ -30,12 +31,14 @@ export class StripeService {
       }
 
       logger.debug('[StripeService] Creating subscription for user:', { userId, priceId })
+      const authHeaders = await getAuthHeaders()
       const response = await fetch(
         `${this.functionsUrl}/stripe-create-subscription`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...authHeaders
           },
           body: JSON.stringify({
             userId,
@@ -90,12 +93,14 @@ export class StripeService {
   async cancelSubscription(userId, subscriptionId) {
     try {
       logger.debug('[StripeService] Cancelling subscription for user:', { userId, subscriptionId })
+      const authHeaders = await getAuthHeaders()
       const response = await fetch(
         `${this.functionsUrl}/stripe-cancel-subscription`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...authHeaders
           },
           body: JSON.stringify({
             userId,
@@ -130,8 +135,11 @@ export class StripeService {
       }
 
       const data = await response.json()
-      logger.debug('[StripeService] Subscription cancelled successfully:', data)
-      return data
+      logger.debug('[StripeService] Subscription cancellation scheduled:', data)
+      return {
+        ...data,
+        userMessage: 'Your premium access will continue until the end of your billing period'
+      }
     } catch (error) {
       logger.error('Error cancelling subscription', error)
       throw {
@@ -161,12 +169,14 @@ export class StripeService {
    */
   async createBillingPortalSession(userId, stripeCustomerId) {
     try {
+      const authHeaders = await getAuthHeaders()
       const response = await fetch(
         `${this.functionsUrl}/stripe-portal-session`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...authHeaders
           },
           body: JSON.stringify({
             userId,
@@ -265,12 +275,14 @@ export class StripeService {
       // Notify backend to confirm payment and update subscription status
       // This ensures the subscription status is updated even if webhook doesn't fire (e.g., during local dev)
       try {
+        const confirmAuthHeaders = await getAuthHeaders()
         const confirmResponse = await fetch(
           `${this.functionsUrl}/stripe-confirm-payment`,
           {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              ...confirmAuthHeaders
             },
             body: JSON.stringify({
               userId,

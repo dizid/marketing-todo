@@ -16,10 +16,16 @@ import * as Sentry from '@sentry/vue'
 import App from './App.vue'
 import { createUnhead } from '@unhead/vue'
 import router from './router/index.js'
+import { logger } from '@/utils/logger'
 import './assets/main.css'
 
 // Create Vue app instance
 const app = createApp(App)
+
+// Global Vue error handler
+app.config.errorHandler = (err, instance, info) => {
+  logger.error('[Vue Error]', err, { componentInfo: info })
+}
 
 // Initialize Sentry error tracking (production only)
 if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
@@ -48,6 +54,15 @@ app.use(router)
 
 // Initialize @unhead/vue for SEO meta tag management
 app.use(createUnhead())
+
+// Global error handlers for uncaught errors
+window.addEventListener('error', (event) => {
+  logger.error('[Global Error]', event.error || new Error(event.message))
+})
+
+window.addEventListener('unhandledrejection', (event) => {
+  logger.error('[Unhandled Rejection]', event.reason)
+})
 
 // Mount app to DOM
 app.mount('#app')

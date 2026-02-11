@@ -7,6 +7,7 @@
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const { createClient } = require('@supabase/supabase-js')
+const { verifyAuth, getCorsOrigin } = require('./utils/auth.cjs')
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -14,71 +15,98 @@ const supabase = createClient(
 )
 
 exports.handler = async (event) => {
-  // Only allow POST
-  if (event.httpMethod !== 'POST') {
-    console.warn('[stripe-cancel-subscription] Invalid HTTP method:', event.httpMethod)
+  const jsonResponse = (statusCode, data) => ({
+    statusCode,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': getCorsOrigin(event)
+    },
+    body: JSON.stringify(data)
+  })
+
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+      body: ''
     }
   }
 
+  // Only allow POST
+  if (event.httpMethod !== 'POST') {
+    console.warn('[stripe-cancel-subscription] Invalid HTTP method:', event.httpMethod)
+    return jsonResponse(405, { error: 'Method not allowed' })
+  }
+
   try {
-    let userId, subscriptionId
+    // Verify authentication
+    let verifiedUserId
     try {
-      const parsed = JSON.parse(event.body || '{}')
-      userId = parsed.userId
-      subscriptionId = parsed.subscriptionId
-    } catch (parseError) {
-      console.error('[stripe-cancel-subscription] Failed to parse request:', parseError.message)
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Invalid JSON in request body' })
-      }
+      const auth = await verifyAuth(event)
+      verifiedUserId = auth.userId
+      console.log('[stripe-cancel-subscription] Request authenticated')
+    } catch (authError) {
+      console.error('[stripe-cancel-subscription] Auth failed:', authError.message)
+      return jsonResponse(401, {
+        error: 'Unauthorized',
+        details: authError.message
+      })
     }
 
-    console.log('[stripe-cancel-subscription] Request - userId:', userId, 'subscriptionId:', subscriptionId)
+    let subscriptionId
+    try {
+      const parsed = JSON.parse(event.body || '{}')
+      subscriptionId = parsed.subscriptionId
+    } catch (parseError) {
+      console.error('[stripe-cancel-subscription] Failed to parse request')
+      return jsonResponse(400, { error: 'Invalid JSON in request body' })
+    }
+
+    const userId = verifiedUserId
+
+    console.log('[stripe-cancel-subscription] Request received')
 
     // Validate input
     if (!userId || !subscriptionId) {
-      console.error('[stripe-cancel-subscription] Validation failed - userId:', userId, 'subscriptionId:', subscriptionId)
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'Missing userId or subscriptionId',
-          received: { userId: !!userId, subscriptionId: !!subscriptionId }
-        })
-      }
+      console.error('[stripe-cancel-subscription] Validation failed')
+      return jsonResponse(400, {
+        error: 'Missing userId or subscriptionId',
+        received: { userId: !!userId, subscriptionId: !!subscriptionId }
+      })
     }
 
-    // Cancel subscription on Stripe
-    console.log('[stripe-cancel-subscription] Cancelling subscription on Stripe:', subscriptionId)
-    let cancelledSubscription
+    // Schedule cancellation at period end on Stripe
+    console.log('[stripe-cancel-subscription] Scheduling cancellation at period end on Stripe')
+    let updatedSubscription
     let stripeError = null
     try {
-      cancelledSubscription = await stripe.subscriptions.cancel(subscriptionId)
-      console.log('[stripe-cancel-subscription] Successfully cancelled subscription on Stripe, status:', cancelledSubscription.status)
+      updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: true
+      })
+      console.log('[stripe-cancel-subscription] Successfully scheduled cancellation, will end at:', new Date(updatedSubscription.current_period_end * 1000).toISOString())
     } catch (error) {
       // If subscription doesn't exist in Stripe, that's OK - likely old test data
       // We still want to update the database to mark it as cancelled
       if (error.code === 'resource_missing') {
-        console.warn('[stripe-cancel-subscription] Subscription not found in Stripe (likely old test data), continuing with DB update:', subscriptionId)
+        console.warn('[stripe-cancel-subscription] Subscription not found in Stripe (likely old test data), continuing with DB update')
         stripeError = null
       } else {
-        console.error('[stripe-cancel-subscription] Failed to cancel subscription on Stripe:', error.message)
-        return {
-          statusCode: 400,
-          body: JSON.stringify({
-            error: 'Failed to cancel subscription on Stripe',
-            code: 'STRIPE_CANCEL_FAILED',
-            details: error.message
-          })
-        }
+        console.error('[stripe-cancel-subscription] Failed to schedule cancellation on Stripe')
+        return jsonResponse(400, {
+          error: 'Failed to schedule cancellation on Stripe',
+          code: 'STRIPE_CANCEL_FAILED'
+        })
       }
     }
 
     // Update database: downgrade to free tier
-    console.log('[stripe-cancel-subscription] Updating database for user:', userId)
+    console.log('[stripe-cancel-subscription] Updating database')
     try {
       // First, get the subscription to see its current state
       const { data: subData, error: selectError } = await supabase
@@ -88,66 +116,49 @@ exports.handler = async (event) => {
         .single()
 
       if (selectError) {
-        console.error('[stripe-cancel-subscription] Failed to fetch subscription:', selectError)
-        return {
-          statusCode: 500,
-          body: JSON.stringify({
-            error: 'Subscription not found',
-            code: 'SUBSCRIPTION_NOT_FOUND',
-            details: selectError.message
-          })
-        }
+        console.error('[stripe-cancel-subscription] Failed to fetch subscription')
+        return jsonResponse(500, {
+          error: 'Subscription not found',
+          code: 'SUBSCRIPTION_NOT_FOUND'
+        })
       }
 
       console.log('[stripe-cancel-subscription] Found subscription with status:', subData?.status)
 
-      // Update to 'cancelled' and 'free' tier
+      // Mark cancellation scheduled, keep tier as premium and status as active
       const { error: updateError, data } = await supabase
         .from('subscriptions')
         .update({
-          tier: 'free',
-          status: 'cancelled',
-          cancelled_at: new Date().toISOString(),
+          cancel_at_period_end: true,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', userId)
         .select()
 
       if (updateError) {
-        console.error('[stripe-cancel-subscription] Database update error:', updateError)
+        console.error('[stripe-cancel-subscription] Database update error')
         throw updateError
       }
 
-      console.log('[stripe-cancel-subscription] Successfully updated subscription:', data)
+      console.log('[stripe-cancel-subscription] Successfully scheduled cancellation at period end')
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          success: true,
-          message: 'Subscription cancelled',
-          subscription: data?.[0] || null
-        })
-      }
+      return jsonResponse(200, {
+        success: true,
+        message: 'Subscription will be cancelled at the end of your billing period',
+        subscription: data?.[0] || null
+      })
     } catch (dbError) {
-      console.error('[stripe-cancel-subscription] Database operation failed:', dbError)
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: 'Failed to update subscription',
-          code: 'DATABASE_UPDATE_ERROR',
-          details: dbError.message
-        })
-      }
+      console.error('[stripe-cancel-subscription] Database operation failed')
+      return jsonResponse(500, {
+        error: 'Failed to update subscription',
+        code: 'DATABASE_UPDATE_ERROR'
+      })
     }
   } catch (error) {
     console.error('[stripe-cancel-subscription] Unhandled error:', error.message)
-    console.error('[stripe-cancel-subscription] Error stack:', error.stack)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Failed to cancel subscription',
-        code: 'INTERNAL_ERROR'
-      })
-    }
+    return jsonResponse(500, {
+      error: 'Failed to cancel subscription',
+      code: 'INTERNAL_ERROR'
+    })
   }
 }

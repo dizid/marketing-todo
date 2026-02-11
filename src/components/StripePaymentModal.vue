@@ -103,6 +103,7 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
 import { StripeService } from '@/services/stripeService'
 import { useQuotaStore } from '@/stores/quotaStore'
+import { logger } from '@/utils/logger'
 
 const props = defineProps({
   isOpen: {
@@ -149,12 +150,12 @@ watch(
   () => props.isOpen,
   async (newVal) => {
     if (newVal) {
-      console.log('[StripePaymentModal] Modal opened, initializing payment...')
+      logger.debug('[StripePaymentModal] Modal opened, initializing payment...')
       isProcessing.value = false
       errorMessage.value = ''
       await initializePayment()
     } else {
-      console.log('[StripePaymentModal] Modal closed, resetting state')
+      logger.debug('[StripePaymentModal] Modal closed, resetting state')
       cleanup()
     }
   },
@@ -189,7 +190,7 @@ async function initializePayment() {
 
     // Invalidate cache to ensure fresh subscription status after payment
     quotaStore.invalidateCache()
-    console.log('[StripePaymentModal] Cache invalidated for fresh status fetch after payment')
+    logger.debug('[StripePaymentModal] Cache invalidated for fresh status fetch after payment')
 
     // Create subscription and get client secret
     const response = await stripeService.createSubscription(
@@ -197,7 +198,7 @@ async function initializePayment() {
       import.meta.env.VITE_STRIPE_PRICE_ID
     )
     clientSecret = response.clientSecret
-    console.log('[StripePaymentModal] Got client secret, initializing payment element')
+    logger.debug('[StripePaymentModal] Got client secret, initializing payment element')
 
     // Initialize payment element
     await stripeService.initializePayment(clientSecret)
@@ -210,9 +211,9 @@ async function initializePayment() {
     await new Promise(resolve => setTimeout(resolve, 0))
     stripeService.stripeApiClient.mountPaymentElement('stripe-payment-element')
 
-    console.log('[StripePaymentModal] Payment element mounted successfully')
+    logger.debug('[StripePaymentModal] Payment element mounted successfully')
   } catch (error) {
-    console.error('Error initializing payment:', error)
+    logger.error('Error initializing payment:', error)
     const errorMsg = error.message || 'Failed to load payment form'
     errorMessage.value = errorMsg
     isLoading.value = false
@@ -242,7 +243,7 @@ async function handlePayment() {
     const attemptPayment = async () => {
       try {
         // Payment Element handles validation automatically
-        console.log('[StripePaymentModal] Confirming payment with Payment Element...')
+        logger.debug('[StripePaymentModal] Confirming payment with Payment Element...')
         const returnUrl = `${import.meta.env.VITE_APP_URL}/app/subscription?payment_success=true`
 
         // Confirm payment with Stripe Payment Element
@@ -257,7 +258,7 @@ async function handlePayment() {
           // Check if error is retryable
           if (error.code && ['card_declined', 'processing_error', 'rate_limit'].includes(error.code) && retries < maxRetries) {
             retries++
-            console.log(`[StripePaymentModal] Retryable error (${error.code}), attempt ${retries + 1}/${maxRetries + 1}`)
+            logger.debug(`[StripePaymentModal] Retryable error (${error.code}), attempt ${retries + 1}/${maxRetries + 1}`)
             errorMessage.value = `${error.message}. Retrying... (${retries}/${maxRetries})`
             // Wait 2 seconds before retrying
             await new Promise(resolve => setTimeout(resolve, 2000))
@@ -266,17 +267,17 @@ async function handlePayment() {
           throw new Error(error.message || 'Payment failed')
         }
 
-        console.log('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
+        logger.debug('[StripePaymentModal] Payment successful:', paymentStatus.paymentIntent.id)
 
         // Emit success immediately - don't wait for webhook
         // The webhook will update the subscription status in the background
         // We invalidate cache so next fetch gets the updated status
         quotaStore.invalidateCache()
-        console.log('[StripePaymentModal] Cache invalidated, webhook will update subscription status in background')
+        logger.debug('[StripePaymentModal] Cache invalidated, webhook will update subscription status in background')
 
         // Reset processing state
         isProcessing.value = false
-        console.log('[StripePaymentModal] Payment processing complete, closing modal')
+        logger.debug('[StripePaymentModal] Payment processing complete, closing modal')
 
         // Emit success
         emit('success', {
@@ -294,7 +295,7 @@ async function handlePayment() {
 
     await attemptPayment()
   } catch (error) {
-    console.error('Error processing payment:', error)
+    logger.error('Error processing payment:', error)
     errorMessage.value = error.message || 'Payment failed. Please try again.'
     isProcessing.value = false
     emit('error', error)

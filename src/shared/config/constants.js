@@ -197,6 +197,15 @@ export const ENV = {
 // SUPABASE CONFIG
 // ============================================================================
 
+export const SUBSCRIPTION_STATUSES = {
+  ACTIVE: 'active',
+  PAST_DUE: 'past_due',
+  CANCELLED: 'cancelled',
+  PENDING: 'pending'
+}
+
+export const SUBSCRIPTION_CACHE_MAX_AGE = 24 * 60 * 60 * 1000
+
 export const SUPABASE_CONFIG = {
   TABLES: {
     PROJECTS: 'projects',

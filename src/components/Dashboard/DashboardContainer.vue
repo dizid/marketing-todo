@@ -135,6 +135,7 @@ import { useSaveState } from '@/composables/useSaveState'
 import { globalPollingControl } from '@/composables/usePollingControl'
 import { getTaskCountsByExperienceLevel } from '@/services/taskRecommendationEngine'
 import { unifiedTasksMap } from '@/configs/unifiedTasks'
+import { logger } from '@/utils/logger'
 
 // Child components
 import ProjectHeader from '../Project/ProjectHeader.vue'
@@ -704,10 +705,10 @@ const handleTaskUpdate = async (updatedTasks) => {
       }
     } catch (err) {
       // Silently fail - recommendation is a nice-to-have feature
-      console.warn('Could not fetch task recommendation:', err)
+      logger.warn('Could not fetch task recommendation:', err)
     }
   } catch (error) {
-    console.error('Error updating tasks:', error)
+    logger.error('Error updating tasks:', error)
   }
 }
 
@@ -718,7 +719,7 @@ const handleTaskRemoved = async (data) => {
   try {
     await projectStore.removeTask(data.taskId)
   } catch (error) {
-    console.error('Error removing task:', error)
+    logger.error('Error removing task:', error)
   }
 }
 
@@ -738,7 +739,7 @@ const handleTaskSave = async (saveData) => {
   try {
     const { taskId, data } = saveData
     if (!taskId || !data) {
-      console.warn('[DashboardContainer] Invalid save data', saveData)
+      logger.warn('[DashboardContainer] Invalid save data', saveData)
       return
     }
 
@@ -754,7 +755,7 @@ const handleTaskSave = async (saveData) => {
     recordSaveSuccess()
   } catch (error) {
     setSaveError(error.message || 'Failed to save task')
-    console.error('[DashboardContainer] Save error:', error)
+    logger.error('[DashboardContainer] Save error:', error)
   } finally {
     setSaving(false)
 
@@ -800,10 +801,10 @@ const handleTaskComplete = async ({ taskId }) => {
         clearTimeout(recommendationDismissTimer.value)
       }
     } catch (err) {
-      console.warn('Could not fetch task recommendation:', err)
+      logger.warn('Could not fetch task recommendation:', err)
     }
   } catch (error) {
-    console.error('Error marking task complete:', error)
+    logger.error('Error marking task complete:', error)
   }
 }
 
@@ -878,7 +879,7 @@ const generateExecutiveSummary = async () => {
 
     executiveSummary.value = result
   } catch (error) {
-    console.error('Error generating executive summary:', error)
+    logger.error('Error generating executive summary:', error)
     summaryError.value = error.message || 'Failed to generate executive summary. Please try again.'
   } finally {
     isGeneratingSummary.value = false
@@ -899,7 +900,7 @@ const handleUpgradeToIntermediate = async () => {
     // Show level-up notification after successful upgrade
     showLevelUpNotification.value = true
   } catch (error) {
-    console.error('Error upgrading experience level:', error)
+    logger.error('Error upgrading experience level:', error)
     showLevelUpNotification.value = false
     unlockedTasksForNotification.value = []
   }
@@ -955,11 +956,11 @@ const exportAsMarkdown = () => {
  */
 const copyToClipboard = (text) => {
   if (!text) {
-    console.warn('Nothing to copy')
+    logger.warn('Nothing to copy')
     return
   }
   navigator.clipboard.writeText(text).catch(err => {
-    console.error('Failed to copy:', err)
+    logger.error('Failed to copy:', err)
   })
 }
 

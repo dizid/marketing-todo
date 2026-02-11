@@ -6,15 +6,13 @@
  * - Check if user has quota remaining
  * - Track AI generation usage
  * - Calculate monthly quotas
- * - Enforce tier-based limits (Free: 20/month, Premium: 200/month)
+ * - Enforce tier-based limits (Free: 40/month, Premium: 400/month)
  */
 
 import { useQuotaStore } from '@/stores/quotaStore'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/utils/supabase'
-
-const FREE_TIER_QUOTA = 20
-const PREMIUM_TIER_QUOTA = 200
+import { FREE_TIER_QUOTA, PREMIUM_TIER_QUOTA } from '@/shared/config/constants'
 
 /**
  * Custom error class for quota exceeded errors
@@ -115,58 +113,9 @@ export const getQuotaPercentage = () => {
   return quotaStore.quotaPercentage
 }
 
-/**
- * Track an AI generation
- * @param {string} taskId - ID of the task that used AI
- * @param {string} model - Model used (grok-2, grok-4-fast)
- * @param {number} tokensInput - Input tokens used
- * @param {number} tokensOutput - Output tokens used
- * @param {number} costEstimate - Estimated cost in USD
- * @returns {Promise<Object>} Tracked usage record
- */
-export const trackGeneration = async (
-  taskId,
-  model = 'grok-4-fast',
-  tokensInput = 0,
-  tokensOutput = 0,
-  costEstimate = 0
-) => {
-  const authStore = useAuthStore()
-  const quotaStore = useQuotaStore()
-
-  if (!authStore.user) {
-    throw new Error('User not authenticated')
-  }
-
-  try {
-    // Record in ai_usage table
-    const { data, error } = await supabase
-      .from('ai_usage')
-      .insert([
-        {
-          user_id: authStore.user.id,
-          task_id: taskId,
-          model,
-          tokens_input: tokensInput,
-          tokens_output: tokensOutput,
-          cost_estimate: costEstimate
-        }
-      ])
-      .select()
-
-    if (error) {
-      throw error
-    }
-
-    // Refresh quota data
-    await quotaStore.fetchAIUsage()
-
-    return data?.[0] || null
-  } catch (err) {
-    console.error('Failed to track AI generation:', err)
-    throw err
-  }
-}
+// DEPRECATED: Client-side tracking has been removed
+// Server-side tracking in grok-proxy is the canonical write path
+// This function is kept for backward compatibility but does nothing
 
 /**
  * Check quota before generating AI

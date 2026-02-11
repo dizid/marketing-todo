@@ -3,7 +3,7 @@
 // Uses normalized task storage (task_form_data, task_saved_items tables)
 
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onScopeDispose } from 'vue'
 import { useAuthStore } from './authStore'
 import { logger } from '@/utils/logger'
 import {
@@ -33,9 +33,13 @@ export const useProjectStore = defineStore('project', () => {
   const projectData = ref({})
   const isLoading = ref(false)
   const error = ref(null)
+  const lastDataFetch = ref(null)
 
   // Get auth store for user info
   const authStore = useAuthStore()
+
+  // Constants for data refresh
+  const STALE_DATA_THRESHOLD = 5 * 60 * 1000 // 5 minutes
 
   // Computed
   const currentProjectSettings = computed(() => projectData.value?.settings || {})
@@ -128,7 +132,7 @@ export const useProjectStore = defineStore('project', () => {
   /**
    * Select a project and load its data
    */
-  const selectProject = async (projectId) => {
+  const selectProject = async (projectId, forceRefresh = false) => {
     isLoading.value = true
     error.value = null
     try {
@@ -138,21 +142,30 @@ export const useProjectStore = defineStore('project', () => {
       currentProjectId.value = projectId
       currentProject.value = project
 
-      // Load project settings/tasks/content
-      let allData = await getAllProjectData(projectId)
-      projectData.value = allData
+      // Check if data is stale and needs refresh
+      const isStale = forceRefresh || !lastDataFetch.value ||
+                     (Date.now() - lastDataFetch.value > STALE_DATA_THRESHOLD)
 
-      // Initialize if first time
-      if (!allData.settings) {
-        await initializeProject(projectId)
-        allData = await getAllProjectData(projectId)
+      if (isStale || !projectData.value.settings) {
+        // Load project settings/tasks/content
+        let allData = await getAllProjectData(projectId)
         projectData.value = allData
-      }
 
-      // Load task form data from normalized storage
-      const taskData = await getAllTaskData(projectId)
-      projectData.value.taskData = taskData
-      logger.debug(`[ProjectStore] Loaded ${Object.keys(taskData).length} tasks`)
+        // Initialize if first time
+        if (!allData.settings) {
+          await initializeProject(projectId)
+          allData = await getAllProjectData(projectId)
+          projectData.value = allData
+        }
+
+        // Load task form data from normalized storage
+        const taskData = await getAllTaskData(projectId)
+        projectData.value.taskData = taskData
+        lastDataFetch.value = Date.now()
+        logger.debug(`[ProjectStore] Loaded ${Object.keys(taskData).length} tasks`)
+      } else {
+        logger.debug('[ProjectStore] Using cached project data (not stale)')
+      }
     } catch (err) {
       error.value = err.message
       logger.error('Error selecting project', err)
@@ -427,6 +440,51 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /**
+   * Force refresh project data (bypasses cache)
+   */
+  const refreshProjectData = async () => {
+    if (!currentProjectId.value) {
+      logger.warn('[ProjectStore] No project selected, cannot refresh')
+      return
+    }
+
+    logger.debug('[ProjectStore] Force refreshing project data')
+    await selectProject(currentProjectId.value, true)
+  }
+
+  /**
+   * Check if data is stale and refresh if needed
+   */
+  const checkAndRefreshIfStale = async () => {
+    if (!currentProjectId.value || !lastDataFetch.value) return
+
+    const isStale = Date.now() - lastDataFetch.value > STALE_DATA_THRESHOLD
+    if (isStale) {
+      logger.debug('[ProjectStore] Data is stale, refreshing')
+      await refreshProjectData()
+    }
+  }
+
+  // Listen for visibility changes to refresh stale data when user returns
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      checkAndRefreshIfStale()
+    }
+  }
+
+  // Set up visibility listener
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+  }
+
+  // Clean up listener when store is disposed
+  onScopeDispose(() => {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  })
+
+  /**
    * Get playbook progress and next task recommendation
    * @returns {Object} Playbook progress with next task
    */
@@ -466,6 +524,7 @@ export const useProjectStore = defineStore('project', () => {
     projectData,
     isLoading,
     error,
+    lastDataFetch,
 
     // Computed
     currentProjectSettings,
@@ -501,6 +560,8 @@ export const useProjectStore = defineStore('project', () => {
     getTaskRecommendation,
     setExperienceLevel,
     setActivePlaybook,
-    getPlaybookRecommendation
+    getPlaybookRecommendation,
+    refreshProjectData,
+    checkAndRefreshIfStale
   }
 })

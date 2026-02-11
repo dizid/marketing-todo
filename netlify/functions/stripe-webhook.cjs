@@ -144,11 +144,20 @@ async function handleSubscriptionUpdated(subscription) {
     ? new Date(subscription.current_period_end * 1000).toISOString()
     : subscription.current_period_end
 
-  // Update period end date if renewed
-  await supabase.from('subscriptions').update({
+  const updateData = {
     current_period_end: periodEnd,
     updated_at: new Date().toISOString()
-  }).eq('user_id', userId)
+  }
+
+  // Check if user has scheduled cancellation
+  if (subscription.cancel_at_period_end) {
+    updateData.cancel_at_period_end = true
+  } else {
+    updateData.cancel_at_period_end = false
+  }
+
+  // Update period end date and cancellation flag
+  await supabase.from('subscriptions').update(updateData).eq('user_id', userId)
 }
 
 /**
@@ -216,12 +225,28 @@ async function handlePaymentFailed(invoice) {
   const userId = await getUserIdFromStripeCustomer(invoice.customer)
 
   if (!userId) {
-    console.error(`Could not find user for customer ${invoice.customer}`)
+    console.error(`[stripe-webhook] Could not find user for customer ${invoice.customer}`)
     return
   }
 
-  // Log failed payment (for future dunning/retry logic)
-  console.log(`Payment failed for user ${userId}: ${invoice.id}`)
+  console.log(`[stripe-webhook] Payment failed for user ${userId}: ${invoice.id}`)
+
+  try {
+    const { data, error } = await supabase.from('subscriptions').update({
+      status: 'past_due',
+      updated_at: new Date().toISOString()
+    }).eq('user_id', userId)
+
+    if (error) {
+      console.error(`[stripe-webhook] Database update error for user ${userId}:`, error)
+      throw error
+    }
+
+    console.log(`[stripe-webhook] Successfully updated subscription status to past_due for user ${userId}:`, data)
+  } catch (error) {
+    console.error(`[stripe-webhook] Failed to update subscription for user ${userId}:`, error.message)
+    throw error
+  }
 }
 
 /**

@@ -331,6 +331,7 @@ import { useProjectStore } from '../stores/projectStore'
 import { generateAIContent } from '@/services/aiGeneration'
 import { isQuotaExceededError, handleQuotaExceededError } from '@/services/aiQuotaService'
 import HelpPanel from '@/components/TaskMiniApps/shared/HelpPanel.vue'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 
@@ -356,7 +357,7 @@ let inheritanceMap = null
 try {
   inheritanceMap = require('@/config/FIELD_INHERITANCE_MAP.json')
 } catch (e) {
-  console.log('Field inheritance map not found - skipping auto-population')
+  logger.debug('Field inheritance map not found - skipping auto-population')
 }
 
 const projectStore = useProjectStore()
@@ -453,9 +454,9 @@ const updateCheckboxField = (fieldId, optionValue, isChecked) => {
 }
 
 const generateAI = async () => {
-  console.log('[UnifiedTaskComponent] generateAI called')
-  console.log('[UnifiedTaskComponent] isFormValid:', isFormValid.value)
-  console.log('[UnifiedTaskComponent] taskConfig:', props.taskConfig)
+  logger.debug('[UnifiedTaskComponent] generateAI called')
+  logger.debug('[UnifiedTaskComponent] isFormValid:', isFormValid.value)
+  logger.debug('[UnifiedTaskComponent] taskConfig:', props.taskConfig)
 
   // Check if AI is configured for this task
   if (!props.taskConfig?.ai) {
@@ -468,7 +469,7 @@ const generateAI = async () => {
     return
   }
 
-  console.log('[UnifiedTaskComponent] Starting generation...')
+  logger.debug('[UnifiedTaskComponent] Starting generation...')
   isGenerating.value = true
   aiError.value = ''
   aiSuccess.value = ''
@@ -523,16 +524,16 @@ const generateAI = async () => {
     }
 
     const responseText = await generateAIContent(config, processedData)
-    console.log('[UnifiedTaskComponent] Raw responseText:', responseText.substring(0, 200) + '...')
+    logger.debug('[UnifiedTaskComponent] Raw responseText:', responseText.substring(0, 200) + '...')
 
     // Parse response if parser provided
     let output = responseText
     if (props.taskConfig.ai.responseParser) {
-      console.log('[UnifiedTaskComponent] Using custom responseParser')
+      logger.debug('[UnifiedTaskComponent] Using custom responseParser')
       output = props.taskConfig.ai.responseParser(responseText)
-      console.log('[UnifiedTaskComponent] Parsed output:', output)
+      logger.debug('[UnifiedTaskComponent] Parsed output:', output)
     } else {
-      console.log('[UnifiedTaskComponent] No responseParser, using raw text')
+      logger.debug('[UnifiedTaskComponent] No responseParser, using raw text')
     }
 
     // Validate response if validator provided
@@ -544,24 +545,24 @@ const generateAI = async () => {
     }
 
     aiOutput.value = output
-    console.log('[UnifiedTaskComponent] aiOutput.value set to:', aiOutput.value)
+    logger.debug('[UnifiedTaskComponent] aiOutput.value set to:', aiOutput.value)
 
     // Automatically copy to clipboard
     if (output) {
       try {
         const textToCopy = typeof output === 'string' ? output : JSON.stringify(output, null, 2)
         await navigator.clipboard.writeText(textToCopy)
-        console.log('[UnifiedTaskComponent] Auto-copied to clipboard')
+        logger.debug('[UnifiedTaskComponent] Auto-copied to clipboard')
         aiSuccess.value = '✓ Generated & Copied to clipboard! Click "Use This" to save.'
       } catch (err) {
-        console.error('[UnifiedTaskComponent] Auto-copy failed:', err)
+        logger.error('[UnifiedTaskComponent] Auto-copy failed:', err)
         aiSuccess.value = 'Generated successfully! Click "Use This" to save.'
       }
     } else {
       aiSuccess.value = 'Generated successfully! Click "Use This" to save.'
     }
   } catch (err) {
-    console.error('AI generation error:', err)
+    logger.error('AI generation error:', err)
     // Check if it's a quota exceeded error - redirect to subscription page
     if (isQuotaExceededError(err)) {
       handleQuotaExceededError(router, err)
@@ -606,21 +607,21 @@ const useAIOutput = () => {
 }
 
 const handleSaveClick = async () => {
-  console.log('[UnifiedTaskComponent] Save button clicked at', new Date().toISOString())
-  console.log('[UnifiedTaskComponent] aiOutput.value:', aiOutput.value)
-  console.log('[UnifiedTaskComponent] aiOutput type:', typeof aiOutput.value)
+  logger.debug('[UnifiedTaskComponent] Save button clicked at', new Date().toISOString())
+  logger.debug('[UnifiedTaskComponent] aiOutput.value:', aiOutput.value)
+  logger.debug('[UnifiedTaskComponent] aiOutput type:', typeof aiOutput.value)
   if (aiOutput.value) {
     if (typeof aiOutput.value === 'string') {
-      console.log('[UnifiedTaskComponent] String length:', aiOutput.value.length)
-      console.log('[UnifiedTaskComponent] First 200 chars:', aiOutput.value.substring(0, 200))
+      logger.debug('[UnifiedTaskComponent] String length:', aiOutput.value.length)
+      logger.debug('[UnifiedTaskComponent] First 200 chars:', aiOutput.value.substring(0, 200))
     } else {
-      console.log('[UnifiedTaskComponent] Is Array:', Array.isArray(aiOutput.value))
-      console.log('[UnifiedTaskComponent] Object keys:', Object.keys(aiOutput.value))
+      logger.debug('[UnifiedTaskComponent] Is Array:', Array.isArray(aiOutput.value))
+      logger.debug('[UnifiedTaskComponent] Object keys:', Object.keys(aiOutput.value))
     }
   }
 
   if (!aiOutput.value) {
-    console.warn('[UnifiedTaskComponent] aiOutput is null/undefined, cannot save')
+    logger.warn('[UnifiedTaskComponent] aiOutput is null/undefined, cannot save')
     aiError.value = 'Nothing to save - generate content first'
     return
   }
@@ -646,7 +647,7 @@ const handleSaveClick = async () => {
 
     // Copy to clipboard
     await navigator.clipboard.writeText(textToCopy)
-    console.log('[UnifiedTaskComponent] Copied to clipboard')
+    logger.debug('[UnifiedTaskComponent] Copied to clipboard')
 
     // Save to results section
     useAIOutput()
@@ -659,7 +660,7 @@ const handleSaveClick = async () => {
       aiSuccess.value = ''
     }, 3000)
   } catch (err) {
-    console.error('[UnifiedTaskComponent] Save/copy failed:', err)
+    logger.error('[UnifiedTaskComponent] Save/copy failed:', err)
     aiError.value = '❌ Error: Could not save'
     setTimeout(() => {
       aiError.value = ''
@@ -680,7 +681,7 @@ const copyToClipboard = async () => {
     hasCopied.value = true
     setTimeout(() => { hasCopied.value = false }, 2000)
   } catch (err) {
-    console.error('Copy failed:', err)
+    logger.error('Copy failed:', err)
     aiError.value = 'Failed to copy to clipboard'
   }
 }
@@ -693,7 +694,7 @@ const copyItem = async (idx) => {
     aiSuccess.value = 'Copied to clipboard!'
     setTimeout(() => { aiSuccess.value = '' }, 2000)
   } catch (err) {
-    console.error('Copy failed:', err)
+    logger.error('Copy failed:', err)
   }
 }
 

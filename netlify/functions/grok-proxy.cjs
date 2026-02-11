@@ -4,6 +4,7 @@
 // Also tracks AI usage to Supabase for quota management
 
 const { createClient } = require('@supabase/supabase-js')
+const { verifyAuth, getCorsOrigin } = require('./utils/auth.cjs')
 
 // Initialize Supabase client with service role for quota tracking
 // Note: These may be undefined - we check in trackAIUsage before using
@@ -25,7 +26,7 @@ try {
  */
 async function trackAIUsage(userId, taskId, model, tokensInput, tokensOutput) {
   try {
-    console.log(`[grok-proxy] Tracking usage: user=${userId}, task=${taskId}, tokens=${tokensOutput}`)
+    console.log('[grok-proxy] Tracking usage for task, tokens:', tokensOutput)
 
     // Verify we have Supabase client initialized
     if (!supabase) {
@@ -47,15 +48,15 @@ async function trackAIUsage(userId, taskId, model, tokensInput, tokensOutput) {
       .select()
 
     if (error) {
-      console.error('[grok-proxy] Failed to track usage - Error details:', JSON.stringify(error))
+      console.error('[grok-proxy] Failed to track usage')
       // Don't throw - usage tracking should not fail the generation
       return false
     }
 
-    console.log('[grok-proxy] Usage tracked successfully:', data?.[0]?.id || 'inserted')
+    console.log('[grok-proxy] Usage tracked successfully')
     return true
   } catch (err) {
-    console.error('[grok-proxy] Exception in trackAIUsage:', err.message, err.stack)
+    console.error('[grok-proxy] Exception in trackAIUsage:', err.message)
     return false
   }
 }
@@ -129,9 +130,9 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       },
       body: ''
     }
@@ -141,18 +142,33 @@ exports.handler = async (event) => {
     console.error('[grok-proxy] Invalid HTTP method:', event.httpMethod)
     return {
       statusCode: 405,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
       body: JSON.stringify({ error: 'Method Not Allowed' })
     }
   }
 
   try {
+    // Verify authentication
+    let verifiedUserId
+    try {
+      const auth = await verifyAuth(event)
+      verifiedUserId = auth.userId
+      console.log('[grok-proxy] Request authenticated')
+    } catch (authError) {
+      console.error('[grok-proxy] Auth failed:', authError.message)
+      return {
+        statusCode: 401,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+        body: JSON.stringify({ error: 'Unauthorized', details: authError.message })
+      }
+    }
+
     // Parse request body
     if (!event.body) {
       console.error('[grok-proxy] Request body is empty or undefined')
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Request body is empty' })
       }
     }
@@ -161,16 +177,31 @@ exports.handler = async (event) => {
     try {
       requestBody = JSON.parse(event.body)
     } catch (parseError) {
-      console.error('[grok-proxy] Failed to parse request body:', parseError.message)
+      console.error('[grok-proxy] Failed to parse request body')
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Invalid request body format' })
       }
     }
 
-    // Extract fields
-    let { model, messages, temperature, max_tokens, userData, requestType, userId, taskId } = requestBody
+    // Extract fields - use verified userId instead of client-supplied
+    let { model, messages, temperature, max_tokens, userData, requestType, taskId } = requestBody
+    const userId = verifiedUserId
+
+    // Allowlist of permitted models
+    const ALLOWED_MODELS = ['grok-3-fast', 'grok-3', 'grok-2-image-1212']
+    if (model && !ALLOWED_MODELS.includes(model)) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+        body: JSON.stringify({ error: `Model not allowed. Permitted: ${ALLOWED_MODELS.join(', ')}` })
+      }
+    }
+
+    // Clamp temperature and max_tokens to safe ranges
+    temperature = Math.max(0, Math.min(2, temperature || 0.7))
+    max_tokens = Math.max(1, Math.min(4000, max_tokens || 1500))
 
     // Handle different request types
     if (requestType === 'executiveSummary') {
@@ -186,7 +217,7 @@ exports.handler = async (event) => {
       if (!model) {
         return {
           statusCode: 400,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
           body: JSON.stringify({ error: 'Missing required field: model' })
         }
       }
@@ -194,7 +225,7 @@ exports.handler = async (event) => {
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
         return {
           statusCode: 400,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
           body: JSON.stringify({ error: 'Missing or invalid required field: messages' })
         }
       }
@@ -205,8 +236,44 @@ exports.handler = async (event) => {
       console.error('[grok-proxy] GROK_API_KEY environment variable is missing')
       return {
         statusCode: 500,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Server configuration error: Missing API key' })
+      }
+    }
+
+    // Check quota before calling Grok API
+    if (userId) {
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+
+      const { count, error: countError } = await supabase
+        .from('ai_usage')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', startOfMonth.toISOString())
+
+      if (!countError) {
+        // Get user's tier from subscriptions table
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('tier')
+          .eq('user_id', userId)
+          .single()
+
+        const tier = subData?.tier || 'free'
+        const limit = tier === 'premium' ? 400 : 40  // Match QUOTA_CONFIG in constants.js
+
+        if (count >= limit) {
+          return {
+            statusCode: 429,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+            body: JSON.stringify({
+              error: 'Monthly AI generation quota exceeded',
+              quota: { used: count, limit, tier, resetDate: startOfMonth.toISOString() }
+            })
+          }
+        }
       }
     }
 
@@ -249,27 +316,26 @@ exports.handler = async (event) => {
         console.error('[grok-proxy] Grok API request timed out')
         return {
           statusCode: 504,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
           body: JSON.stringify({ error: 'Grok API request timed out' })
         }
       }
-      console.error('[grok-proxy] Failed to connect to Grok API:', fetchError.message)
+      console.error('[grok-proxy] Failed to connect to Grok API')
       return {
         statusCode: 502,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: `Failed to connect to Grok API: ${fetchError.message}` })
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+        body: JSON.stringify({ error: 'Failed to connect to Grok API' })
       }
     }
 
     if (!grokResponse.ok) {
       const errorText = await grokResponse.text()
-      console.error('[grok-proxy] Grok API error:', grokResponse.status, errorText)
+      console.error('[grok-proxy] Grok API error:', grokResponse.status)
       return {
         statusCode: 502,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({
-          error: `Grok API error: ${grokResponse.status}`,
-          details: errorText
+          error: `Grok API error: ${grokResponse.status}`
         })
       }
     }
@@ -279,30 +345,30 @@ exports.handler = async (event) => {
     try {
       responseData = await grokResponse.json()
     } catch (parseError) {
-      console.error('[grok-proxy] Failed to parse Grok API response:', parseError.message)
+      console.error('[grok-proxy] Failed to parse Grok API response')
       return {
         statusCode: 502,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Invalid response format from Grok API' })
       }
     }
 
     // Validate response structure
     if (!responseData.choices || !Array.isArray(responseData.choices) || responseData.choices.length === 0) {
-      console.error('[grok-proxy] Invalid Grok API response structure:', JSON.stringify(responseData, null, 2))
+      console.error('[grok-proxy] Invalid Grok API response structure')
       return {
         statusCode: 502,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Invalid response structure from Grok API' })
       }
     }
 
     const choice = responseData.choices[0]
     if (!choice.message || !choice.message.content) {
-      console.error('[grok-proxy] Missing message content in response:', JSON.stringify(responseData, null, 2))
+      console.error('[grok-proxy] Missing message content in response')
       return {
         statusCode: 502,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'No content in Grok API response' })
       }
     }
@@ -322,19 +388,18 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       },
       body: JSON.stringify(responseData)
     }
   } catch (error) {
-    console.error('[grok-proxy] Unexpected error:', error.message, error.stack)
+    console.error('[grok-proxy] Unexpected error:', error.message)
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: `Failed to process request: ${error.message}` })
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+      body: JSON.stringify({ error: 'Failed to process request' })
     }
   }
 }
-

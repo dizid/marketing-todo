@@ -56,7 +56,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
-import { supabase } from '@/utils/supabase'
 
 const authStore = useAuthStore()
 
@@ -92,12 +91,7 @@ const resendConfirmation = async () => {
   resendError.value = ''
 
   try {
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: authStore.user?.email
-    })
-
-    if (error) throw error
+    await authStore.resendConfirmationEmail(authStore.user?.email)
 
     resendSuccess.value = true
 

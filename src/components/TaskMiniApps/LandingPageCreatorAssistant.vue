@@ -250,7 +250,9 @@ import LandingPagePreview from './components/LandingPagePreview.vue'
 import { generateLandingPageHTML } from '../../services/landingPageExporter'
 import { wizardSteps, fullPageAIPrompt } from '../../configs/landingPageCreatorAssistant.config'
 import { generateAIContent } from '../../services/aiGeneration'
+import { getAuthHeaders } from '@/utils/supabase'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { logger } from '@/utils/logger'
 
 // Milestones
 const milestoneStore = useMilestoneStore()
@@ -358,7 +360,7 @@ const previousStep = () => {
 
 // Generate AI suggestions for a field
 const generateFieldSuggestions = async (fieldId) => {
-  console.log('[LandingPageCreatorAssistant] Generating AI suggestions for field:', fieldId)
+  logger.debug('[LandingPageCreatorAssistant] Generating AI suggestions for field:', fieldId)
 
   currentAIField.value = fieldId
   isGeneratingAI.value = true
@@ -403,7 +405,7 @@ Format as a numbered list with brief explanations.`,
     showAISuggestionsModal.value = true
 
   } catch (err) {
-    console.error('[LandingPageCreatorAssistant] AI generation error:', err)
+    logger.error('[LandingPageCreatorAssistant] AI generation error:', err)
     aiError.value = 'Failed to generate suggestions. Please try again.'
   } finally {
     isGeneratingAI.value = false
@@ -419,7 +421,7 @@ const copyHTMLCode = async () => {
       copySuccess.value = false
     }, 3000)
   } catch (err) {
-    console.error('Failed to copy HTML:', err)
+    logger.error('Failed to copy HTML:', err)
     alert('Failed to copy. Please try again.')
   }
 }
@@ -437,7 +439,7 @@ const downloadHTMLFile = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   } catch (err) {
-    console.error('Failed to download HTML:', err)
+    logger.error('Failed to download HTML:', err)
     alert('Failed to download. Please try again.')
   }
 }
@@ -452,7 +454,7 @@ const generateFullPage = async () => {
     return
   }
 
-  console.log('[LandingPageCreator] Generating full page copy...')
+  logger.debug('[LandingPageCreator] Generating full page copy...')
   isGeneratingFullPage.value = true
   fullPageError.value = null
 
@@ -463,9 +465,10 @@ const generateFullPage = async () => {
       .replace('{tagline}', formData.value.tagline)
 
     // Call Grok API via proxy
+    const authHeaders = await getAuthHeaders()
     const response = await fetch('/.netlify/functions/grok-proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
       body: JSON.stringify({
         model: 'grok-3-fast',
         messages: [{ role: 'user', content: prompt }],
@@ -492,7 +495,7 @@ const generateFullPage = async () => {
     }
 
     const generated = JSON.parse(jsonStr)
-    console.log('[LandingPageCreator] Generated copy:', generated)
+    logger.debug('[LandingPageCreator] Generated copy:', generated)
 
     // Populate form data with generated content
     formData.value.hero_headline = generated.hero_headline || formData.value.hero_headline
@@ -526,7 +529,7 @@ const generateFullPage = async () => {
     }
 
   } catch (err) {
-    console.error('[LandingPageCreator] Full page generation error:', err)
+    logger.error('[LandingPageCreator] Full page generation error:', err)
     fullPageError.value = `Failed to generate: ${err.message}`
   } finally {
     isGeneratingFullPage.value = false
@@ -538,7 +541,7 @@ const generateFullPage = async () => {
  * Returns a live public URL
  */
 const publishToR2 = async () => {
-  console.log('[LandingPageCreator] Publishing to R2...')
+  logger.debug('[LandingPageCreator] Publishing to R2...')
   isPublishing.value = true
   publishError.value = null
   publishedUrl.value = null
@@ -546,9 +549,10 @@ const publishToR2 = async () => {
   try {
     const html = generateLandingPageHTML(formData.value)
 
+    const publishAuthHeaders = await getAuthHeaders()
     const response = await fetch('/.netlify/functions/r2-publish', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...publishAuthHeaders },
       body: JSON.stringify({
         html,
         brandName: formData.value.brand_name
@@ -562,7 +566,7 @@ const publishToR2 = async () => {
 
     const data = await response.json()
     publishedUrl.value = data.url
-    console.log('[LandingPageCreator] Published to:', data.url)
+    logger.debug('[LandingPageCreator] Published to:', data.url)
 
     // Trigger first-landing-page milestone
     if (!milestoneStore.isAchieved('first-landing-page')) {
@@ -570,7 +574,7 @@ const publishToR2 = async () => {
     }
 
   } catch (err) {
-    console.error('[LandingPageCreator] Publish error:', err)
+    logger.error('[LandingPageCreator] Publish error:', err)
     publishError.value = `Failed to publish: ${err.message}`
   } finally {
     isPublishing.value = false
@@ -589,7 +593,7 @@ const copyPublishedUrl = async () => {
       copySuccess.value = false
     }, 3000)
   } catch (err) {
-    console.error('Failed to copy URL:', err)
+    logger.error('Failed to copy URL:', err)
   }
 }
 

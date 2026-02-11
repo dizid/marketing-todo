@@ -24,6 +24,18 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 /**
+ * Get Authorization headers for serverless function calls.
+ * Returns { Authorization: 'Bearer <token>' } if user is logged in, empty object otherwise.
+ */
+export async function getAuthHeaders() {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` }
+  }
+  return {}
+}
+
+/**
  * Authentication Helper Functions
  */
 

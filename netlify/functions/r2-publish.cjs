@@ -3,6 +3,7 @@
 // R2 is S3-compatible, so we use the AWS SDK
 
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
+const { verifyAuth, getCorsOrigin } = require('./utils/auth.cjs')
 
 // Initialize R2 client (S3-compatible)
 const getR2Client = () => {
@@ -42,6 +43,26 @@ function generateId() {
   return Math.random().toString(36).substring(2, 8)
 }
 
+/**
+ * Basic server-side HTML sanitization
+ * Strips script tags, event handlers, and dangerous elements
+ */
+function sanitizeHtml(html) {
+  return html
+    // Remove script tags and content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Remove event handlers (onclick, onerror, onload, etc.)
+    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    // Remove javascript: URLs
+    .replace(/href\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, 'href="#"')
+    .replace(/src\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, 'src=""')
+    // Remove iframe, embed, object tags
+    .replace(/<(iframe|embed|object)\b[^>]*>.*?<\/\1>/gis, '')
+    .replace(/<(iframe|embed|object)\b[^>]*\/?>/gi, '')
+    // Remove base tags (can redirect all relative URLs)
+    .replace(/<base\b[^>]*\/?>/gi, '')
+}
+
 exports.handler = async (event) => {
   console.log('[r2-publish] Function invoked at:', new Date().toISOString())
   console.log('[r2-publish] HTTP Method:', event.httpMethod)
@@ -52,9 +73,9 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       },
       body: ''
     }
@@ -63,17 +84,30 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
       body: JSON.stringify({ error: 'Method Not Allowed' })
     }
   }
 
   try {
+    // Verify authentication
+    try {
+      await verifyAuth(event)
+      console.log('[r2-publish] Request authenticated')
+    } catch (authError) {
+      console.error('[r2-publish] Auth failed:', authError.message)
+      return {
+        statusCode: 401,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+        body: JSON.stringify({ error: 'Unauthorized', details: authError.message })
+      }
+    }
+
     // Parse request body
     if (!event.body) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Request body is empty' })
       }
     }
@@ -84,7 +118,7 @@ exports.handler = async (event) => {
     } catch (parseError) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Invalid request body format' })
       }
     }
@@ -94,7 +128,7 @@ exports.handler = async (event) => {
     if (!html) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
         body: JSON.stringify({ error: 'Missing required field: html' })
       }
     }
@@ -104,18 +138,18 @@ exports.handler = async (event) => {
     const id = generateId()
     const filename = `lp/${slug}-${id}.html`
 
-    console.log('[r2-publish] Publishing to:', filename)
+    console.log('[r2-publish] Publishing file')
 
     // Get R2 client
     const r2 = getR2Client()
     const bucketName = process.env.R2_BUCKET_NAME || 'dizid-shares'
     const publicUrl = process.env.R2_PUBLIC_URL || 'https://pub-b0f91d861de44c319ebbc7452163d7cc.r2.dev'
 
-    // Upload to R2
+    // Upload to R2 with sanitized HTML
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: filename,
-      Body: html,
+      Body: sanitizeHtml(html),
       ContentType: 'text/html; charset=utf-8',
       CacheControl: 'public, max-age=31536000' // Cache for 1 year
     })
@@ -123,15 +157,15 @@ exports.handler = async (event) => {
     await r2.send(command)
 
     const liveUrl = `${publicUrl}/${filename}`
-    console.log('[r2-publish] Successfully published to:', liveUrl)
+    console.log('[r2-publish] Successfully published')
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getCorsOrigin(event),
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       },
       body: JSON.stringify({
         success: true,
@@ -140,11 +174,11 @@ exports.handler = async (event) => {
       })
     }
   } catch (error) {
-    console.error('[r2-publish] Error:', error.message, error.stack)
+    console.error('[r2-publish] Error:', error.message)
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: `Failed to publish: ${error.message}` })
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': getCorsOrigin(event) },
+      body: JSON.stringify({ error: 'Failed to publish' })
     }
   }
 }

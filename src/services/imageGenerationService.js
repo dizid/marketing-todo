@@ -5,6 +5,8 @@
  * with a unified interface.
  */
 
+import { getAuthHeaders } from '@/utils/supabase'
+
 /**
  * Base adapter class - all image providers must implement this interface
  */
@@ -38,9 +40,10 @@ export class ReplicateAdapter extends ImageGenerationAdapter {
     } = options
 
     try {
+      const authHeaders = await getAuthHeaders()
       const response = await this._fetchWithTimeout(this.apiEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           prompt,
           numImages,
@@ -144,9 +147,10 @@ export class GrokAdapter extends ImageGenerationAdapter {
     } = options
 
     try {
+      const authHeaders = await getAuthHeaders()
       const response = await this._fetchWithTimeout(this.apiEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           prompt,
           numImages,

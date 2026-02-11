@@ -3,8 +3,10 @@
        Handles routing and auth state management
   -->
   <div id="app">
-    <!-- Route Views -->
-    <router-view />
+    <!-- Route Views wrapped in ErrorBoundary -->
+    <ErrorBoundary>
+      <router-view />
+    </ErrorBoundary>
   </div>
 </template>
 
@@ -21,6 +23,8 @@
 
 import { onMounted, onBeforeUnmount } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
+import ErrorBoundary from '@/components/ErrorBoundary.vue'
+import { logger } from '@/utils/logger'
 
 const authStore = useAuthStore()
 let unsubscribe = null
@@ -40,7 +44,7 @@ onMounted(async () => {
   if (hash && (hash.includes('type=recovery') || hash.includes('type=signup'))) {
     // User just confirmed email or reset password
     // They should be logged in automatically
-    console.log('Email confirmation detected, user should be authenticated')
+    logger.info('Email confirmation detected, user should be authenticated')
   }
 
   // Subscribe to future auth state changes

@@ -5,16 +5,63 @@
  * API Key stored in Netlify environment variables (REPLICATE_API_KEY)
  */
 
+import { createClient } from '@supabase/supabase-js'
+
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_KEY
-const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
+
+// Initialize Supabase for auth verification
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
+// CORS allowed origins
+const ALLOWED_ORIGINS = [
+  'https://launchpilot.marketing',
+  'https://www.launchpilot.marketing',
+  'http://localhost:3000',
+  'http://localhost:3001'
+]
+
+function getCorsOrigin(event) {
+  const origin = event.headers?.origin || event.headers?.Origin || ''
+  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+}
+
+/**
+ * Verify authentication from Supabase JWT token
+ */
+async function verifyAuth(event) {
+  const authHeader = event.headers?.authorization || event.headers?.Authorization
+  if (!authHeader) {
+    throw new Error('Missing authorization header')
+  }
+
+  const tokenMatch = authHeader.match(/^Bearer (.+)$/)
+  if (!tokenMatch || !tokenMatch[1]) {
+    throw new Error('Invalid authorization header format')
+  }
+
+  const token = tokenMatch[1]
+
+  const { data, error } = await supabase.auth.getUser(token)
+
+  if (error || !data?.user) {
+    throw new Error('Invalid or expired token')
+  }
+
+  return {
+    userId: data.user.id,
+    user: data.user
+  }
+}
 
 // Image generation models (in order of preference/availability)
-// FLUX 1.1 Pro (best quality, 6x faster), fallback to alternatives if unavailable
 const MODELS_TO_TRY = [
-  'black-forest-labs/flux-1.1-pro',     // Best quality, 6x faster
-  'black-forest-labs/flux-dev',         // Free alternative
-  'stability-ai/sdxl-turbo',            // Reliable fallback
-  'runwayml/stable-diffusion-v1-5'      // Last resort
+  'black-forest-labs/flux-1.1-pro',
+  'black-forest-labs/flux-dev',
+  'stability-ai/sdxl-turbo',
+  'runwayml/stable-diffusion-v1-5'
 ]
 
 let MODEL = MODELS_TO_TRY[0]
@@ -56,11 +103,10 @@ function enhancePrompt(prompt, style = 'professional') {
 async function callReplicateAPI(prompt, width, height, count = 1) {
   const predictions = []
 
-  // Create concurrent requests for multiple images
   for (let i = 0; i < count; i++) {
     const seed = Math.floor(Math.random() * 1000000)
 
-    const response = await fetch(REPLICATE_API_URL, {
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
         'Authorization': `Token ${REPLICATE_API_TOKEN}`,
@@ -73,7 +119,7 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
           width: width,
           height: height,
           seed: seed,
-          go_fast: true  // Optimize for speed (FLUX handles quality internally)
+          go_fast: true
         }
       })
     })
@@ -81,15 +127,14 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
     if (!response.ok) {
       const error = await response.text()
 
-      // If it's a permission/access error, throw a specific error
       if (response.status === 422) {
-        console.warn('⚠️ 422 Model Access Error - Replicate account needs verification')
+        console.warn('[generate-design] 422 Model Access Error - Replicate account needs verification')
         const err = new Error('Model access limited - Replicate account needs billing verification')
         err.status = 422
         throw err
       }
 
-      throw new Error(`Replicate API error: ${response.status} ${error}`)
+      throw new Error(`Replicate API error: ${response.status}`)
     }
 
     const prediction = await response.json()
@@ -97,7 +142,7 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
   }
 
   // Poll for completion
-  const maxAttempts = 60 // 120 seconds with 2s intervals
+  const maxAttempts = 60
   let attempts = 0
   const images = []
 
@@ -110,12 +155,11 @@ async function callReplicateAPI(prompt, width, height, count = 1) {
           images.push(...(pred.output || []))
         }
       } else if (pred.status === 'failed') {
-        throw new Error(`Image generation failed: ${pred.error}`)
+        throw new Error('Image generation failed')
       } else {
         allComplete = false
 
-        // Poll this prediction
-        const pollResponse = await fetch(`${REPLICATE_API_URL}/${pred.id}`, {
+        const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${pred.id}`, {
           headers: { 'Authorization': `Token ${REPLICATE_API_TOKEN}` }
         })
 
@@ -146,9 +190,9 @@ export const handler = async (event) => {
   // CORS headers
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': getCorsOrigin(event),
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
 
   // Handle CORS preflight
@@ -166,6 +210,19 @@ export const handler = async (event) => {
   }
 
   try {
+    // Verify authentication
+    try {
+      await verifyAuth(event)
+      console.log('[generate-design] Request authenticated')
+    } catch (authError) {
+      console.error('[generate-design] Auth failed:', authError.message)
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Unauthorized', details: authError.message })
+      }
+    }
+
     // Verify API key is configured
     if (!REPLICATE_API_TOKEN) {
       return {
@@ -213,7 +270,7 @@ export const handler = async (event) => {
       })
     }
   } catch (error) {
-    console.error('Image generation error:', error)
+    console.error('[generate-design] Image generation error')
 
     // Handle 422 model access error with proper status code
     if (error.status === 422) {
@@ -234,7 +291,7 @@ export const handler = async (event) => {
       headers,
       body: JSON.stringify({
         success: false,
-        error: error.message || 'Image generation failed'
+        error: 'Image generation failed'
       })
     }
   }

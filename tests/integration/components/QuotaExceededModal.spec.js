@@ -308,6 +308,6 @@ describe('QuotaExceededModal - Integration Tests', () => {
     const resetDateText = wrapper.text()
     expect(resetDateText).toContain('resets on')
     // The computed property formattedResetDate will be the first of next month
-    expect(resetDateText).toMatch(/Jan \d{1,2}, \d{4}/)
+    expect(resetDateText).toMatch(/[A-Z][a-z]{2} \d{1,2}, \d{4}/)
   })
 })

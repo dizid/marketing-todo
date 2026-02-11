@@ -5,8 +5,57 @@
  * API Key stored in Netlify environment variables (GROK_API_KEY)
  */
 
+import { createClient } from '@supabase/supabase-js'
+
 const GROK_API_KEY = process.env.GROK_API_KEY
 const GROK_API_URL = 'https://api.x.ai/v1/images/generations'
+
+// Initialize Supabase for auth verification
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
+// CORS allowed origins
+const ALLOWED_ORIGINS = [
+  'https://launchpilot.marketing',
+  'https://www.launchpilot.marketing',
+  'http://localhost:3000',
+  'http://localhost:3001'
+]
+
+function getCorsOrigin(event) {
+  const origin = event.headers?.origin || event.headers?.Origin || ''
+  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+}
+
+/**
+ * Verify authentication from Supabase JWT token
+ */
+async function verifyAuth(event) {
+  const authHeader = event.headers?.authorization || event.headers?.Authorization
+  if (!authHeader) {
+    throw new Error('Missing authorization header')
+  }
+
+  const tokenMatch = authHeader.match(/^Bearer (.+)$/)
+  if (!tokenMatch || !tokenMatch[1]) {
+    throw new Error('Invalid authorization header format')
+  }
+
+  const token = tokenMatch[1]
+
+  const { data, error } = await supabase.auth.getUser(token)
+
+  if (error || !data?.user) {
+    throw new Error('Invalid or expired token')
+  }
+
+  return {
+    userId: data.user.id,
+    user: data.user
+  }
+}
 
 /**
  * Map aspect ratio to image dimensions
@@ -60,7 +109,7 @@ async function callGrokAPI(prompt, width, height, count = 1) {
 
     if (!response.ok) {
       const error = await response.text()
-      throw new Error(`Grok API error: ${response.status} ${error}`)
+      throw new Error(`Grok API error: ${response.status}`)
     }
 
     const data = await response.json()
@@ -70,7 +119,7 @@ async function callGrokAPI(prompt, width, height, count = 1) {
 
     return images
   } catch (error) {
-    console.error('Grok API call failed:', error)
+    console.error('[generate-design-grok] Grok API call failed')
     throw error
   }
 }
@@ -82,9 +131,9 @@ export const handler = async (event) => {
   // CORS headers
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': getCorsOrigin(event),
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   }
 
   // Handle CORS preflight
@@ -102,6 +151,19 @@ export const handler = async (event) => {
   }
 
   try {
+    // Verify authentication
+    try {
+      await verifyAuth(event)
+      console.log('[generate-design-grok] Request authenticated')
+    } catch (authError) {
+      console.error('[generate-design-grok] Auth failed:', authError.message)
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Unauthorized', details: authError.message })
+      }
+    }
+
     // Verify API key is configured
     if (!GROK_API_KEY) {
       return {
@@ -152,14 +214,14 @@ export const handler = async (event) => {
       })
     }
   } catch (error) {
-    console.error('Image generation error:', error)
+    console.error('[generate-design-grok] Image generation error')
 
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         success: false,
-        error: error.message || 'Image generation failed'
+        error: 'Image generation failed'
       })
     }
   }

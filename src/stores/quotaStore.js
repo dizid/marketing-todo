@@ -18,6 +18,12 @@ import { QuotaRepository } from '@/domain/repositories'
 import { Quota } from '@/domain/models'
 import { supabase } from '@/utils/supabase'
 import { logger } from '@/shared/utils'
+import {
+  FREE_TIER_QUOTA,
+  PREMIUM_TIER_QUOTA,
+  SUBSCRIPTION_STATUSES,
+  SUBSCRIPTION_CACHE_MAX_AGE
+} from '@/shared/config/constants'
 
 const childLogger = logger.child('quotaStore')
 
@@ -36,18 +42,41 @@ export const useQuotaStore = defineStore('quota', () => {
 
   // Constants
   const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes for normal operations
-  const FREE_TIER_QUOTA = 40 // 40 AI generations per month
-  const PREMIUM_TIER_QUOTA = 400 // 400 AI generations per month
 
   // Guards against concurrent fetches
   let _isFetchingAIUsage = false
 
   // ===== COMPUTED PROPERTIES =====
 
-  // Tier information
+  // Tier information with grace period support
   const tier = computed(() => subscription.value?.tier || 'free')
-  const isFree = computed(() => tier.value === 'free')
-  const isPremium = computed(() => tier.value === 'premium')
+
+  const effectiveTier = computed(() => {
+    if (!subscription.value) return 'free'
+
+    const status = subscription.value.status
+    const currentPeriodEnd = subscription.value.current_period_end
+
+    // If past_due, keep premium access while Stripe retries payment
+    if (status === SUBSCRIPTION_STATUSES.PAST_DUE) {
+      return 'premium'
+    }
+
+    // If cancelled but still within billing period, keep premium access
+    if (status === SUBSCRIPTION_STATUSES.CANCELLED && currentPeriodEnd) {
+      const periodEndDate = new Date(currentPeriodEnd)
+      const now = new Date()
+      if (now < periodEndDate) {
+        return 'premium'
+      }
+    }
+
+    // Otherwise use DB tier
+    return tier.value
+  })
+
+  const isFree = computed(() => effectiveTier.value === 'free')
+  const isPremium = computed(() => effectiveTier.value === 'premium')
 
   // Subscription status
   const subscriptionStatus = computed(() => subscription.value?.status || 'active')
@@ -177,8 +206,16 @@ export const useQuotaStore = defineStore('quota', () => {
       const cached = localStorage.getItem('subscription_cache')
       if (cached) {
         try {
-          const { data } = JSON.parse(cached)
-          subscription.value = data
+          const parsedCache = JSON.parse(cached)
+          const cacheAge = Date.now() - parsedCache.cachedAt
+
+          // Validate cache is not stale
+          if (cacheAge < SUBSCRIPTION_CACHE_MAX_AGE) {
+            subscription.value = parsedCache.data
+          } else {
+            console.warn('[quotaStore] Stale cache rejected, age:', cacheAge)
+            subscription.value = { tier: 'free', status: 'active' }
+          }
         } catch {
           subscription.value = { tier: 'free', status: 'active' }
         }
@@ -230,39 +267,15 @@ export const useQuotaStore = defineStore('quota', () => {
 
   /**
    * Track an AI generation (called after successful AI API call)
+   * DEPRECATED: Usage tracking is now done server-side in grok-proxy
    */
   async function trackAIUsage(taskId, model, tokensInput, tokensOutput, costEstimate = 0) {
-    if (!authStore.user) {
-      console.error('Cannot track AI usage without authenticated user')
-      return null
-    }
+    console.warn('[quotaStore] trackAIUsage is deprecated - tracking is done server-side')
 
-    try {
-      const { data, error: insertError } = await supabase
-        .from('ai_usage')
-        .insert([
-          {
-            user_id: authStore.user.id,
-            task_id: taskId,
-            model: model || 'grok-4-fast',
-            tokens_input: tokensInput || 0,
-            tokens_output: tokensOutput || 0,
-            cost_estimate: costEstimate || 0
-          }
-        ])
-        .select()
+    // Refresh usage count from server to get latest data
+    await fetchAIUsage()
 
-      if (insertError) throw insertError
-
-      // Update local usage
-      await fetchAIUsage()
-
-      return data?.[0] || null
-    } catch (err) {
-      console.error('Failed to track AI usage:', err)
-      error.value = err.message
-      return null
-    }
+    return true
   }
 
   /**
@@ -576,6 +589,7 @@ export const useQuotaStore = defineStore('quota', () => {
 
     // Computed - Tier information
     tier,
+    effectiveTier,
     isFree,
     isPremium,
 

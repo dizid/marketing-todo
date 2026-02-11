@@ -98,8 +98,9 @@
  */
 
 import { ref } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { submitFeedback } from '@/services/feedbackService'
 import { useProjectStore } from '@/stores/projectStore'
+import { useAuthStore } from '@/stores/authStore'
 
 const props = defineProps({
   isVisible: {
@@ -115,6 +116,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submitted'])
 
 const projectStore = useProjectStore()
+const authStore = useAuthStore()
 
 const ratingEmojis = ['😞', '😐', '🙂', '😊', '🤩']
 
@@ -134,16 +136,16 @@ const handleSubmit = async () => {
   isSubmitting.value = true
 
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = authStore.user
 
     if (user) {
-      await supabase.from('user_feedback').insert({
-        user_id: user.id,
-        project_id: projectStore.currentProject?.id || null,
-        task_id: props.taskId,
+      await submitFeedback({
+        userId: user.id,
+        projectId: projectStore.currentProject?.id || null,
+        taskId: props.taskId,
         rating: rating.value,
-        feedback_text: feedbackText.value || null,
-        can_use_as_testimonial: canUseAsTestimonial.value
+        feedbackText: feedbackText.value || null,
+        canUseAsTestimonial: canUseAsTestimonial.value
       })
     }
 

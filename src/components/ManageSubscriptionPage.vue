@@ -308,6 +308,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { StripeService } from '@/services/stripeService'
 import { StripeApiClient } from '@/infrastructure/api/StripeApiClient'
 import StripePaymentModal from '@/components/StripePaymentModal.vue'
+import { logger } from '@/utils/logger'
 
 // Router
 const router = useRouter()
@@ -380,7 +381,7 @@ const handlePaymentSuccess = async (details) => {
 }
 
 const handlePaymentError = (error) => {
-  console.error('Payment error:', error)
+  logger.error('Payment error:', error)
   errorMessage.value = error.message || 'Payment failed. Please try again.'
 }
 
@@ -398,7 +399,7 @@ const confirmCancel = async () => {
   errorMessage.value = ''
 
   try {
-    console.log('[ManageSubscriptionPage] Starting cancellation process...')
+    logger.debug('[ManageSubscriptionPage] Starting cancellation process...')
 
     if (!quotaStore.subscription?.stripe_subscription_id) {
       throw new Error('No active Stripe subscription found')
@@ -410,33 +411,33 @@ const confirmCancel = async () => {
       throw new Error('User not authenticated')
     }
 
-    console.log('[ManageSubscriptionPage] Cancelling subscription for user:', userId)
+    logger.debug('[ManageSubscriptionPage] Cancelling subscription for user:', userId)
 
     // Cancel subscription via Stripe service
     const cancelResult = await stripeService.cancelSubscription(
       userId,
       quotaStore.subscription.stripe_subscription_id
     )
-    console.log('[ManageSubscriptionPage] Cancellation response:', cancelResult)
+    logger.debug('[ManageSubscriptionPage] Cancellation response:', cancelResult)
 
     successMessage.value = 'Subscription cancelled successfully. You are now on the free plan.'
     showCancelConfirm.value = false
     isCancelling.value = false
 
-    console.log('[ManageSubscriptionPage] Invalidating cache and fetching fresh subscription status...')
+    logger.debug('[ManageSubscriptionPage] Invalidating cache and fetching fresh subscription status...')
 
     // Invalidate cache and refresh subscription data
     quotaStore.invalidateCache()
     await quotaStore.fetchSubscriptionStatus(true)
 
-    console.log('[ManageSubscriptionPage] Subscription status refreshed:', quotaStore.subscription)
+    logger.debug('[ManageSubscriptionPage] Subscription status refreshed:', quotaStore.subscription)
 
     // Clear success message after 3 seconds (no redirect)
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
   } catch (err) {
-    console.error('[ManageSubscriptionPage] Cancellation error:', err)
+    logger.error('[ManageSubscriptionPage] Cancellation error:', err)
     errorMessage.value = err.message || 'Failed to cancel subscription. Please try again.'
     isCancelling.value = false
     showCancelConfirm.value = false

@@ -587,7 +587,8 @@ mixpanel.people.set({
 <script setup>
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useProjectStore } from '@/stores/projectStore'
-import { supabase } from '@/utils/supabase'
+import { getAuthHeaders } from '@/utils/supabase'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   taskConfig: {
@@ -723,18 +724,30 @@ const generateTrackingPlan = async () => {
         props.taskConfig.mainGoals.find(g => g.value === wizardData.value.mainGoal)?.label || wizardData.value.mainGoal
       )
 
-    // Call Claude API
-    const { data, error } = await supabase.functions.invoke('generate-content', {
-      body: {
-        prompt,
+    // Call Grok API via Netlify proxy
+    const authHeaders = await getAuthHeaders()
+    const response = await fetch('/.netlify/functions/grok-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+      body: JSON.stringify({
+        model: 'grok-3-fast',
+        messages: [{ role: 'user', content: prompt }],
         temperature: aiConfig.temperature || 0.7,
-        maxTokens: aiConfig.maxTokens || 1500
-      }
+        max_tokens: aiConfig.maxTokens || 1500,
+        taskId: props.taskConfig.id
+      })
     })
 
-    if (error) throw error
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}))
+      throw new Error(errData.error || `API error: ${response.status}`)
+    }
 
-    wizardData.value.aiTrackingPlan = data.content
+    const data = await response.json()
+    const content = data.choices?.[0]?.message?.content
+    if (!content) throw new Error('No content received from AI')
+
+    wizardData.value.aiTrackingPlan = content
     saveProgress()
   } catch (err) {
     console.error('Error generating tracking plan:', err)
@@ -769,7 +782,8 @@ const renderMarkdown = (markdown) => {
     // Line breaks
     .replace(/\n/gim, '<br>')
 
-  return html
+  // Sanitize HTML to prevent XSS
+  return DOMPurify.sanitize(html)
 }
 
 const copyCode = async (codeId) => {

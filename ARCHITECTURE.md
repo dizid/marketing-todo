@@ -148,7 +148,7 @@ netlify dev                    # Full stack (port 3000 + functions 9999)
 npm run dev                    # Vite only (port 3001)
 
 # Testing
-npm test                       # Run 378 tests
+npm test                       # Run 348 tests
 npm run test:watch             # Watch mode
 
 # Production
@@ -168,7 +168,7 @@ netlify deploy --prod          # Deploy to Netlify
 
 ## Testing
 
-378 tests across:
+348 tests across:
 - Unit tests: Experience mode, domain models, services
 - Integration tests: Store interactions, component behavior
 - Mocked Supabase/Stripe for isolation

@@ -94,13 +94,13 @@ Before deploying, ensure you have accounts for:
 
    Product 2: Professional
    - Name: "Launchpilot Professional"
-   - Price: $29/month (or your pricing)
+   - Price: $19/month
    - Recurring: Monthly
    - Copy Price ID → VITE_STRIPE_PRICE_ID
 
    Product 3: Business
    - Name: "Launchpilot Business"
-   - Price: $99/month (or your pricing)
+   - Price: $49/month
    - Recurring: Monthly
    - Copy Price ID → Save for later
    ```

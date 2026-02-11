@@ -7,7 +7,7 @@ Welcome! This guide explains how to contribute to the Sales & Marketing Task Man
 - 📋 [Architecture Guide](./ARCHITECTURE.md) - System design and patterns
 - 📝 [Task Definition Guide](./docs/TASK_DEFINITION_GUIDE.md) - How to create tasks
 - ✅ [Code Review Checklist](./docs/CODE_REVIEW_CHECKLIST.md) - Quality standards
-- 🐛 [Issues](https://github.com/yourrepo/issues) - Report bugs and request features
+- 🐛 [Issues](https://github.com/dizid/marketing-todo/issues) - Report bugs and request features
 
 ## Getting Started
 
@@ -23,7 +23,7 @@ Welcome! This guide explains how to contribute to the Sales & Marketing Task Man
 
 ```bash
 # Clone repository
-git clone https://github.com/yourrepo/sales.git
+git clone https://github.com/dizid/marketing-todo.git
 cd sales
 
 # Install dependencies
@@ -308,7 +308,7 @@ For every new/modified task:
 ### Automated Tests
 
 ```bash
-# Run all tests (378 tests)
+# Run all tests (348 tests)
 npm test
 
 # Watch mode

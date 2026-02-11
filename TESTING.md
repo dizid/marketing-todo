@@ -22,7 +22,7 @@ This document provides a comprehensive guide to the testing patterns and infrast
 | **Use Cases** | 1 | 35+ | 100% |
 | **Stores (Integration)** | 3 | 50+ | 90% |
 | **Components** | 10+ | 200+ | 85% |
-| **Total** | 16+ | 378 | 97% |
+| **Total** | 19 | 348 | 97% |
 
 ## Test Directory Structure
 
@@ -706,6 +706,6 @@ When adding new tests:
 
 ---
 
-**Last Updated**: January 2025
+**Last Updated**: February 2026
 **Test Framework**: Vitest
-**Total Tests**: 378
+**Total Tests**: 348

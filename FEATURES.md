@@ -15,7 +15,7 @@ Launchpilot is an all-in-one AI marketing platform that turns blank pages into l
 - Business context system that makes AI outputs increasingly personalized
 - Multi-project support for managing multiple campaigns simultaneously
 - Real-time sync across devices with conflict detection
-- Stripe + PayPal subscription management
+- Stripe subscription management
 
 No coding. No design skills. Just results.
 
@@ -786,7 +786,6 @@ One task = one AI generation. Examples:
 ### Payment Methods
 
 - Credit/debit cards (Stripe)
-- PayPal
 - Subscription management portal
 - Cancel anytime
 
@@ -825,8 +824,8 @@ One task = one AI generation. Examples:
 - **Frontend**: Vue 3 + Vite + Tailwind CSS + Pinia
 - **Backend**: Netlify Functions (serverless)
 - **Database**: Supabase (PostgreSQL + Row Level Security)
-- **Payments**: Stripe + PayPal
-- **AI**: Grok (xAI) + Replicate FLUX
+- **Payments**: Stripe
+- **AI**: Grok (xAI)
 
 ### AI Providers
 
@@ -834,12 +833,10 @@ One task = one AI generation. Examples:
 |----------|----------|-------|
 | Grok (xAI) | Text generation | grok-3 |
 | Grok (xAI) | Image generation | grok-2-image-1212 |
-| Replicate | Image fallback | FLUX 1.1 Pro |
 
 ### Quality Assurance
 
-- **130+ automated tests**
-- **97% code coverage**
+- **348 automated tests**
 - **Vitest test framework**
 - Phase 3 SSOT compliance
 

@@ -65,7 +65,7 @@ STRIPE_SECRET_KEY=sk_[your-key]
 src/
 ├── components/
 │   ├── Dashboard/          # Main dashboard UI
-│   ├── TaskMiniApps/       # 25 task-specific mini-apps
+│   ├── TaskMiniApps/       # 21 task-specific mini-apps
 │   └── ...
 ├── configs/                # Task definitions
 ├── services/               # API services
@@ -84,7 +84,7 @@ netlify/functions/
 ```bash
 netlify dev          # Development (port 3000)
 npm run build        # Production build
-npm test             # Run 378 tests
+npm test             # Run 348 tests
 ```
 
 ## Documentation

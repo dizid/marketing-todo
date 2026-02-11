@@ -1,0 +1,13 @@
+{
+  "choices": [
+    {
+      "message": {
+        "content": "Here's your AI-generated marketing content:\n\n**Headline:** Launch Your Product with Confidence\n\n**Subheading:** The all-in-one platform that helps founders get their first 10 customers\n\n**Key Benefits:**\n- Save 20+ hours on marketing strategy\n- AI-powered copy that converts\n- Step-by-step launch playbook\n\n**Call to Action:** Start Your Free Trial Today"
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 150,
+    "completion_tokens": 85
+  }
+}
